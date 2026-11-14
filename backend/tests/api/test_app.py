@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any
 
 import boto3  # type: ignore[import-untyped]
+import psycopg
 import pytest
 from botocore.stub import Stubber  # type: ignore[import-untyped]
 from fastapi.testclient import TestClient
@@ -22,6 +23,7 @@ from app.core import storage_s3
 from app.core.settings import Settings
 from app.core.storage import FileSystemStorage, Storage, StorageNotConfigured
 from app.core.storage_async import AsyncStorage
+from tests.jobs.test_worker_main import start_worker, wait_until_it_takes
 from tests.support import loop_watch, make_settings
 
 SLOW_S = 0.4
@@ -81,3 +83,36 @@ def test_opening_the_store_does_not_hold_the_loop(monkeypatch: pytest.MonkeyPatc
         return longest[0]
 
     assert run(start()) < SLOW_S / 2
+
+
+@pytest.mark.pg
+def test_each_process_names_itself_to_the_database(database_url: str) -> None:
+    # pg_stat_activity, and the measurement of sessions read from it, tell the API's sessions from the
+    # worker's by this name
+    app = create_app(make_settings(database_url=database_url))
+
+    async def api_s_name() -> str:
+        async with app.router.lifespan_context(app), app.state.pool.connection() as connection:
+            cursor = await connection.execute("SELECT current_setting('application_name')")
+            found = await cursor.fetchone()
+        assert found is not None
+        return str(found[0])
+
+    worker = start_worker(database_url)
+    try:
+        wait_until_it_takes(worker)
+        with psycopg.connect(database_url, autocommit=True) as look:
+            for _ in range(100):  # the pool connects beside the worker's start
+                workers = look.execute(
+                    "SELECT DISTINCT application_name FROM pg_stat_activity"
+                    " WHERE datname = current_database() AND pid <> pg_backend_pid()"
+                ).fetchall()
+                if workers:
+                    break
+                time.sleep(0.05)
+    finally:
+        worker.kill()
+        worker.wait(10)
+
+    assert run(api_s_name()) == "curricarta-api"
+    assert workers == [("curricarta-worker",)]

@@ -23,17 +23,18 @@ CONNECTION_OPTIONS: dict[str, Any] = {
 }
 
 
-def create_pool(settings: Settings) -> AsyncConnectionPool:
+def create_pool(settings: Settings, *, name: str = "curricarta") -> AsyncConnectionPool:
     """A pool that is not open yet; ``await pool.open(wait=False)`` starts it without the database.
 
     A connection is checked before it is handed out: after a database restart the pool's
-    connections are cut, and each would otherwise fail one request.
+    connections are cut, and each would otherwise fail one request. ``name`` is the sessions'
+    application_name: pg_stat_activity tells the API's from the worker's by it.
     """
     return AsyncConnectionPool(
         settings.database_url.get_secret_value(),
         min_size=settings.db_pool_min_size,
         max_size=settings.db_pool_max_size,
-        kwargs=CONNECTION_OPTIONS,
+        kwargs={**CONNECTION_OPTIONS, "application_name": name},
         check=AsyncConnectionPool.check_connection,
         timeout=settings.db_pool_timeout_s,
         reconnect_timeout=RECONNECT_TIMEOUT_S,

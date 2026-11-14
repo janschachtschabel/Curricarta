@@ -92,7 +92,7 @@ def create_app(settings: Settings) -> FastAPI:
         app.state.mem_exporter = MemExporter(app.state.storage, settings)  # its kept exports, its checks
         # Opened without waiting: the process starts and answers /health while the database
         # is away; /ready says so
-        pool = create_pool(settings)
+        pool = create_pool(settings, name="curricarta-api")
         await pool.open(wait=False)
         app.state.pool = pool
         try:

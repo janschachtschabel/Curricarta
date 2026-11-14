@@ -300,7 +300,7 @@ async def _serve() -> int:
     # Its jobs read and write objects: without its store the worker does not start (the error
     # names the setting), rather than spend an attempt of each job. Opening may ask the service.
     storage = AsyncStorage(await asyncio.to_thread(open_storage, settings))
-    pool = create_pool(settings)
+    pool = create_pool(settings, name="curricarta-worker")
     await pool.open(wait=False)
     try:
         context = JobContext(pool=pool, storage=storage, settings=settings, llm=llm, model=model)
