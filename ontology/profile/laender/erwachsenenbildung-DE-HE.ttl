@@ -1,0 +1,70 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-HE-3309c92f2b22,
+        eb:re-DE-HE-59ac55dbad33,
+        eb:re-DE-HE-63015f9480d5,
+        eb:re-DE-HE-d139ac034766 .
+
+eb:re-DE-HE-3309c92f2b22 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HBUG § 10 Abs. 1 und 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:positiveExample "Die Anerkennung von Bildungsveranstaltungen setzt ... voraus, daß die Eignung des Trägers für die Durchführung von Bildungsveranstaltungen im Sinne dieses Gesetzes anerkannt ist." ;
+    cur:recognitionHint "Trägeranerkennung vor Veranstaltungsanerkennung. Volkshochschulen und Hessischer Volkshochschulverband gelten als anerkannt."@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anerkennung von Trägern" ;
+    cur:verified false .
+
+eb:re-DE-HE-59ac55dbad33 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: VHS Frankfurt Bildungsurlaub Programm 2021 Nr. 02 S. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:negativeHint "Die Kurse tragen das Piktogramm für Bildungsurlaub. Zuständiges Ministerium heute für das Bildungsurlaubsrecht zuständig (§ 16)."@de ;
+    cur:positiveExample "Nachweis der Anerkennung durch das Hessische Sozialministerium" ;
+    cur:recognitionHint "Dem Antrag beim Arbeitgeber beizufügender Nachweis"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Nachweis der Anerkennung durch das Hessische Sozialministerium" ;
+    cur:verified false .
+
+eb:re-DE-HE-63015f9480d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. 2025 Nr. 82 Art. 1 Nr. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:negativeHint "Abkürzung HWBG bleibt."@de ;
+    cur:positiveExample "Gesetz zur Finanzierung der Weiterbildung und des lebensbegleitenden Lernens im Land Hessen (Hessisches Weiterbildungsgesetz — HWBG)" ;
+    cur:recognitionHint "Titel seit 17. November 2025 mit Finanzierungszusatz"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hessisches Weiterbildungsgesetz" ;
+    cur:verified false .
+
+eb:re-DE-HE-d139ac034766 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HBUG § 1 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-politik ;
+    cur:negativeHint "Auszubildende nur politische Bildung und Ehrenamt."@de ;
+    cur:positiveExample "Bildungsurlaub dient der 1. politischen Bildung 2. Schulung (Qualifizierung und Fortbildung) für die Wahrnehmung eines Ehrenamtes oder 3. beruflichen Weiterbildung" ;
+    cur:recognitionHint "Lernbereiche des Bildungsurlaubs"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "politischen Bildung" ;
+    cur:verified false .
+

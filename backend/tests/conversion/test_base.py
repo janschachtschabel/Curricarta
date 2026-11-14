@@ -1,0 +1,229 @@
+"""What a conversion (X0) makes of a document: blocks with stable IDs (plan M1, 3.1; konzept §13.2)."""
+
+import math
+import re
+import subprocess
+import sys
+from pathlib import Path
+from typing import get_args
+
+import pytest
+from pydantic import ValidationError
+
+from app.conversion.base import (
+    Block,
+    Cell,
+    Conversion,
+    EngineName,
+    Finding,
+    UnknownEngine,
+    block_id,
+    cell_id,
+    engine,
+    offered_engines,
+)
+from app.core.settings import REPOSITORY_ONTOLOGY
+from app.domain.blocks import BLOCK_ID, CELL_ID
+from tests.support import without_settings_variables
+
+SHAPES = REPOSITORY_ONTOLOGY / "ontologie" / "cur-shapes.ttl"
+BACKEND = Path(__file__).resolve().parents[2]
+
+
+def text_block(page: int = 1, number: int = 1, text: str = "Lernfeld 1", **fields: object) -> Block:
+    values: dict[str, object] = {
+        "id": block_id(page, number),
+        "page": page,
+        "kind": "text",
+        "text": text,
+        "bbox": (56.0, 70.0, 300.0, 82.0),
+        "font_size": 11.0,
+        "bold": False,
+        "italic": False,
+    }
+    return Block.model_validate(values | fields)
+
+
+def table_block(page: int = 1, number: int = 1) -> Block:
+    cells = [
+        Cell(id=cell_id(1, 1, 1), page=page, row=1, column=1, text="Lernfeld", header=True),
+        Cell(id=cell_id(1, 2, 1), page=page, row=2, column=1, text="LF 1", header=False),
+    ]
+    return text_block(page, number, "| Lernfeld |\n| --- |\n| LF 1 |", kind="table", cells=cells)
+
+
+def a_conversion(**fields: object) -> Conversion:
+    values: dict[str, object] = {
+        "engine": "pdfplumber",
+        "engine_version": "0.11.10",
+        "pages": 2,
+        "printed_pages": ["5", None],
+        "blocks": [text_block(1, 1), table_block(1, 2), text_block(2, 1)],
+        "findings": [Finding(code="unmapped_symbol", params={"codepoint": "U+F0B7", "count": 3})],
+    }
+    return Conversion.model_validate(values | fields)
+
+
+def test_a_block_is_named_by_its_page_and_place() -> None:
+    assert block_id(3, 7) == "p3-b7"
+    assert BLOCK_ID.fullmatch("p3-b7")
+
+
+@pytest.mark.parametrize(("page", "number"), [(0, 1), (1, 0), (-2, 3)])
+def test_pages_and_blocks_count_from_one(page: int, number: int) -> None:
+    with pytest.raises(ValueError, match="from 1"):
+        block_id(page, number)
+
+
+def test_a_cell_is_named_by_its_table_row_and_column_from_one() -> None:
+    # the Kern's own example (cur-kern.ttl, cur:tableCell)
+    assert cell_id(4, 3, 2) == "T4:r3c2"
+    assert CELL_ID.fullmatch("T4:r3c2")
+    with pytest.raises(ValueError, match="from 1"):
+        cell_id(1, 0, 1)
+
+
+def test_the_block_pattern_is_the_one_the_shapes_check() -> None:
+    shapes = SHAPES.read_text(encoding="utf-8")
+
+    (pattern,) = re.findall(r'sh:path cur:blockId ; sh:pattern "([^"]+)"', shapes)
+
+    assert pattern == f"^{BLOCK_ID.pattern}$"
+
+
+def test_a_block_s_name_says_its_page() -> None:
+    with pytest.raises(ValidationError, match="page 2"):
+        text_block(page=1, id="p2-b1")
+
+
+@pytest.mark.parametrize("named", ["p01-b1", "p1-b01", "p1-b0"])
+def test_a_block_is_named_as_block_id_names_it(named: str) -> None:
+    # the pattern of the shapes lets these through; one block, one name
+    with pytest.raises(ValidationError, match=named):
+        text_block(id=named)
+
+
+@pytest.mark.parametrize("named", ["T01:r1c1", "T1:r01c1", "T0:r1c1"])
+def test_a_cell_is_named_as_cell_id_names_it(named: str) -> None:
+    with pytest.raises(ValidationError, match=named):
+        Cell(id=named, page=1, row=1, column=1, text="x", header=False)
+
+
+def test_a_table_holds_cells_and_only_a_table() -> None:
+    assert table_block().cells[0].id == "T1:r1c1"
+    with pytest.raises(ValidationError, match="cells"):
+        text_block(kind="table")
+    with pytest.raises(ValidationError, match="cells"):
+        text_block(cells=table_block().cells)
+
+
+def test_a_cell_s_name_says_its_row_and_column() -> None:
+    with pytest.raises(ValidationError, match="row 2"):
+        Cell(id="T1:r1c1", page=1, row=2, column=1, text="x", header=False)
+
+
+@pytest.mark.parametrize("sign", [chr(0), chr(0xD800), chr(0xDFFF)], ids=["nul", "high", "low"])
+def test_a_text_no_store_keeps_is_refused_in_a_block_and_a_cell(sign: str) -> None:
+    # PostgreSQL's text and jsonb keep neither: a fault of the engine fails in its child, not there
+    with pytest.raises(ValidationError, match="NUL"):
+        text_block(text=f"Lern{sign}feld")
+    with pytest.raises(ValidationError, match="NUL"):
+        Cell(id="T1:r1c1", page=1, row=1, column=1, text=f"Lern{sign}feld", header=False)
+
+
+@pytest.mark.parametrize(
+    "place",
+    [
+        {"bbox": (56.0, 70.0, math.inf, 82.0)},
+        {"bbox": (math.nan, 70.0, 300.0, 82.0)},
+        {"font_size": math.nan},
+    ],
+    ids=["infinite", "nan", "size"],
+)
+def test_a_block_stands_at_finite_numbers(place: dict[str, object]) -> None:
+    # JSON has no NaN: the child would write null, and its answer would fail to read back
+    with pytest.raises(ValidationError, match="finite"):
+        Block.model_validate(text_block().model_dump() | place)
+
+
+def test_a_conversion_says_a_printed_page_or_none_for_each_page() -> None:
+    with pytest.raises(ValidationError, match="printed"):
+        a_conversion(printed_pages=["5"])
+
+
+def test_a_conversion_names_each_block_once_on_one_of_its_pages() -> None:
+    with pytest.raises(ValidationError, match="p1-b1"):
+        a_conversion(blocks=[text_block(1, 1), text_block(1, 1, "again")])
+    with pytest.raises(ValidationError, match="page 3"):
+        a_conversion(blocks=[text_block(3, 1)])
+
+
+def test_a_conversion_goes_as_json_and_comes_back_the_same() -> None:
+    conversion = a_conversion()
+
+    assert Conversion.model_validate_json(conversion.model_dump_json()) == conversion
+
+
+def test_the_register_offers_pdfplumber_and_docling_and_names_them_for_another() -> None:
+    assert offered_engines() == ("pdfplumber", "docling")
+    with pytest.raises(UnknownEngine, match="pdfplumber, docling"):
+        engine("tesseract")
+
+
+def test_the_api_names_the_engines_the_register_offers() -> None:
+    assert get_args(EngineName) == offered_engines()
+
+
+@pytest.mark.parametrize("module", ["app.api.app", "app.jobs.worker"])
+def test_the_api_and_the_worker_load_no_pdf_library(module: str) -> None:
+    # a parser of untrusted files belongs in the converting child alone, which imports its engine
+    check = (
+        f"import sys, {module}\n"
+        "loaded = sorted({'pdfplumber', 'pdfminer', 'pypdfium2', 'docling', 'docling_core', 'torch'}"
+        " & set(sys.modules))\n"
+        "sys.exit(', '.join(loaded) or 0)\n"
+    )
+
+    with without_settings_variables():
+        result = subprocess.run(  # noqa: S603 - fixed code
+            [sys.executable, "-c", check], cwd=BACKEND, check=False, capture_output=True, text=True
+        )
+
+    assert (result.returncode, result.stderr) == (0, "")
+
+
+@pytest.mark.parametrize("name", offered_engines())
+def test_the_engines_that_read_scans_are_named_where_the_api_chooses_without_them(name: str) -> None:
+    # the API imports no engine (no PDF library): it reads the names from app/conversion/job.py
+    import importlib
+
+    from app.conversion import base
+    from app.conversion.job import READS_SCANS
+
+    module, _, cls = base._ENGINES[name].partition(":")
+
+    assert getattr(importlib.import_module(module), cls).reads_scans == (name in READS_SCANS)
+
+
+@pytest.mark.parametrize("name", offered_engines())
+def test_the_types_an_engine_reads_are_named_where_the_api_asks_of_it(name: str) -> None:
+    # the API imports no engine: it reads the types from app/conversion/readers.py, the job writes the
+    # file with the ending each has there
+    import importlib
+
+    from app.conversion import base
+    from app.conversion.readers import ENDINGS, READS
+
+    module, _, cls = base._ENGINES[name].partition(":")
+    formats = getattr(importlib.import_module(module), cls).formats
+
+    assert {ENDINGS[mime] for mime in READS[name]} <= formats
+    assert {ending for ending in formats if ending != ".htm"} == {ENDINGS[mime] for mime in READS[name]}
+
+
+def test_a_block_of_a_file_without_pages_has_no_place() -> None:
+    block = Block(
+        id="p1-b1", page=1, kind="text", text="Ziele", bbox=None, font_size=20, bold=True, italic=False
+    )
+
+    assert block.bbox is None

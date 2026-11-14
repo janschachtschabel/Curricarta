@@ -1,0 +1,220 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-RP-146de1b18259,
+        beruf:re-DE-RP-40d5ec62fbf0,
+        beruf:re-DE-RP-4e0fcade1277,
+        beruf:re-DE-RP-7cef221f596b,
+        beruf:re-DE-RP-addb45588aee,
+        beruf:re-DE-RP-b4f2b78969ae,
+        beruf:re-DE-RP-d4bd4c1caa96,
+        beruf:re-DE-RP-dbd199d11c33,
+        beruf:re-DE-RP-dd71f2b902a4,
+        beruf:re-DE-RP-e6c0b3cccd06,
+        beruf:re-DE-RP-f1e7b2298365,
+        beruf:re-DE-RP-fcde8d234bf8 .
+
+beruf:re-DE-RP-146de1b18259 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Tiefbau 2003 S. 28–29"@de,
+        "Plangeneration laut Länderrecherche: 2003"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "nur in Fassung 2003"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Hinweise zum Unterricht" ;
+    cur:recognitionHint "rechter Spaltenkopf"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zum Unterricht" ;
+    cur:verified false .
+
+beruf:re-DE-RP-40d5ec62fbf0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-kb-1"@de,
+        "Länderrecherche, Beleg E: Pflege 2025 S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Kompetenzbereich ;
+    cur:negativeHint "Verweis auf PflAPrV, Kompetenzbereich I–V nicht als Überschrift"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "beteiligen sich an Teamentwicklungsprozessen … (III.1.e)" ;
+    cur:recognitionHint "Klammerzitat „(III.1.e)\" hinter der Kompetenz"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzbereich (PflAPrV-Codes)" ;
+    cur:verified false .
+
+beruf:re-DE-RP-4e0fcade1277 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-ce-1"@de,
+        "Länderrecherche, Beleg E: Pflege 2025 S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo beruf:CurriculareEinheit ;
+    cur:negativeHint "kein CE-Code im Landesplan (Lernfeld 1–12), Regeln der Vorliste für ^CE greifen hier nicht"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "firmiert die rheinland-pfälzische Lehrplankommission die CE unter Beibehaltung der Titel und der Nummerierung zu Lernfeldern um" ;
+    cur:recognitionHint "im RLP-Plan als „Lernfeld n\" geführt, Titel und Nummerierung der CE bleiben"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Curriculare Einheiten (CE) → Lernfelder" ;
+    cur:verified false .
+
+beruf:re-DE-RP-7cef221f596b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lb-1"@de,
+        "Länderrecherche, Beleg E: Math 2019 S. 18–20"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "hier Teil eines Lernbausteins, die Umsetzungsreihenfolge bleibt der Schule überlassen (S. 5)(anders als Lernbereich als Einheit in FOS/BG)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernbaustein 3 Lernbereich 1: Zusammenhänge, die sich als transzendente Funktionen darstellen lassen, analysieren" ;
+    cur:recognitionHint "„Lernbereich 1:\" unter „Lernbaustein 3\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereich (in Lernbaustein)" ;
+    cur:verified false .
+
+beruf:re-DE-RP-addb45588aee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Bau 2025 S. 16 | FS Sozialpäd. 2024 S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2024, 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:cefr-B2 ;
+    cur:negativeHint "nur Anstreben, bei Unterschreitung angemessene Benotung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zielniveau B2 des gemeinsamen europäischen Referenzrahmens für Sprachen (GER)" ;
+    cur:recognitionHint "„In diesem Lernmodul ist das Zielniveau B2 … anzustreben\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zielniveau B2" ;
+    cur:verified false .
+
+beruf:re-DE-RP-b4f2b78969ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Bau 2025 S. 2"@de,
+        "Plangeneration laut Länderrecherche: ab 01.08.2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Wahlpflicht: Schule definiert Vertiefungsrichtung aus Modulpool, anderen Stundentafeln oder genehmigten Eigenentwürfen, mindestens 80 und höchstens 240 Stunden (S. 15)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "B Wahlpflichtlernmodule 800" ;
+    cur:recognitionHint "Stundentafelzeilen „A Pflichtlernmodule\" und „B Wahlpflichtlernmodule\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahlpflichtlernmodule" ;
+    cur:verified false .
+
+beruf:re-DE-RP-d4bd4c1caa96 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Bau 2025 S. 2"@de,
+        "Plangeneration laut Länderrecherche: ab 01.08.2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Wahlpflicht: Schule definiert Vertiefungsrichtung aus Modulpool, anderen Stundentafeln oder genehmigten Eigenentwürfen, mindestens 80 und höchstens 240 Stunden (S. 15)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "B Wahlpflichtlernmodule 800" ;
+    cur:recognitionHint "Stundentafelzeilen „A Pflichtlernmodule\" und „B Wahlpflichtlernmodule\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pflichtlernmodule" ;
+    cur:verified false .
+
+beruf:re-DE-RP-dbd199d11c33 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BG 2023 Titelblatt | FOS 2010 Titelblatt"@de,
+        "Plangeneration laut Länderrecherche: 2010–2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "„Fachrichtungsbezogener Unterricht\" und „Berufsbezogener Unterricht\" sind Fächer der Stundentafel mit Lernfeldern bzw. Lernbereichen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unterrichtsfach Technik" ;
+    cur:recognitionHint "„Unterrichtsfach X\" im Titel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterrichtsfach" ;
+    cur:verified false .
+
+beruf:re-DE-RP-dd71f2b902a4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Bau 2025 S. 2"@de,
+        "Plangeneration laut Länderrecherche: ab 01.08.2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:avt-bachelor ;
+    cur:negativeHint "Stufe nach § 53a BBiG, Niveau nur an der Qualifikation, nicht an Zielen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Staatlich geprüfte Technikerin /Staatlich geprüfter Techniker Fachrichtung Bautechnik (Bachelor Professional in Technik)" ;
+    cur:recognitionHint "Berufsbezeichnung der Stundentafel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bachelor Professional in Technik" ;
+    cur:verified false .
+
+beruf:re-DE-RP-e6c0b3cccd06 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BF II 2014 S. 32"@de,
+        "Plangeneration laut Länderrecherche: 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Stichwortliste ohne Verbindlichkeitsmarke, in Lernbausteinen heißt es „verbindliche inhaltliche Orientierungen nur dort\" (Math S. 5)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sortiments-, Zeit- und Mengenplanung" ;
+    cur:recognitionHint "Zwischenüberschrift unter den Kompetenzen eines Lernbereichs"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhaltliche Orientierung" ;
+    cur:verified false .
+
+beruf:re-DE-RP-f1e7b2298365 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-inh-1"@de,
+        "Länderrecherche, Beleg E: Math 2019 S. 5 | HBF IT 2019 S. 5 | FS Bau 2025 S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2010–2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Inhalt präzisiert Kompetenz, steht in Klammern hinter der Kompetenz, nicht „wenn sie Kompetenzen konkretisieren oder einschränken\" (Wortlaut der Vorliste weicht ab)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "diese sind kursiv in Klammern den Kompetenzen zugeordnet" ;
+    cur:recognitionHint "„Inhalte … kursiv in Klammern den Kompetenzen zugeordnet\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "kursiv in Klammern" ;
+    cur:verified false .
+
+beruf:re-DE-RP-fcde8d234bf8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PZ-Info 9/2006 Titel"@de,
+        "Plangeneration laut Länderrecherche: 2002–2009 (PZ), 2023 (PL)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Umsetzungshilfe ;
+    cur:negativeHint "Hilfe, nicht verbindlich, kein Lehrplan"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "PZ-Information 9/2006 Handreichung zur Umsetzung der KMK-Rahmenlehrpläne" ;
+    cur:recognitionHint "„PZ-Information n/Jahr Handreichung zur Umsetzung\""@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handreichung zur Umsetzung der KMK-Rahmenlehrpläne" ;
+    cur:verified false .
+

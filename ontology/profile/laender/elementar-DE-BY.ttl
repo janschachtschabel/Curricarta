@@ -1,0 +1,234 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-BY-08fbce3b4993,
+        elem:re-DE-BY-0d4a801b97c8,
+        elem:re-DE-BY-0fdf443d3681,
+        elem:re-DE-BY-1d8b7f3749a7,
+        elem:re-DE-BY-2e0847451a0c,
+        elem:re-DE-BY-6fcbf4bda465,
+        elem:re-DE-BY-703f9268853f,
+        elem:re-DE-BY-750043749d95,
+        elem:re-DE-BY-9ccc9fcffb1f,
+        elem:re-DE-BY-a6fa66ac766c,
+        elem:re-DE-BY-b7140943850e,
+        elem:re-DE-BY-c2f978b58e46,
+        elem:re-DE-BY-d3b1a4da838c,
+        elem:re-DE-BY-d69ee189dc98 .
+
+elem:re-DE-BY-08fbce3b4993 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-cc2b1d8f16a3-BY"@de,
+        "Länderrecherche, Beleg E: BayBEP IFP-Seite und Flipping-Book-Index"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Vorauflagen: \"… bis zur Einschulung\" (7. Aufl. 2016, Titelseite). Kurzform BayBEP/BEP"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Titel der 11. Aufl. 2024"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der Bayerische Bildungs- und Erziehungsplan für Kinder in Tageseinrichtungen" ;
+    cur:verified false .
+
+elem:re-DE-BY-0d4a801b97c8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 7. Aufl. Kap. 7.1 S. 162 | 7.2 S. 191 | 7.3 S. 324–325"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Im IFP-Handbuch Modul B (12/2023) heißt dasselbe \"Reflexionsfragen zur Umsetzung\" (kein Planbegriff)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fragesätze an Team oder Fachkraft. Teils Unterüberschrift \"Leitfragen für die Reflexion des Gesprächsverhaltens\""@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitfragen" ;
+    cur:verified false .
+
+elem:re-DE-BY-0fdf443d3681 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 52"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-physical ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.4"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Physische Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-BY-1d8b7f3749a7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 7. Aufl. Kap. 4.2 S. 37–38"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:negativeHint "Enthält Aufgaben der Fachkräfte und Praxisbeispiele"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Sammelabschnitt mit Feinraster Grundlagen | Aktivitäten bzw. Ansätze | Praxisbeispiele"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen und Beispiele zur Umsetzung" ;
+    cur:verified false .
+
+elem:re-DE-BY-2e0847451a0c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 56"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-responsibility ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.7"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fähigkeit und Bereitschaft zur Verantwortungsübernahme" ;
+    cur:verified false .
+
+elem:re-DE-BY-6fcbf4bda465 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 48"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-motivation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.2"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motivationale Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-BY-703f9268853f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 7. Aufl. Kap. 7.5 S. 244"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Die Überschrift variiert je Bereich (\"bzw. Beobachtung der Lernprozesse\", Kap. 4.2 S. 37). Fachkraft in dritter Person. Anrede mit \"Sie\"/\"ihr\" nicht gefunden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Pädagogische Fachkräfte unterstützen mathematische Lernprozesse der Kinder auf der Basis ihres persönlichen Verständnisses von Mathematik." ;
+    cur:recognitionHint "Satzanfang \"Pädagogische Fachkräfte unterstützen …\""@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Leitlinien" ;
+    cur:verified false .
+
+elem:re-DE-BY-750043749d95 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 47"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-self-perception ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.1"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Selbstwahrnehmung" ;
+    cur:verified false .
+
+elem:re-DE-BY-9ccc9fcffb1f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-leitbild-muster"@de,
+        "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 160–364 | 7. Aufl. S. VII"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Leitbild ;
+    cur:negativeHint "Nicht als Bildungsbereich instanziieren. Die Unterkapitel 7.x sind die Bereiche. Regex der Vorliste passt nur auf \"Starke Kinder\" (Folgewörter kleingeschrieben)"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Zwischenüberschrift \"[Adjektive] Kinder\" ohne Nummer über Bereichsgruppen"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Künstlerisch aktive Kinder" ;
+    cur:verified false .
+
+elem:re-DE-BY-a6fa66ac766c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBL Inhalt S. 38"@de,
+        "Plangeneration laut Länderrecherche: 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "BayBL Kap. 4B (Bezeichnung Pädagoginnen/Pädagogen statt Fachkräfte)"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben der Pädagoginnen und Pädagogen" ;
+    cur:verified false .
+
+elem:re-DE-BY-b7140943850e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 57"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-participation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.8"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fähigkeit und Bereitschaft zur demokratischen Teilhabe" ;
+    cur:verified false .
+
+elem:re-DE-BY-c2f978b58e46 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-leitbild-muster"@de,
+        "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 160–364 | 7. Aufl. S. VII"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Leitbild ;
+    cur:negativeHint "Nicht als Bildungsbereich instanziieren. Die Unterkapitel 7.x sind die Bereiche. Regex der Vorliste passt nur auf \"Starke Kinder\" (Folgewörter kleingeschrieben)"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Zwischenüberschrift \"[Adjektive] Kinder\" ohne Nummer über Bereichsgruppen"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Werteorientiert und verantwortungsvoll handelnde Kinder" ;
+    cur:verified false .
+
+elem:re-DE-BY-d3b1a4da838c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 50"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-cognition ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "5.3"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kognitive Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-BY-d69ee189dc98 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-d0f5e9a642ed-BY"@de,
+        "Länderrecherche, Beleg E: BayBEP 11. Aufl. Inhaltsverzeichnis S. 160"@de,
+        "Plangeneration laut Länderrecherche: 2024 | 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsbereich ;
+    cur:negativeHint "Die Kapitelüberschrift ist Sammelabschnitt (elem:Sammelabschnitt). Die Bereiche sind 7.1–7.11. Im Fließtext heißen sie \"Bildungsbereich\"/\"Bildungs- und Erziehungsbereich\""@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 7 mit 11 Bereichen 7.1–7.11"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themenbezogene Bildungs- und Erziehungsbereiche" ;
+    cur:verified false .
+

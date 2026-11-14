@@ -1,0 +1,77 @@
+# Docling's conversions (plan M1 3b), laid over the service's Compose file: the converter - a worker
+# of the converter's image (~2 GB: Docling, EasyOCR, torch without CUDA) taking source.convert_docling
+# alone - and the API offering Docling first. Its models (~600 MB) lie in the volume models, fetched
+# once, then read-only. From the repository root:
+#
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml build converter
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml run --rm models
+#   docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml up -d
+#
+# Without this file the API offers pdfplumber alone: no Docling job waits for a worker that is not
+# there. The converter does not start while a model file is missing (app/jobs/handlers.py).
+
+x-convert: &convert
+  image: curricarta-convert:local
+  read_only: true
+  tmpfs: [/tmp]
+  cap_drop: [ALL]
+  security_opt: ["no-new-privileges:true"]
+
+services:
+  converter:
+    <<: *convert
+    build:
+      context: ..
+      dockerfile: deploy/api.Dockerfile
+      args: {VENV: convert}
+    command: [python, -m, app.jobs.worker]
+    secrets: [database_url, api_key_pepper, s3_access_key, s3_secret_key]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      API_KEY_PEPPER_FILE: /run/secrets/api_key_pepper
+      STORAGE_BACKEND: s3
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_BUCKET: curricarta
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      LOG_FORMAT: json
+      WORKER_KINDS: source.convert_docling
+      # some 4 s a page on four cores (app/conversion/docling_blocks.py): 800 pages take near an hour; a scan
+      # read by OCR some 16 s a page, its 200 at most (MAX_OCR_PAGES) as long
+      CONVERT_TIMEOUT_S: "3600"
+    volumes: ["models:/models:ro"]
+    # the image's check, asked more often: the API waits for the first healthy one
+    healthcheck:
+      interval: 5s
+    # as the worker: JOB_SHUTDOWN_GRACE_S for the job, then the hand-back
+    restart: unless-stopped
+    stop_grace_period: 30s
+    depends_on:
+      migrate: {condition: service_completed_successfully}
+      bucket: {condition: service_completed_successfully}
+
+  # The models' fetch, by hand: `run --rm models`; `up` leaves it (its profile). It writes the volume,
+  # owned by the service's user (the image's /models), and checks each file's size and SHA-256
+  models:
+    <<: *convert
+    command: [python, -m, app.conversion.fetch_models, /models]
+    environment:
+      # the image keeps Hugging Face offline: the fetch alone asks it
+      HF_HUB_OFFLINE: "0"
+      # the root is read-only and the service's user has no home: the library's refs and locks go to the
+      # tmpfs, and plain downloads keep no chunks there (hf-xet would write its cache and logs to the home)
+      HF_HOME: /tmp/huggingface
+      HF_HUB_DISABLE_XET: "1"
+    volumes: ["models:/models"]
+    profiles: [models]
+
+  # Docling first, once the converter is healthy: without its models it ends at its start, and `up` fails
+  # rather than the API taking conversions that no worker takes
+  api:
+    environment:
+      CONVERSION_ENGINES: docling,pdfplumber
+    depends_on:
+      converter: {condition: service_healthy}
+
+volumes:
+  models:

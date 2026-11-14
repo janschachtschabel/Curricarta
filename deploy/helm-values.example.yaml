@@ -1,0 +1,163 @@
+# Example values for a Helm chart of Curricarta (a template, not a finished chart).
+# Every key under env becomes the environment variable of that name; defaults and meaning:
+# docs/uebergabe/konfiguration.md. Reference for containers and hardening: deploy/docker-compose.yml.
+# No B-API: the service checks its own tokens (docs/uebergabe/anforderungen.md, 2).
+
+image:
+  repository: <registry>/curricarta     # api.Dockerfile; the worker and the jobs use the same image
+  tag: "0.1.0"                                     # never latest in production
+webImage:
+  repository: <registry>/curricarta-web # web.Dockerfile: the SPA behind nginx-unprivileged
+  tag: "0.1.0"
+
+env:                          # for every container of the service
+  LOG_FORMAT: json
+  LOG_LEVEL: INFO
+  PUBLIC_ACCESS: "off"
+
+podSpec:
+  enableServiceLinks: false   # a Service named "internal" would set INTERNAL_PORT=tcp://... in every pod
+podSecurityContext:           # Pod Security Standard "restricted"; the API image's user (web: below)
+  runAsUser: 10001
+  runAsGroup: 10001
+  runAsNonRoot: true
+  seccompProfile: { type: RuntimeDefault }
+containerSecurityContext:
+  readOnlyRootFilesystem: true
+  capabilities: { drop: [ALL] }
+  allowPrivilegeEscalation: false
+tmpEmptyDir: { mountPath: /tmp, sizeLimit: 256Mi }   # the only writable path
+
+# External services; the components the chart may bring along stay off
+postgresql:
+  enabled: false              # PostgreSQL 17 with the extensions vector, pg_trgm and unaccent. The migration
+                              # creates them; where its role may not, the DBA creates them beforehand.
+objectStorage:
+  env:
+    STORAGE_BACKEND: s3
+    S3_ENDPOINT_URL: ""       # empty or left out for AWS; the address of T6's S3 service otherwise
+    S3_BUCKET: curricarta
+    S3_REGION: eu-central-1
+redis:
+  enabled: false              # not used: the accounts' rate limits are rows in PostgreSQL (M1)
+
+api:
+  replicas: 2                 # stateless; scale by replicas
+  ports: { public: 8000, internal: 9000 }
+  resources:                  # not measured yet: the baseline under load comes with M6
+    requests: { cpu: 250m, memory: 384Mi }
+    limits: { cpu: "1", memory: 768Mi }
+  probes:                     # internal port only; on 8000 these paths answer 404
+    startup: { port: 9000, path: /health, periodSeconds: 2, failureThreshold: 30, timeoutSeconds: 3 }
+    readiness: { port: 9000, path: /ready, periodSeconds: 10, timeoutSeconds: 5 }   # /ready waits 2 s + 2 s
+    liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
+  lifecycle:
+    preStop: { exec: { command: [sleep, "5"] } }   # the Service's endpoints follow SIGTERM late
+  env:
+    FORWARDED_ALLOW_IPS: <network of the ingress controller>   # never * and never /0
+  secrets:                    # from a Secret, never in the values; mounted as files, read through *_FILE
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, API_KEY_PEPPER, S3_ACCESS_KEY, S3_SECRET_KEY]
+
+worker:
+  replicas: 2
+  command: [python, -m, app.jobs.worker]
+  # /health answers only while the worker's loop turns: a stuck worker is restarted (its lease
+  # protects the job, not the capacity). No readiness: the worker sits behind no Service.
+  probes:
+    liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
+  terminationGracePeriodSeconds: 30   # JOB_SHUTDOWN_GRACE_S + 2 s to clean up + margin
+  resources:
+    requests: { cpu: 250m, memory: 384Mi }
+    limits: { cpu: "1", memory: 1Gi }
+  env:
+    JOB_SHUTDOWN_GRACE_S: "20"
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, API_KEY_PEPPER, S3_ACCESS_KEY, S3_SECRET_KEY, OPENAI_API_KEY]
+
+# Run once per release, before the new pods: the migration, then the vocabularies. No retry: a
+# failed migration wants a look, not a second try. The deadline ends a stuck one (a lock the
+# database holds), and the job of the last release goes before the next one is made.
+migrate:
+  hook: [pre-install, pre-upgrade]
+  hookDeletePolicy: before-hook-creation
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  command: [python, -m, app.db.migrate]
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL]
+vocab:
+  hook: [post-install, post-upgrade]
+  hookDeletePolicy: before-hook-creation
+  backoffLimit: 0
+  activeDeadlineSeconds: 600
+  command: [python, -m, app.vocab.load]
+  resources:                  # reads the vocabularies and the lexicon into memory before it writes them
+    requests: { cpu: 250m, memory: 384Mi }
+    limits: { cpu: "1", memory: 768Mi }
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL]
+
+web:
+  replicas: 2
+  port: 8080                  # nginx-unprivileged; serves the SPA only, /api goes through the ingress
+  securityContext: { runAsUser: 101, runAsGroup: 101 }   # the image's own user, not the pod's 10001
+  probes:
+    readiness: { port: 8080, path: /healthz, periodSeconds: 10, timeoutSeconds: 2 }
+    liveness: { port: 8080, path: /healthz, periodSeconds: 30, timeoutSeconds: 2, failureThreshold: 3 }
+  resources:
+    requests: { cpu: 50m, memory: 32Mi }
+    limits: { cpu: 250m, memory: 64Mi }
+
+podDisruptionBudget:          # a drain of nodes leaves one pod of each serving
+  api: { minAvailable: 1 }
+  web: { minAvailable: 1 }
+
+service:
+  ports:
+    - { name: http, port: 8000 }
+    - { name: internal, port: 9000 }
+
+ingress:
+  # TLS ends here, so HSTS is set here too (ingress-nginx does by default with TLS). The API sets
+  # nosniff, its CSP and frame-ancestors itself; the web image sets them for the SPA.
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 60m       # uploads up to 50 MB (M1)
+  routes:                     # never the internal port: probes and /metrics stay inside the cluster
+    - { path: /api/v1/, service: api, servicePort: http }
+    - { path: /openapi.json, service: api, servicePort: http }
+    - { path: /, service: web, servicePort: 8080 }
+
+networkPolicy:
+  enabled: true
+  internalFrom: [{ namespaceSelector: { matchLabels: { name: monitoring } } }]   # port 9000: kubelet and Prometheus
+  egress:                     # placeholders; the selectors depend on the cluster
+    api: [dns, postgresql, object-store]
+    worker:
+      - dns
+      - postgresql
+      - object-store
+      - language model (OPENAI_BASE_URL)
+      # source.fetch and source.check: the public internet on 80/443, never the private, CGNAT
+      # and link-local
+      # ranges (the cloud metadata address 169.254.169.254 among them) nor the cluster's own;
+      # nor IPv4 inside IPv6 (NAT64 64:ff9b::/96, 6to4 2002::/16, Teredo 2001::/32)
+      - name: public-web
+        ports: [80, 443]
+        to:
+          - ipBlock: { cidr: 0.0.0.0/0, except: [10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16, 100.64.0.0/10,
+                       169.254.0.0/16, <pod network of the cluster>, <service network of the cluster>] }
+          - ipBlock: { cidr: "::/0", except: ["fc00::/7", "fe80::/10", "fec0::/10", "64:ff9b::/96",
+                       "2002::/16", "2001::/32",
+                       <IPv6 pod network of the cluster>, <IPv6 service network of the cluster>] }
+
+monitoring:
+  serviceMonitor: { enabled: true, port: internal, path: /metrics }
+  podMonitor: { enabled: true, component: worker, port: 9000, path: /metrics }   # the worker has no Service
+  prometheusRule: { enabled: false }   # alert rules come with M6

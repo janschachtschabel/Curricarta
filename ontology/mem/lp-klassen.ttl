@@ -1,0 +1,2439 @@
+# Generiert von werkzeuge/erzeuge_lp_klassen.py aus werkzeuge/quellen/lp.ttl - nicht von Hand ändern.
+# Lehrplan Ontology, Version 1.0.0rc3, https://w3id.org/lehrplan/ontology (FWU), CC BY-SA 4.0:
+# auf Klassen, Oberklassen und Labels gekürzt, nichts hinzugefügt (mem/LIZENZ.md).
+@prefix lp: <https://w3id.org/lehrplan/ontology/> .
+@prefix obo: <http://purl.obolibrary.org/obo/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+
+obo:BFO_0000011 a owl:Class ;
+    rdfs:label "spatiotemporal region"@en ;
+    rdfs:subClassOf obo:BFO_0000003 .
+
+obo:BFO_0000019 a owl:Class ;
+    rdfs:label "quality"@en ;
+    rdfs:subClassOf obo:BFO_0000020 .
+
+obo:BFO_0000202 a owl:Class ;
+    rdfs:label "temporal interval"@en ;
+    rdfs:subClassOf obo:BFO_0000038 .
+
+obo:BFO_0000203 a owl:Class ;
+    rdfs:label "temporal instant"@en ;
+    rdfs:subClassOf obo:BFO_0000148 .
+
+obo:IAO_0000078 a owl:Class ;
+    rdfs:label "curation status specification"@en ;
+    rdfs:subClassOf obo:IAO_0000102 .
+
+obo:IAO_0000225 a owl:Class ;
+    rdfs:label "obsolescence reason specification"@en ;
+    rdfs:subClassOf obo:IAO_0000102 .
+
+obo:IAO_0000409 a owl:Class ;
+    rdfs:label "denotator type"@en ;
+    rdfs:subClassOf obo:IAO_0000102 .
+
+obo:IAO_0000444 a owl:Class ;
+    rdfs:label "Publikationsprozess"@de,
+        "publishing process"@en ;
+    rdfs:subClassOf obo:BFO_0000015 .
+
+<http://qudt.org/schema/qudt/Unit> a owl:Class ;
+    rdfs:label "Unit" ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+skos:Concept a owl:Class .
+
+skos:ConceptScheme a owl:Class .
+
+lp:LP_0000003 a owl:Class ;
+    rdfs:label "Naturwissenschaftsfach"@de ;
+    rdfs:subClassOf lp:LP_0000002 .
+
+lp:LP_0000004 a owl:Class ;
+    rdfs:label "Fremdsprachenfach"@de ;
+    rdfs:subClassOf lp:LP_0000001 .
+
+lp:LP_0000005 a owl:Class ;
+    rdfs:label "Gesellschaftswissenschaftsfach"@de ;
+    rdfs:subClassOf lp:LP_0000001 .
+
+lp:LP_0000006 a owl:Class ;
+    rdfs:label "Lehrprozess"@de,
+        "teaching process"@en ;
+    rdfs:subClassOf obo:BFO_0000015 .
+
+lp:LP_0000007 a owl:Class ;
+    rdfs:label "Lernprozess"@de,
+        "learning process"@en ;
+    rdfs:subClassOf obo:BFO_0000015 .
+
+lp:LP_0000009 a owl:Class ;
+    rdfs:label "Jahrgangsstufe"@de,
+        "class level"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000010 a owl:Class ;
+    rdfs:label "Person"@de,
+        "person"@en ;
+    rdfs:subClassOf obo:BFO_0000030 .
+
+lp:LP_0000011 a owl:Class ;
+    rdfs:label "Lehrer Rolle"@de,
+        "teacher role"@en ;
+    rdfs:subClassOf obo:BFO_0000023 .
+
+lp:LP_0000012 a owl:Class ;
+    rdfs:label "Schüler Rolle"@de,
+        "student  role"@en ;
+    rdfs:subClassOf obo:BFO_0000023 .
+
+lp:LP_0000013 a owl:Class ;
+    rdfs:label "Kompetenz"@de,
+        "competence"@en ;
+    rdfs:subClassOf obo:BFO_0000016 .
+
+lp:LP_0000019 a owl:Class ;
+    rdfs:label "Schulabschluss"@de,
+        "educational qualification"@en ;
+    rdfs:subClassOf obo:BFO_0000035 .
+
+lp:LP_0000020 a owl:Class ;
+    rdfs:label "Schulstufe"@de,
+        "educational level"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000039 a owl:Class ;
+    rdfs:label "BistaFach"@de ;
+    rdfs:subClassOf lp:LP_0000001 .
+
+lp:LP_0000053 a owl:Class ;
+    rdfs:label "Berlin-Brandenburg"@de ;
+    rdfs:subClassOf lp:LP_0000040 .
+
+lp:LP_0000054 a owl:Class ;
+    rdfs:label "Ohne-Berlin-Brandenburg"@de ;
+    rdfs:subClassOf lp:LP_0000040 .
+
+lp:LP_0000056 a owl:Class ;
+    rdfs:label "Einführungsphase"@de ;
+    rdfs:subClassOf lp:LP_0000043 .
+
+lp:LP_0000057 a owl:Class ;
+    rdfs:label "Qualifikationsphase"@de ;
+    rdfs:subClassOf lp:LP_0000043 .
+
+lp:LP_0000076 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife"@de .
+
+lp:LP_0000078 a owl:Class ;
+    rdfs:label "Mittlerer Schulabschluss"@de .
+
+lp:LP_0000079 a owl:Class ;
+    rdfs:label "Erster Schulabschluss"@de .
+
+lp:LP_0000105 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (BE)"@de .
+
+lp:LP_0000106 a owl:Class ;
+    rdfs:label "Erster Abschluss (BE)"@de .
+
+lp:LP_0000109 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (BE)"@de .
+
+lp:LP_0000111 a owl:Class ;
+    rdfs:label "Schulart"@de,
+        "school type"@en,
+        "type of school"@en .
+
+lp:LP_0000144 a owl:Class ;
+    rdfs:label "Erster Abschluss (BW)"@de .
+
+lp:LP_0000145 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (BW)"@de .
+
+lp:LP_0000146 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (BW)"@de .
+
+lp:LP_0000160 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (TH)"@de .
+
+lp:LP_0000161 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (NI)"@de .
+
+lp:LP_0000162 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (NW)"@de .
+
+lp:LP_0000163 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (HH)"@de .
+
+lp:LP_0000164 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (RP)"@de .
+
+lp:LP_0000165 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (SN)"@de .
+
+lp:LP_0000168 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (HE)"@de .
+
+lp:LP_0000169 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (BY)"@de .
+
+lp:LP_0000170 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (MV)"@de .
+
+lp:LP_0000171 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (ST)"@de .
+
+lp:LP_0000172 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (SH)"@de .
+
+lp:LP_0000173 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (SL)"@de .
+
+lp:LP_0000174 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (HB)"@de .
+
+lp:LP_0000175 a owl:Class ;
+    rdfs:label "Allgemeine Hochschulreife (BB)"@de .
+
+lp:LP_0000176 a owl:Class ;
+    rdfs:label "Erster Abschluss (TH)"@de .
+
+lp:LP_0000177 a owl:Class ;
+    rdfs:label "Erster Abschluss (NI)"@de .
+
+lp:LP_0000178 a owl:Class ;
+    rdfs:label "Erster Abschluss (NW)"@de .
+
+lp:LP_0000179 a owl:Class ;
+    rdfs:label "Erster Abschluss (HH)"@de .
+
+lp:LP_0000180 a owl:Class ;
+    rdfs:label "Erster Abschluss (RP)"@de .
+
+lp:LP_0000181 a owl:Class ;
+    rdfs:label "Erster Abschluss (SN)"@de .
+
+lp:LP_0000182 a owl:Class ;
+    rdfs:label "Erster Abschluss (HE)"@de .
+
+lp:LP_0000183 a owl:Class ;
+    rdfs:label "Erster Abschluss (BY)"@de .
+
+lp:LP_0000184 a owl:Class ;
+    rdfs:label "Erster Abschluss (MV)"@de .
+
+lp:LP_0000185 a owl:Class ;
+    rdfs:label "Erster Abschluss (ST)"@de .
+
+lp:LP_0000186 a owl:Class ;
+    rdfs:label "Erster Abschluss (SH)"@de .
+
+lp:LP_0000187 a owl:Class ;
+    rdfs:label "Erster Abschluss (SL)"@de .
+
+lp:LP_0000188 a owl:Class ;
+    rdfs:label "Erster Abschluss (HB)"@de .
+
+lp:LP_0000189 a owl:Class ;
+    rdfs:label "Erster Abschluss (BB)"@de .
+
+lp:LP_0000200 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (TH)"@de .
+
+lp:LP_0000201 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (NI)"@de .
+
+lp:LP_0000202 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (NW)"@de .
+
+lp:LP_0000203 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (HH)"@de .
+
+lp:LP_0000204 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (RP)"@de .
+
+lp:LP_0000205 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (SN)"@de .
+
+lp:LP_0000206 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (HE)"@de .
+
+lp:LP_0000207 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (BY)"@de .
+
+lp:LP_0000208 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (MV)"@de .
+
+lp:LP_0000209 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (ST)"@de .
+
+lp:LP_0000210 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (SH)"@de .
+
+lp:LP_0000211 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (SL)"@de .
+
+lp:LP_0000212 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (HB)"@de .
+
+lp:LP_0000213 a owl:Class ;
+    rdfs:label "Mittlerer Abschluss (BB)"@de .
+
+lp:LP_0000268 a owl:Class ;
+    rdfs:label "Leitidee (Bista)"@de .
+
+lp:LP_0000332 a owl:Class ;
+    rdfs:label "CE-Lerninhalt"@de,
+        "learning content"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000336 a owl:Class ;
+    rdfs:label "Fachbezogene Kompetenzspezifikation"@de ;
+    rdfs:subClassOf lp:LP_0000263 .
+
+lp:LP_0000337 a owl:Class ;
+    rdfs:label "Fachübergreifende Kompetenzspezifikation"@de ;
+    rdfs:subClassOf lp:LP_0000263 .
+
+lp:LP_0000346 a owl:Class ;
+    rdfs:label "Titel"@de,
+        "title"@en ;
+    rdfs:subClassOf obo:IAO_0000300 .
+
+lp:LP_0000347 a owl:Class ;
+    rdfs:label "Identifikationsnummer"@de,
+        "ID number"@en ;
+    rdfs:subClassOf obo:IAO_0000028 .
+
+lp:LP_0000350 a owl:Class ;
+    rdfs:label "Lernziel (RP)"@de .
+
+lp:LP_0000352 a owl:Class ;
+    rdfs:label "Unterteilthema (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000345 .
+
+lp:LP_0000353 a owl:Class ;
+    rdfs:label "Lehrplanfragment (RP)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0000421 a owl:Class ;
+    rdfs:label "KombinierterBereichRP"@de ;
+    rdfs:subClassOf lp:LP_0000342 .
+
+lp:LP_0000423 a owl:Class ;
+    rdfs:label "Verweis auf standardillustrierende Aufgaben (BE)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0000424 a owl:Class ;
+    rdfs:label "Verweis auf vernetzte Kompetenzen  (BE)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0000425 a owl:Class ;
+    rdfs:label "Verweis auf Materialien (BE)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0000428 a owl:Class ;
+    rdfs:label "Inhalt (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000429 a owl:Class ;
+    rdfs:label "Themenfeld"@de,
+        "subject area"@en ;
+    rdfs:subClassOf obo:IAO_0000300 .
+
+lp:LP_0000432 a owl:Class ;
+    rdfs:label "Kompetenz (RP)"@de .
+
+lp:LP_0000433 a owl:Class ;
+    rdfs:label "Lehrplan (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000435 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (BY)"@de .
+
+lp:LP_0000443 a owl:Class ;
+    rdfs:label "Niveaustufe BE/BB" ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000445 a owl:Class ;
+    rdfs:label "Inhalt (BB)",
+        "learning content (BB)"@en .
+
+lp:LP_0000446 a owl:Class ;
+    rdfs:label "Lernmaterial (BB)"@de,
+        "learning material (BB)"@en .
+
+lp:LP_0000447 a owl:Class ;
+    rdfs:label "Standard (BB)"@de,
+        "standard (BB)"@en .
+
+lp:LP_0000448 a owl:Class ;
+    rdfs:label "Thema (BB)"@de,
+        "topic (BB)"@en ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000449 a owl:Class ;
+    rdfs:label "Themenfeld (BB)"@de,
+        "topic area (BB)"@en ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000450 a owl:Class ;
+    rdfs:label "Zusatzmaterial (BB)"@de,
+        "additional material (BB)"@en .
+
+lp:LP_0000451 a owl:Class ;
+    rdfs:label "Übung (BB)"@de,
+        "exercise (BB)"@en ;
+    rdfs:subClassOf lp:LP_0000441 .
+
+lp:LP_0000459 a owl:Class ;
+    rdfs:label "Kompetenzbereich (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000475 a owl:Class ;
+    rdfs:label "Schulartfunktion"@de,
+        "school type function"@en ;
+    rdfs:subClassOf obo:BFO_0000034 .
+
+lp:LP_0000482 a owl:Class ;
+    rdfs:label "Strukturierungsfunktion"@de ;
+    rdfs:subClassOf lp:LP_0000478 .
+
+lp:LP_0000493 a owl:Class ;
+    rdfs:label "Beschreibungsfunktion"@de ;
+    rdfs:subClassOf lp:LP_0000478 .
+
+lp:LP_0000499 a owl:Class ;
+    rdfs:label "Bezugsfunktionen"@de ;
+    rdfs:subClassOf lp:LP_0000478 .
+
+lp:LP_0000508 a owl:Class ;
+    rdfs:label "Zeitspezifikation"@de,
+        "temporal specification"@en ;
+    rdfs:subClassOf obo:IAO_0000027 .
+
+lp:LP_0000530 a owl:Class ;
+    rdfs:label "Grundkursniveau"@de ;
+    rdfs:subClassOf lp:LP_0000265 .
+
+lp:LP_0000531 a owl:Class ;
+    rdfs:label "Leistungskursniveau"@de ;
+    rdfs:subClassOf lp:LP_0000265 .
+
+lp:LP_0000536 a owl:Class ;
+    rdfs:label "Element (Bista)"@de,
+        "element (Bista)"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000541 a owl:Class ;
+    rdfs:label "Erste Fremdsprache"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000542 a owl:Class ;
+    rdfs:label "Zweite Fremdsprache"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000543 a owl:Class ;
+    rdfs:label "Dritte Fremdsprache"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000544 a owl:Class ;
+    rdfs:label "Pflichtfach"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000545 a owl:Class ;
+    rdfs:label "Wahlpflichtfach"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000547 a owl:Class ;
+    rdfs:label "Gültigkeitsbereich"@de,
+        "validity scope"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000551 a owl:Class ;
+    rdfs:label "Wahlfach"@de ;
+    rdfs:subClassOf lp:LP_0000540 .
+
+lp:LP_0000554 a owl:Class ;
+    rdfs:label "Didaktische Voraussetzung"@de,
+        "didactic prerequisite"@en ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0000571 a owl:Class ;
+    rdfs:label "Bildungsstandard (KMK)"@de,
+        "educational standard (KMK)"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000573 a owl:Class ;
+    rdfs:label "BOA Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000572 .
+
+lp:LP_0000574 a owl:Class ;
+    rdfs:label "BBR Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000572 .
+
+lp:LP_0000575 a owl:Class ;
+    rdfs:label "EBBR Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000572 .
+
+lp:LP_0000576 a owl:Class ;
+    rdfs:label "MSA Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000572 .
+
+lp:LP_0000577 a owl:Class ;
+    rdfs:label "Gymnasialniveau Sek I (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000572 .
+
+lp:LP_0000802 a owl:Class ;
+    rdfs:label "Anforderungsbereich"@de ;
+    rdfs:subClassOf lp:LP_0000037 .
+
+lp:LP_0000806 a owl:Class ;
+    rdfs:label "Bildungsplan (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000807 a owl:Class ;
+    rdfs:label "Rahmenlehrplan (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000809 a owl:Class ;
+    rdfs:label "Schule"@de,
+        "school"@en .
+
+lp:LP_0000810 a owl:Class ;
+    rdfs:label "Schulklasse"@de,
+        "school class"@en ;
+    rdfs:subClassOf lp:LP_0000808 .
+
+lp:LP_0000813 a owl:Class ;
+    rdfs:label "Hauptschulbildungsgang"@de,
+        "Hauptschule track"@en ;
+    rdfs:subClassOf lp:LP_0000816 .
+
+lp:LP_0000814 a owl:Class ;
+    rdfs:label "Realschulbildungsgang"@de,
+        "Realschule track"@en ;
+    rdfs:subClassOf lp:LP_0000816 .
+
+lp:LP_0000815 a owl:Class ;
+    rdfs:label "Gymnasialer Bildungsgang"@de,
+        "Gymnasium track"@en ;
+    rdfs:subClassOf lp:LP_0000816 .
+
+lp:LP_0000818 a owl:Class ;
+    rdfs:label "Lehrplan (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000819 a owl:Class ;
+    rdfs:label "LehrplanPLUS (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000820 a owl:Class ;
+    rdfs:label "Lehrplan (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000821 a owl:Class ;
+    rdfs:label "Bildungsplan (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000822 a owl:Class ;
+    rdfs:label "Bildungsplan (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000823 a owl:Class ;
+    rdfs:label "Kerncurriculum (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000824 a owl:Class ;
+    rdfs:label "Fachanforderung (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000825 a owl:Class ;
+    rdfs:label "Lehrplan (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000826 a owl:Class ;
+    rdfs:label "Lehrplan (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0000835 a owl:Class ;
+    rdfs:label "Gymnasialniveau Sek II"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0000845 a owl:Class ;
+    rdfs:label "Progression"@de,
+        "progression"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000852 a owl:Class ;
+    rdfs:label "CE-Hinweis"@de,
+        "note"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0001000 a owl:Class ;
+    rdfs:label "Kernlehrplan (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0001001 a owl:Class ;
+    rdfs:label "Lehrplanfragment (HE)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0001002 a owl:Class ;
+    rdfs:label "Inhaltsfeld (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0001003 a owl:Class ;
+    rdfs:label "Erwartete Kompetenz (NI)"@de .
+
+lp:LP_0001005 a owl:Class ;
+    rdfs:label "Kompetenzbereich (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0001006 a owl:Class ;
+    rdfs:label "Lehrplanfragment (NI)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0001007 a owl:Class ;
+    rdfs:label "Kerninhalt (NI)"@de .
+
+lp:LP_0001009 a owl:Class ;
+    rdfs:label "Ergänzender Hinweis (NI)"@de .
+
+lp:LP_0001011 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001018 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (RP)"@de .
+
+lp:LP_0001019 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001025 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (SL)"@de .
+
+lp:LP_0001028 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001032 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001035 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001038 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001101 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001105 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001108 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0001169 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (BE)"@de .
+
+lp:LP_0001223 a owl:Class ;
+    rdfs:label "Lehrplanfragment (BE)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0001224 a owl:Class ;
+    rdfs:label "Leitidee (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0001226 a owl:Class ;
+    rdfs:label "Eingangsvoraussetzung (BE)"@de .
+
+lp:LP_0001227 a owl:Class ;
+    rdfs:label "Unterrichtsanregung (BE)"@de .
+
+lp:LP_0001228 a owl:Class ;
+    rdfs:label "Gegenstand (BE)"@de .
+
+lp:LP_0001445 a owl:Class ;
+    rdfs:label "Inhalt (BE)",
+        "learning content (BE)"@en .
+
+lp:LP_0001446 a owl:Class ;
+    rdfs:label "Lernmaterial (BE)"@de,
+        "learning material (BE)"@en .
+
+lp:LP_0001447 a owl:Class ;
+    rdfs:label "Standard (BE)"@de,
+        "standard (BE)"@en .
+
+lp:LP_0001448 a owl:Class ;
+    rdfs:label "Thema (BE)"@de,
+        "topic (BE)"@en ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0001449 a owl:Class ;
+    rdfs:label "Themenfeld (BE)"@de,
+        "topic area (BE)"@en ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0001450 a owl:Class ;
+    rdfs:label "Zusatzmaterial (BE)"@de,
+        "additional material (BE)"@en .
+
+lp:LP_0001451 a owl:Class ;
+    rdfs:label "Übung (BE)"@de,
+        "exercise (BE)"@en ;
+    rdfs:subClassOf lp:LP_0001441 .
+
+lp:LP_0001459 a owl:Class ;
+    rdfs:label "Kompetenzbereich (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002043 a owl:Class ;
+    rdfs:label "Fachlehrplan (BY)"@de ;
+    rdfs:subClassOf lp:LP_0002044 .
+
+lp:LP_0002046 a owl:Class ;
+    rdfs:label "Lernbereich (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002048 a owl:Class ;
+    rdfs:label "Kompetenzerwartung und Inhalt (BY)"@de .
+
+lp:LP_0002049 a owl:Class ;
+    rdfs:label "Kompetenzerwartung (BY)"@de .
+
+lp:LP_0002050 a owl:Class ;
+    rdfs:label "Inhalt zu den Kompetenzen (BY)"@de .
+
+lp:LP_0002052 a owl:Class ;
+    rdfs:label "Lehrplanfragment (BW)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002057 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002059 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Kompetenz (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002060 a owl:Class ;
+    rdfs:label "Denkanstoß (BW)"@de .
+
+lp:LP_0002061 a owl:Class ;
+    rdfs:label "Teilkompetenz (BW)"@de .
+
+lp:LP_0002063 a owl:Class ;
+    rdfs:label "Leitidee (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002064 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (BW)"@de .
+
+lp:LP_0002069 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (BB)"@de .
+
+lp:LP_0002072 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (HH)"@de .
+
+lp:LP_0002076 a owl:Class ;
+    rdfs:label "Element (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002077 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (HE)"@de .
+
+lp:LP_0002081 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (MV)"@de .
+
+lp:LP_0002086 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (NW)"@de .
+
+lp:LP_0002090 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (SN)"@de .
+
+lp:LP_0002094 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (ST)"@de .
+
+lp:LP_0002097 a owl:Class ;
+    rdfs:label "Element (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002098 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (TH)"@de .
+
+lp:LP_0002110 a owl:Class ;
+    rdfs:label "Lehrplanfragment (SN)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002113 a owl:Class ;
+    rdfs:label "Lernbereich (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002114 a owl:Class ;
+    rdfs:label "Wahlbereich (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002115 a owl:Class ;
+    rdfs:label "Lernziel und Lerninhalt (SN)"@de .
+
+lp:LP_0002116 a owl:Class ;
+    rdfs:label "Bemerkung (SN)"@de .
+
+lp:LP_0002119 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (HB)"@de .
+
+lp:LP_0002122 a owl:Class ;
+    rdfs:label "Lehrplanfragment (HB)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002126 a owl:Class ;
+    rdfs:label "Aufgabenbereich (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002128 a owl:Class ;
+    rdfs:label "Anforderung (HB)"@de .
+
+lp:LP_0002129 a owl:Class ;
+    rdfs:label "Inhalt (HB)"@de .
+
+lp:LP_0002130 a owl:Class ;
+    rdfs:label "Themenbereich (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002133 a owl:Class ;
+    rdfs:label "Themenfeld (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002134 a owl:Class ;
+    rdfs:label "Kommentar (HB)"@de .
+
+lp:LP_0002135 a owl:Class ;
+    rdfs:label "Kompetenzbereich (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002136 a owl:Class ;
+    rdfs:label "Lehrplanfragment (MV)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002139 a owl:Class ;
+    rdfs:label "Kompetenzbereich (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002140 a owl:Class ;
+    rdfs:label "Kompetenz (MV)"@de .
+
+lp:LP_0002143 a owl:Class ;
+    rdfs:label "Themenbereich (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002144 a owl:Class ;
+    rdfs:label "Verbindlicher Inhalt (MV)"@de .
+
+lp:LP_0002145 a owl:Class ;
+    rdfs:label "Hinweis und Anregung (MV)"@de .
+
+lp:LP_0002147 a owl:Class ;
+    rdfs:label "Thema (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002149 a owl:Class ;
+    rdfs:label "Verweis auf Möglichkeiten der Verknüpfung (MV)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0002151 a owl:Class ;
+    rdfs:label "Konkretisierung (MV)"@de .
+
+lp:LP_0002153 a owl:Class ;
+    rdfs:label "Standard (MV)" .
+
+lp:LP_0002163 a owl:Class ;
+    rdfs:label "Beispiel Verknüpfung von Inhalt und Kompetenzbereich (MV)"@de .
+
+lp:LP_0002164 a owl:Class ;
+    rdfs:label "Rahmenplan (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0002169 a owl:Class ;
+    rdfs:label "Bildungsstandard (HE)"@de .
+
+lp:LP_0002174 a owl:Class ;
+    rdfs:label "Lehrplanfragment (ST)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002175 a owl:Class ;
+    rdfs:label "Kompetenzbereich (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002177 a owl:Class ;
+    rdfs:label "Kompetenz (ST)"@de .
+
+lp:LP_0002178 a owl:Class ;
+    rdfs:label "Flexibel anwendbares Grundwissen (ST)"@de .
+
+lp:LP_0002179 a owl:Class ;
+    rdfs:label "Grundlegender Wissensbestand (ST)"@de .
+
+lp:LP_0002181 a owl:Class ;
+    rdfs:label "Kompetenzschwerpunkt (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002182 a owl:Class ;
+    rdfs:label "Gegenstandsfeld (ST)"@de .
+
+lp:LP_0002184 a owl:Class ;
+    rdfs:label "Kerncurriculum (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0002186 a owl:Class ;
+    rdfs:label "Lehrplanfragment (NW)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002187 a owl:Class ;
+    rdfs:label "Kompetenzbereich (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002188 a owl:Class ;
+    rdfs:label "Kompetenzerwartung (NW)"@de .
+
+lp:LP_0002190 a owl:Class ;
+    rdfs:label "Teilkompetenzbereich (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002191 a owl:Class ;
+    rdfs:label "Inhaltsfeld (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002192 a owl:Class ;
+    rdfs:label "Inhaltlicher Schwerpunkt (NW)"@de .
+
+lp:LP_0002193 a owl:Class ;
+    rdfs:label "Sachgebiet (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002195 a owl:Class ;
+    rdfs:label "Inhalt zum Erwerb der Kompetenzen (RP)"@de .
+
+lp:LP_0002196 a owl:Class ;
+    rdfs:label "Leitidee (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002197 a owl:Class ;
+    rdfs:label "Inhalt (RP)"@de .
+
+lp:LP_0002198 a owl:Class ;
+    rdfs:label "Hinweis und Vernetzung (RP)"@de .
+
+lp:LP_0002200 a owl:Class ;
+    rdfs:label "Ziel / Inhalt (Sach- und Methodenkompetenz) (RP)"@de .
+
+lp:LP_0002201 a owl:Class ;
+    rdfs:label "Hinweis zur Unterrichtsgestaltung und Methodenkompetenz (RP)"@de .
+
+lp:LP_0002202 a owl:Class ;
+    rdfs:label "Kernbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002203 a owl:Class ;
+    rdfs:label "Kompetenzbereich (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002205 a owl:Class ;
+    rdfs:label "Kernkompetenz (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002206 a owl:Class ;
+    rdfs:label "Beispiel (NI)"@de .
+
+lp:LP_0002207 a owl:Class ;
+    rdfs:label "Umsetzung im Unterricht (NI)"@de .
+
+lp:LP_0002208 a owl:Class ;
+    rdfs:label "Lernbereich (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002209 a owl:Class ;
+    rdfs:label "Thema (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002210 a owl:Class ;
+    rdfs:label "Lehrplanfragment (HH)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002211 a owl:Class ;
+    rdfs:label "Leitidee (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002212 a owl:Class ;
+    rdfs:label "Kompetenzbereich (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002214 a owl:Class ;
+    rdfs:label "Beobachtungskriterium (HH)"@de .
+
+lp:LP_0002215 a owl:Class ;
+    rdfs:label "Regelanforderung (HH)"@de .
+
+lp:LP_0002218 a owl:Class ;
+    rdfs:label "Thema (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002219 a owl:Class ;
+    rdfs:label "Modul (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002220 a owl:Class ;
+    rdfs:label "Sachgebiet (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002221 a owl:Class ;
+    rdfs:label "Kompetenz (HH)"@de .
+
+lp:LP_0002223 a owl:Class ;
+    rdfs:label "Lehrplanfragment (BB)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002224 a owl:Class ;
+    rdfs:label "Leitidee (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002225 a owl:Class ;
+    rdfs:label "Eingangsvoraussetzung (BB)"@de .
+
+lp:LP_0002226 a owl:Class ;
+    rdfs:label "Gegenstand (BB)"@de .
+
+lp:LP_0002227 a owl:Class ;
+    rdfs:label "Unterrichtsanregung (BB)"@de .
+
+lp:LP_0002228 a owl:Class ;
+    rdfs:label "Lernzeitbezogene Kompetenzerwartung (HE)"@de .
+
+lp:LP_0002229 a owl:Class ;
+    rdfs:label "Lehrplanfragment (SL)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0002230 a owl:Class ;
+    rdfs:label "Leitidee (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002232 a owl:Class ;
+    rdfs:label "Kompetenzerwartung (SL)"@de .
+
+lp:LP_0002233 a owl:Class ;
+    rdfs:label "Hinweis zur Umsetzung (SL)" .
+
+lp:LP_0002234 a owl:Class ;
+    rdfs:label "Themenfeld (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002235 a owl:Class ;
+    rdfs:label "Verbindliches Fachwissen (SL)"@de .
+
+lp:LP_0002238 a owl:Class ;
+    rdfs:label "Verbindlicher Kompetenzschwerpunkt (SL)"@de .
+
+lp:LP_0002239 a owl:Class ;
+    rdfs:label "Vorschlag und Hinweis (SL)"@de .
+
+lp:LP_0002240 a owl:Class ;
+    rdfs:label "Basisbegriff (SL)"@de .
+
+lp:LP_0002241 a owl:Class ;
+    rdfs:label "Lernbereich (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0002243 a owl:Class ;
+    rdfs:label "Kompetenzbereich (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0010001 a owl:Class ;
+    rdfs:label "Fremdsprachenniveau"@de ;
+    rdfs:subClassOf lp:LP_0000037 .
+
+lp:LP_0030001 a owl:Class ;
+    rdfs:label "Schwerpunktthema (HB)"@de .
+
+lp:LP_0030002 a owl:Class ;
+    rdfs:label "Grundfertigkeit (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030003 a owl:Class ;
+    rdfs:label "Beschreibung"@de,
+        "description"@en ;
+    rdfs:subClassOf obo:IAO_0000300 .
+
+lp:LP_0030004 a owl:Class ;
+    rdfs:label "Rahmenlehrplan (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000438 .
+
+lp:LP_0030005 a owl:Class ;
+    rdfs:label "Ergänzung zu einem Basiskonzept (NW)"@de .
+
+lp:LP_0030006 a owl:Class ;
+    rdfs:label "Möglicher Kontext (NW)"@de .
+
+lp:LP_0030007 a owl:Class ;
+    rdfs:label "Kompetenzerwerb im Themenfeld (BB)"@de .
+
+lp:LP_0030008 a owl:Class ;
+    rdfs:label "Möglicher Inhalt (BB)"@de .
+
+lp:LP_0030009 a owl:Class ;
+    rdfs:label "Verweis auf Basiskonzept (NW)"@de ;
+    rdfs:subClassOf lp:LP_0002085 .
+
+lp:LP_0030010 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (SH)"@de .
+
+lp:LP_0030011 a owl:Class ;
+    rdfs:label "Verweis auf Basiskonzept (HB)"@de ;
+    rdfs:subClassOf lp:LP_0002118 .
+
+lp:LP_0030012 a owl:Class ;
+    rdfs:label "Verweis auf Orientierungsrahmen (HB)"@de ;
+    rdfs:subClassOf lp:LP_0002118 .
+
+lp:LP_0030013 a owl:Class ;
+    rdfs:label "Verweis auf Kompetenz (HB)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030014 a owl:Class ;
+    rdfs:label "Ergänzung zur Kompetenz (NI)"@de .
+
+lp:LP_0030015 a owl:Class ;
+    rdfs:label "Verweis auf Basiskonzept (SL)"@de ;
+    rdfs:subClassOf lp:LP_0002102 .
+
+lp:LP_0030016 a owl:Class ;
+    rdfs:label "Verweis auf thematische Querverbindungen im Lehrplan (SL)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030017 a owl:Class ;
+    rdfs:label "Verweis auf Möglichkeit zur Abstimmung (ST)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030018 a owl:Class ;
+    rdfs:label "KMK-Bildungsstandard (SH)"@de .
+
+lp:LP_0030019 a owl:Class ;
+    rdfs:label "Sachkompetenz (TH)"@de .
+
+lp:LP_0030020 a owl:Class ;
+    rdfs:label "Textsorte (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030021 a owl:Class ;
+    rdfs:label "Inhalt und Wissbestand (SH)"@de .
+
+lp:LP_0030022 a owl:Class ;
+    rdfs:label "Konkretisierung - Hinweis und Vorschlag (SH)"@de .
+
+lp:LP_0030023 a owl:Class ;
+    rdfs:label "Themenvorschlag (SH)"@de .
+
+lp:LP_0030024 a owl:Class ;
+    rdfs:label "Lernbereich (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030025 a owl:Class ;
+    rdfs:label "Kompetenzbereich (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030026 a owl:Class ;
+    rdfs:label "Kompetenz (TH)"@de .
+
+lp:LP_0030028 a owl:Class ;
+    rdfs:label "Lehrplanfragment (TH)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0030029 a owl:Class ;
+    rdfs:label "Thema (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030030 a owl:Class ;
+    rdfs:label "Themenfeld (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030031 a owl:Class ;
+    rdfs:label "Inhalt (TH)"@de .
+
+lp:LP_0030032 a owl:Class ;
+    rdfs:label "Schwerpunkt (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030033 a owl:Class ;
+    rdfs:label "Lehrplanfragment (SH)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0030036 a owl:Class ;
+    rdfs:label "Fähigkeit (RP)"@de .
+
+lp:LP_0030037 a owl:Class ;
+    rdfs:label "Schwerpunktsetzung (HE)"@de .
+
+lp:LP_0030038 a owl:Class ;
+    rdfs:label "Themenfeld (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030039 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (HE)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030041 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030042 a owl:Class ;
+    rdfs:label "Verweis auf Bezüge zu den Basiskonzepten (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000441 .
+
+lp:LP_0030043 a owl:Class ;
+    rdfs:label "Beispiel zu einem Basiskonzept (BB)"@de .
+
+lp:LP_0030044 a owl:Class ;
+    rdfs:label "Beispiel zu einem Basiskonzept (BE)"@de .
+
+lp:LP_0030045 a owl:Class ;
+    rdfs:label "Verweis auf Bezüge zu den Basiskonzepten (BE)"@de ;
+    rdfs:subClassOf lp:LP_0001441 .
+
+lp:LP_0030047 a owl:Class ;
+    rdfs:label "Basiskonzept (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030048 a owl:Class ;
+    rdfs:label "Verbindliches Ziel (MV)"@de .
+
+lp:LP_0030049 a owl:Class ;
+    rdfs:label "Themenfeld (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030050 a owl:Class ;
+    rdfs:label "Allgemeines fachliches Ziel (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030052 a owl:Class ;
+    rdfs:label "Experiment/Untersuchung (BB)"@de .
+
+lp:LP_0030053 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030054 a owl:Class ;
+    rdfs:label "Leitidee (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030055 a owl:Class ;
+    rdfs:label "Fachniveau Sek II (NI)"@de .
+
+lp:LP_0030058 a owl:Class ;
+    rdfs:label "Aufgabenstellung (SL)"@de .
+
+lp:LP_0030059 a owl:Class ;
+    rdfs:label "Möglicher Inhalt (SH)"@de .
+
+lp:LP_0030060 a owl:Class ;
+    rdfs:label "Literaturhinweis (SL)"@de .
+
+lp:LP_0030061 a owl:Class ;
+    rdfs:label "Verbindliche Form mündlicher Kommunikation (SL)"@de .
+
+lp:LP_0030062 a owl:Class ;
+    rdfs:label "Verbindliche fachspezifische Fertigkeit/Fähigkeit und fachspezifische Methode (SL)"@de .
+
+lp:LP_0030063 a owl:Class ;
+    rdfs:label "Verbindlicher Lerngegenstand (SL)"@de .
+
+lp:LP_0030064 a owl:Class ;
+    rdfs:label "Vorschlag und Hinweis zu Inhalten und Methoden (SL)"@de .
+
+lp:LP_0030066 a owl:Class ;
+    rdfs:label "Vertiefungsmöglichkeit (BB)"@de .
+
+lp:LP_0030067 a owl:Class ;
+    rdfs:label "Inhaltsbereich (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030068 a owl:Class ;
+    rdfs:label "Vertiefungsmöglichkeit (BE)"@de .
+
+lp:LP_0030069 a owl:Class ;
+    rdfs:label "Thema (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030070 a owl:Class ;
+    rdfs:label "Kompetenzbereich (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030073 a owl:Class ;
+    rdfs:label "Bereich (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030074 a owl:Class ;
+    rdfs:label "Fachliche Konkretisierung (NW)"@de .
+
+lp:LP_0030075 a owl:Class ;
+    rdfs:label "Inhalt (NW)"@de .
+
+lp:LP_0030076 a owl:Class ;
+    rdfs:label "Inhalt zu einem Inhaltsfeld (HE)"@de .
+
+lp:LP_0030077 a owl:Class ;
+    rdfs:label "Basiskonzept (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030078 a owl:Class ;
+    rdfs:label "Themenbereich (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030079 a owl:Class ;
+    rdfs:label "Mögliche Textsorte / Kommunikationssituation (SH)"@de .
+
+lp:LP_0030080 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030081 a owl:Class ;
+    rdfs:label "Kommunikative Kompetenz (ST)"@de .
+
+lp:LP_0030082 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Kompetenz (ST)"@de .
+
+lp:LP_0030083 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (ST)"@de .
+
+lp:LP_0030084 a owl:Class ;
+    rdfs:label "Verbindlicher Themenbereich (SH)",
+        "Themenbereich (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030085 a owl:Class ;
+    rdfs:label "Sprachliches Mittel (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030086 a owl:Class ;
+    rdfs:label "Soziokulturelles Orientierungswissen (ST)"@de .
+
+lp:LP_0030087 a owl:Class ;
+    rdfs:label "Bereich (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030088 a owl:Class ;
+    rdfs:label "Verweis auf Bezüge zu fächerübergreifenden Themen (ST)"@de ;
+    rdfs:subClassOf lp:LP_0002093 .
+
+lp:LP_0030089 a owl:Class ;
+    rdfs:label "Verbindliches Schülerexperiment (ST)"@de .
+
+lp:LP_0030090 a owl:Class ;
+    rdfs:label "Kommunikativer Inhalt (ST)"@de .
+
+lp:LP_0030091 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030092 a owl:Class ;
+    rdfs:label "Themenbereich (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030093 a owl:Class ;
+    rdfs:label "Sprachanlass (SL)"@de .
+
+lp:LP_0030094 a owl:Class ;
+    rdfs:label "Redemittel (SL)"@de .
+
+lp:LP_0030095 a owl:Class ;
+    rdfs:label "Themenfeld (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030096 a owl:Class ;
+    rdfs:label "Inhaltsbereich (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030097 a owl:Class ;
+    rdfs:label "Ziel (TH)"@de .
+
+lp:LP_0030098 a owl:Class ;
+    rdfs:label "Lehrplanbaustein (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030099 a owl:Class ;
+    rdfs:label "Hinweis zur unterrichtlichen Umsetzung (RP)"@de .
+
+lp:LP_0030100 a owl:Class ;
+    rdfs:label "Inhalt und Zusammenhang (RP)"@de .
+
+lp:LP_0030102 a owl:Class ;
+    rdfs:label "Teilteilkompetenzbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0030101 .
+
+lp:LP_0030103 a owl:Class ;
+    rdfs:label "Anwendungsfähiges Wissen (RP)"@de .
+
+lp:LP_0030104 a owl:Class ;
+    rdfs:label "Teilleitgedanke (RP)"@de ;
+    rdfs:subClassOf lp:LP_0030034 .
+
+lp:LP_0030106 a owl:Class ;
+    rdfs:label "Teilteillernbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0030105 .
+
+lp:LP_0030107 a owl:Class ;
+    rdfs:label "Teilerfahrungsberich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0030027 .
+
+lp:LP_0030108 a owl:Class ;
+    rdfs:label "Fachbegriff (RP)"@de .
+
+lp:LP_0030109 a owl:Class ;
+    rdfs:label "Entwicklung des Konzepts (RP)"@de .
+
+lp:LP_0030110 a owl:Class ;
+    rdfs:label "Kontext (RP)"@de .
+
+lp:LP_0030111 a owl:Class ;
+    rdfs:label "Beitrag zur Entwicklung der Basiskonzepte (RP)"@de .
+
+lp:LP_0030112 a owl:Class ;
+    rdfs:label "Erschließung des Themenfeldes durch Kontextorientierung (RP)"@de .
+
+lp:LP_0030113 a owl:Class ;
+    rdfs:label "Differenzierungsmöglichkeit (RP)"@de .
+
+lp:LP_0030114 a owl:Class ;
+    rdfs:label "Experiment (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030115 a owl:Class ;
+    rdfs:label "Anforderung (HH)"@de .
+
+lp:LP_0030116 a owl:Class ;
+    rdfs:label "Möglicher Kontext (BE)"@de .
+
+lp:LP_0030117 a owl:Class ;
+    rdfs:label "Fachbegriff (BE)"@de .
+
+lp:LP_0030118 a owl:Class ;
+    rdfs:label "Beispiel für Differenzierungsmöglichkeiten (BE)"@de .
+
+lp:LP_0030119 a owl:Class ;
+    rdfs:label "Experiment/Untersuchung (BE)"@de .
+
+lp:LP_0030120 a owl:Class ;
+    rdfs:label "Technik (BE)"@de .
+
+lp:LP_0030121 a owl:Class ;
+    rdfs:label "Verbindliche Form des Schreibens (SL)"@de .
+
+lp:LP_0030122 a owl:Class ;
+    rdfs:label "Fachmethode (BE)"@de .
+
+lp:LP_0030123 a owl:Class ;
+    rdfs:label "Basiskonzept (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030124 a owl:Class ;
+    rdfs:label "Beispiel für Unterrichtseinheiten (BE)"@de .
+
+lp:LP_0030125 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Kompetenz (SL)"@de .
+
+lp:LP_0030126 a owl:Class ;
+    rdfs:label "Verfügung über sprachliche Mittel (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030127 a owl:Class ;
+    rdfs:label "Inhalt und Thema (SL)"@de .
+
+lp:LP_0030128 a owl:Class ;
+    rdfs:label "Beispiel (SL)"@de .
+
+lp:LP_0030129 a owl:Class ;
+    rdfs:label "Methodenkompetenz/Lern- und Kommunikationsstrategie (SL)"@de .
+
+lp:LP_0030130 a owl:Class ;
+    rdfs:label "Orientierungswissen (SL)"@de .
+
+lp:LP_0030131 a owl:Class ;
+    rdfs:label "Begegnungssituaton (SL)"@de .
+
+lp:LP_0030132 a owl:Class ;
+    rdfs:label "Einstellung (SL)"@de .
+
+lp:LP_0030133 a owl:Class ;
+    rdfs:label "Relevantes Genre (SL)"@de .
+
+lp:LP_0030134 a owl:Class ;
+    rdfs:label "Wortschatz (SL)"@de .
+
+lp:LP_0030135 a owl:Class ;
+    rdfs:label "Geeignete Methode / Anlass für das exemplarische Arbeiten (SL)"@de .
+
+lp:LP_0030136 a owl:Class ;
+    rdfs:label "Hinweis für die Konzeption von Lernaufgaben mit IK-Schwerpunkt  (SL)"@de .
+
+lp:LP_0030137 a owl:Class ;
+    rdfs:label "Mögliche Sprecharrangements und Genres (SL)"@de .
+
+lp:LP_0030138 a owl:Class ;
+    rdfs:label "Literatur und Film im Unterricht der Hauptphase (SL)"@de .
+
+lp:LP_0030139 a owl:Class ;
+    rdfs:label "Themenkomplex (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030140 a owl:Class ;
+    rdfs:label "Verbindliche Textsorte (SL)"@de .
+
+lp:LP_0030141 a owl:Class ;
+    rdfs:label "Vorgabe zum Erwerb von Methodenkompetenz (SL)"@de .
+
+lp:LP_0030142 a owl:Class ;
+    rdfs:label "Basiskonzept (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030143 a owl:Class ;
+    rdfs:label "Standard für den Kompetenzbereich Fachwissen (SL)"@de .
+
+lp:LP_0030144 a owl:Class ;
+    rdfs:label "Themenbereich (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030145 a owl:Class ;
+    rdfs:label "Verwendung von Lehrwerken (SL)"@de .
+
+lp:LP_0030146 a owl:Class ;
+    rdfs:label "Möglicher Einstieg / Motivation / Kontext (SL)"@de .
+
+lp:LP_0030147 a owl:Class ;
+    rdfs:label "Zusammenarbeit mit anderen Fächern (SL)"@de .
+
+lp:LP_0030148 a owl:Class ;
+    rdfs:label "Außerschulischer Lernort und außerunterrichtliche Veranstaltung (SL)"@de .
+
+lp:LP_0030149 a owl:Class ;
+    rdfs:label "Berufsorientierender Aspekt (SL)"@de .
+
+lp:LP_0030150 a owl:Class ;
+    rdfs:label "Unterstützungsangebot (SL)"@de .
+
+lp:LP_0030151 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (SL)"@de .
+
+lp:LP_0030152 a owl:Class ;
+    rdfs:label "Hinweis zum sprachsensiblen Fachunterricht (SL)"@de .
+
+lp:LP_0030153 a owl:Class ;
+    rdfs:label "Orientierungsrahmen (HB)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030154 a owl:Class ;
+    rdfs:label "Fachübergreifender und fächerverbindender Bezug (SL)"@de .
+
+lp:LP_0030155 a owl:Class ;
+    rdfs:label "Geeignetes (Schüler-)Experiment (SL)"@de .
+
+lp:LP_0030156 a owl:Class ;
+    rdfs:label "Projekt (SL)"@de .
+
+lp:LP_0030157 a owl:Class ;
+    rdfs:label "Sach-, Erkenntnisgewinnungs-, Kommunikations- und Bewertungskompetenz (SL)"@de .
+
+lp:LP_0030158 a owl:Class ;
+    rdfs:label "Bildung für nachhaltige Entwicklung (SL)"@de .
+
+lp:LP_0030159 a owl:Class ;
+    rdfs:label "Medienbildung (SL)"@de .
+
+lp:LP_0030160 a owl:Class ;
+    rdfs:label "Hinweis zur Unterrichtsgestaltung (SL)" .
+
+lp:LP_0030161 a owl:Class ;
+    rdfs:label "Hinweis zu Methoden und Arbeitstechniken (SL)" .
+
+lp:LP_0030162 a owl:Class ;
+    rdfs:label "Methodik und Fachdidaktik (SL)"@de .
+
+lp:LP_0030163 a owl:Class ;
+    rdfs:label "Einsatz digitaler Mathematikwerkzeuge (SL)"@de .
+
+lp:LP_0030164 a owl:Class ;
+    rdfs:label "Anregung zur selbstständigen Schülerarbeit (SL)"@de .
+
+lp:LP_0030165 a owl:Class ;
+    rdfs:label "Leitgedanke (HH)"@de .
+
+lp:LP_0030166 a owl:Class ;
+    rdfs:label "Beitrag zur Leitperspektive (HH)"@de .
+
+lp:LP_0030167 a owl:Class ;
+    rdfs:label "Verweis auf Leitperspektiven (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000426 .
+
+lp:LP_0030168 a owl:Class ;
+    rdfs:label "Verweis auf Kompetenzen (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030169 a owl:Class ;
+    rdfs:label "Redemittel und grammatische Grundlagen (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030170 a owl:Class ;
+    rdfs:label "Basisgrammatik (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030171 a owl:Class ;
+    rdfs:label "Fachperspektive (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030172 a owl:Class ;
+    rdfs:label "Bildungsstandard (HH)"@de .
+
+lp:LP_0030173 a owl:Class ;
+    rdfs:label "Basiskonzept (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030174 a owl:Class ;
+    rdfs:label "Kompetenzbereich (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030175 a owl:Class ;
+    rdfs:label "Verweis auf die prozessbezogenen Kompetenzen (BW)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030176 a owl:Class ;
+    rdfs:label "Verweis auf andere Standards für inhaltsbezogene Kompetenzen desselben Fachs (BW)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030177 a owl:Class ;
+    rdfs:label "Verweis auf Leitperspektiven (BW)"@de ;
+    rdfs:subClassOf lp:LP_0002051 .
+
+lp:LP_0030178 a owl:Class ;
+    rdfs:label "Verweis auf andere Fächer (BW)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030179 a owl:Class ;
+    rdfs:label "Umsetzungshilfen (BW)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030180 a owl:Class ;
+    rdfs:label "Verweis auf DaZ (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000434 .
+
+lp:LP_0030181 a owl:Class ;
+    rdfs:label "Verweis auf übergreifende Ziele (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000434 .
+
+lp:LP_0030182 a owl:Class ;
+    rdfs:label "Verweis auf Querverweise (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000434 .
+
+lp:LP_0030184 a owl:Class ;
+    rdfs:label "Interkulturelle Kompetenz (ST)"@de .
+
+lp:LP_0030185 a owl:Class ;
+    rdfs:label "Sprachlernkompetenz (ST)"@de .
+
+lp:LP_0030186 a owl:Class ;
+    rdfs:label "Text- und Medienkompetenz (ST)"@de .
+
+lp:LP_0030187 a owl:Class ;
+    rdfs:label "Verweis auf Kompetenzerwartung (NW)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030188 a owl:Class ;
+    rdfs:label "Verweis auf Lernbereich des gleichen Faches der gleichen Klassenstufe (SN)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030189 a owl:Class ;
+    rdfs:label "Verweis auf Lernbereich des gleichen Faches einer anderen Klassenstufe (SN)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030190 a owl:Class ;
+    rdfs:label "Verweis auf Klassenstufe, Lernbereich eines anderen Faches (SN)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030191 a owl:Class ;
+    rdfs:label "Verweis auf ein überfachliches Bildungs- und Erziehungsziel (SN)"@de ;
+    rdfs:subClassOf lp:LP_0002089 .
+
+lp:LP_0030192 a owl:Class ;
+    rdfs:label "Verweis auf Bezüge zu Kompetenzbereichen / Standards (HE)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030193 a owl:Class ;
+    rdfs:label "Verweis auf Aufgabengebiete (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000426 .
+
+lp:LP_0030194 a owl:Class ;
+    rdfs:label "Verweis auf Sprachbildung (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030195 a owl:Class ;
+    rdfs:label "Verweis auf fachübergreifende Bezüge (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030196 a owl:Class ;
+    rdfs:label "Verweis auf Fachbegriffe (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030197 a owl:Class ;
+    rdfs:label "Verweis auf fachinterne Bezüge (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030198 a owl:Class ;
+    rdfs:label "Verweis auf allgemeine mathematische Kompetenzen (ST)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030199 a owl:Class ;
+    rdfs:label "Verweis auf Kompetenzbereich (MV)"@de ;
+    rdfs:subClassOf lp:LP_0002080 .
+
+lp:LP_0030200 a owl:Class ;
+    rdfs:label "Textsorte (ST)"@de .
+
+lp:LP_0030201 a owl:Class ;
+    rdfs:label "Kommunikative Teilkompetenz (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030202 a owl:Class ;
+    rdfs:label "Sprachliches Mittel (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030203 a owl:Class ;
+    rdfs:label "Leitidee (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030204 a owl:Class ;
+    rdfs:label "Methodenkompetenz (NI)"@de .
+
+lp:LP_0030205 a owl:Class ;
+    rdfs:label "Lernstrategie und Arbeitstechnik (NI)"@de .
+
+lp:LP_0030206 a owl:Class ;
+    rdfs:label "Standard (HB)"@de .
+
+lp:LP_0030207 a owl:Class ;
+    rdfs:label "Themenfeld (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030208 a owl:Class ;
+    rdfs:label "Teilaspekt (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030209 a owl:Class ;
+    rdfs:label "Fachliche Perspektive (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030210 a owl:Class ;
+    rdfs:label "Fachbegriff (BB)"@de .
+
+lp:LP_0030211 a owl:Class ;
+    rdfs:label "Themenbereich (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030212 a owl:Class ;
+    rdfs:label "Verweis auf Vernetzungsmöglichkeiten (NI)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030213 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (NI)"@de .
+
+lp:LP_0030214 a owl:Class ;
+    rdfs:label "Beispiel für Unterrichtseinheiten (BB)"@de .
+
+lp:LP_0030215 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Kompetenz (NI)"@de .
+
+lp:LP_0030216 a owl:Class ;
+    rdfs:label "Verweis auf Fachbezug (NI)"@de .
+
+lp:LP_0030217 a owl:Class ;
+    rdfs:label "Inhaltsbereich (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030218 a owl:Class ;
+    rdfs:label "Verbindlicher Unterrichtsinhalt (NI)"@de .
+
+lp:LP_0030219 a owl:Class ;
+    rdfs:label "Autor und Textgruppe (NI)"@de .
+
+lp:LP_0030220 a owl:Class ;
+    rdfs:label "Empfohlene Schreibform und Übung (NI)"@de .
+
+lp:LP_0030221 a owl:Class ;
+    rdfs:label "Rahmenthema (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030222 a owl:Class ;
+    rdfs:label "Pflichtmodul (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030223 a owl:Class ;
+    rdfs:label "Wahlpflichtmodul (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030224 a owl:Class ;
+    rdfs:label "Verbindlicher Unterrichtsaspekt (NI)"@de .
+
+lp:LP_0030225 a owl:Class ;
+    rdfs:label "Möglicher Unterrichtsaspekt (NI)"@de .
+
+lp:LP_0030226 a owl:Class ;
+    rdfs:label "Sprachbildung (NI)"@de .
+
+lp:LP_0030227 a owl:Class ;
+    rdfs:label "Weiterführende Anforderung (NI)"@de .
+
+lp:LP_0030228 a owl:Class ;
+    rdfs:label "Hinweis zum Einsatz digitaler Medien und Werkzeuge (NI)"@de .
+
+lp:LP_0030229 a owl:Class ;
+    rdfs:label "Unterrichtsidee zur Handlungsorientierung online (NI)"@de .
+
+lp:LP_0030230 a owl:Class ;
+    rdfs:label "Fakultative Erweiterung (NI)"@de .
+
+lp:LP_0030231 a owl:Class ;
+    rdfs:label "Hinweis zum Einsatz digitaler Mathematikwerkzeuge (NI)"@de .
+
+lp:LP_0030232 a owl:Class ;
+    rdfs:label "Online-Material (NI)"@de .
+
+lp:LP_0030233 a owl:Class ;
+    rdfs:label "Verweis auf Inhaltsbezogene Kompetenzbereiche (NI)"@de ;
+    rdfs:subClassOf lp:LP_0002101 .
+
+lp:LP_0030234 a owl:Class ;
+    rdfs:label "Verweis auf Prozessbezogene Kompetenzbereiche (NI)"@de ;
+    rdfs:subClassOf lp:LP_0002101 .
+
+lp:LP_0030235 a owl:Class ;
+    rdfs:label "Prozessbezogene Anforderung (HB)"@de .
+
+lp:LP_0030236 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Anforderung (HB)"@de .
+
+lp:LP_0030237 a owl:Class ;
+    rdfs:label "Fakultativer Inhalt (SL)"@de .
+
+lp:LP_0030238 a owl:Class ;
+    rdfs:label "Rahmenthema (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030239 a owl:Class ;
+    rdfs:label "Basiskonzept (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030240 a owl:Class ;
+    rdfs:label "Grammatik (SL)"@de .
+
+lp:LP_0030241 a owl:Class ;
+    rdfs:label "Aussprache und Prosodie (SL)"@de .
+
+lp:LP_0030242 a owl:Class ;
+    rdfs:label "Inhaltsbereich (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030243 a owl:Class ;
+    rdfs:label "Erweiterungsbaustein (Zugangswege/Anwendungsbereiche/Vertiefungen) (HB)"@de .
+
+lp:LP_0030244 a owl:Class ;
+    rdfs:label "Verstehen und Handeln (SL)"@de .
+
+lp:LP_0030245 a owl:Class ;
+    rdfs:label "Hinweis zu Bezüge zu Kompetenzbereichen / Standards (HE)"@de .
+
+lp:LP_0030246 a owl:Class ;
+    rdfs:label "Beispiel für Differenzierungsmöglichkeiten (BB)"@de .
+
+lp:LP_0030247 a owl:Class ;
+    rdfs:label "Standard (BW)"@de .
+
+lp:LP_0030248 a owl:Class ;
+    rdfs:label "Kompetenzerwerb im Themenfeld (BE)"@de .
+
+lp:LP_0030249 a owl:Class ;
+    rdfs:label "Sachgebiet (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030250 a owl:Class ;
+    rdfs:label "Fachmethode (BB)"@de .
+
+lp:LP_0030251 a owl:Class ;
+    rdfs:label "Technik (BB)"@de .
+
+lp:LP_0030252 a owl:Class ;
+    rdfs:label "Thema (SH)" ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030253 a owl:Class ;
+    rdfs:label "Möglicher Kontext (BB)"@de .
+
+lp:LP_0030254 a owl:Class ;
+    rdfs:label "Thema und Inhalt (SH)" .
+
+lp:LP_0030255 a owl:Class ;
+    rdfs:label "Verweis auf Materialien (BB)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030256 a owl:Class ;
+    rdfs:label "Kompetenz (SH)"@de .
+
+lp:LP_0030257 a owl:Class ;
+    rdfs:label "Verweis auf vernetzte Kompetenzen (BB)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030258 a owl:Class ;
+    rdfs:label "Leitidee (SH)" ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030259 a owl:Class ;
+    rdfs:label "Verweis auf standardillustrierende Aufgaben (BB)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0030260 a owl:Class ;
+    rdfs:label "Vorgabe und Hinweis (SH)"@de .
+
+lp:LP_0030261 a owl:Class ;
+    rdfs:label "Dialogisches Sprechen – mündliche Interaktion (SL)"@de .
+
+lp:LP_0030262 a owl:Class ;
+    rdfs:label "Zusammenhängendes monologisches Sprechen – mündliche Produktion (SL)"@de .
+
+lp:LP_0030263 a owl:Class ;
+    rdfs:label "Kompetenzbereich (Bistas)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030264 a owl:Class ;
+    rdfs:label "Domänenspezifischer Kompetenzbereich (Bistas)"@de .
+
+lp:LP_0030265 a owl:Class ;
+    rdfs:label "Prozessbezogener Kompetenzbereich (Bistas)"@de .
+
+lp:LP_0030266 a owl:Class ;
+    rdfs:label "Standard (Bistas)" .
+
+lp:LP_0030268 a owl:Class ;
+    rdfs:label "Basiskonzept (Bistas)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030269 a owl:Class ;
+    rdfs:label "Verbindlicher inhaltlicher Aspekt (Bistas)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030270 a owl:Class ;
+    rdfs:label "Basiskonzept (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030271 a owl:Class ;
+    rdfs:label "Inhaltsbezogene Kompetenz (SH)"@de .
+
+lp:LP_0030272 a owl:Class ;
+    rdfs:label "Verbindlicher Inhalt (SH)"@de .
+
+lp:LP_0030273 a owl:Class ;
+    rdfs:label "Bereich (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030274 a owl:Class ;
+    rdfs:label "Verweis auf Basiskonzept (SH)"@de ;
+    rdfs:subClassOf lp:LP_0002103 .
+
+lp:LP_0030275 a owl:Class ;
+    rdfs:label "Aspekt (SH)"@de .
+
+lp:LP_0030276 a owl:Class ;
+    rdfs:label "Beispielinhalt (SH)"@de .
+
+lp:LP_0030277 a owl:Class ;
+    rdfs:label "Methodenkompetenz (TH)"@de .
+
+lp:LP_0030278 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (SH)"@de .
+
+lp:LP_0030279 a owl:Class ;
+    rdfs:label "Verbindliches Thema und Inhalt (SH)"@de .
+
+lp:LP_0030280 a owl:Class ;
+    rdfs:label "Mögliches Thema und Inhalt (SH)"@de .
+
+lp:LP_0030281 a owl:Class ;
+    rdfs:label "Mögliches Thema (SH)"@de .
+
+lp:LP_0030282 a owl:Class ;
+    rdfs:label "Inhalt (SH)"@de .
+
+lp:LP_0030283 a owl:Class ;
+    rdfs:label "Selbst- und Sozialkompetenz (TH)"@de .
+
+lp:LP_0030284 a owl:Class ;
+    rdfs:label "Möglicher inhaltlicher Aspekt (TH)"@de .
+
+lp:LP_0030285 a owl:Class ;
+    rdfs:label "Thema und Kommunikationsbereich (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030286 a owl:Class ;
+    rdfs:label "Einblick in andere Kulturen (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030287 a owl:Class ;
+    rdfs:label "Sprachfunktion/Redeabsicht (TH)"@de .
+
+lp:LP_0030288 a owl:Class ;
+    rdfs:label "Mögliches sprachliche Mittel zur Realisierung der Redeabsichten (TH)"@de .
+
+lp:LP_0030289 a owl:Class ;
+    rdfs:label "Thema und Situation (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030290 a owl:Class ;
+    rdfs:label "Wesentlicher inhaltlicher Schwerpunkt (TH)"@de .
+
+lp:LP_0030291 a owl:Class ;
+    rdfs:label "Wesentlicher inhaltlicher Aspekt (TH)"@de .
+
+lp:LP_0030292 a owl:Class ;
+    rdfs:label "Sprachliches Mittel (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030293 a owl:Class ;
+    rdfs:label "Structure (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030294 a owl:Class ;
+    rdfs:label "Themenkomplex (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030295 a owl:Class ;
+    rdfs:label "Schülerexperiment (TH)"@de .
+
+lp:LP_0030296 a owl:Class ;
+    rdfs:label "Projektvorschlag (TH)"@de .
+
+lp:LP_0030297 a owl:Class ;
+    rdfs:label "Themenbereich (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030298 a owl:Class ;
+    rdfs:label "Inhaltsbereich (TH)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030299 a owl:Class ;
+    rdfs:label "Verweis auf Aufgabe (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030183 .
+
+lp:LP_0030300 a owl:Class ;
+    rdfs:label "Verweis auf Material (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030183 .
+
+lp:LP_0030301 a owl:Class ;
+    rdfs:label "Verweis auf mebis (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030183 .
+
+lp:LP_0030302 a owl:Class ;
+    rdfs:label "Verweis auf Erläuterung (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030183 .
+
+lp:LP_0030303 a owl:Class ;
+    rdfs:label "Erläuterung (BY)"@de .
+
+lp:LP_0030305 a owl:Class ;
+    rdfs:label "Übergreifende Bildungs- und Erziehungsziele (BY)"@de ;
+    rdfs:subClassOf lp:LP_0002044 .
+
+lp:LP_0030306 a owl:Class ;
+    rdfs:label "Fachprofil (BY)"@de ;
+    rdfs:subClassOf lp:LP_0002044 .
+
+lp:LP_0030307 a owl:Class ;
+    rdfs:label "Grundlegende Kompetenzen (Jahrgangsstufenprofil) (BY)"@de ;
+    rdfs:subClassOf lp:LP_0002044 .
+
+lp:LP_0030308 a owl:Class ;
+    rdfs:label "Bayerische Leitlinie für die Bildung und Erziehung von Kindern bis zum Ender der Grundschulzeit (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030304 .
+
+lp:LP_0030309 a owl:Class ;
+    rdfs:label "Kompetenzbereich (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030310 a owl:Class ;
+    rdfs:label "Prozessbezogene Kompetenz (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030311 a owl:Class ;
+    rdfs:label "Gegenstandsbereich (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030318 a owl:Class ;
+    rdfs:label "Schlüsselkompetenz (ST)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030327 a owl:Class ;
+    rdfs:label "Leitperspektive (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030328 a owl:Class ;
+    rdfs:label "Querschnittsthema (MV)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030329 a owl:Class ;
+    rdfs:label "Bildungs- und Erziehungsziel (SN)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030330 a owl:Class ;
+    rdfs:label "Fachübergreifendes Thema (ST)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030331 a owl:Class ;
+    rdfs:label "Übergreifendes Bildungs- und Erziehungsziel (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030332 a owl:Class ;
+    rdfs:label "Fachübergreifendes Thema (BE)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030333 a owl:Class ;
+    rdfs:label "Fachübergreifendes Thema (BB)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030334 a owl:Class ;
+    rdfs:label "Leitperspektive (BW)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030335 a owl:Class ;
+    rdfs:label "Weiteres Thema (Bistas)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030336 a owl:Class ;
+    rdfs:label "Aufgabengebiet (HH)"@de ;
+    rdfs:subClassOf lp:LP_0030325 .
+
+lp:LP_0030361 a owl:Class ;
+    rdfs:label "Grundschulniveau"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030366 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0030378 a owl:Class ;
+    rdfs:label "EBR Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000834 .
+
+lp:LP_0030379 a owl:Class ;
+    rdfs:label "FOR Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000832 .
+
+lp:LP_0030380 a owl:Class ;
+    rdfs:label "FOR-Q Niveau"@de ;
+    rdfs:subClassOf lp:LP_0000069 .
+
+obo:BFO_0000004 a owl:Class ;
+    rdfs:label "independent continuant"@en ;
+    rdfs:subClassOf obo:BFO_0000002 .
+
+obo:BFO_0000030 a owl:Class ;
+    rdfs:label "object"@en ;
+    rdfs:subClassOf obo:BFO_0000040 .
+
+obo:BFO_0000031 a owl:Class ;
+    rdfs:label "generically dependent continuant"@en ;
+    rdfs:subClassOf obo:BFO_0000002 .
+
+obo:BFO_0000034 a owl:Class ;
+    rdfs:label "function"@en ;
+    rdfs:subClassOf obo:BFO_0000016 .
+
+obo:BFO_0000035 a owl:Class ;
+    rdfs:label "process boundary"@en ;
+    rdfs:subClassOf obo:BFO_0000003 .
+
+obo:BFO_0000038 a owl:Class ;
+    rdfs:label "one-dimensional temporal region"@en ;
+    rdfs:subClassOf obo:BFO_0000008 .
+
+obo:BFO_0000148 a owl:Class ;
+    rdfs:label "zero-dimensional temporal region"@en ;
+    rdfs:subClassOf obo:BFO_0000008 .
+
+obo:IAO_0000028 a owl:Class ;
+    rdfs:label "symbol"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000002 a owl:Class ;
+    rdfs:label "MINT-Fach"@de ;
+    rdfs:subClassOf lp:LP_0000001 .
+
+lp:LP_0000069 a owl:Class ;
+    rdfs:label "Gymnasialniveau Sek I"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0000328 a owl:Class ;
+    rdfs:label "Thema (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000342 a owl:Class ;
+    rdfs:label "Element (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000345 a owl:Class ;
+    rdfs:label "Teilthema (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000328 .
+
+lp:LP_0000431 a owl:Class ;
+    rdfs:label "Kompetenzbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0000808 a owl:Class ;
+    rdfs:label "Organisation"@de,
+        "organization"@en ;
+    rdfs:subClassOf obo:BFO_0000040 .
+
+lp:LP_0000832 a owl:Class ;
+    rdfs:label "Realschulniveau"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0000834 a owl:Class ;
+    rdfs:label "Hauptschulniveau"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0002051 a owl:Class ;
+    rdfs:label "Element (BW)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002080 a owl:Class ;
+    rdfs:label "Element (MV)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002085 a owl:Class ;
+    rdfs:label "Element (NW)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002089 a owl:Class ;
+    rdfs:label "Element (SN)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002093 a owl:Class ;
+    rdfs:label "Element (ST)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002102 a owl:Class ;
+    rdfs:label "Element (SL)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002103 a owl:Class ;
+    rdfs:label "Element (SH)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0030027 a owl:Class ;
+    rdfs:label "Erfahrungbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030034 a owl:Class ;
+    rdfs:label "Thematischer Leitgedanke (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030035 a owl:Class ;
+    rdfs:label "Lernbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000349 .
+
+lp:LP_0030101 a owl:Class ;
+    rdfs:label "Teilkompetenzbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0000431 .
+
+lp:LP_0030105 a owl:Class ;
+    rdfs:label "Teillernbereich (RP)"@de ;
+    rdfs:subClassOf lp:LP_0030035 .
+
+lp:LP_0030304 a owl:Class ;
+    rdfs:label "Bildungs- und Erziehungsauftrag (BY)"@de ;
+    rdfs:subClassOf lp:LP_0002044 .
+
+obo:BFO_0000001 a owl:Class ;
+    rdfs:label "entity"@en .
+
+obo:BFO_0000008 a owl:Class ;
+    rdfs:label "temporal region"@en ;
+    rdfs:subClassOf obo:BFO_0000003 .
+
+obo:BFO_0000016 a owl:Class ;
+    rdfs:label "disposition"@en ;
+    rdfs:subClassOf obo:BFO_0000017 .
+
+obo:BFO_0000017 a owl:Class ;
+    rdfs:label "realizable entity"@en ;
+    rdfs:subClassOf obo:BFO_0000020 .
+
+obo:BFO_0000020 a owl:Class ;
+    rdfs:label "specifically dependent continuant"@en ;
+    rdfs:subClassOf obo:BFO_0000002 .
+
+obo:BFO_0000023 a owl:Class ;
+    rdfs:label "role"@en ;
+    rdfs:subClassOf obo:BFO_0000017 .
+
+obo:BFO_0000040 a owl:Class ;
+    rdfs:label "material entity"@en ;
+    rdfs:subClassOf obo:BFO_0000004 .
+
+obo:IAO_0000027 a owl:Class ;
+    rdfs:label "data entity"@en,
+        "data item"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000040 a owl:Class ;
+    rdfs:label "Bundesland Bezeichnung"@de,
+        "state designation"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000043 a owl:Class ;
+    rdfs:label "Oberstufenphase"@de,
+        "secondary phase"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000263 a owl:Class ;
+    rdfs:label "CE-Kompetenzspezifikation"@de,
+        "competency specification"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000265 a owl:Class ;
+    rdfs:label "Fachniveau Sek II"@de ;
+    rdfs:subClassOf lp:LP_0000037 .
+
+lp:LP_0000426 a owl:Class ;
+    rdfs:label "Element (HH)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000441 a owl:Class ;
+    rdfs:label "Element (BB)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0001441 a owl:Class ;
+    rdfs:label "Element (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002101 a owl:Class ;
+    rdfs:label "Element (NI)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0002118 a owl:Class ;
+    rdfs:label "Element (HB)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+obo:BFO_0000002 a owl:Class ;
+    rdfs:label "continuant"@en ;
+    rdfs:subClassOf obo:BFO_0000001 .
+
+obo:IAO_0000102 a owl:Class ;
+    rdfs:label "data about an ontology part"@en ;
+    rdfs:subClassOf obo:IAO_0000027 .
+
+obo:IAO_0000300 a owl:Class ;
+    rdfs:label "textual entity"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000434 a owl:Class ;
+    rdfs:label "Element (BY)"@de ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000478 a owl:Class ;
+    rdfs:label "Funktionsspezifikation"@de,
+        "function specification"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000816 a owl:Class ;
+    rdfs:label "Bildungsgang"@de,
+        "educational track"@en ;
+    rdfs:subClassOf obo:BFO_0000015 .
+
+obo:BFO_0000003 a owl:Class ;
+    rdfs:label "occurrent"@en ;
+    rdfs:subClassOf obo:BFO_0000001 .
+
+obo:BFO_0000015 a owl:Class ;
+    rdfs:label "process"@en ;
+    rdfs:subClassOf obo:BFO_0000003 .
+
+lp:LP_0000001 a owl:Class ;
+    rdfs:label "Schulfach"@de,
+        "school subject"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0000037 a owl:Class ;
+    rdfs:label "Niveau"@de,
+        "niveau"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0030183 a owl:Class ;
+    rdfs:label "Verweis auf Servicematerialien (BY)"@de ;
+    rdfs:subClassOf lp:LP_0030065 .
+
+lp:LP_0000572 a owl:Class ;
+    rdfs:label "Bildungsgangniveau (BE)"@de ;
+    rdfs:subClassOf lp:LP_0000028 .
+
+lp:LP_0002044 a owl:Class ;
+    rdfs:label "Lehrplanfragment (BY)"@de ;
+    rdfs:subClassOf lp:LP_0001015 .
+
+lp:LP_0000540 a owl:Class ;
+    rdfs:label "Schulfachbezug"@de,
+        "school subject property"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0030325 a owl:Class ;
+    rdfs:label "CE-Leitperspektive"@de,
+        "guiding perspective"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000438 a owl:Class ;
+    rdfs:label "Lehrplan"@de,
+        "curriculum"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0001015 a owl:Class ;
+    rdfs:label "CE-Fragment"@de,
+        "fragment"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+obo:IAO_0000030 a owl:Class ;
+    rdfs:label "information content entity"@en ;
+    rdfs:subClassOf obo:BFO_0000031 .
+
+lp:LP_0000028 a owl:Class ;
+    rdfs:label "Bildungsgangniveau"@de,
+        "educational track level"@en ;
+    rdfs:subClassOf lp:LP_0000037 .
+
+lp:LP_0000261 a owl:Class ;
+    rdfs:label "Curriculares Element"@de,
+        "curricular element"@en ;
+    rdfs:subClassOf obo:IAO_0000030 .
+
+lp:LP_0030065 a owl:Class ;
+    rdfs:label "CE-Verweis"@de,
+        "reference"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+
+lp:LP_0000349 a owl:Class ;
+    rdfs:label "CE-Bereich"@de,
+        "area"@en ;
+    rdfs:subClassOf lp:LP_0000261 .
+

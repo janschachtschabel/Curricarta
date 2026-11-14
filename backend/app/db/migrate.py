@@ -1,0 +1,215 @@
+"""Versioned SQL migrations, each applied exactly once: ``python -m app.db.migrate``.
+
+The files ``NNNN_name.sql`` in ``app/db/migrations`` are numbered from 0001 without gaps. A run
+takes a session-level advisory lock, so pods or jobs starting together wait for each other
+instead of applying a file twice; it applies every pending file in its own transaction and
+records it with the SHA-256 of its bytes in ``schema_migration``. A database that knows a
+version this code does not, or an applied file whose bytes changed, stops the run: the code
+must not guess what such a database holds. API and worker never migrate; they only check the
+state (/ready).
+"""
+
+import hashlib
+import logging
+import re
+import sys
+from dataclasses import dataclass
+from importlib.resources import files
+from importlib.resources.abc import Traversable
+
+import psycopg
+
+from app.db.pool import CONNECTION_OPTIONS
+from app.db.sql_scan import transaction_control
+
+log = logging.getLogger("app.db.migrate")  # also when run as __main__
+
+MIGRATIONS: Traversable = files("app.db") / "migrations"
+# Any fixed number serves; all runs against one database must agree on it
+LOCK_KEY = 0x6B6B_612D_6D69_6772  # "curricarta-migr"
+_FILENAME = re.compile(r"(\d{4})_[a-z0-9_]+\.sql")
+# Waiting behind a long transaction, an ALTER would block all traffic on its table; better
+# the migration fails and the job runs again
+LOCK_TIMEOUT = "10s"
+_BOOKKEEPING = """
+CREATE TABLE IF NOT EXISTS schema_migration (
+    version integer PRIMARY KEY CHECK (version > 0),
+    name text NOT NULL,
+    checksum text NOT NULL CHECK (checksum ~ '^[0-9a-f]{64}$'),
+    applied_at timestamptz NOT NULL DEFAULT now()
+)
+"""
+
+
+class MigrationError(Exception):
+    """The migrations cannot be applied as they are; nothing further was changed."""
+
+
+@dataclass(frozen=True)
+class Migration:
+    version: int
+    filename: str
+    sql: str
+    checksum: str
+
+
+def load_migrations(directory: Traversable = MIGRATIONS) -> list[Migration]:
+    """The ``.sql`` files of ``directory`` in order; refused unless they run 1, 2, ... without gaps."""
+    migrations: dict[int, Migration] = {}
+    for entry in directory.iterdir():
+        if not entry.name.endswith(".sql"):
+            continue
+        match = _FILENAME.fullmatch(entry.name)
+        if match is None:
+            raise MigrationError(f"{entry.name}: a migration is named NNNN_lower_case_name.sql")
+        version = int(match.group(1))
+        if version in migrations:
+            raise MigrationError(f"version {version} twice: {migrations[version].filename}, {entry.name}")
+        content = entry.read_bytes()
+        # of its text with one line ending: a checkout with CRLF (git's autocrlf, an editor) is the same
+        # migration as the image's with LF, and a database either applied takes the other
+        checksum = hashlib.sha256(content.replace(b"\r\n", b"\n")).hexdigest()
+        sql = content.decode("utf-8")
+        control = _transaction_control(sql)
+        if control is not None:
+            raise MigrationError(f"{entry.name}: '{control}' - the runner gives each file its transaction")
+        migrations[version] = Migration(version, entry.name, sql, checksum)
+    ordered = [migrations[version] for version in sorted(migrations)]
+    for expected, migration in enumerate(ordered, start=1):
+        if migration.version != expected:
+            raise MigrationError(f"gap before {migration.filename}: version {expected} is missing")
+    return ordered
+
+
+def _transaction_control(sql: str) -> str | None:
+    """The first statement that controls the transaction itself (it would commit the runner's)."""
+    return transaction_control(sql)
+
+
+def migrate(conninfo: str, directory: Traversable = MIGRATIONS) -> list[int]:
+    """Apply the pending migrations; the versions applied by this run, in order."""
+    migrations = load_migrations(directory)
+    with psycopg.connect(conninfo, autocommit=True, **CONNECTION_OPTIONS) as connection:
+        _take_lock(connection)
+        try:
+            # Set after the advisory lock: its own wait is bounded by nothing but the other run
+            connection.execute("SELECT set_config('lock_timeout', %s, false)", (LOCK_TIMEOUT,))
+            connection.execute(_BOOKKEEPING)
+            rows = connection.execute("SELECT version, checksum FROM schema_migration").fetchall()
+            applied = {int(version): str(checksum) for version, checksum in rows}
+            _check(applied, migrations)
+            done = []
+            for migration in migrations:
+                if migration.version not in applied:
+                    _apply(connection, migration)
+                    done.append(migration.version)
+            return done
+        finally:
+            _release_lock(connection)
+
+
+def _take_lock(connection: psycopg.Connection) -> None:
+    row = connection.execute("SELECT pg_try_advisory_lock(%s)", (LOCK_KEY,)).fetchone()
+    if not (row and row[0]):
+        log.info("waiting for the migration lock: another run is migrating")
+        connection.execute("SELECT pg_advisory_lock(%s)", (LOCK_KEY,))
+
+
+def _release_lock(connection: psycopg.Connection) -> None:
+    """The session lock ends with its connection anyway; a lost one must not hide the cause."""
+    if connection.closed:
+        return
+    try:
+        connection.execute("SELECT pg_advisory_unlock(%s)", (LOCK_KEY,))
+    except psycopg.Error:
+        log.warning("the migration lock ends with the connection")
+
+
+def _check(applied: dict[int, str], migrations: list[Migration]) -> None:
+    known = {migration.version: migration for migration in migrations}
+    unknown = sorted(set(applied) - set(known))
+    if unknown:
+        raise MigrationError(
+            f"the database is at migration {max(applied)}, newer than this code ({len(migrations)})"
+        )
+    for version, checksum in applied.items():
+        if known[version].checksum != checksum:
+            raise MigrationError(f"{known[version].filename} changed after it was applied")
+
+
+def _apply(connection: psycopg.Connection, migration: Migration) -> None:
+    """Run one file and record it, in one transaction - or report that the file broke it.
+
+    The last guard, should the scanner miss a COMMIT: the transaction's id is taken before
+    the file and compared after it (COMMIT AND CHAIN or COMMIT; BEGIN leave a transaction
+    open, but another one), and a failed file is asked whether its transaction committed
+    before the failure. What a file committed itself is not recorded; a person has to look.
+    """
+    started: str | None = None
+    try:
+        with connection.transaction():
+            started = _transaction_id(connection)
+            connection.execute(migration.sql.encode("utf-8"))  # bytes: the file as it is, several statements
+            if _transaction_id(connection) != started:
+                raise MigrationError(_ended_itself(migration))
+            connection.execute(
+                "INSERT INTO schema_migration (version, name, checksum) VALUES (%s, %s, %s)",
+                (migration.version, migration.filename, migration.checksum),
+            )
+    except psycopg.Error as error:
+        if started is not None and _committed(connection, started):
+            raise MigrationError(_ended_itself(migration)) from error
+        raise MigrationError(f"{migration.filename} failed: {error}") from error
+    log.info("applied %s", migration.filename)
+
+
+def _transaction_id(connection: psycopg.Connection) -> str:
+    row = connection.execute("SELECT pg_current_xact_id()::text").fetchone()
+    return str(row[0]) if row else ""
+
+
+def _committed(connection: psycopg.Connection, transaction_id: str) -> bool:
+    if connection.closed:
+        return False
+    try:
+        row = connection.execute("SELECT pg_xact_status(%s::xid8)", (transaction_id,)).fetchone()
+    except psycopg.Error:
+        return False
+    return bool(row and row[0] == "committed")
+
+
+def _ended_itself(migration: Migration) -> str:
+    return (
+        f"{migration.filename} ended the runner's transaction itself; "
+        "what it did before that is committed and needs repair by hand"
+    )
+
+
+async def applied_versions(connection: psycopg.AsyncConnection) -> frozenset[int]:
+    """The versions recorded in ``schema_migration``; none before the first run made the table."""
+    cursor = await connection.execute("SELECT to_regclass('schema_migration') IS NOT NULL")
+    exists = await cursor.fetchone()
+    if not (exists and exists[0]):
+        return frozenset()
+    cursor = await connection.execute("SELECT version FROM schema_migration")
+    return frozenset(int(version) for (version,) in await cursor.fetchall())
+
+
+def main() -> int:
+    from app.core.logging import configure_logging
+    from app.core.settings import Settings
+
+    settings = Settings()
+    configure_logging(settings.log_level, settings.log_format, stream=sys.stderr)
+    try:
+        applied = migrate(settings.database_url.get_secret_value())
+    except (MigrationError, psycopg.Error) as error:
+        # one line: a connection error spans several, and a traceback breaks the JSON log
+        log.error("migration stopped: %s", " ".join(str(error).split()))
+        return 1
+    log.info("%d migration(s) applied", len(applied))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

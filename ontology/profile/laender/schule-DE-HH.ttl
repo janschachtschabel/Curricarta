@@ -1,0 +1,476 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-HH-03740004b7d7,
+        schul:re-DE-HH-18312e923858,
+        schul:re-DE-HH-1e7627fc7ef6,
+        schul:re-DE-HH-26f10aac2bc3,
+        schul:re-DE-HH-27868bd93ca0,
+        schul:re-DE-HH-318d2e5ad540,
+        schul:re-DE-HH-31cd02d7b525,
+        schul:re-DE-HH-4b47898db5c6,
+        schul:re-DE-HH-5ed7784726fc,
+        schul:re-DE-HH-5ffafc0a4dde,
+        schul:re-DE-HH-62ed8203998c,
+        schul:re-DE-HH-657bc6e131b6,
+        schul:re-DE-HH-83c3ca813f7c,
+        schul:re-DE-HH-90e40caf3d02,
+        schul:re-DE-HH-9f5ff957cd8a,
+        schul:re-DE-HH-a5f161ecd00e,
+        schul:re-DE-HH-a9a7aeb21ab2,
+        schul:re-DE-HH-aabc74b64016,
+        schul:re-DE-HH-b1eed1171f42,
+        schul:re-DE-HH-bb63ad698c67,
+        schul:re-DE-HH-bcb4474a0c1b,
+        schul:re-DE-HH-cc61abcbae6f,
+        schul:re-DE-HH-d100347f2c24,
+        schul:re-DE-HH-d3166891b559,
+        schul:re-DE-HH-d99b485cdbd7,
+        schul:re-DE-HH-dc5094e11ebd,
+        schul:re-DE-HH-e32a9d693c89,
+        schul:re-DE-HH-f55f7ca6885f,
+        schul:re-DE-HH-f85ea4e57b2a,
+        schul:re-DE-HH-fa5618d6908d .
+
+schul:re-DE-HH-03740004b7d7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030171"@de,
+        "Länderrecherche, Beleg E: GS-SU S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Strukturbegriff ist sonst Perspektive"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Unterrichtsvorhaben und berücksichtigte Fachperspektiven" ;
+    cur:recognitionHint "Kopf der Vorhabenübersicht"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachperspektiven" ;
+    cur:verified false .
+
+schul:re-DE-HH-18312e923858 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Stufenwörter als KMK-Standard angenommen. Zeugnisformen aus dem Zitat von § 44 Abs. 2 im Bildungsplan STS Teil C. Notenübersicht im Musterzeugnis Jg 4 einer Hamburger Grundschule"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-HH-1e7627fc7ef6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-TeilC S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2023/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Rahmendokument ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Teil C Leistungsbewertung" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil C Leistungsbewertung" ;
+    cur:verified false .
+
+schul:re-DE-HH-26f10aac2bc3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: A-Teil S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Schulintern ;
+    cur:negativeHint "Kerncurricula beanspruchen rund die Hälfte der Unterrichtszeit (Impl S. 4)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "In den schulinternen Curricula werden die Vorgaben des Bildungsplans und der Kerncurricula … konkretisiert" ;
+    cur:recognitionHint "Fließtext"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "schulinterne Curricula" ;
+    cur:verified false .
+
+schul:re-DE-HH-27868bd93ca0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-dt-anhoerung"@de,
+        "Länderrecherche, Beleg E: Impl S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2022/2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo cv:life_consultation ;
+    cur:negativeHint "Hamburg nutzt nicht das Wort Anhörungsfassung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Diese Entwürfe wurden nach ihrer Veröffentlichung im Frühjahr 2022 und im Sommer 2023 … breit diskutiert" ;
+    cur:recognitionHint "Schreiben an Schulleitungen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Entwurfsfassungen" ;
+    cur:verified false .
+
+schul:re-DE-HH-318d2e5ad540 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 35"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Verweis oder Folge, in Sprabi als vgl.-Verweis (GS-Sprabi S. 20)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Glühdraht→ Brandschutz" ;
+    cur:recognitionHint "Pfeilzeichen im Textlayer als Private-Use-Zeichen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "→ (U+F0E0 Wingdings)" ;
+    cur:verified false .
+
+schul:re-DE-HH-31cd02d7b525 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GyO-Phy S. 22"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Semester 1 bis 4"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "S1-4 1.1 Das Feldkonzept zur Beschreibung von Wechselwirkungen" ;
+    cur:recognitionHint "Modulkopf Studienstufe"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "S1-4" ;
+    cur:verified false .
+
+schul:re-DE-HH-4b47898db5c6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: A-Teil S. 29"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Entspricht nicht Einführungsphase (Begriff in Hamburg nicht gefunden)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Vorstufe in Jahrgangsstufe 11" ;
+    cur:recognitionHint "Beschreibung Gliederung und Abschlüsse STS"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorstufe" ;
+    cur:verified false .
+
+schul:re-DE-HH-5ed7784726fc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Stadtteilschule Chemie S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-HH-5ffafc0a4dde a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 31"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Experiment ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "verbindliche Experimente:" ;
+    cur:recognitionHint "Zwischenüberschrift im Inhaltsblock"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "verbindliche Experimente:" ;
+    cur:verified false .
+
+schul:re-DE-HH-62ed8203998c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 16 / Gym-Ma S. 13 44"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: (1.1., 1.2.) | 3.1 5.2 5.4; markiert: Klammern hinter Standards, im Mathematik-Modulkopf als Zahlenreihe vermutet"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "KMK-Strategie Bildung in der digitalen Welt" ;
+    cur:verified false .
+
+schul:re-DE-HH-657bc6e131b6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: STS-Phy S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:NiveaugebundeneErwartung ;
+    cur:negativeHint "Spalten bauen aufeinander auf"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Zusätzlich zum ESA" ;
+    cur:recognitionHint "Spaltenköpfe"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusätzlich zum MSA" ;
+    cur:verified false .
+
+schul:re-DE-HH-83c3ca813f7c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GS-Sprabi S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenvorgaben Sprachbildung als Querschnittsaufgabe" ;
+    cur:recognitionHint "Titel des Sprachbildungsdokuments"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenvorgaben" ;
+    cur:verified false .
+
+schul:re-DE-HH-90e40caf3d02 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 30 / GS-SU S. 25 / GS-Sprabi S. 12-13"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: 4 5 6 13 | A C 3 4 6 7; markiert: Modulkopf Zeile Sprachbildung"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprachbildung als Querschnittsaufgabe" ;
+    cur:verified false .
+
+schul:re-DE-HH-9f5ff957cd8a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002218"@de,
+        "Länderrecherche, Beleg E: Gym-Phy S. 29"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Strukturbegriffe sind Themenfeld und Themenbereich"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "JG Themen" ;
+    cur:recognitionHint "Kopf der Übersichtstabelle JG | Themen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themen" ;
+    cur:verified false .
+
+schul:re-DE-HH-a5f161ecd00e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Stadtteilschule Chemie S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erweiterter erster allgemeinbildender Schulabschluss (eESA)" ;
+    cur:verified false .
+
+schul:re-DE-HH-a9a7aeb21ab2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: STS-Phy S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:NiveaugebundeneErwartung ;
+    cur:negativeHint "Spalten bauen aufeinander auf"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Zusätzlich zum ESA" ;
+    cur:recognitionHint "Spaltenköpfe"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusätzlich zum ESA" ;
+    cur:verified false .
+
+schul:re-DE-HH-aabc74b64016 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0000428"@de,
+        "Länderrecherche, Beleg E: Gym-Phy S. 3 29"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Kapitel und Modulzeile, keine Inhaltsbereich-Ebene"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.3 Inhalte" ;
+    cur:recognitionHint "Kapitel 2.3 und Zeilenlabel im Modulkopf"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-HH-b1eed1171f42 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Stufenwörter als KMK-Standard angenommen. Zeugnisformen aus dem Zitat von § 44 Abs. 2 im Bildungsplan STS Teil C. Notenübersicht im Musterzeugnis Jg 4 einer Hamburger Grundschule"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "ungenügend" ;
+    cur:verified false .
+
+schul:re-DE-HH-bb63ad698c67 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Stufenwörter als KMK-Standard angenommen. Zeugnisformen aus dem Zitat von § 44 Abs. 2 im Bildungsplan STS Teil C. Notenübersicht im Musterzeugnis Jg 4 einer Hamburger Grundschule"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-HH-bcb4474a0c1b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:att-minimum ;
+    cur:negativeHint "Entspricht Mindestanforderungen der Tabellen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "in Form von Mindeststandards präzisiert" ;
+    cur:recognitionHint "Fließtext Kompetenzbereiche"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mindeststandards" ;
+    cur:verified false .
+
+schul:re-DE-HH-cc61abcbae6f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: A-Teil S. 3 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: Kapitelnummer 3.1; markiert: Kapitel 3.1 des A-Teils (Fachpläne kürzen als Wertebildung / Werteorientierung (W))"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitperspektiven (A-Teil)" ;
+    cur:verified false .
+
+schul:re-DE-HH-d100347f2c24 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Stufenwörter als KMK-Standard angenommen. Zeugnisformen aus dem Zitat von § 44 Abs. 2 im Bildungsplan STS Teil C. Notenübersicht im Musterzeugnis Jg 4 einer Hamburger Grundschule"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-HH-d3166891b559 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030165"@de,
+        "Länderrecherche, Beleg E: Gym-Phy S. 30"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "In Mathematik und Geschichte steht der Einleitungstext ohne diese Beschriftung, kein Inhaltsbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Leitgedanken" ;
+    cur:recognitionHint "Zeilenlabel im Modulkopf mit einleitendem Text"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitgedanken" ;
+    cur:verified false .
+
+schul:re-DE-HH-d99b485cdbd7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Stadtteilschule Chemie S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erster allgemeinbildender Schulabschluss (ESA)" ;
+    cur:verified false .
+
+schul:re-DE-HH-dc5094e11ebd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-dt-anhoerung"@de,
+        "Länderrecherche, Beleg E: Impl S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2022/2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo cv:life_consultation ;
+    cur:negativeHint "Hamburg nutzt nicht das Wort Anhörungsfassung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Diese Entwürfe wurden nach ihrer Veröffentlichung im Frühjahr 2022 und im Sommer 2023 … breit diskutiert" ;
+    cur:recognitionHint "Schreiben an Schulleitungen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Referentenentwürfe" ;
+    cur:verified false .
+
+schul:re-DE-HH-e32a9d693c89 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 10 30-31"@de,
+        "Länderrecherche, Beleg E: Gym-Phy S. 10 31"@de,
+        "Länderrecherche, Beleg E: Gym-Phy S. 11 31"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:DigitalWorld,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: BNE; markiert: Modulkopf Zeile Leitperspektiven | Kasten Beitrag zur Leitperspektive BNE | Kapitel 1.2"@de,
+        "Kürzel oder Symbol: D; markiert: Modulkopf Zeile Leitperspektiven | Kasten Beitrag zur Leitperspektive D | Kapitel 1.2"@de,
+        "Kürzel oder Symbol: W; markiert: Modulkopf Zeile Leitperspektiven (Buchstabenkürzel) | Kasten Beitrag zur Leitperspektive W: | Kapitel 1.2 Beitrag des Faches zu den Leitperspektiven"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitperspektiven (Bildungsplan 2022/24)" ;
+    cur:verified false .
+
+schul:re-DE-HH-f55f7ca6885f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gym-Phy S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2022/24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Bildungsbeitrag,
+        schul:Rahmenteil ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wertebildung / Werteorientierung (W)" ;
+    cur:recognitionHint "Kapitel 1.2 mit Unterüberschriften je Leitperspektive"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beitrag des Faches zu den Leitperspektiven" ;
+    cur:verified false .
+
+schul:re-DE-HH-f85ea4e57b2a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GS-SU S. 3 9"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Fünf Perspektiven sozialwissenschaftlich, historisch, geografisch, naturwissenschaftlich, technisch"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sozialwissenschaftliche Perspektive: Soziales, Politik, Wirtschaft" ;
+    cur:recognitionHint "Kapitel 2.2.1 und 2.2.3.x"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Perspektiven des Sachunterrichts" ;
+    cur:verified false .
+
+schul:re-DE-HH-fa5618d6908d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Stufenwörter als KMK-Standard angenommen. Zeugnisformen aus dem Zitat von § 44 Abs. 2 im Bildungsplan STS Teil C. Notenübersicht im Musterzeugnis Jg 4 einer Hamburger Grundschule"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "ausreichend" ;
+    cur:verified false .
+

@@ -1,0 +1,321 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-BY-12980f6b81e8,
+        beruf:re-DE-BY-155e444235c6,
+        beruf:re-DE-BY-15a5dc6c6f9e,
+        beruf:re-DE-BY-2cab17b2bc69,
+        beruf:re-DE-BY-4618b8281916,
+        beruf:re-DE-BY-641adf23be2f,
+        beruf:re-DE-BY-6813b88a16ae,
+        beruf:re-DE-BY-84126b062998,
+        beruf:re-DE-BY-ac27ecd77b18,
+        beruf:re-DE-BY-b026b1ecda41,
+        beruf:re-DE-BY-b4fbd6619e3e,
+        beruf:re-DE-BY-b9e22041d185,
+        beruf:re-DE-BY-bc273c00b592,
+        beruf:re-DE-BY-c07b221a679c,
+        beruf:re-DE-BY-dc81716093ee,
+        beruf:re-DE-BY-e940332ccb46,
+        beruf:re-DE-BY-fd67626c9be9,
+        beruf:re-DE-BY-febe32634283 .
+
+beruf:re-DE-BY-12980f6b81e8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BV Konzeption des Lehrplans"@de,
+        "Plangeneration laut Länderrecherche: 2021/2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo beruf:Anforderungssituation ;
+    cur:negativeHint "nicht als Gliederungsebene wie bei NRW-Bildungsplänen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "zukünftige (beruflichen) Anforderungssituationen" ;
+    cur:recognitionHint "nur Fließtext"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungssituationen" ;
+    cur:verified false .
+
+beruf:re-DE-BY-155e444235c6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Ergotherapie Inhaltsverzeichnis S. 53"@de,
+        "Plangeneration laut Länderrecherche: BFS 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo ctx:practice-placement ;
+    cur:negativeHint "Praxisstunden nicht in Zeitrichtwerten der Lernfelder"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "PRAKTISCHE AUSBILDUNG" ;
+    cur:recognitionHint "eigener Abschnitt mit Stundentafel und Kompetenzerwartungen"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Praktische Ausbildung" ;
+    cur:verified false .
+
+beruf:re-DE-BY-15a5dc6c6f9e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HEP S. 13"@de,
+        "Plangeneration laut Länderrecherche: HEP 2024/25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "in der Berufsschule heißt die Überschrift „Zielformulierung“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kompetenzerwartungen" ;
+    cur:recognitionHint "Überschrift über dem Fließtext"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzerwartungen" ;
+    cur:verified false .
+
+beruf:re-DE-BY-2cab17b2bc69 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Industriekaufmann S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2024/25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:negativeHint "eigenes Portal berufssprache-deutsch.bayern.de"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Berufssprache Deutsch ist durchgängiges Unterrichtsprinzip" ;
+    cur:recognitionHint "durchgängiges Unterrichtsprinzip"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufssprache Deutsch" ;
+    cur:verified false .
+
+beruf:re-DE-BY-4618b8281916 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bankkaufmann S. 11"@de,
+        "Plangeneration laut Länderrecherche: 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "Bank und Gärtner Kopf: „Zielformulierung“ steht über dem ersten Satz und den folgenden Absätzen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zielformulierung" ;
+    cur:recognitionHint "eigene Überschrift über dem Lernfeldtext"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zielformulierung" ;
+    cur:verified false .
+
+beruf:re-DE-BY-641adf23be2f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BV S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2021/2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Basismodule verpflichtend | Wahlmodule frei zuordenbar"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Lehrplan für die Berufsvorbereitung ist modularisiert aufgebaut" ;
+    cur:recognitionHint "Unterebene Lernbereich mit Wahlmodul"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basismodul" ;
+    cur:verified false .
+
+beruf:re-DE-BY-6813b88a16ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Winzer S. 1 und S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2025/2026 (Winzer)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "enthält keine Lernfeldtexte: Ziele stehen nur im KMK-RLP | nicht mit Lehrplanrichtlinien verwechseln"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplanstrukturvorgabe für die Berufsschule" ;
+    cur:recognitionHint "Titelblatt „Lehrplanstrukturvorgabe für die Berufsschule zur Umsetzung des Rahmenlehrplans“ | nur Abschnitte 1 bis 4"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplanstrukturvorgabe" ;
+    cur:verified false .
+
+beruf:re-DE-BY-84126b062998 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gärtner S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2021/22 (Gärtner)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Dateiname bs_lp_ statt bs_lpr_ | Verfügungstext des Gärtner-Dokuments nennt trotzdem „Lehrplanrichtlinien“"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrpläne für die Berufsschule" ;
+    cur:recognitionHint "Titelblatt „Lehrpläne für die Berufsschule Fachklassen“"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrpläne für die Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BY-ac27ecd77b18 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Industriekaufmann S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2024/25 (Industriekaufmann)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Fußnote 1: Lehrplanrichtlinien unterscheiden sich von Lehrplänen dadurch dass die Lernfelder unverändert übernommen werden"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplanrichtlinien für die Berufsschule" ;
+    cur:recognitionHint "Titelblatt „Lehrplanrichtlinien für die Berufsschule Fachklassen“"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplanrichtlinien für die Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BY-b026b1ecda41 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Industriekaufmann S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2024/25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Bildungsauftrag ;
+    cur:negativeHint "wortgleich in allen gelesenen Berufsschuldokumenten: einmal speichern und teilen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1 Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:recognitionHint "Abschnitt 1 der Einführung"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BY-b4fbd6619e3e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Industriekaufmann S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2024/25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:negativeHint "integraler Bestandteil der Handlungskompetenz"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kompetenzen im Umgang mit digitalen Medien als Querschnittskompetenzen" ;
+    cur:recognitionHint "Leitgedanken"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "digitale Medien als Querschnittskompetenzen" ;
+    cur:verified false .
+
+beruf:re-DE-BY-b9e22041d185 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bankkaufmann S. 11"@de,
+        "Plangeneration laut Länderrecherche: 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "in der Fachakademie „Die Fachschülerinnen und Fachschüler“ (HEP S. 13)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Schülerinnen und Schüler informieren sich über die Grundzüge des Privatrechts" ;
+    cur:recognitionHint "Satzanfang gefolgt von Verb im Präsens"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Schülerinnen und Schüler" ;
+    cur:verified false .
+
+beruf:re-DE-BY-bc273c00b592 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lft-1"@de,
+        "Länderrecherche, Beleg E: Bankkaufmann S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:Lernfeldteil ;
+    cur:negativeHint "Ergotherapie und HEP: „Übersicht über die Lernfelder“"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Übersicht über die Fächer und Lernfelder" ;
+    cur:recognitionHint "Abschnitt „5 Übersicht über die Fächer und Lernfelder“ mit Spalten „Nr.“ und „Zeitrichtwerte in Stunden“"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fächer und Lernfelder" ;
+    cur:verified false .
+
+beruf:re-DE-BY-c07b221a679c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Industriekaufmann S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2024/25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "übernimmt Text der KMK-Vorbemerkungen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "5 Berufsbezogene Vorbemerkungen" ;
+    cur:recognitionHint "Abschnitt vor den Lernfeldern"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsbezogene Vorbemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-BY-dc81716093ee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bankkaufmann S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Health ;
+    cur:negativeHint "Querschnittsziel nicht je Lernfeld markiert"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "durchgängige Ziele aller Lernfelder" ;
+    cur:recognitionHint "Satz in Vorbemerkungen"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Arbeitssicherheit, Gesundheits- und Umweltschutz" ;
+    cur:verified false .
+
+beruf:re-DE-BY-e940332ccb46 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bankkaufmann S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020/21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Buendelungsfach ;
+    cur:negativeHint "Bankkaufmann: Fach bündelt Lernfelder (z. B. Allgemeine Wirtschaftslehre mit Lernfeld 1 6 10) | Winzer und Industriekaufmann: Lernfeld ist selbst das Fach"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Allgemeine Wirtschaftslehre | Kontoführung und Zahlungsverkehr | Kreditgeschäft" ;
+    cur:recognitionHint "Fach in Großbuchstaben über Lernfeldern und Spalte „Fächer und Lernfelder“"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fach" ;
+    cur:verified false .
+
+beruf:re-DE-BY-fd67626c9be9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Pflegefachhelfer Abschn. 4"@de,
+        "Plangeneration laut Länderrecherche: BFS 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Jahresplanung ;
+    cur:negativeHint "Pflicht nicht ausdrücklich formuliert | keine Vorlage gesehen | schulstandortbezogen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Auf dieser Grundlage wird eine didaktische Jahresplanung erstellt" ;
+    cur:recognitionHint "Abschnitt oder Erwähnung"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktische Jahresplanung" ;
+    cur:verified false .
+
+beruf:re-DE-BY-febe32634283 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Ergotherapie S. 10"@de,
+        "Plangeneration laut Länderrecherche: BFS 2021/22"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernsituation ;
+    cur:negativeHint "nichtamtliche Konkretisierung der Lernfelder durch die Schule"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Lernsituationen beinhalten eine problemhaltige Aufgabenstellung aus der Berufs- und Lebenswelt" ;
+    cur:recognitionHint "Erläuterungsabschnitt „Zum Umgang mit dem Lehrplan“"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernsituationen" ;
+    cur:verified false .
+

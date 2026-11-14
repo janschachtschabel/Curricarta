@@ -1,0 +1,258 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-NI-08831ec85248,
+        beruf:re-DE-NI-2376107fa39d,
+        beruf:re-DE-NI-4c20390a00ed,
+        beruf:re-DE-NI-53899828eeed,
+        beruf:re-DE-NI-6335b21932b4,
+        beruf:re-DE-NI-80949574e0eb,
+        beruf:re-DE-NI-81ae16286b6d,
+        beruf:re-DE-NI-8736e0acac70,
+        beruf:re-DE-NI-a713cffe25b7,
+        beruf:re-DE-NI-c6dd77a7f910,
+        beruf:re-DE-NI-e410515b7e5e,
+        beruf:re-DE-NI-e62f547756a8,
+        beruf:re-DE-NI-ebc3ddc719b3,
+        beruf:re-DE-NI-f8b02250afb7 .
+
+beruf:re-DE-NI-08831ec85248 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche"@de,
+        "Länderrecherche, Beleg E: BFS KA WI Titelseite (PDF S. 1)"@de,
+        "Plangeneration laut Länderrecherche: Stand Oktober 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Gliederungsprinzip eigenes Lernfeldmuster (Lernfeld W1 und IF1) statt „sonstiges“"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenrichtlinien für den berufsbezogenen Lernbereich - Wirtschaft - und den berufsbezogenen Lernbereich - Wirtschaftsinformatik -" ;
+    cur:recognitionHint "Titelseite „Anhörungsfassung“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenrichtlinien (Berufsfachschule Kaufmännische Assistenz Wirtschaftsinformatik Anhörungsfassung)" ;
+    cur:verified false .
+
+beruf:re-DE-NI-2376107fa39d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche"@de,
+        "Länderrecherche, Beleg E: BES2 Titelseite (PDF S. 1)"@de,
+        "Plangeneration laut Länderrecherche: September 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Gliederung nach Qualifizierungsbausteinen nicht nach Lernfeldern. Überblick nannte „2 Qualifizierungsbausteine“. Tatsächlich sind alle Bausteine schulisch zu erstellen (4 bis 9 pro Schuljahr)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenrichtlinien für den berufsbezogenen Lernbereich in der Berufseinstiegsschule Klasse 2 Stand: September 2022" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenrichtlinien für den berufsbezogenen Lernbereich in der Berufseinstiegsschule Klasse 2 (Stand: September 2022)" ;
+    cur:verified false .
+
+beruf:re-DE-NI-4c20390a00ed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BFS KA WI S. 7. FS HW S. 7. BG BwRC S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "Im BG Technik gibt es diese Aufteilung im Kompetenzen-Block nicht"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Personale Kompetenz" ;
+    cur:recognitionHint "Zwischenüberschriften im Kompetenzen-Block"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachkompetenz" ;
+    cur:verified false .
+
+beruf:re-DE-NI-53899828eeed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 4-5 (PDF S. 12-13)"@de,
+        "Länderrecherche, Beleg E: S. 6-7 (PDF S. 11-12)"@de ;
+    cur:cueKind cv:ck_headingPattern ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Modul ;
+    cur:occursIn cv:occ_heading ;
+    cur:pattern "^Modul\\s+(?:\\d+(?:\\.\\d+)*|[IVXLC]+|[A-Z])\\b" ;
+    cur:positiveExample "Modul 1",
+        "Modul 1 Verpflegungsangebote entwickeln und beurteilen",
+        "Modul 12",
+        "Modul 12 Optionale Lernangebote",
+        "Modul 1: Das Unternehmen im systemischen Kontext analysieren" ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modul" ;
+    cur:verified false .
+
+beruf:re-DE-NI-6335b21932b4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Titelseiten der gelesenen Dokumente"@de,
+        "Plangeneration laut Länderrecherche: ab 2018 (Sport) bis 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Nicht mit KMK-„Rahmenlehrplan“ verwechseln (Rahmenlehrplan mit „l“)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenrichtlinien für den berufsbezogenen Lernbereich in der Berufseinstiegsschule Klasse 2" ;
+    cur:recognitionHint "Titelseite „Rahmenrichtlinien für den/das …“ mit „Niedersächsisches Kultusministerium“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenrichtlinien für" ;
+    cur:verified false .
+
+beruf:re-DE-NI-80949574e0eb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-inh-4"@de,
+        "Länderrecherche, Beleg E: BG BwRC S. 7 (PDF S. 15)"@de,
+        "Plangeneration laut Länderrecherche: März 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Ohne Doppelpunkt (Vorlage „^Inhalte\\s*:“ trifft nicht). „verbindliche Mindestanforderungen“ (S. 3). Kursivsatz nicht prüfbar. In Technik und Berufsfachschule fehlt die Zeile"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Rechtsformen: EU, OHG, KG, GmbH" ;
+    cur:recognitionHint "Zeilenkopf „Inhalte“ nach „Kompetenzen“ (nur Profilfach Betriebswirtschaft)"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+beruf:re-DE-NI-81ae16286b6d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-kk-2"@de,
+        "Länderrecherche, Beleg E: BFS KA WI S. 7 (PDF S. 11)"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "Begriff „Zielformulierung“ fehlt. Erster Fachkompetenz-Satz fasst zusammen. Ob fett gesetzt ist am Text nicht prüfbar"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die Schülerinnen und Schüler analysieren ein Unternehmen im Rahmen eines Auftrags zur Optimierung der Aufbau- und Ablaufstrukturen." ;
+    cur:recognitionHint "Zeilenkopf „Kompetenzen“ mit Satz „Die Schülerinnen und Schüler …“ und Folgesätzen „Sie …“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzen" ;
+    cur:verified false .
+
+beruf:re-DE-NI-8736e0acac70 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BFS KA WI S. 7. FS HW S. 7. BG BwRC S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "Im BG Technik gibt es diese Aufteilung im Kompetenzen-Block nicht"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Personale Kompetenz" ;
+    cur:recognitionHint "Zwischenüberschriften im Kompetenzen-Block"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Personale Kompetenz" ;
+    cur:verified false .
+
+beruf:re-DE-NI-a713cffe25b7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BFS KA WI S. 8 (PDF S. 12)"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Empfehlung: „Anregungen zur Umsetzung im Unterricht“. Enthält Querverweise „Eine Abstimmung mit dem Lernfeld W5 …“"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die Kompetenzentwicklung in diesem Lernfeld wird unterstützt durch z. B." ;
+    cur:recognitionHint "Zeilenkopf „Unterrichtshinweise“ mit „Die Kompetenzentwicklung in diesem Lernfeld wird unterstützt durch z. B.“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterrichtshinweise" ;
+    cur:verified false .
+
+beruf:re-DE-NI-c6dd77a7f910 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS Hauswirtschaft S. 7 (PDF S. 12). FS BW S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2020-2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Modul bezeichnet hier Landeseinheit mit Zeitrichtwert. „Optionale Lernangebote“ ist Modul 6 und 12 ohne eigene Kompetenzen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Modul 1 Verpflegungsangebote entwickeln und beurteilen" ;
+    cur:recognitionHint "„Modul 1 …“ in Rahmenrichtlinien der Fachschule"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modul" ;
+    cur:verified false .
+
+beruf:re-DE-NI-e410515b7e5e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lb-1"@de,
+        "Länderrecherche, Beleg E: EB-BbS S. 12"@de,
+        "Plangeneration laut Länderrecherche: EB-BbS 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Vorlage nennt „fachrichtungsübergreifender Lernbereich“. Niedersachsen: „berufsübergreifend“"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Berufsübergreifender Lernbereich 14 (Berufsschule 3 Jahre)" ;
+    cur:recognitionHint "Stundentafelzeile mit „mit den Fächern“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsübergreifender Lernbereich" ;
+    cur:verified false .
+
+beruf:re-DE-NI-e62f547756a8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: EB-BbS S. 12 S. 40-41"@de,
+        "Plangeneration laut Länderrecherche: EB-BbS 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Fach ist Stundentafelbegriff. In den Rahmenrichtlinien selbst nicht gegliedert"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Deutsch/Kommunikation" ;
+    cur:recognitionHint "Stundentafelzeile „mit den Fächern“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fächer" ;
+    cur:verified false .
+
+beruf:re-DE-NI-ebc3ddc719b3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BG Technik S. 3 Fußnote 7 (PDF S. 8)"@de,
+        "Plangeneration laut Länderrecherche: Umstellung zur Handreichung KMK 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo kd:four-self ;
+    cur:negativeHint "Frühere Pläne verwendeten Humankompetenz"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Begriff „Selbstkompetenz“ ersetzt den bisher verwendeten Begriff „Humankompetenz“." ;
+    cur:recognitionHint "Fußnote: Selbstkompetenz „ersetzt den bisher verwendeten Begriff Humankompetenz“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Humankompetenz" ;
+    cur:verified false .
+
+beruf:re-DE-NI-f8b02250afb7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: EB-BbS Nr. 2.7 S. 8"@de,
+        "Plangeneration laut Länderrecherche: EB-BbS 2022. Leitlinie 2024 (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Jahresplanung ;
+    cur:negativeHint "Pflicht ist das schulische Curriculum. Eine verbindliche Jahresplanung-Vorlage nicht belegt. Leitlinie selbst nicht gelesen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Für alle Bildungsgänge sind kompetenzorientierte schulische Curricula anzulegen die entsprechend der Leitlinie zu erstellen sind" ;
+    cur:recognitionHint "„Leitlinie „Schulisches Curriculum-BBS (SchuCu-BBS)““"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulisches Curriculum-BBS (SchuCu-BBS)" ;
+    cur:verified false .
+

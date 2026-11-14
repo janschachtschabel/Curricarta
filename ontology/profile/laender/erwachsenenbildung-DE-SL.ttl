@@ -1,0 +1,40 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-SL-9f68e4e88173,
+        eb:re-DE-SL-b3a5dc450d10 .
+
+eb:re-DE-SL-9f68e4e88173 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: LSJV-Übersicht S. 26"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:negativeHint "Anerkennung bezieht sich im Saarland auf Einrichtungen nach SWFG. Zertifizierte Einrichtungen dürfen eigene Veranstaltungen selbst als freistellungsfähig ausweisen."@de ;
+    cur:positiveExample "Veranstaltungen werden als freistellungsfähig festgestellt, nicht als anerkannt bezeichnet." ;
+    cur:recognitionHint "Eigene Formel des Saarlandes"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "freistellungsfähig festgestellt" ;
+    cur:verified false .
+
+eb:re-DE-SL-b3a5dc450d10 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: SWFG § 5 (sadaba Fassung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:positiveExample "Einrichtungen und Landesorganisationen der Weiterbildung können staatlich anerkannt werden." ;
+    cur:recognitionHint "Staatliche Anerkennung von Einrichtungen und Landesorganisationen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Saarländisches Weiterbildungsförderungsgesetz" ;
+    cur:verified false .
+

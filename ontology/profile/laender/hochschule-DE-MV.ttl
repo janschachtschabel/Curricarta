@@ -1,0 +1,26 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-MV-f87a20d0c2e2 .
+
+hs:re-DE-MV-f87a20d0c2e2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Universität Greifswald und Rostock (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt ;
+    cur:negativeHint "früher Lehrerbildungsgesetz (LehbildG M-V) - Begriff Bildungswissenschaften und Stufenlehramt"@de ;
+    cur:positiveExample "Lehrerprüfungsverordnung vom 16. Juli 2012 für die Erste Staatsprüfung" ;
+    cur:recognitionHint "Gesetz über die Lehrkräftebildung in Mecklenburg-Vorpommern vom 3. Juni 2025"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehrkräftebildungsgesetz M-V (LehrkrbildG M-V)" ;
+    cur:verified false .
+

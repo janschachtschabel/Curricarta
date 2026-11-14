@@ -1,0 +1,145 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-BY-07c6459fc825,
+        hs:re-DE-BY-092e42269df9,
+        hs:re-DE-BY-526240b3573e,
+        hs:re-DE-BY-7fafb99198ae,
+        hs:re-DE-BY-80ce2e03eac1,
+        hs:re-DE-BY-9296978673a5,
+        hs:re-DE-BY-98406a1a4418,
+        hs:re-DE-BY-d0d08915ce5e,
+        hs:re-DE-BY-f3c95615c418 .
+
+hs:re-DE-BY-07c6459fc825 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: TUM APSO § 6 Abs. 9"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:dt-Modulhandbuch ;
+    cur:negativeHint "das Modulhandbuch wird in der APSO nicht ausdrücklich als Anlage bezeichnet"@de ;
+    cur:positiveExample "Im Modulhandbuch sind universitätseinheitlich für jedes Pflicht-, Wahlpflicht- und Wahlmodul ... erforderlichen Beschreibungen festzuhalten." ;
+    cur:recognitionHint "Pflicht zur universitätseinheitlichen Modulbeschreibung im Modulhandbuch"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modulhandbuch" ;
+    cur:verified false .
+
+hs:re-DE-BY-092e42269df9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Quellen siehe Zeilen der Rechtsgrundlagen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Praxisphase ;
+    cur:negativeHint "Praxissemester ist kein Begriff aller Länder - in BY und SL gibt es keine Praxissemester-Bezeichnung"@de ;
+    cur:positiveExample "Praxissemester (BE BB HE NW TH) | Praxisphase (NI) | Schulpraktika (SL) | Orientierungspraktikum Betriebspraktikum fachdidaktisches Praktikum (BY)" ;
+    cur:recognitionHint "Länderbegriffe für schulpraktische Phasen"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Praxissemester vs Praktika" ;
+    cur:verified false .
+
+hs:re-DE-BY-526240b3573e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bayreuth S.6 | Bayreuth S.7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Inhalt ;
+    cur:positiveExample "Lerninhalte" ;
+    cur:recognitionHint "Feldname Lerninhalte mit Unterpunkten"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lerninhalte" ;
+    cur:verified false .
+
+hs:re-DE-BY-7fafb99198ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: UniBwM S.7 | UniBwM S.77"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Studienbereich ;
+    cur:negativeHint "HIS-Begriff für Bereich oder Wahlkonto und keine Geldangabe"@de ;
+    cur:positiveExample "Konto Pflichtmodule - INF BS 2022" ;
+    cur:recognitionHint "Feld Konto nennt den Bereich des Moduls"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konto" ;
+    cur:verified false .
+
+hs:re-DE-BY-80ce2e03eac1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bayreuth S.6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Lehrveranstaltung ;
+    cur:negativeHint "LV tragen Buchstabe-Ziffer-Codes"@de ;
+    cur:positiveExample "A-1 Wirtschaftliche soziokulturelle und rechtliche Rahmenbedingungen" ;
+    cur:recognitionHint "Feld mit Liste A-1 A-2"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zugeordnete Lehrveranstaltungen" ;
+    cur:verified false .
+
+hs:re-DE-BY-9296978673a5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: gesetze-bayern.de BayLPO I (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt ;
+    cur:negativeHint "Orientierungspraktikum Betriebspraktikum und studienbegleitendes fachdidaktisches Praktikum nach § 34 LPO I - Begriffe Erziehungswissenschaften und Unterrichtsfächer"@de ;
+    cur:positiveExample "Lehramtsprüfungsordnung I (LPO I) vom 13. März 2008" ;
+    cur:recognitionHint "Ermächtigungsgrundlage der Lehramtsprüfungsordnung I"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Bayerisches Lehrerbildungsgesetz (BayLBG)" ;
+    cur:verified false .
+
+hs:re-DE-BY-98406a1a4418 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: UniBwM S.7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Lehrveranstaltung ;
+    cur:negativeHint "LV-Nummer ist Modulnummer plus laufende Ziffer (10061)"@de ;
+    cur:positiveExample "Nr. Art Veranstaltungsname Teilnahme TWS" ;
+    cur:recognitionHint "Tabelle Nr. | Art | Veranstaltungsname | Teilnahme | TWS und Summe"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zugehörige Lehrveranstaltungen" ;
+    cur:verified false .
+
+hs:re-DE-BY-d0d08915ce5e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: TUM APSO vom 18.03.2011 (Lesefassung 12. Änderungssatzung vom 16.12.2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:dt-RahmenPO ;
+    cur:negativeHint "Rahmen gilt für alle Studiengänge - die FPSO ergänzen studiengangsbezogen"@de ;
+    cur:positiveExample "ALLGEMEINE PRÜFUNGS- UND STUDIENORDNUNG für Bachelor- und Masterstudiengänge an der Technischen Universität München" ;
+    cur:recognitionHint "APSO als Rahmen für Bachelor- und Masterstudiengänge der Hochschule"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Allgemeine Prüfungs- und Studienordnung" ;
+    cur:verified false .
+
+hs:re-DE-BY-f3c95615c418 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: UniBwM S.1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:it-uni ;
+    cur:negativeHint "Trimestersystem und Konto-Struktur weichen von üblichen Universitäten ab"@de ;
+    cur:positiveExample "Universität der Bundeswehr München Werner-Heisenberg-Weg 39" ;
+    cur:recognitionHint "Titelblatt nennt Universität der Bundeswehr München"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Universität der Bundeswehr München" ;
+    cur:verified false .
+

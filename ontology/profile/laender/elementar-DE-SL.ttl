@@ -1,0 +1,574 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-SL-0a20e9b19605,
+        elem:re-DE-SL-0a4bdf99a8cf,
+        elem:re-DE-SL-0ee6f4de20cb,
+        elem:re-DE-SL-1f6b84351248,
+        elem:re-DE-SL-29c3d4ffd6bc,
+        elem:re-DE-SL-2b44092a808a,
+        elem:re-DE-SL-2f8ceb74dcc9,
+        elem:re-DE-SL-31ce835a8441,
+        elem:re-DE-SL-32c9fabdf296,
+        elem:re-DE-SL-38d9b3d2ac74,
+        elem:re-DE-SL-4df28030f75e,
+        elem:re-DE-SL-51ab5e46c562,
+        elem:re-DE-SL-51f99ee2aa9a,
+        elem:re-DE-SL-52dc3d133ef3,
+        elem:re-DE-SL-60329706c835,
+        elem:re-DE-SL-6447cf3d4837,
+        elem:re-DE-SL-6b23dd8128cc,
+        elem:re-DE-SL-6b405d5af489,
+        elem:re-DE-SL-725958763b00,
+        elem:re-DE-SL-75d430b4d679,
+        elem:re-DE-SL-78682d68ecb9,
+        elem:re-DE-SL-7cd4bfcc935a,
+        elem:re-DE-SL-87834026ae39,
+        elem:re-DE-SL-a0d37df601ed,
+        elem:re-DE-SL-a8fe3279b677,
+        elem:re-DE-SL-aacc0c3f908b,
+        elem:re-DE-SL-ad12f8a6681a,
+        elem:re-DE-SL-bfe2642c19a4,
+        elem:re-DE-SL-c7662d867288,
+        elem:re-DE-SL-d1e37c97d40d,
+        elem:re-DE-SL-e6a953f38793,
+        elem:re-DE-SL-e74f2512f3cb,
+        elem:re-DE-SL-ea4355441894,
+        elem:re-DE-SL-efe57ea503d7,
+        elem:re-DE-SL-f1897fbc9ebb .
+
+elem:re-DE-SL-0a20e9b19605 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 1 mit Haltungen 1.1 bis 1.4"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundlagen der pädagogischen Arbeit mit Kindern von 0 bis 6 Jahren" ;
+    cur:verified false .
+
+elem:re-DE-SL-0a4bdf99a8cf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:project,
+        elem:Praxisbeispiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Mein Körper: Was macht mir Spaß, was macht mir Angst?" ;
+    cur:recognitionHint "Zwischenzeile mit Projektthemen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Projektarbeit, z. B.:" ;
+    cur:verified false .
+
+elem:re-DE-SL-0ee6f4de20cb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:room-design,
+        elem:Impuls ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenzeile in C"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Raumgestaltung und Materialausstattung, z. B.:" ;
+    cur:verified false .
+
+elem:re-DE-SL-1f6b84351248 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 6 und 100"@de,
+        "Plangeneration laut Länderrecherche: 2007"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo elem:dt-Handreichung ;
+    cur:negativeHint "kein eigenes Dokument der Neufassung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "2007 erschienene Handreichungen - in der Neuausgabe aufgegangen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handreichungen für die Praxis" ;
+    cur:verified false .
+
+elem:re-DE-SL-29c3d4ffd6bc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 84"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 7 Krippe-Kindergarten und Kita-Grundschule"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergänge als Teil der Bildungsbiografie" ;
+    cur:verified false .
+
+elem:re-DE-SL-2b44092a808a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Satzanfang nicht Das Kind oder Kinder"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sich im eigenen Körper wohlfühlen und Lust und Unlust ausdrücken können" ;
+    cur:recognitionHint "Aufzählungen im Infinitiv nach Ich- Sozial- Sach- Lern-Kompetenz - ohne Das Kind"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "B Ziele" ;
+    cur:verified false .
+
+elem:re-DE-SL-2f8ceb74dcc9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "kein Verbindlichkeitshinweis"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Diese Kompetenzen definieren sich im Sinne von Richtzielen" ;
+    cur:recognitionHint "Selbstbezeichnung der Kompetenzen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtziele" ;
+    cur:verified false .
+
+elem:re-DE-SL-31ce835a8441 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 26"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 4 mit 4.1 bis 4.5"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Entwicklungsprozesse unterstützen – Aufgaben der pädagogischen Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-SL-32c9fabdf296 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 24 und 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-subject ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Nummer 3.3 - in Bereichen Sach-Kompetenz:"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sach-Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-SL-38d9b3d2ac74 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2008"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:dt-Beobachtungsinstrument ;
+    cur:negativeHint "eigenes Dokument - nicht Teil des Bildungsprogramms"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Entscheidungs- und Gesprächsgrundlage kann das Beobachtungs- und Dokumentationsinstrument Portfolio im Kindergarten sein (sinngemäß)" ;
+    cur:recognitionHint "Ergänzendes Entwicklungstagebuch mit Bildungs- und Lerngeschichten (2008)"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Portfolio im Kindergarten" ;
+    cur:verified false .
+
+elem:re-DE-SL-4df28030f75e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "wie oben"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Teil 2 jedes Bildungsbereichs"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Kind in der Kindergemeinschaft" ;
+    cur:verified false .
+
+elem:re-DE-SL-51ab5e46c562 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 12 und 13"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 2 mit 2.1 Das Bild vom Kind"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zum Bildungsverständnis" ;
+    cur:verified false .
+
+elem:re-DE-SL-51f99ee2aa9a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-a10feda9b13c-SL"@de,
+        "Länderrecherche, Beleg E: PDF-S. 3 und 36 (5.1.)"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-koerper ;
+    cur:negativeHint "Gemeinsamer Rahmen Bereich 6"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Nummer 5.1 - Überschrift"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körper, Bewegung, Gesundheit" ;
+    cur:verified false .
+
+elem:re-DE-SL-52dc3d133ef3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 36 und 35"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Teil des Aufbaus - kein Bildungsbereich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Teil 1 jedes Bildungsbereichs - kein Themenabschnitt"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Kind in seiner Welt" ;
+    cur:verified false .
+
+elem:re-DE-SL-60329706c835 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 4 und 5"@de,
+        "Plangeneration laut Länderrecherche: 2006"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "alte Fassung - Merkmal Titel ohne Krippen und Jahr 2006"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Titel der Vorgängerfassung ohne Krippe"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsprogramm für saarländische Kindergärten" ;
+    cur:verified false .
+
+elem:re-DE-SL-6447cf3d4837 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 78"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 6 mit 6.1 Von der Familie in die Krippe bis 6.4 Entwicklungsgespräche"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungspartnerschaft – Zusammenarbeit von Kita und Erziehungsberechtigten in Schlüsselsituationen" ;
+    cur:verified false .
+
+elem:re-DE-SL-6b23dd8128cc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 40 und 54"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-krippe ;
+    cur:negativeHint "Krippenteil nur in der Neuausgabe"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Ab dem 6. Lebensmonat fängt das Kleinkind an (Fließtext)(sinngemäß)" ;
+    cur:recognitionHint "Teil 4 jedes Bildungsbereichs mit Anregungen für die Praxis - Altersangaben nur im Fließtext"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsprozesse für Krippenkinder gestalten" ;
+    cur:verified false .
+
+elem:re-DE-SL-6b405d5af489 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 36"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Erkundungsfragen zum Kind - nicht Reflexionsfragen an die Fachkraft"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wie kommt das Kind in die Kita – zu Fuß, mit dem Auto?" ;
+    cur:recognitionHint "Fragen nach den Zwischenzeilen Das einzelne Kind: - Soziale Beziehungen in der Gruppe: - Kulturelle Zugehörigkeit des Kindes:"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "A Analysefragen, die die pädagogische Fachkraft mit Kindern, Erziehungsberechtigten bzw. im Team erkunden kann" ;
+    cur:verified false .
+
+elem:re-DE-SL-725958763b00 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37 und 38"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo ctx:everyday ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenzeile in C"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Im Alltag der Kita, z. B.:" ;
+    cur:verified false .
+
+elem:re-DE-SL-75d430b4d679 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 3 und 67 (5.6)"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mathematik ;
+    cur:negativeHint "Gemeinsamer Rahmen Bereich 3"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Nummer 5.6"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-SL-78682d68ecb9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 25 und 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-learning ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Nummer 3.4 - in Bereichen Lern-Kompetenz:"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lern-Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-SL-7cd4bfcc935a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Bildungsziele sind als vier Basiskompetenzen formuliert" ;
+    cur:recognitionHint "Bildungsziele als vier Basiskompetenzen formuliert"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "vier Basiskompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-SL-87834026ae39 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "hier Ich- Sozial- Sach- Lern-Kompetenz - nicht Bildungsbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Ziele zuerst entlang der Kompetenzbereiche allgemein formuliert"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzbereiche" ;
+    cur:verified false .
+
+elem:re-DE-SL-a0d37df601ed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 24 und 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-social ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Nummer 3.2 - in Bereichen Sozial-Kompetenz:"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sozial-Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-SL-a8fe3279b677 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-9ca061157229-SL"@de,
+        "Länderrecherche, Beleg E: PDF-S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Vorliste kürzt den Titel (ohne mit Handreichungen) - Handreichungen sind im selben Dokument integriert"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Titelseite - Herausgeber Der Minister für Bildung und Kultur"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsprogramm mit Handreichungen für saarländische Krippen und Kindergärten" ;
+    cur:verified false .
+
+elem:re-DE-SL-aacc0c3f908b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 22 und 23"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 3 mit vier Unterkapiteln"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele: Kompetenzen im Bildungsverlauf" ;
+    cur:verified false .
+
+elem:re-DE-SL-ad12f8a6681a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 27 und 28"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Nummer 4.1 mit Qualitätskriterien"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs-, Lern- und Entwicklungsprozesse beobachten und dokumentieren" ;
+    cur:verified false .
+
+elem:re-DE-SL-bfe2642c19a4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 39 und 8"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "wie oben"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Teil 3 jedes Bildungsbereichs - im Schaubild Welterleben und Welterkunden"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weltgeschehen erleben, Welt erkunden" ;
+    cur:verified false .
+
+elem:re-DE-SL-c7662d867288 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 34 (5.)"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 5 bündelt die sieben Bildungsbereiche"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Bildungsbereiche und ihre Struktur" ;
+    cur:verified false .
+
+elem:re-DE-SL-d1e37c97d40d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37 und 38"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Form Infinitiv oder Nominalstil - keine Anrede an die Fachkraft"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Das Kind ermutigen (mit Du-Frage: Was traust du dir zu?)" ;
+    cur:recognitionHint "Stichpunkte unter Im Alltag der Kita, z. B.: - teils Du-Fragen in Klammern"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "C Aufgaben für die pädagogischen Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-SL-e6a953f38793 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 40"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Raum und Räume und Materialien die unterschiedliche Bewegungsanreize bieten (gekürzt)" ;
+    cur:recognitionHint "Aufzählung im Krippenteil"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen für die Praxis" ;
+    cur:verified false .
+
+elem:re-DE-SL-e74f2512f3cb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 89 bis 92"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet,
+        elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 8 mit Anforderungen an Fachkräfte Team Leitung Träger"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Demokratische Teilhabe – Anforderungen für die Zusammenarbeit und Kommunikation in Krippe und Kita" ;
+    cur:verified false .
+
+elem:re-DE-SL-ea4355441894 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 80"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:settling-in,
+        elem:Uebergang ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Nummer 6.2"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Eingewöhnung" ;
+    cur:verified false .
+
+elem:re-DE-SL-efe57ea503d7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:play,
+        elem:Impuls ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bewegungsmaterial wie Rollbretter, Trampolin, Seile, Bälle (gekürzt)" ;
+    cur:recognitionHint "Zwischenzeile in C"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Spielmaterial und Spielanregungen, z. B.:" ;
+    cur:verified false .
+
+elem:re-DE-SL-f1897fbc9ebb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 28 und 82 und 90"@de,
+        "Plangeneration laut Länderrecherche: 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "keine Nummern wie QA1"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Kita entwickelt eine demokratische Kultur, in der Mitwirkung von Erziehungsberechtigten erwünscht ist" ;
+    cur:recognitionHint "Unnummerierte Spiegelstriche - Überschriften wie Qualitätskriterien für die Zusammenarbeit mit Erziehungsberechtigten"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätskriterien" ;
+    cur:verified false .
+

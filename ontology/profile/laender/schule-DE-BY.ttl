@@ -1,0 +1,258 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-BY-15b677ceff8c,
+        schul:re-DE-BY-31b15ae0f6e0,
+        schul:re-DE-BY-36ab4c0de9be,
+        schul:re-DE-BY-3a8b163c2d61,
+        schul:re-DE-BY-422eb4f3f5dd,
+        schul:re-DE-BY-4efbf3cfcd9a,
+        schul:re-DE-BY-76f06a82746b,
+        schul:re-DE-BY-7aeac520bf04,
+        schul:re-DE-BY-7c63b2587ae5,
+        schul:re-DE-BY-a78c99d96a4e,
+        schul:re-DE-BY-ba71b9bf96ec,
+        schul:re-DE-BY-c29ef7d37671,
+        schul:re-DE-BY-dd7b903491e2,
+        schul:re-DE-BY-e0e100542613,
+        schul:re-DE-BY-e11aeee1b209,
+        schul:re-DE-BY-fd2ef27a28f9 .
+
+schul:re-DE-BY-15b677ceff8c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/gymnasium/8/physik"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Lernbereich nur für eine Ausbildungsrichtung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Profilbereich am NTG (ca. 28 Std.)" ;
+    cur:recognitionHint "vierter Lernbereich"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Profilbereich am NTG" ;
+    cur:verified false .
+
+schul:re-DE-BY-31b15ae0f6e0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "5 = mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-BY-36ab4c0de9be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/mittelschule/9/mathematik/mittlere-reife-klasse"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:st-mittelschule ;
+    cur:negativeHint "Begriff M-Zug nicht im Fachprofil gefunden"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Fachlehrplan Mathematik R7 | Fachlehrplan Mathematik M9" ;
+    cur:recognitionHint "Planvariante R und M"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlere-Reife-Klasse" ;
+    cur:verified false .
+
+schul:re-DE-BY-3a8b163c2d61 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "4 = ausreichend" ;
+    cur:verified false .
+
+schul:re-DE-BY-422eb4f3f5dd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "6 = ungenügend" ;
+    cur:verified false .
+
+schul:re-DE-BY-4efbf3cfcd9a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030308"@de,
+        "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/seite/lehrplanplus"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Vollständiger Titel nicht am Original geprüft. Vorlisten-Titel enthält Tippfehler Ender statt Ende"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Bayerische Leitlinien: Gelten nur für die Grundschule als Grundlage des Grundschullehrplans" ;
+    cur:recognitionHint "auf lehrplanplus Seite erwähnt"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bayerische Leitlinien" ;
+    cur:verified false .
+
+schul:re-DE-BY-76f06a82746b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3 = befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-BY-7aeac520bf04 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/gymnasium/8/geschichte"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: Plakette; markiert: Plakette"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verfassungsviertelstunde" ;
+    cur:verified false .
+
+schul:re-DE-BY-7c63b2587ae5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/uebergreifende-ziele/fos"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:ConsumerEducation,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:Health,
+        qz:Intercultural,
+        qz:LanguageEducation,
+        qz:Values ;
+    cur:recognitionHint "markiert: Zeile Übergreifende Ziele: mit Links"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulart- und fächerübergreifende Bildungs- und Erziehungsziele" ;
+    cur:verified false .
+
+schul:re-DE-BY-a78c99d96a4e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030300"@de,
+        "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/gymnasium/7/nt_gym"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "in der Regel nicht verbindlich"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Servicematerialien (10)" ;
+    cur:recognitionHint "Zähler am Abschnittsende"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Servicematerialien" ;
+    cur:verified false .
+
+schul:re-DE-BY-ba71b9bf96ec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/mittelschule/9/mathematik/mittlere-reife-klasse"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:st-mittelschule ;
+    cur:negativeHint "Begriff M-Zug nicht im Fachprofil gefunden"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Fachlehrplan Mathematik R7 | Fachlehrplan Mathematik M9" ;
+    cur:recognitionHint "Planvariante R und M"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Regelklasse" ;
+    cur:verified false .
+
+schul:re-DE-BY-c29ef7d37671 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2 = gut" ;
+    cur:verified false .
+
+schul:re-DE-BY-dd7b903491e2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachprofil/gymnasium/physik"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Oberstufe andere Begriffe (Erhaltung und Gleichgewicht)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Energie | Materie | Wechselwirkung | Systeme im Gleich- und Ungleichgewicht" ;
+    cur:recognitionHint "Fachprofil 2.3"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gegenstandsbereiche" ;
+    cur:verified false .
+
+schul:re-DE-BY-e0e100542613 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030182"@de,
+        "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachlehrplan/gymnasium/7/nt_gym"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Verweisziele Deutsch Geographie Ethik"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Querverweise" ;
+    cur:recognitionHint "Zeile Querverweise: mit Links zu anderen Fächern"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querverweise" ;
+    cur:verified false .
+
+schul:re-DE-BY-e11aeee1b209 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BayMBl. 2020 Nr. 748 S. 19 (Erläuterung zur Bewertung) | Art. 52 BayEUG Abs. 2 nur sinngemäß gelesen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1 = sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-BY-fd2ef27a28f9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BY.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: https://www.lehrplanplus.bayern.de/fachprofil/gymnasium/physik"@de,
+        "Plangeneration laut Länderrecherche: LehrplanPLUS"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "kennt keine Niveaus"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.1 Kompetenzstrukturmodell" ;
+    cur:recognitionHint "Fachprofil 2.1"@de ;
+    cur:scopeRegion land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzstrukturmodell" ;
+    cur:verified false .
+

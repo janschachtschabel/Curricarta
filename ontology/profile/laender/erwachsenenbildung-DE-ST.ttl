@@ -1,0 +1,26 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-ST-a8c8a77fae25 .
+
+eb:re-DE-ST-a8c8a77fae25 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: umwelt-online EBG LSA § 2 Abs. 3 (Auszug)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:pt-verein ;
+    cur:negativeHint "Wortlaut des Zusatzes nicht gesehen."@de ;
+    cur:positiveExample "Anerkannte Stellen dürfen einen Zusatz zu ihrer Bezeichnung führen." ;
+    cur:recognitionHint "Anerkannte Einrichtungen dürfen einen Zusatz führen"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Zusatz zu ihrer Bezeichnung" ;
+    cur:verified false .
+

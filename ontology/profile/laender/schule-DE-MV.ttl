@@ -1,0 +1,833 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-MV-004b146be5f1,
+        schul:re-DE-MV-045b907b4eff,
+        schul:re-DE-MV-078d68cc3142,
+        schul:re-DE-MV-0aee89706340,
+        schul:re-DE-MV-0df5acc67ac8,
+        schul:re-DE-MV-1c18fb99c6ae,
+        schul:re-DE-MV-209905407b87,
+        schul:re-DE-MV-2432b342a59c,
+        schul:re-DE-MV-25e5297f706b,
+        schul:re-DE-MV-2e750db54c7d,
+        schul:re-DE-MV-2ec7de61283e,
+        schul:re-DE-MV-2f2cef72d73f,
+        schul:re-DE-MV-3b4097252e47,
+        schul:re-DE-MV-42768468d95d,
+        schul:re-DE-MV-4b2e55d22523,
+        schul:re-DE-MV-4b7642431b06,
+        schul:re-DE-MV-53240b586f31,
+        schul:re-DE-MV-57b7a69411ab,
+        schul:re-DE-MV-6ab84bc46620,
+        schul:re-DE-MV-6b9fb4c90eec,
+        schul:re-DE-MV-70d69ad0648b,
+        schul:re-DE-MV-7128b861434b,
+        schul:re-DE-MV-78eedbf1e24a,
+        schul:re-DE-MV-7f5851e2fa2a,
+        schul:re-DE-MV-81cfed22f89a,
+        schul:re-DE-MV-8380d66d72b1,
+        schul:re-DE-MV-8487f3998da3,
+        schul:re-DE-MV-8c4d73d2975c,
+        schul:re-DE-MV-954cfd07a25e,
+        schul:re-DE-MV-979ceb0aeda2,
+        schul:re-DE-MV-9ab43c0dd5cc,
+        schul:re-DE-MV-9d7c0893347e,
+        schul:re-DE-MV-9f8396c49174,
+        schul:re-DE-MV-a1a1e1b98d56,
+        schul:re-DE-MV-a8667202fed3,
+        schul:re-DE-MV-a8a9a33cb73c,
+        schul:re-DE-MV-ab0747977629,
+        schul:re-DE-MV-ab3e64f656e6,
+        schul:re-DE-MV-ab9aca0b5ba5,
+        schul:re-DE-MV-bbbcdee9e0c8,
+        schul:re-DE-MV-bc2b801bc80e,
+        schul:re-DE-MV-c922127f80d5,
+        schul:re-DE-MV-d7dd4c360f59,
+        schul:re-DE-MV-dc083b64ae2f,
+        schul:re-DE-MV-e5428d03efa9,
+        schul:re-DE-MV-ea96d96355a3,
+        schul:re-DE-MV-f1c43759d348,
+        schul:re-DE-MV-f41c45f844f1,
+        schul:re-DE-MV-fc6238fdb5ef .
+
+schul:re-DE-MV-004b146be5f1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan_Geschichte_Sekundarbereich_II_2026.pdf S. 12"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:Unterrichtseinheit ;
+    cur:negativeHint "Halbjahresthema mit Themenfolge darunter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1. Schulhalbjahr: Einheit und Freiheit" ;
+    cur:recognitionHint "Nummerierte Halbjahre mit Titel"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulhalbjahr" ;
+    cur:verified false .
+
+schul:re-DE-MV-045b907b4eff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Wortlaut LeistBewVO Fassung 2026 nur über Suchtreffer. Bewertungsformen § 5 laut Drucksache 8/1332 Seite 1 und 2 landesweit gültiger Maßstab für die Notenstufen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-MV-078d68cc3142 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Gleiches Kapitel in allen Fächern derselben Schulart"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der gymnasiale Bildungsgang umfasst die Jahrgangsstufen 7 bis 12" ;
+    cur:recognitionHint "Abschnitt 1.2 oder 1.3 je nach Schulart"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung und Erziehung in der Regionalen Schule" ;
+    cur:verified false .
+
+schul:re-DE-MV-0aee89706340 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Finalfassung-Rahmenplan-digitale-Kompetenzen.pdf S. 1"@de,
+        "Plangeneration laut Länderrecherche: August 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:negativeHint "Verliert Gültigkeit je Fachplan sobald dieser die Vorgaben integriert"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Dieser Rahmenplan ist ein Übergangsplan" ;
+    cur:recognitionHint "Gültigkeit: Übergangsplan, Leitfach je Kompetenzgruppe"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenplan Digitale Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-MV-0df5acc67ac8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 51-56"@de,
+        "Plangeneration laut Länderrecherche: 2023-2024 (Aufgabengebiete) 2026 (Aufgaben)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Generation 2020-2022: Legende in Kap. 1.2 Querschnittsthemen und Aufgabengebiete des Schulgesetzes"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Aufgabengebiete des Schulgesetzes" ;
+    cur:recognitionHint "Letztes Kapitel mit Abschnitten je Kürzel"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben des Schulgesetzes" ;
+    cur:verified false .
+
+schul:re-DE-MV-1c18fb99c6ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 20 | Rahmenplan_Geschichte_Sekundarbereich_II_2026.pdf S. 13 | RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Vorschläge zur inhaltlichen Vertiefung: Kraft als Wechselwirkungsgröße" ;
+    cur:recognitionHint "Label in der rechten Spalte mit Doppelpunkt"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "mögliche Vergleichskriterien:" ;
+    cur:verified false .
+
+schul:re-DE-MV-209905407b87 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-fachbegriffe"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15 | RP_AB_Ma_1-4_2024.pdf S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2024-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "DE-Vorliste Fachbegriffe: heißt in MV Fachwortschatz: (Mathematik) bzw. Wortebene:"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Wortebene: Umrechnen, Definitionsgleichung, Größenordnung" ;
+    cur:recognitionHint "Absatz mit zwei Ebenen unter jeder Thementabelle"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiele für die konkrete Umsetzung fachsprachlicher Mittel" ;
+    cur:verified false .
+
+schul:re-DE-MV-2432b342a59c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_AB_Deu_Sek_I_Reg_2025.pdf S. 27"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Auch in Kap. 1.1 genannt (Kompetenzen Arbeitsbereiche Themen und Inhalte)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Arbeitsbereich A" ;
+    cur:recognitionHint "Überschrift unter Jahrgangsstufe in Deutsch"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Arbeitsbereich A: Ich verstehe dich, verstehst du mich?" ;
+    cur:verified false .
+
+schul:re-DE-MV-25e5297f706b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-fachbegriffe"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15 | RP_AB_Ma_1-4_2024.pdf S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2024-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "DE-Vorliste Fachbegriffe: heißt in MV Fachwortschatz: (Mathematik) bzw. Wortebene:"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Wortebene: Umrechnen, Definitionsgleichung, Größenordnung" ;
+    cur:recognitionHint "Absatz mit zwei Ebenen unter jeder Thementabelle"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wortebene:" ;
+    cur:verified false .
+
+schul:re-DE-MV-2e750db54c7d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-fachbegriffe"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15 | RP_AB_Ma_1-4_2024.pdf S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2024-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "DE-Vorliste Fachbegriffe: heißt in MV Fachwortschatz: (Mathematik) bzw. Wortebene:"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Wortebene: Umrechnen, Definitionsgleichung, Größenordnung" ;
+    cur:recognitionHint "Absatz mit zwei Ebenen unter jeder Thementabelle"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Satz- und Textebene:" ;
+    cur:verified false .
+
+schul:re-DE-MV-2ec7de61283e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 49-50"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Nennt LeistBewVO M-V"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anforderungsbereich I umfasst das Wiedergeben von Sachverhalten" ;
+    cur:recognitionHint "Kapitel 3 (in Sek II 4) mit Rechtliche Grundlagen Allgemeine Grundsätze Fachspezifische Grundsätze"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsfeststellung und Leistungsbewertung" ;
+    cur:verified false .
+
+schul:re-DE-MV-2f2cef72d73f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 4 S. 16"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Experiment ;
+    cur:negativeHint "SE = Selbstexperiment. DE = Demonstrationsexperiment"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "SE: Materialuntersuchung mit Hilfe von Dichtebestimmungen" ;
+    cur:recognitionHint "Zeile Experimente mit SE oder DE"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Experimente: SE: DE:" ;
+    cur:verified false .
+
+schul:re-DE-MV-3b4097252e47 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-eingang ;
+    cur:negativeHint "Im Sachunterricht heißt dieselbe Stufe Jahrgangsstufe 1/2"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Schuleingangsphase ca. 174 Unterrichtsstunden" ;
+    cur:recognitionHint "Stufenkopf der Primarstufe (Mathematik) mit Jgst 1 und 2"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schuleingangsphase" ;
+    cur:verified false .
+
+schul:re-DE-MV-42768468d95d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002163"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Illustrierend und nicht Kompetenzerwartung. Geschichte: Beispiele für den Zusammenhang zwischen dem verbindlichen Thema … und der Kompetenzentwicklung (2.2)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S2.1: ein Experiment zur Bestimmung der Dichte eines Körpers durchführen und ihre Beobachtungen protokollieren." ;
+    cur:recognitionHint "Danach Die Lernenden können … mit Code S2.1: usw."@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiele für die Verknüpfung von Kompetenzen und Inhalten" ;
+    cur:verified false .
+
+schul:re-DE-MV-4b2e55d22523 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 51-56"@de,
+        "Plangeneration laut Länderrecherche: 2023-2024 (Aufgabengebiete) 2026 (Aufgaben)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Generation 2020-2022: Legende in Kap. 1.2 Querschnittsthemen und Aufgabengebiete des Schulgesetzes"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Aufgabengebiete des Schulgesetzes" ;
+    cur:recognitionHint "Letztes Kapitel mit Abschnitten je Kürzel"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgabengebiete des Schulgesetzes" ;
+    cur:verified false .
+
+schul:re-DE-MV-4b7642431b06 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15 S. 51"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 54"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 56-57"@de,
+        "Länderrecherche, Beleg E: RP_GS_Sachunterricht.pdf S. 2"@de,
+        "Länderrecherche, Beleg E: RP_GS_Sachunterricht.pdf S. 2 | RP_AB_Ma_1-4_2024.pdf S. 74"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:Diversity,
+        qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: [BNE]; markiert: Zeile Verknüpfungen | Themenkopf (2020)"@de,
+        "Kürzel oder Symbol: [BO]; markiert: Zeile Verknüpfungen unter Thementabelle (2021-2026) | Themenkopf (2020)"@de,
+        "Kürzel oder Symbol: [BTV]; markiert: Zeile Verknüpfungen | Themenkopf (2020)"@de,
+        "Kürzel oder Symbol: [DB]; markiert: Zeile Verknüpfungen (Generation 2025/2026)"@de,
+        "Kürzel oder Symbol: [DRF]; markiert: Themenkopf (2020) | Zeile Verknüpfungen (2021-2025)"@de,
+        "Kürzel oder Symbol: [MD1]; markiert: Unterkürzel in Hinweisen oder Verknüpfungen (häufig im Plan 2021)"@de,
+        "Kürzel oder Symbol: [MD2]; markiert: wie [MD1]"@de,
+        "Kürzel oder Symbol: [MD3]; markiert: wie [MD1]"@de,
+        "Kürzel oder Symbol: [MD4]; markiert: wie [MD1]"@de,
+        "Kürzel oder Symbol: [MD5]; markiert: wie [MD1]"@de,
+        "Kürzel oder Symbol: [MD6]; markiert: wie [MD1]"@de,
+        "Kürzel oder Symbol: [MD]; markiert: Zeile Verknüpfungen | Themenkopf"@de,
+        "Kürzel oder Symbol: [PG]; markiert: Zeile Verknüpfungen | Themenkopf (2020)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgabengebiete des Schulgesetzes (Querschnittsthemen)" ;
+    cur:verified false .
+
+schul:re-DE-MV-53240b586f31 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Wortlaut LeistBewVO Fassung 2026 nur über Suchtreffer. Bewertungsformen § 5 laut Drucksache 8/1332 Seite 1 und 2 landesweit gültiger Maßstab für die Notenstufen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-MV-57b7a69411ab a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Keine Querschnittskürzel. Fachverweise mit Jahrgang [Physik 7] in Oberstufe"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anwendungen aus Natur und Technik [Chemie]" ;
+    cur:recognitionHint "Eckige Klammern mit Fachname (auch in Hinweisspalte)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "[Mathematik]" ;
+    cur:verified false .
+
+schul:re-DE-MV-6ab84bc46620 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002140"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 10-13"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Das Wort Kompetenzen ist Abschnittstitel. Die einzelne Erwartung trägt den Code"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S 1.1 erklären Phänomene unter Nutzung bekannter physikalischer Modelle und Theorien." ;
+    cur:recognitionHint "Abschnittstitel 2.2 Kompetenzen und Satzstamm Die Lernenden"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-MV-6b9fb4c90eec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Mischt Querschnittskürzel und Fachverweise"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Verknüpfungen [BO] [BNE] [MD] [BTV] [PG] [DB]" ;
+    cur:recognitionHint "Zeile am Ende jeder Thementabelle mit eckigen Klammern"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verknüpfungen" ;
+    cur:verified false .
+
+schul:re-DE-MV-70d69ad0648b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Anlage_4_RP_PHYS_MR_final1.pdf Inhaltsverzeichnis"@de,
+        "Plangeneration laut Länderrecherche: 2020-2022 (Deutsch 2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Nachfolgetitel Kompetenzen und Themen im Fachunterricht"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Beitrag des Unterrichtsfaches Physik zum Kompetenzerwerb" ;
+    cur:recognitionHint "Kapitel 2 der Generation 2020-2022 (später Kompetenzen und Themen im Fachunterricht)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beitrag des Unterrichtsfaches Physik zum Kompetenzerwerb" ;
+    cur:verified false .
+
+schul:re-DE-MV-7128b861434b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 14-15"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Gelten jahrgangsübergreifend ohne Stunden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Naturwissenschaftliches Arbeiten" ;
+    cur:recognitionHint "Tabellen vor Jahrgangsstufe 7 mit Randvermerk integrativ"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "integrativ" ;
+    cur:verified false .
+
+schul:re-DE-MV-78eedbf1e24a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Wortlaut LeistBewVO Fassung 2026 nur über Suchtreffer. Bewertungsformen § 5 laut Drucksache 8/1332 Seite 1 und 2 landesweit gültiger Maßstab für die Notenstufen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ungenügend" ;
+    cur:verified false .
+
+schul:re-DE-MV-7f5851e2fa2a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Keine Querschnittskürzel. Fachverweise mit Jahrgang [Physik 7] in Oberstufe"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anwendungen aus Natur und Technik [Chemie]" ;
+    cur:recognitionHint "Eckige Klammern mit Fachname (auch in Hinweisspalte)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "[Chemie]" ;
+    cur:verified false .
+
+schul:re-DE-MV-81cfed22f89a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 20 | Rahmenplan_Geschichte_Sekundarbereich_II_2026.pdf S. 13 | RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Vorschläge zur inhaltlichen Vertiefung: Kraft als Wechselwirkungsgröße" ;
+    cur:recognitionHint "Label in der rechten Spalte mit Doppelpunkt"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorschläge zur inhaltlichen Vertiefung:" ;
+    cur:verified false .
+
+schul:re-DE-MV-8380d66d72b1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Gleiches Kapitel in allen Fächern derselben Schulart"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der gymnasiale Bildungsgang umfasst die Jahrgangsstufen 7 bis 12" ;
+    cur:recognitionHint "Abschnitt 1.2 oder 1.3 je nach Schulart"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung und Erziehung gymnasialen Bildungsgang" ;
+    cur:verified false .
+
+schul:re-DE-MV-8487f3998da3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_GS_Sachunterricht.pdf S. 7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Intercultural ;
+    cur:recognitionHint "Kürzel oder Symbol: keines; markiert: Fließtext Abschnitt 2.3 | in [BTV] enthalten"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Interkulturelle Bildung" ;
+    cur:verified false .
+
+schul:re-DE-MV-8c4d73d2975c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: keines; markiert: eigener Plan | Wortebene in jedem Thema"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenplan Sprachbildung" ;
+    cur:verified false .
+
+schul:re-DE-MV-954cfd07a25e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Gleiches Kapitel in allen Fächern derselben Schulart"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der gymnasiale Bildungsgang umfasst die Jahrgangsstufen 7 bis 12" ;
+    cur:recognitionHint "Abschnitt 1.2 oder 1.3 je nach Schulart"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung und Erziehung in der Grundschule" ;
+    cur:verified false .
+
+schul:re-DE-MV-979ceb0aeda2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 10-13"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-communication ;
+    cur:negativeHint "Code S 1.1 ist die einzelne Erwartung. Der Beschreibungstext vor den Codes ist Bildungsziel"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S 1.1 erklären Phänomene unter Nutzung bekannter physikalischer Modelle und Theorien." ;
+    cur:recognitionHint "Codes S E K B mit Zahl"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikationskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-MV-9ab43c0dd5cc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_Ges_5-6_OS_2025.pdf Titelseite"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-orientierung ;
+    cur:negativeHint "Schulartunabhängig heißt Pläne für alle Schularten Jgst 5-6"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenplan Geschichte schulartunabhängige Orientierungsstufe Jahrgangsstufe 5 und 6 2025" ;
+    cur:recognitionHint "Titelseite nennt Jgst 5 und 6"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "schulartunabhängige Orientierungsstufe" ;
+    cur:verified false .
+
+schul:re-DE-MV-9d7c0893347e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 20 | Rahmenplan_Geschichte_Sekundarbereich_II_2026.pdf S. 13 | RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Vorschläge zur inhaltlichen Vertiefung: Kraft als Wechselwirkungsgröße" ;
+    cur:recognitionHint "Label in der rechten Spalte mit Doppelpunkt"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Methodische Hinweise:" ;
+    cur:verified false .
+
+schul:re-DE-MV-9f8396c49174 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Keine Querschnittskürzel. Fachverweise mit Jahrgang [Physik 7] in Oberstufe"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anwendungen aus Natur und Technik [Chemie]" ;
+    cur:recognitionHint "Eckige Klammern mit Fachname (auch in Hinweisspalte)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "[Geografie]" ;
+    cur:verified false .
+
+schul:re-DE-MV-a1a1e1b98d56 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-fachbegriffe"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 15 | RP_AB_Ma_1-4_2024.pdf S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2024-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "DE-Vorliste Fachbegriffe: heißt in MV Fachwortschatz: (Mathematik) bzw. Wortebene:"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Wortebene: Umrechnen, Definitionsgleichung, Größenordnung" ;
+    cur:recognitionHint "Absatz mit zwei Ebenen unter jeder Thementabelle"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachwortschatz:" ;
+    cur:verified false .
+
+schul:re-DE-MV-a8667202fed3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Wortlaut LeistBewVO Fassung 2026 nur über Suchtreffer. Bewertungsformen § 5 laut Drucksache 8/1332 Seite 1 und 2 landesweit gültiger Maßstab für die Notenstufen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ausreichend" ;
+    cur:verified false .
+
+schul:re-DE-MV-a8a9a33cb73c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 (kein erweiterter erster Abschluss ausgewiesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlere Reife" ;
+    cur:verified false .
+
+schul:re-DE-MV-ab0747977629 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Anlage_4_RP_PHYS_MR_final1.pdf Inhaltsverzeichnis"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Nur diese Generation"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Klasse 7" ;
+    cur:recognitionHint "Überschrift im Physikplan 2021"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Klasse 7" ;
+    cur:verified false .
+
+schul:re-DE-MV-ab3e64f656e6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 4-5"@de,
+        "Plangeneration laut Länderrecherche: 2020-2026 (Generation 2020: Intention)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Randspalte links mit Fettbegriffen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Rahmenplan ist als rechtsverbindliche Grundlage und unterstützendes Instrument zu verstehen." ;
+    cur:recognitionHint "Kapitel 1 mit Randbegriffen Zielstellung Grundstruktur Stundenausweisung Querschnittsthemen Kompetenzen Themen verbindliche Inhalte Hinweise und Anregungen"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufbau und Verbindlichkeit des Rahmenplans" ;
+    cur:verified false .
+
+schul:re-DE-MV-ab9aca0b5ba5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Keine Querschnittskürzel. Fachverweise mit Jahrgang [Physik 7] in Oberstufe"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anwendungen aus Natur und Technik [Chemie]" ;
+    cur:recognitionHint "Eckige Klammern mit Fachname (auch in Hinweisspalte)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "[Physik 7]" ;
+    cur:verified false .
+
+schul:re-DE-MV-bbbcdee9e0c8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 14-15"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Gelten jahrgangsübergreifend ohne Stunden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Naturwissenschaftliches Arbeiten" ;
+    cur:recognitionHint "Tabellen vor Jahrgangsstufe 7 mit Randvermerk integrativ"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Integrative Themen" ;
+    cur:verified false .
+
+schul:re-DE-MV-bc2b801bc80e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 20 | Rahmenplan_Geschichte_Sekundarbereich_II_2026.pdf S. 13 | RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Vorschläge zur inhaltlichen Vertiefung: Kraft als Wechselwirkungsgröße" ;
+    cur:recognitionHint "Label in der rechten Spalte mit Doppelpunkt"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themenvorschläge:" ;
+    cur:verified false .
+
+schul:re-DE-MV-c922127f80d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 10-13"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-inquiry ;
+    cur:negativeHint "Code S 1.1 ist die einzelne Erwartung. Der Beschreibungstext vor den Codes ist Bildungsziel"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S 1.1 erklären Phänomene unter Nutzung bekannter physikalischer Modelle und Theorien." ;
+    cur:recognitionHint "Codes S E K B mit Zahl"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erkenntnisgewinnungskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-MV-d7dd4c360f59 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Wortlaut LeistBewVO Fassung 2026 nur über Suchtreffer. Bewertungsformen § 5 laut Drucksache 8/1332 Seite 1 und 2 landesweit gültiger Maßstab für die Notenstufen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-MV-dc083b64ae2f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_geistige_Entwicklung.pdf Titelseite"@de,
+        "Plangeneration laut Länderrecherche: 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Sonderpaedagogisch,
+        schul:sn-geistig ;
+    cur:negativeHint "Gegliedert nach Unterrichtsfächern (u. a. Grundlegender und entwicklungsbezogener Unterricht)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenplan Schule mit dem Förderschwerpunkt geistige Entwicklung" ;
+    cur:recognitionHint "Titel nennt Förderschwerpunkt und Stufen Primarstufe Sekundarstufe I Berufsbildungsstufe"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenplan Schule mit dem Förderschwerpunkt geistige Entwicklung" ;
+    cur:verified false .
+
+schul:re-DE-MV-e5428d03efa9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 (kein erweiterter erster Abschluss ausgewiesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsreife" ;
+    cur:verified false .
+
+schul:re-DE-MV-ea96d96355a3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_AB_Ma_1-4_2024.pdf S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Je Thema stehen Kompetenzen oberhalb der Inhaltstabelle"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Fachspezifische Kompetenzen Die Lernenden …" ;
+    cur:recognitionHint "Zeile über Aufzählung im Themenkopf (Mathematik)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachspezifische Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-MV-f1c43759d348 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 10-13"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-evaluation ;
+    cur:negativeHint "Code S 1.1 ist die einzelne Erwartung. Der Beschreibungstext vor den Codes ist Bildungsziel"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S 1.1 erklären Phänomene unter Nutzung bekannter physikalischer Modelle und Theorien." ;
+    cur:recognitionHint "Codes S E K B mit Zahl"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bewertungskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-MV-f41c45f844f1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002147"@de,
+        "Länderrecherche, Beleg E: RP-Physik-Sekundarbereich-I-Gym-2026.pdf S. 16"@de,
+        "Plangeneration laut Länderrecherche: 2021-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Vorliste: Thema als Inhaltsbereich. In MV trägt Thema Stundenrichtwerte und ist damit eine Einheit. Im Sachunterricht 2020 ohne Stunden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Dichte ca. 8 Unterrichtsstunden" ;
+    cur:recognitionHint "Tabellenkopf mit Thematitel und ca. N Unterrichtsstunden"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themen" ;
+    cur:verified false .
+
+schul:re-DE-MV-fc6238fdb5ef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RP_GS_Sachunterricht.pdf S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhalt,
+        schul:Kompetenzerwartung ;
+    cur:negativeHint "Spalte enthält Aufzählung Schülerinnen und Schüler … (Kompetenzen) und darunter Stichworte (Inhalte)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Kompetenzen und verbindliche Inhalte | Hinweise und Anregungen" ;
+    cur:recognitionHint "Kombinierte linke Spalte"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzen und verbindliche Inhalte" ;
+    cur:verified false .
+

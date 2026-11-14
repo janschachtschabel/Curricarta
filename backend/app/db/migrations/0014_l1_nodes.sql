@@ -1,0 +1,296 @@
+-- A document's structure and its statements (plan M1 4.3, konzept §5, cur-shapes.ttl): nodes in
+-- a tree within one document, statements at nodes, each with its addressees. Every value says
+-- where it came from (cv:Origins) and how far it is reviewed (cv:ReviewStatuses); one a rule
+-- gave names the rule. A node's depth follows from its parents and is not kept. ``revision``
+-- counts a row's changes, for the editors' writes to check against (plan M1 9.3).
+
+CREATE TABLE node (
+    id uuid PRIMARY KEY,
+    kind text NOT NULL DEFAULT 'node' CHECK (kind = 'node'),
+    document_id uuid NOT NULL REFERENCES document (id) ON DELETE CASCADE,
+    parent_id uuid,
+    position integer NOT NULL CHECK (position >= 1),  -- among its siblings, from 1
+    function_scheme text NOT NULL CHECK (function_scheme = 'https://w3id.org/wlo/curriculum/vocab#NodeFunctions'),
+    function_iri text NOT NULL,
+    node_type_iri text REFERENCES vocab_concept (iri),  -- a profile's, under the function (trigger below)
+    code text CHECK (has_text(code) AND length(code) <= 100),
+    code_assigned boolean NOT NULL DEFAULT false,  -- the pipeline's, from the position (cur:codeAssigned)
+    original_title text CHECK (has_text(original_title) AND length(original_title) <= 2000),
+    title_language text NOT NULL DEFAULT 'de' CHECK (title_language ~ '^[a-z]{2,3}(-[A-Za-z0-9]{1,8})*$'),
+    obligation_scheme text CHECK (obligation_scheme = 'https://w3id.org/wlo/curriculum/vocab#Obligations'),
+    obligation_iri text,
+    scope_share_scheme text CHECK (scope_share_scheme = 'https://w3id.org/wlo/curriculum/vocab#ScopeShares'),
+    scope_share_iri text,
+    extraction_depth_scheme text
+        CHECK (extraction_depth_scheme = 'https://w3id.org/wlo/curriculum/vocab#ExtractionDepths'),
+    extraction_depth_iri text,
+    applies_to uuid[] NOT NULL DEFAULT '{}',  -- specifications or variants of the document (trigger below)
+    origin_scheme text NOT NULL CHECK (origin_scheme = 'https://w3id.org/wlo/curriculum/vocab#Origins'),
+    origin_iri text NOT NULL,
+    review_status_scheme text NOT NULL
+        CHECK (review_status_scheme = 'https://w3id.org/wlo/curriculum/vocab#ReviewStatuses'),
+    review_status_iri text NOT NULL,
+    rule_id text CHECK (has_text(rule_id) AND length(rule_id) <= 200),
+    revision integer NOT NULL DEFAULT 1 CHECK (revision >= 1),
+    run_id uuid,  -- the run that made it; a run taken away leaves what it made
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (document_id, id),
+    -- deferrable, so the editors may reorder siblings within one transaction (plan M1 9)
+    UNIQUE NULLS NOT DISTINCT (document_id, parent_id, position) DEFERRABLE,
+    FOREIGN KEY (document_id, parent_id) REFERENCES node (document_id, id) ON DELETE CASCADE,
+    FOREIGN KEY (document_id, run_id) REFERENCES extraction_run (document_id, id) ON DELETE SET NULL (run_id),
+    FOREIGN KEY (id, kind) REFERENCES entity (id, kind),
+    FOREIGN KEY (function_scheme, function_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (obligation_scheme, obligation_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (scope_share_scheme, scope_share_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (extraction_depth_scheme, extraction_depth_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (origin_scheme, origin_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (review_status_scheme, review_status_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    CHECK ((obligation_scheme IS NULL) = (obligation_iri IS NULL)),
+    CHECK ((scope_share_scheme IS NULL) = (scope_share_iri IS NULL)),
+    CHECK ((extraction_depth_scheme IS NULL) = (extraction_depth_iri IS NULL)),
+    CHECK (parent_id <> id),
+    CHECK (NOT code_assigned OR code IS NOT NULL),
+    CHECK ((origin_iri = 'https://w3id.org/wlo/curriculum/vocab#orig_rule') = (rule_id IS NOT NULL))
+);
+CREATE INDEX node_of_run ON node (run_id) WHERE run_id IS NOT NULL;
+
+-- The guards below check a row against others another transaction may change meanwhile: a move
+-- against the tree, a removal against what is left. Each waits for the others' locks and then
+-- looks again, which read committed alone does - repeatable read keeps its first look, and
+-- serializable finds the conflict only where every side is serializable. So what such a guard
+-- checks is done under read committed alone (the app's level), refused under any other
+CREATE FUNCTION read_committed_alone(what text) RETURNS void LANGUAGE plpgsql AS $$
+BEGIN
+    IF current_setting('transaction_isolation') NOT IN ('read committed', 'read uncommitted') THEN
+        RAISE EXCEPTION '% under read committed alone, not %', what, current_setting('transaction_isolation')
+            USING ERRCODE = 'invalid_transaction_state';
+    END IF;
+END
+$$;
+
+-- The lock every write to one document's tree shares, held until its transaction ends: the
+-- guards below take it, and so does whoever writes a tree (app/db/nodes.py, lock_tree)
+CREATE FUNCTION lock_node_tree(document uuid) RETURNS void LANGUAGE sql AS $$
+    SELECT pg_advisory_xact_lock(hashtextextended('node-tree:' || document::text, 0))
+$$;
+
+-- A node comes to lie under itself nowhere, however it is written: checked once its statement
+-- has written all its rows (nodes inserted in a circle at once too). Writes to one document's
+-- tree wait for each other, so two moves that would close a circle between them do not pass side
+-- by side. Who writes a tree takes its lock first (app/db/nodes.py, lock_tree): taken here, after
+-- the row's own lock, two moves could wait for each other the other way round
+CREATE FUNCTION node_without_cycle() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF NEW.parent_id IS NULL THEN
+        RETURN NULL;
+    END IF;
+    IF TG_OP = 'UPDATE' THEN
+        PERFORM read_committed_alone('a node is moved');
+    END IF;
+    PERFORM lock_node_tree(NEW.document_id);
+    IF EXISTS (
+        WITH RECURSIVE up (id) AS (
+            SELECT NEW.parent_id
+            UNION
+            SELECT node.parent_id FROM node JOIN up ON node.id = up.id WHERE node.parent_id IS NOT NULL
+        )
+        SELECT FROM up WHERE id = NEW.id
+    ) THEN
+        RAISE EXCEPTION 'node % would lie under itself', NEW.id USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NULL;
+END
+$$;
+CREATE CONSTRAINT TRIGGER node_without_cycle AFTER INSERT OR UPDATE OF parent_id ON node
+    FOR EACH ROW EXECUTE FUNCTION node_without_cycle();
+
+-- A profile value refines the core value it stands beside: a node type lies under the node's
+-- function, a subkind under its statement's kind (skos:broader, cur-shapes.ttl). Which profile
+-- a value may come from, the app checks (app/db/nodes.py). Checked as a row is written: what a
+-- later load of the vocabularies changes in skos:broader, X5 finds in the rows already written
+CREATE FUNCTION refines(value_iri text, core_iri text) RETURNS boolean
+    LANGUAGE sql STABLE PARALLEL SAFE
+    RETURN value_iri IS NULL OR EXISTS (SELECT FROM vocab_concept WHERE iri = value_iri AND core_iri = ANY (broader));
+
+CREATE FUNCTION node_type_fits() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF NOT refines(NEW.node_type_iri, NEW.function_iri) THEN
+        RAISE EXCEPTION 'node type % does not lie under the function %', NEW.node_type_iri, NEW.function_iri
+            USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$;
+CREATE TRIGGER node_type_fits BEFORE INSERT OR UPDATE OF node_type_iri, function_iri ON node
+    FOR EACH ROW EXECUTE FUNCTION node_type_fits();
+
+-- What a node applies to (cur:appliesTo): specifications of its document and their variants,
+-- each named once. They stay while a node names them; taken away with their document, they go
+-- with its nodes
+CREATE FUNCTION scope_of(document uuid) RETURNS SETOF uuid LANGUAGE sql STABLE AS $$
+    SELECT id FROM specification WHERE document_id = document
+    UNION ALL
+    SELECT variant.id FROM variant JOIN specification ON specification.id = variant.specification_id
+    WHERE specification.document_id = document
+$$;
+
+CREATE FUNCTION node_scope_fits() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    -- locked as a foreign key locks what it names: none is taken away before this commits
+    PERFORM FROM specification WHERE id = ANY (NEW.applies_to) FOR KEY SHARE;
+    PERFORM FROM variant WHERE id = ANY (NEW.applies_to) FOR KEY SHARE;
+    IF cardinality(NEW.applies_to) <> (
+        SELECT count(*) FROM scope_of(NEW.document_id) AS scope (id) WHERE id = ANY (NEW.applies_to)
+    ) THEN
+        RAISE EXCEPTION 'node % applies to what is no specification or variant of its document, or to one twice',
+            NEW.id USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$;
+CREATE TRIGGER node_scope_fits BEFORE INSERT OR UPDATE OF applies_to, document_id ON node
+    FOR EACH ROW EXECUTE FUNCTION node_scope_fits();
+CREATE INDEX node_applies_to ON node USING gin (applies_to);
+
+CREATE FUNCTION scope_kept() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+    alone boolean;  -- taken away on its own, not with its document: a node may name it meanwhile
+BEGIN
+    IF TG_TABLE_NAME = 'specification' THEN
+        alone := EXISTS (SELECT FROM document WHERE id = OLD.document_id);
+    ELSE
+        alone := EXISTS (SELECT FROM specification WHERE id = OLD.specification_id);
+    END IF;
+    IF alone THEN
+        PERFORM read_committed_alone('a specification or variant is taken away');
+    END IF;
+    IF EXISTS (
+        SELECT FROM node
+        WHERE applies_to @> ARRAY[OLD.id] AND NOT OLD.id IN (SELECT scope_of(node.document_id))
+    ) THEN
+        RAISE EXCEPTION 'a node still applies to %', OLD.id USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NULL;
+END
+$$;
+CREATE CONSTRAINT TRIGGER specification_kept AFTER DELETE OR UPDATE OF document_id ON specification
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION scope_kept();
+CREATE CONSTRAINT TRIGGER variant_kept AFTER DELETE OR UPDATE OF specification_id ON variant
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION scope_kept();
+
+CREATE TABLE statement (
+    id uuid PRIMARY KEY,
+    kind text NOT NULL DEFAULT 'statement' CHECK (kind = 'statement'),
+    document_id uuid NOT NULL,
+    node_id uuid NOT NULL,
+    position integer NOT NULL CHECK (position >= 1),  -- among the node's statements, from 1
+    verbatim text NOT NULL CHECK (has_text(verbatim) AND length(verbatim) <= 20000),
+    language text NOT NULL DEFAULT 'de' CHECK (language ~ '^[a-z]{2,3}(-[A-Za-z0-9]{1,8})*$'),
+    lead_in text CHECK (has_text(lead_in) AND length(lead_in) <= 2000),  -- "Die Schülerinnen und Schüler …"
+    statement_kind_scheme text NOT NULL
+        CHECK (statement_kind_scheme = 'https://w3id.org/wlo/curriculum/vocab#StatementKinds'),
+    statement_kind_iri text NOT NULL,
+    subkind_iri text REFERENCES vocab_concept (iri),  -- a profile's, under the kind (trigger below)
+    obligation_scheme text CHECK (obligation_scheme = 'https://w3id.org/wlo/curriculum/vocab#Obligations'),
+    obligation_iri text,
+    origin_scheme text NOT NULL CHECK (origin_scheme = 'https://w3id.org/wlo/curriculum/vocab#Origins'),
+    origin_iri text NOT NULL,
+    review_status_scheme text NOT NULL
+        CHECK (review_status_scheme = 'https://w3id.org/wlo/curriculum/vocab#ReviewStatuses'),
+    review_status_iri text NOT NULL,
+    rule_id text CHECK (has_text(rule_id) AND length(rule_id) <= 200),
+    text_hash text NOT NULL CHECK (text_hash ~ '^[0-9a-f]{64}$'),  -- cur:textHash (app/domain/wording.py)
+    -- the wording's other fields X4 gives (level, time, context, example, purpose ...)
+    details jsonb NOT NULL DEFAULT '{}' CHECK (jsonb_typeof(details) = 'object'),
+    layout_markers text[] NOT NULL DEFAULT '{}',  -- cv:LayoutMarkers (trigger below)
+    revision integer NOT NULL DEFAULT 1 CHECK (revision >= 1),
+    run_id uuid,  -- the run that made it; a run taken away leaves what it made
+    created_at timestamptz NOT NULL DEFAULT now(),
+    updated_at timestamptz NOT NULL DEFAULT now(),
+    UNIQUE (document_id, id),
+    UNIQUE (node_id, position) DEFERRABLE,
+    FOREIGN KEY (document_id, node_id) REFERENCES node (document_id, id) ON DELETE CASCADE,
+    FOREIGN KEY (document_id, run_id) REFERENCES extraction_run (document_id, id) ON DELETE SET NULL (run_id),
+    FOREIGN KEY (id, kind) REFERENCES entity (id, kind),
+    FOREIGN KEY (statement_kind_scheme, statement_kind_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (obligation_scheme, obligation_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (origin_scheme, origin_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    FOREIGN KEY (review_status_scheme, review_status_iri) REFERENCES vocab_concept (scheme_iri, iri),
+    CHECK ((obligation_scheme IS NULL) = (obligation_iri IS NULL)),
+    CHECK ((origin_iri = 'https://w3id.org/wlo/curriculum/vocab#orig_rule') = (rule_id IS NOT NULL))
+);
+CREATE INDEX statement_of_run ON statement (run_id) WHERE run_id IS NOT NULL;
+CREATE INDEX statement_text_hash ON statement (text_hash);
+
+CREATE FUNCTION subkind_fits() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF NOT refines(NEW.subkind_iri, NEW.statement_kind_iri) THEN
+        RAISE EXCEPTION 'subkind % does not lie under the kind %', NEW.subkind_iri, NEW.statement_kind_iri
+            USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$;
+CREATE TRIGGER subkind_fits BEFORE INSERT OR UPDATE OF subkind_iri, statement_kind_iri ON statement
+    FOR EACH ROW EXECUTE FUNCTION subkind_fits();
+
+-- How the source sets a statement apart (cur:layoutMarker): concepts of cv:LayoutMarkers, which
+-- the vocabularies retire but never take away
+CREATE FUNCTION layout_markers_fit() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN
+    IF EXISTS (
+        SELECT FROM unnest(NEW.layout_markers) AS marker
+        WHERE NOT EXISTS (  -- a NULL is no concept either
+            SELECT FROM vocab_concept
+            WHERE scheme_iri = 'https://w3id.org/wlo/curriculum/vocab#LayoutMarkers' AND iri = marker
+        )
+    ) THEN
+        RAISE EXCEPTION 'statement % names what is no layout marker', NEW.id USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NEW;
+END
+$$;
+CREATE TRIGGER layout_markers_fit BEFORE INSERT OR UPDATE OF layout_markers ON statement
+    FOR EACH ROW EXECUTE FUNCTION layout_markers_fit();
+
+-- Whom a statement addresses (cur:addressee): one at least, when its transaction commits
+CREATE TABLE statement_addressee (
+    statement_id uuid NOT NULL REFERENCES statement (id) ON DELETE CASCADE,
+    addressee_scheme text NOT NULL CHECK (addressee_scheme = 'https://w3id.org/wlo/curriculum/vocab#Addressees'),
+    addressee_iri text NOT NULL,
+    PRIMARY KEY (statement_id, addressee_iri),
+    FOREIGN KEY (addressee_scheme, addressee_iri) REFERENCES vocab_concept (scheme_iri, iri)
+);
+
+-- One taken away from a statement that stays takes the document's tree, so another taking one
+-- away waits for this one and then counts what it left. The statement's own row it leaves: the
+-- deletion of a node locks its statements before their addressees, which this one holds already
+CREATE FUNCTION statement_addressed() RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+    target uuid;
+    document uuid;
+BEGIN
+    IF TG_TABLE_NAME = 'statement' THEN
+        target := NEW.id;
+    ELSE
+        target := OLD.statement_id;
+        SELECT statement.document_id INTO document FROM statement WHERE id = target;
+        IF NOT FOUND THEN
+            RETURN NULL;  -- gone with its statement
+        END IF;
+        PERFORM read_committed_alone('an addressee is taken away from its statement');
+        PERFORM lock_node_tree(document);
+    END IF;
+    IF EXISTS (SELECT FROM statement WHERE id = target)
+        AND NOT EXISTS (SELECT FROM statement_addressee WHERE statement_id = target) THEN
+        RAISE EXCEPTION 'statement % has no addressee', target USING ERRCODE = 'check_violation';
+    END IF;
+    RETURN NULL;
+END
+$$;
+CREATE CONSTRAINT TRIGGER statement_addressed AFTER INSERT ON statement
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION statement_addressed();
+CREATE CONSTRAINT TRIGGER statement_addressee_kept AFTER DELETE OR UPDATE OF statement_id ON statement_addressee
+    DEFERRABLE INITIALLY DEFERRED FOR EACH ROW EXECUTE FUNCTION statement_addressed();

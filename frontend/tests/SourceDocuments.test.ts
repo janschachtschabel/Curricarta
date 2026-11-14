@@ -1,0 +1,109 @@
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import * as api from "@/api";
+import { ApiError, type CurriculumDocument } from "@/api";
+import SourceDocuments from "@/components/SourceDocuments.vue";
+import { momentFormat, t } from "@/i18n/de";
+import { router } from "@/router";
+
+import { violations } from "./axe";
+import { documentOf } from "./documentFixtures";
+
+let shown: VueWrapper | null = null;
+
+function made(id: string, changes: Partial<CurriculumDocument> = {}): CurriculumDocument {
+  return documentOf({ id, title: null, created_at: "2026-10-24T10:00:00Z", ...changes });
+}
+
+async function open(): Promise<VueWrapper> {
+  shown = mount(SourceDocuments, { props: { sourceId: "s1" }, global: { plugins: [router] }, attachTo: document.body });
+  await flushPromises();
+  return shown;
+}
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+});
+
+afterEach(() => {
+  shown?.unmount();
+  shown = null;
+});
+
+describe("the documents of a register entry", () => {
+  it("lists the entry's documents as the server gives them, each with its extraction", async () => {
+    const list = vi.spyOn(api, "listDocuments").mockResolvedValue([
+      made("d2", { title: "Kernlehrplan Physik", extraction: { kind: "extract.run", job_id: "j2", status: "running", error_code: null } }),
+      made("d1"),
+    ]);
+
+    const wrapper = await open();
+
+    expect(list).toHaveBeenCalledWith("s1");
+    const links = wrapper.findAll("li a");
+    expect(links.map((link) => [link.text(), link.attributes("href")])).toEqual([
+      ["Kernlehrplan Physik", "/dokumente/d2"],
+      [t("documents.list.untitled", { made: momentFormat.format(new Date("2026-10-24T10:00:00Z")) }), "/dokumente/d1"],
+    ]);
+    expect(wrapper.findAll("li")[0].text()).toContain(t("documents.page.lastStatus", { status: t("jobs.status.running") }));
+    // an untitled one has its time in its name: not once more beside it
+    expect(wrapper.findAll("li")[1].findAll("time")).toHaveLength(0);
+    expect(wrapper.findAll("li")[0].findAll("time")).toHaveLength(1);
+    expect(wrapper.findAll("li")[1].text()).toContain(t("documents.page.none"));
+  });
+
+  it("names a document's last repair as such", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([
+      made("d2", { extraction: { kind: "extract.repair", job_id: "j3", status: "running", error_code: null } }),
+    ]);
+
+    const wrapper = await open();
+
+    expect(wrapper.get("li").text()).toContain(
+      t("documents.page.lastRepairStatus", { status: t("jobs.status.running") }),
+    );
+  });
+
+  it("marks an import of a MEM plan and names its job as one", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([
+      made("d3", {
+        mem: { plan_iri: "https://w3id.org/p/1", attribution: "MEM-Schule", licence: null },
+        extraction: { kind: "extract.mem_import", job_id: "j4", status: "done", error_code: null },
+      }),
+      made("d4"),
+    ]);
+
+    const wrapper = await open();
+
+    const [imported, extracted] = wrapper.findAll("li");
+    expect(imported.text()).toContain(t("documents.list.imported"));
+    expect(imported.text()).toContain(t("documents.page.lastImportStatus", { status: t("jobs.status.done") }));
+    expect(extracted.text()).not.toContain(t("documents.list.imported"));
+  });
+
+  it("says when the entry has none yet", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+
+    expect((await open()).text()).toContain(t("documents.list.empty"));
+  });
+
+  it("says when they did not load, and asks again", async () => {
+    vi.spyOn(api, "listDocuments")
+      .mockRejectedValueOnce(new ApiError("server", 503, "service_unavailable"))
+      .mockResolvedValue([made("d1")]);
+    const wrapper = await open();
+    expect(wrapper.text()).toContain(t("documents.list.loadFailed"));
+
+    await wrapper.get("[role=alert] button").trigger("click");
+    await flushPromises();
+
+    expect(wrapper.findAll("li")).toHaveLength(1);
+  });
+
+  it("has nothing axe finds", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([made("d1")]);
+
+    expect(await violations((await open()).html())).toEqual([]);
+  });
+});

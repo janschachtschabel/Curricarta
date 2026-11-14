@@ -1,0 +1,298 @@
+"""Looking up the vocabularies (plan M1 4.1): a concept, a notation, a profile's values, a region
+and those it lies in; retired concepts are read, never chosen."""
+
+from collections.abc import AsyncIterator
+from pathlib import Path
+
+import psycopg
+import pytest
+
+from app.db.migrate import migrate
+from app.domain.lexicon import Cue, active_cues
+from app.vocab.loader import read_vocabulary
+from app.vocab.lookup import (
+    REGIONS,
+    by_notation,
+    concept,
+    concept_details,
+    concept_texts,
+    cues_for,
+    current_release,
+    labels,
+    notations_of,
+    profile_concepts,
+    region_with_ancestors,
+    terminology_profile,
+)
+from app.vocab.store import load_vocabulary
+from tests.support import ontology_vocabulary
+from tests.vocab.model import LEXICON_CORE, PROFILE_PREFIXES, SCHOOL_PROFILE, write_model
+
+pytestmark = [pytest.mark.pg, pytest.mark.anyio]
+
+ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
+CV = "https://w3id.org/wlo/curriculum/vocab#"
+CUR = "https://w3id.org/wlo/curriculum/core#"
+SCHOOL = "https://w3id.org/wlo/curriculum/profile/school#"
+REGION = "https://w3id.org/wlo/curriculum/region/"
+# What the school's profile does not yet say of its first cue
+MORE_OF_THE_CUE = (
+    PROFILE_PREFIXES
+    + """
+schul:InstitutionTypes a skos:ConceptScheme .
+schul:it-gymnasium a skos:Concept ; skos:inScheme schul:InstitutionTypes .
+schul:Subjects a skos:ConceptScheme .
+schul:subj-mathe a skos:Concept ; skos:inScheme schul:Subjects .
+schul:cue-klp cur:validUntil "2031-07"^^xsd:gYearMonth ; cur:scopeSubject schul:subj-mathe ;
+    cur:scopeInstitutionType schul:it-gymnasium .
+"""
+)
+
+
+@pytest.fixture
+async def connection(database_url: str) -> AsyncIterator[psycopg.AsyncConnection]:
+    migrate(database_url)
+    load_vocabulary(database_url, ontology_vocabulary())
+    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as opened:
+        yield opened
+
+
+@pytest.mark.parametrize(
+    ("sector", "counts"),
+    [
+        ("school", (10, 13, 8)),
+        ("elementary", (16, 11, 9)),
+        ("vocational", (25, 10, 17)),
+        ("higher", (13, 6, 21)),
+        ("adult", (14, 12, 12)),
+    ],
+)
+async def test_a_sector_s_profile_holds_its_node_types_subkinds_and_document_types(
+    connection: psycopg.AsyncConnection, sector: str, counts: tuple[int, int, int]
+) -> None:
+    found = await profile_concepts(connection, sector)
+
+    assert found is not None
+    assert (len(found.node_types), len(found.subkinds), len(found.document_types)) == counts
+
+
+async def test_a_profile_value_comes_with_the_core_value_it_refines(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    found = await profile_concepts(connection, "school")
+
+    assert found is not None
+    assert found.node_types[SCHOOL + "Inhaltsbereich"] == (CV + "fn_area",)
+    assert found.subkinds[SCHOOL + "Kompetenzerwartung"] == (CV + "kind_learningOutcome",)
+
+
+async def test_a_sector_without_a_profile_has_none(connection: psycopg.AsyncConnection) -> None:
+    assert await profile_concepts(connection, "kindergarten") is None
+
+
+async def test_a_retired_value_is_read_but_never_chosen(connection: psycopg.AsyncConnection) -> None:
+    await connection.execute(
+        "UPDATE vocab_concept SET retired_in = 1 WHERE iri = ANY(%s)",
+        ([SCHOOL + "Inhaltsbereich", CV + "sec_adult"],),
+    )
+
+    read = await concept(connection, SCHOOL + "Inhaltsbereich")
+    chosen = await profile_concepts(connection, "school")
+
+    assert read is not None and read.retired
+    assert chosen is not None and SCHOOL + "Inhaltsbereich" not in chosen.node_types
+    assert await by_notation(connection, CV + "EducationSectors", "adult") is None
+
+
+async def test_a_concept_is_found_by_its_notation_within_its_scheme(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    found = await by_notation(connection, CV + "EducationSectors", "school")
+
+    assert found is not None
+    assert (found.iri, found.scheme, found.notation, found.retired) == (
+        CV + "sec_school",
+        CV + "EducationSectors",
+        "school",
+        False,
+    )
+    assert found.pref_labels["de"]
+
+
+async def test_an_unknown_concept_is_none(connection: psycopg.AsyncConnection) -> None:
+    assert await concept(connection, CV + "sec_nowhere") is None
+    assert await by_notation(connection, CV + "EducationSectors", "nowhere") is None
+
+
+async def test_a_sector_s_cues_are_read_for_its_active_profile(connection: psycopg.AsyncConnection) -> None:
+    cues = await cues_for(connection, "school")
+    region = await by_notation(connection, REGIONS, "DE-NW")
+    assert region is not None
+    own = frozenset({region.iri})
+    wider = await region_with_ancestors(connection, "DE-NW") - own
+
+    held = [found.cue for found in active_cues(cues, own, None, None, wider_regions=wider)]
+    named = {cue.iri for cue in held}
+    kernlehrplan = next(cue for cue in cues if cue.iri == SCHOOL + "cue-dt-kernlehrplan")
+
+    assert len(cues) == 1147  # 487 own, 660 from the research (plan M1 10a)
+    assert SCHOOL + "cue-dt-kernlehrplan" in named  # Nordrhein-Westfalen's
+    assert SCHOOL + "cue-dt-lehrplanplus" not in named  # Bavaria's
+    assert (kernlehrplan.maps_to, kernlehrplan.scope_regions, kernlehrplan.strength) == (
+        (SCHOOL + "dt-Lehrplan",),
+        frozenset({REGION + "DE-NW"}),
+        0.95,
+    )
+
+
+async def test_a_cue_is_read_with_all_it_carries_for_the_prompt(database_url: str, tmp_path: Path) -> None:
+    migrate(database_url)
+    model = write_model(tmp_path, LEXICON_CORE, {"schule.ttl": SCHOOL_PROFILE, "mehr.ttl": MORE_OF_THE_CUE})
+    load_vocabulary(database_url, read_vocabulary(model))
+    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as opened:
+        cues = {cue.iri: cue for cue in await cues_for(opened, "school")}
+
+    assert cues[SCHOOL + "cue-klp"] == Cue(
+        iri=SCHOOL + "cue-klp",
+        role=CV + "role_homonym",
+        kind=CV + "ck_term",
+        maps_to=(CUR + "Curriculum", SCHOOL + "dt-Kernlehrplan"),
+        surface_form="Kernlehrplan",
+        also_maps_to=(SCHOOL + "dt-Lehrplan",),
+        occurs_in=frozenset({CV + "occ_titlePage"}),
+        scope_regions=frozenset({REGION + "DE", REGION + "DE-NW"}),
+        scope_document_types=frozenset({SCHOOL + "dt-Lehrplan"}),
+        scope_institution_types=frozenset({SCHOOL + "it-gymnasium"}),
+        scope_subjects=frozenset({SCHOOL + "subj-mathe"}),
+        scope_issuers=frozenset({"MSB NRW"}),
+        plan_generations=frozenset({"G9"}),
+        valid_from="2023-08-01",
+        valid_until="2031-07",
+        strength=0.9,
+        verified=True,
+        recognition_hints=("NRW: Kernlehrplan der Sekundarstufe I.",),
+        negative_hints=("Nicht der KMK-Plan.",),
+        positive_examples=("Kernlehrplan Mathematik",),
+        negative_examples=("Lehrplan",),
+    )
+
+
+async def test_a_sector_without_a_profile_has_no_cues(connection: psycopg.AsyncConnection) -> None:
+    assert await cues_for(connection, "kindergarten") == []
+
+
+async def test_a_region_comes_with_those_it_lies_in(connection: psycopg.AsyncConnection) -> None:
+    assert await region_with_ancestors(connection, "DE-NW") == frozenset({REGION + "DE-NW", REGION + "DE"})
+    assert await region_with_ancestors(connection, "DE") == frozenset({REGION + "DE"})
+    assert await region_with_ancestors(connection, "XX") == frozenset()
+
+
+async def test_a_retired_region_is_no_region_a_region_lies_in(connection: psycopg.AsyncConnection) -> None:
+    await connection.execute("UPDATE vocab_concept SET retired_in = 1 WHERE iri = %s", (REGION + "DE",))
+
+    assert await region_with_ancestors(connection, "DE-NW") == frozenset({REGION + "DE-NW"})
+
+
+async def test_a_retired_cue_is_not_read(connection: psycopg.AsyncConnection) -> None:
+    await connection.execute(
+        "UPDATE lexical_cue SET retired_in = 1 WHERE iri = %s", (SCHOOL + "cue-dt-kernlehrplan",)
+    )
+
+    cues = await cues_for(connection, "school")
+
+    assert len(cues) == 1146
+    assert SCHOOL + "cue-dt-kernlehrplan" not in {cue.iri for cue in cues}
+
+
+async def test_a_profile_value_is_read_as_a_prompt_lists_it(connection: psycopg.AsyncConnection) -> None:
+    # label and definition in German, the core value it refines, the depth its nodes are read to
+    texts = await concept_texts(
+        connection,
+        [SCHOOL + "Inhaltsbereich", SCHOOL + "Rahmenteil", SCHOOL + "Verzeichnis", SCHOOL + "Keiner"],
+    )
+
+    area = texts[SCHOOL + "Inhaltsbereich"]
+    assert (area.label, area.broader, area.depth) == ("Inhaltsbereich", (CV + "fn_area",), "full")
+    assert area.definition is not None and area.definition.startswith("Thematische Ordnungseinheit")
+    assert (texts[SCHOOL + "Rahmenteil"].depth, texts[SCHOOL + "Verzeichnis"].depth) == ("typed", "skip")
+    assert texts[SCHOOL + "Verzeichnis"].label == "Verzeichnis/Vorwort"
+    assert SCHOOL + "Keiner" not in texts
+
+
+async def test_a_concept_is_named_by_its_german_label_retired_or_not(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    # a role, a region and a node type as a page names them; a class of the core is no concept
+    await connection.execute("UPDATE vocab_concept SET retired_in = 1 WHERE iri = %s", (CV + "role_alt",))
+
+    asked = [CV + "role_pref", CV + "role_alt", REGION + "DE-NW", SCHOOL + "Verzeichnis", CUR + "Node"]
+
+    named = await labels(connection, asked)
+
+    assert named == {
+        CV + "role_pref": "Präferenzbezeichnung",
+        CV + "role_alt": "echtes Synonym",
+        REGION + "DE-NW": "Nordrhein-Westfalen",
+        SCHOOL + "Verzeichnis": "Verzeichnis/Vorwort",
+    }
+    assert await labels(connection, []) == {}
+
+
+async def test_the_current_release_is_the_last_loaded(database_url: str, tmp_path: Path) -> None:
+    migrate(database_url)
+    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as opened:
+        before = await current_release(opened)
+        first = load_vocabulary(database_url, read_vocabulary(ONTOLOGY)).release_id
+        other = write_model(tmp_path, LEXICON_CORE, {"schule.ttl": SCHOOL_PROFILE})
+        second = load_vocabulary(database_url, read_vocabulary(other)).release_id
+
+        assert before is None  # nothing loaded yet
+        assert first != second
+        assert await current_release(opened) == second
+
+
+async def test_a_sector_s_active_profile_is_named_by_its_iri(connection: psycopg.AsyncConnection) -> None:
+    # what a run records as its profile_version
+    assert await terminology_profile(connection, "school") == SCHOOL + "Terminology"
+    assert await terminology_profile(connection, "kindergarten") is None
+
+
+async def test_a_scheme_s_active_values_are_found_by_their_notations(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    # as an output schema's enums name them (x1-dokumentprofil: legalForm)
+    await connection.execute("UPDATE vocab_concept SET retired_in = 1 WHERE iri = %s", (CV + "lf_statute",))
+
+    forms = await notations_of(connection, CV + "LegalForms")
+
+    assert forms["ordinance"] == CV + "lf_ordinance"
+    assert forms["unknown"] == CV + "lf_unknown"
+    assert "statute" not in forms
+    assert await notations_of(connection, CV + "NoSuchScheme") == {}
+
+
+async def test_a_concept_s_details_are_read_as_a_form_offers_them(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    # a node type: its definition, what it is not for, its examples; a document type: its other names
+    staged, area, plan = SCHOOL + "Stufenabschnitt", SCHOOL + "Kompetenzbereich", SCHOOL + "dt-Lehrplan"
+    await connection.execute("UPDATE vocab_concept SET retired_in = 1 WHERE iri = %s", (area,))
+
+    found = await concept_details(connection, [staged, area, plan, CUR + "NoSuchConcept"])
+
+    assert sorted(found) == sorted([staged, area, plan])  # an unknown IRI is left out, a retired one read
+    stage = found[staged]
+    assert (stage.label, stage.broader, stage.retired) == ("Stufenabschnitt", (CV + "fn_grouping",), False)
+    assert stage.definition is not None and stage.definition.startswith("Gliederung nach Jahrgang")
+    assert stage.delimitation is not None and stage.delimitation.endswith(
+        "(BE/BB): die sind Niveau, nicht Zeit."
+    )
+    assert stage.examples == (
+        "„Jahrgangsstufe 7“ (BY)",
+        "„Standards für inhaltsbezogene Kompetenzen Klassen 5/6“ (BW)",
+    )
+    assert (stage.alt_labels, stage.note) == ((), None)
+    competence = found[area]
+    assert competence.note is not None and competence.note.startswith("In Matrixlayouts")
+    assert competence.retired is True
+    assert found[plan].alt_labels == ("Fachlehrplan",)

@@ -1,0 +1,26 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-SN-e46b7cda5eb1 .
+
+eb:re-DE-SN-e46b7cda5eb1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: revosax SächsWBG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:negativeHint "Keine Freistellung. Berufliche Fortbildung überwiegend ausgeschlossen (§ 5 Abs. 3)."@de ;
+    cur:positiveExample "Gesetz über die Weiterbildung im Freistaat Sachsen (Weiterbildungsgesetz – WBG)" ;
+    cur:recognitionHint "Förderungswürdige Anerkennung von Volkshochschulen Einrichtungen Landesorganisationen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weiterbildungsgesetz" ;
+    cur:verified false .
+

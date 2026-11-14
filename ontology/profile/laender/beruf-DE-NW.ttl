@@ -1,0 +1,497 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-NW-0142efaac42a,
+        beruf:re-DE-NW-084cddab6025,
+        beruf:re-DE-NW-0b4a87d87356,
+        beruf:re-DE-NW-0d8a15646ad0,
+        beruf:re-DE-NW-0ef3a7cf3ca5,
+        beruf:re-DE-NW-11116f1b421c,
+        beruf:re-DE-NW-15b71cddfa14,
+        beruf:re-DE-NW-3996ba6f8c4a,
+        beruf:re-DE-NW-5b043b8309fc,
+        beruf:re-DE-NW-67a9ae522dcf,
+        beruf:re-DE-NW-74b59efd136f,
+        beruf:re-DE-NW-75696f5aca3f,
+        beruf:re-DE-NW-767025788972,
+        beruf:re-DE-NW-7aa75c9cb7b3,
+        beruf:re-DE-NW-7c60b5994f5c,
+        beruf:re-DE-NW-96f5587a0404,
+        beruf:re-DE-NW-9d429675a406,
+        beruf:re-DE-NW-9e50ea0bf001,
+        beruf:re-DE-NW-9f2df9cfc318,
+        beruf:re-DE-NW-a09927b4cef4,
+        beruf:re-DE-NW-a5b3f5eebd3c,
+        beruf:re-DE-NW-b7620046f09a,
+        beruf:re-DE-NW-b9279aea9e50,
+        beruf:re-DE-NW-c12c915a0493,
+        beruf:re-DE-NW-cd95aff2386c,
+        beruf:re-DE-NW-dcf152068fe4,
+        beruf:re-DE-NW-f0fa805981d1,
+        beruf:re-DE-NW-f892a1137c0f .
+
+beruf:re-DE-NW-0142efaac42a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 39-40"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Buendelungsfach ;
+    cur:negativeHint "Namen sind berufsspezifisch. Nicht übertragbar"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "LF 1 – LF 11 Wirtschafts- und Sozialprozesse (Tabellenzeile)" ;
+    cur:recognitionHint "Zeilen der Stundentafel unter „I. Berufsbezogener Lernbereich“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kaufmännische Steuerung und Kontrolle" ;
+    cur:verified false .
+
+beruf:re-DE-NW-084cddab6025 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 39-40"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Buendelungsfach ;
+    cur:negativeHint "Namen sind berufsspezifisch. Nicht übertragbar"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "LF 1 – LF 11 Wirtschafts- und Sozialprozesse (Tabellenzeile)" ;
+    cur:recognitionHint "Zeilen der Stundentafel unter „I. Berufsbezogener Lernbereich“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wirtschafts- und Sozialprozesse" ;
+    cur:verified false .
+
+beruf:re-DE-NW-0b4a87d87356 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KA S. 1 3"@de,
+        "Plangeneration laut Länderrecherche: bis 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Struktur nach Fächern ohne Anforderungssituationen"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplan für das Berufskolleg in Nordrhein-Westfalen" ;
+    cur:recognitionHint "ältere Generation mit Heft-Nr. und Erlassjahr"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan" ;
+    cur:verified false .
+
+beruf:re-DE-NW-0d8a15646ad0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2019 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:autonomy,
+        kd:knowledge,
+        kd:skills,
+        kd:social ;
+    cur:negativeHint "Das sind Kompetenzdimensionen nicht DQR-Niveau"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Wissen Fertigkeiten Sozialkompetenz Selbstständigkeit" ;
+    cur:recognitionHint "Tabelle unter jeder Anforderungssituation"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zuordnung der Ziele zu den Kompetenzkategorien" ;
+    cur:verified false .
+
+beruf:re-DE-NW-0ef3a7cf3ca5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 43"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "„Mindestanforderungen“ (SP S. 38). Anlage A übernimmt KMK-Inhalte nur bei Bedarf (IK S. 23)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Inhalte" ;
+    cur:recognitionHint "Blockkopf am Ende des Lernfelds (Aufzählung)"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+beruf:re-DE-NW-11116f1b421c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lg-1"@de,
+        "Länderrecherche, Beleg E: BG S. 6 11"@de,
+        "Plangeneration laut Länderrecherche: 2006/2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lerngebiet ;
+    cur:negativeHint "Kein Muster „Lerngebiet n“. Kurshalbjahr und Kursthema darunter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.1 Leitideen und Lerngebiete des Faches" ;
+    cur:recognitionHint "Kapitel „Leitideen und Lerngebiete“. Unnummeriert"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lerngebiete" ;
+    cur:verified false .
+
+beruf:re-DE-NW-15b71cddfa14 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 19"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Erstes Prüfungsfach der Fachhochschulreifeprüfung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Profilfächer des Bildungsgangs 440 – 560" ;
+    cur:recognitionHint "Stundentafelzeile „Profilfächer des Bildungsgangs“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Profilfach" ;
+    cur:verified false .
+
+beruf:re-DE-NW-3996ba6f8c4a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo ctx:practice-placement ;
+    cur:negativeHint "Praxis mind. 1200 Stunden laut Stundentafel"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.1.5 Vernetzung der Lernorte Schule und Praxis" ;
+    cur:recognitionHint "Kapitel 2.1.5"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernorte Schule und Praxis" ;
+    cur:verified false .
+
+beruf:re-DE-NW-5b043b8309fc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 7 17"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernsituation ;
+    cur:negativeHint "Von der Bildungsgangkonferenz entwickelt. Im Plan nur Vorlage (IK S. 47-48)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Lernsituationen bzw. Lehr-/Lernarrangements" ;
+    cur:recognitionHint "„Lernsituationen bzw. Lehr-/Lernarrangements“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernsituation" ;
+    cur:verified false .
+
+beruf:re-DE-NW-67a9ae522dcf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 7 37 42"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernfeld ;
+    cur:negativeHint "Titel ohne Nummernwort. Sechs Lernfelder"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernfelder sind didaktisch begründete schulisch aufbereitete Handlungsfelder" ;
+    cur:recognitionHint "Kapitelnummer 2.2.3.1 statt „Lernfeld n“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernfeld (Fachschule)" ;
+    cur:verified false .
+
+beruf:re-DE-NW-74b59efd136f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 38-41"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:autonomy,
+        kd:social ;
+    cur:negativeHint "Gilt für alle Lernfelder gemeinsam. Nicht je Lernfeld"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Professionelle Haltung wird gemäß DQR als personale Kompetenz beschrieben" ;
+    cur:recognitionHint "eigener Block mit Sozialkompetenz und Selbstständigkeit"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Professionelle Haltung" ;
+    cur:verified false .
+
+beruf:re-DE-NW-75696f5aca3f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 5 22"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Fachschule: „landeseinheitlich inhaltlich-organisatorische Einheiten“ mit Zeugnisnote (SP S. 7). Bündelungsfach nur in Anlage A"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.2.1 Das Fach Gestaltungslehre" ;
+    cur:recognitionHint "„Das Fach Gestaltungslehre“ und Stundentafelzeile"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fach" ;
+    cur:verified false .
+
+beruf:re-DE-NW-767025788972 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 18-22"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Kein eigenes NRW-Rahmenteil"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:recognitionHint "im Plan in 3.1.1 eingebettet"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil I Vorbemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-NW-7aa75c9cb7b3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 18-22"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Kein eigenes NRW-Rahmenteil"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:recognitionHint "im Plan in 3.1.1 eingebettet"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-NW-7c60b5994f5c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 18-22"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Kein eigenes NRW-Rahmenteil"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:recognitionHint "im Plan in 3.1.1 eingebettet"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil IV Berufsbezogene Vorbemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-NW-96f5587a0404 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-as-1"@de,
+        "Länderrecherche, Beleg E: BB S. 27"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Erprobung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Anforderungssituation ;
+    cur:negativeHint "Erste Ziffer = Lernfeldnummer nicht Handlungsfeld"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernfeld 1: Auseinandersetzung mit der Berufs- und Arbeitswelt Anforderungssituation 1.1" ;
+    cur:recognitionHint "steht unter „Lernfeld n“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungssituation (Anlage B)" ;
+    cur:verified false .
+
+beruf:re-DE-NW-9d429675a406 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 18-22"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Kein eigenes NRW-Rahmenteil"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:recognitionHint "im Plan in 3.1.1 eingebettet"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil III Didaktische Grundsätze" ;
+    cur:verified false .
+
+beruf:re-DE-NW-9e50ea0bf001 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BB S. 27"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernfeld ;
+    cur:negativeHint "Lernfeld ist hier Obereinheit der Anforderungssituation"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernfeld 1: Auseinandersetzung mit der Berufs- und Arbeitswelt" ;
+    cur:recognitionHint "Überschrift „Lernfeld n:“ über den Anforderungssituationen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernfeld (Anlage B)" ;
+    cur:verified false .
+
+beruf:re-DE-NW-9f2df9cfc318 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:DQR-6 ;
+    cur:negativeHint "Nur Fachschule. Anlage C nutzt nur DQR-Kategorien"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "werden nach dem Deutschen Qualifikationsrahmen für Lebenslanges Lernen der Niveaustufe 6 zugeordnet" ;
+    cur:recognitionHint "Satz zur Zuordnung der Fachschul-Kompetenzen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "DQR Niveaustufe 6" ;
+    cur:verified false .
+
+beruf:re-DE-NW-a09927b4cef4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 1"@de,
+        "Plangeneration laut Länderrecherche: seit 2016/2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Früher Lehrplan oder Richtlinien und Lehrpläne"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan für die zweijährigen Bildungsgänge der Berufsfachschule" ;
+    cur:recognitionHint "Titelseite „Bildungsplan“ mit Anlagenbezug (APO-BK) und Fachbereich"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan" ;
+    cur:verified false .
+
+beruf:re-DE-NW-a5b3f5eebd3c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-inh-1"@de,
+        "Länderrecherche, Beleg E: GL S. 22"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Kursiv markiert einen Satzteil im Ziel. Nicht die KMK-Bedeutung „Inhalte“ je Lernfeld"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zielformulierungen berücksichtigen Inhalts- Verhaltens- und Situationskomponenten" ;
+    cur:recognitionHint "im Ziel kursiv gesetzt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhaltskomponente (kursiv)" ;
+    cur:verified false .
+
+beruf:re-DE-NW-b7620046f09a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KA S. 1 3"@de,
+        "Plangeneration laut Länderrecherche: bis 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Struktur nach Fächern ohne Anforderungssituationen"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplan für das Berufskolleg in Nordrhein-Westfalen" ;
+    cur:recognitionHint "ältere Generation mit Heft-Nr. und Erlassjahr"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtlinien und Lehrpläne" ;
+    cur:verified false .
+
+beruf:re-DE-NW-b9279aea9e50 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KA S. 1 3"@de,
+        "Plangeneration laut Länderrecherche: bis 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Struktur nach Fächern ohne Anforderungssituationen"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplan für das Berufskolleg in Nordrhein-Westfalen" ;
+    cur:recognitionHint "ältere Generation mit Heft-Nr. und Erlassjahr"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan zur Erprobung" ;
+    cur:verified false .
+
+beruf:re-DE-NW-c12c915a0493 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 31"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Wahlbereich"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Wahlfach 1: Vertiefung in einem Bildungsbereich" ;
+    cur:recognitionHint "Stundentafelzeile mit je 120 Stunden"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahlfach 1" ;
+    cur:verified false .
+
+beruf:re-DE-NW-cd95aff2386c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 39-40"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Buendelungsfach ;
+    cur:negativeHint "Namen sind berufsspezifisch. Nicht übertragbar"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "LF 1 – LF 11 Wirtschafts- und Sozialprozesse (Tabellenzeile)" ;
+    cur:recognitionHint "Zeilen der Stundentafel unter „I. Berufsbezogener Lernbereich“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Industrielle Geschäftsprozesse" ;
+    cur:verified false .
+
+beruf:re-DE-NW-dcf152068fe4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GL S. 7 11"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Jahresplanung ;
+    cur:negativeHint "Pflicht der Bildungsgangkonferenz zur Dokumentation. Vorlage nur für Lernsituation (IK S. 48). Hinweise auf berufsbildung.nrw.de"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Lehrkräfte eines Bildungsgangs dokumentieren ... in einer Didaktischen Jahresplanung" ;
+    cur:recognitionHint "Kapitel 1.3.3"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktische Jahresplanung" ;
+    cur:verified false .
+
+beruf:re-DE-NW-f0fa805981d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP S. 31"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Wahlbereich"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Wahlfach 1: Vertiefung in einem Bildungsbereich" ;
+    cur:recognitionHint "Stundentafelzeile mit je 120 Stunden"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahlfach 2" ;
+    cur:verified false .
+
+beruf:re-DE-NW-f892a1137c0f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IK S. 1 3"@de,
+        "Plangeneration laut Länderrecherche: 2019 bis 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Vorläufig heißt in Kraft gesetzt. Nicht mit Entwurf oder Anhörung verwechseln"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Vorläufiger Bildungsplan Fachklassen des dualen Systems" ;
+    cur:recognitionHint "Titelzusatz plus Erlass „als vorläufige Bildungspläne festgesetzt“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorläufiger Bildungsplan" ;
+    cur:verified false .
+

@@ -1,0 +1,42 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-HH-2acba3cc16a6,
+        hs:re-DE-HH-d9225a98eee7 .
+
+hs:re-DE-HH-2acba3cc16a6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Universität Hamburg Ordnungen Lehramt (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt,
+        hs:dt-RahmenPO ;
+    cur:negativeHint "Bachelor of Education und Master of Education als aufeinander aufbauende Studiengänge - kein eigenes Lehrerbildungsgesetz gefunden"@de ;
+    cur:positiveExample "auf Grund von § 96 a Absatz 2 Satz 1 des Hamburgischen Hochschulgesetzes (HmbHG)" ;
+    cur:recognitionHint "gemeinsame Prüfungsordnung der Hamburger Hochschulen mit Fachspezifischen Bestimmungen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Prüfungsordnung für die Lehramtsstudiengänge" ;
+    cur:verified false .
+
+hs:re-DE-HH-d9225a98eee7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Universität Hamburg Campus Center Lehramt (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Pruefungsordnung ;
+    cur:negativeHint "Rahmen-PO gilt für fünf Hamburger Hochschulen - FSB je Fach"@de ;
+    cur:positiveExample "Diese Fachspezifischen Bestimmungen ergänzen die Prüfungsordnung für die Lehramtsstudiengänge." ;
+    cur:recognitionHint "Fachordnung zur gemeinsamen Prüfungsordnung für die Lehramtsstudiengänge"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Fachspezifische Bestimmungen" ;
+    cur:verified false .
+

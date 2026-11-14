@@ -1,0 +1,1044 @@
+"""The skeleton of a document without the model (plan M1 6.3): its table of contents, its headings
+from type, layout, numbering and the contents, their levels and parents, their codes, and the node
+type a strong pattern of the lexicon gives a heading."""
+
+import functools
+from collections.abc import Sequence
+from pathlib import Path
+from typing import Literal
+
+import pytest
+
+from app.conversion.base import Block, Cell
+from app.domain.lexicon import HOMONYM, NEGATIVE, ActiveCue, Cue, active_cues
+from app.pipeline.skeleton import Heading, Skeleton, build_skeleton
+from app.pipeline.toc import TocEntry, leading_number
+from app.vocab.lexicon import LexicalCue
+from app.vocab.loader import read_vocabulary
+
+ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
+PROFILE = "https://w3id.org/wlo/curriculum/profile/"
+REGION = "https://w3id.org/wlo/curriculum/region/"
+NODE_TYPE = "https://w3id.org/wlo/curriculum/core#NodeType"
+CV = "https://w3id.org/wlo/curriculum/vocab#"
+HEADING_PATTERN = CV + "ck_headingPattern"
+CODE_PATTERN = CV + "ck_codePattern"
+IN_CONTENTS = CV + "occ_toc"
+BODY = "Die Schülerinnen und Schüler beschreiben, wie Licht sich ausbreitet, und erklären Schatten."
+
+Kind = Literal["text", "table", "page_header", "page_footer"]
+
+
+def block(
+    block_id: str, words: str, *, size: float | None = 10, bold: bool = False, kind: Kind = "text"
+) -> Block:
+    return Block(
+        id=block_id, page=int(block_id[1 : block_id.index("-")]), kind=kind, text=words, bbox=(0, 0, 1, 1),
+        font_size=size, bold=bold, italic=False,
+    )  # fmt: skip
+
+
+def table(block_id: str, number: int, rows: list[list[str]]) -> Block:
+    page = int(block_id[1 : block_id.index("-")])
+    cells = tuple(
+        Cell(id=f"T{number}:r{r}c{c}", page=page, row=r, column=c, text=value, header=r == 1)
+        for r, row in enumerate(rows, start=1)
+        for c, value in enumerate(row, start=1)
+    )
+    joined = "\n".join(" ".join(row) for row in rows)
+    return Block(
+        id=block_id, page=page, kind="table", text=joined, bbox=(0, 0, 1, 1), font_size=None, bold=False,
+        italic=False, cells=cells,
+    )  # fmt: skip
+
+
+def skeleton(
+    blocks: Sequence[Block], cues: Sequence[ActiveCue] = (), node_types: frozenset[str] = frozenset()
+) -> Skeleton:
+    return build_skeleton(blocks, cues, node_types)
+
+
+def titles(found: Skeleton) -> list[str]:
+    return [heading.title for heading in found.headings]
+
+
+def shape(found: Skeleton) -> list[tuple[str, int, str | None]]:
+    return [(heading.title, heading.level, heading.parent) for heading in found.headings]
+
+
+COVER = block("p1-b1", "Kernlehrplan Physik für die Sekundarstufe I", size=24)
+
+
+def test_a_heading_is_a_short_line_set_larger_than_the_body_its_level_the_rank_of_its_size() -> None:
+    found = skeleton([
+        COVER,
+        block("p1-b2", "Ministerium für Schule und Bildung", size=12),
+        block("p2-b1", "Einleitung", size=16),
+        block("p2-b2", BODY),
+        block("p2-b3", "Aufgaben des Faches", size=13),
+        block("p2-b4", BODY),
+        block("p3-b1", "Kompetenzen", size=16),
+        block("p3-b2", BODY),
+    ])  # fmt: skip
+
+    assert shape(found) == [
+        ("Einleitung", 1, None),
+        ("Aufgaben des Faches", 2, "H1"),
+        ("Kompetenzen", 1, None),
+    ]
+    assert [heading.key for heading in found.headings] == ["H1", "H2", "H3"]
+    first = found.headings[0]
+    assert (first.position, first.block_id, first.page) == (2, "p2-b1", 2)
+
+
+def test_the_title_page_is_no_heading() -> None:
+    # set larger than any heading, on the first page alone: the document's title, not a section
+    found = skeleton(
+        [
+            COVER,
+            block("p1-b2", "Stand: 2019", size=14),
+            block("p2-b1", "Einleitung", size=16),
+            block("p2-b2", BODY),
+        ]
+    )
+
+    assert titles(found) == ["Einleitung"]
+
+
+def test_the_numbering_gives_the_level_and_the_code() -> None:
+    found = skeleton([
+        COVER,
+        block("p2-b1", "1 Einleitung", bold=True),
+        block("p2-b2", BODY),
+        block("p2-b3", "1.1 Ziele des Faches", bold=True),
+        block("p2-b4", BODY),
+        block("p2-b5", "1.2 Aufbau", bold=True),
+        block("p2-b6", BODY),
+        block("p3-b1", "2 Kompetenzen", bold=True),
+        block("p3-b2", BODY),
+    ])  # fmt: skip
+
+    assert shape(found) == [
+        ("1 Einleitung", 1, None),
+        ("1.1 Ziele des Faches", 2, "H1"),
+        ("1.2 Aufbau", 2, "H1"),
+        ("2 Kompetenzen", 1, None),
+    ]
+    assert [(heading.code, heading.code_assigned) for heading in found.headings] == [
+        ("1", False), ("1.1", False), ("1.2", False), ("2", False),
+    ]  # fmt: skip
+
+
+def test_a_level_is_the_depth_in_the_tree_however_deep_the_numbering_begins() -> None:
+    found = skeleton(
+        [
+            COVER,
+            block("p2-b1", "2.1 Optik", bold=True),
+            block("p2-b2", BODY),
+            block("p2-b3", "2.1.1 Linsen", bold=True),
+        ]
+    )
+
+    assert shape(found) == [("2.1 Optik", 1, None), ("2.1.1 Linsen", 2, "H1")]
+
+
+def test_a_bold_line_is_a_heading_below_the_larger_ones_unless_bold_text_follows_it() -> None:
+    found = skeleton([
+        COVER,
+        block("p2-b1", "Einleitung", size=16),
+        block("p2-b2", "Ziele", bold=True),
+        block("p2-b3", BODY),
+        block("p2-b4", "Hinweis", bold=True),  # a bold paragraph follows: a lead-in, not a heading
+        block("p2-b5", "Die Vorgaben gelten für alle Schulen.", bold=True),
+        block("p2-b6", BODY),
+        block("p2-b7", "Die Vorgaben dieses Kapitels gelten für alle Schulformen und alle Jahrgänge"
+                       " ohne Ausnahme", bold=True),
+        block("p2-b8", BODY),  # bold of more than 80 signs: a sentence set bold, not a heading
+    ])  # fmt: skip
+
+    assert shape(found) == [("Einleitung", 1, None), ("Ziele", 2, "H1")]
+
+
+def test_a_sentence_a_long_block_and_a_list_are_no_headings_however_large() -> None:
+    rejected = [
+        "Die Kompetenzen bauen aufeinander auf.",
+        "Kompetenzen " * 17,  # more than 200 signs
+        "Erste Zeile\nzweite Zeile\ndritte Zeile\nvierte Zeile",
+        "1. Licht\n2. Schatten\n3. Farben",
+    ]
+    blocks = [COVER, block("p2-b1", "Einleitung", size=16), block("p2-b2", BODY)]
+    for number, words in enumerate(rejected, start=1):
+        blocks += [block(f"p3-b{2 * number - 1}", words, size=16), block(f"p3-b{2 * number}", BODY)]
+
+    found = skeleton(blocks)
+
+    assert found.body_size == 10
+    assert titles(found) == ["Einleitung"]
+
+
+def test_a_line_a_little_larger_or_numbered_in_the_body_s_type_is_no_heading() -> None:
+    found = skeleton([
+        COVER,
+        block("p2-b1", "Einleitung", size=16),
+        block("p2-b2", "Etwas größer gesetzt", size=11),
+        block("p2-b3", "1 Stunde je Woche"),
+        block("p2-b4", BODY),
+    ])  # fmt: skip
+
+    assert titles(found) == ["Einleitung"]
+
+
+@pytest.mark.parametrize(
+    ("title", "number"),
+    [
+        ("1.2 Ziele", "1.2"),
+        ("1.2. Ziele", "1.2"),
+        ("IV. Anhang", "IV"),
+        ("A. Grundlagen", "A"),
+        ("2024 Fassung", None),  # a year leads no numbering
+        ("Lernfeld 5", None),
+        ("1.", None),
+    ],
+)
+def test_a_numbering_leads_a_title_of_two_digits_a_part(title: str, number: str | None) -> None:
+    assert leading_number(title) == number
+
+
+def test_a_heading_s_title_is_its_wording_with_its_lines_joined() -> None:
+    found = skeleton(
+        [COVER, block("p2-b1", "Ziele und Aufgaben\ndes Faches Physik", size=16), block("p2-b2", BODY)]
+    )
+
+    assert titles(found) == ["Ziele und Aufgaben des Faches Physik"]
+
+
+def test_headers_and_footers_are_no_headings() -> None:
+    found = skeleton([
+        COVER,
+        block("p2-b1", "Kernlehrplan Physik", size=14, kind="page_header"),
+        block("p2-b2", "Einleitung", size=16),
+        block("p2-b3", BODY),
+        block("p2-b4", "Seite 2", size=14, bold=True, kind="page_footer"),
+    ])  # fmt: skip
+
+    assert titles(found) == ["Einleitung"]
+
+
+def test_the_body_size_is_that_of_most_of_the_text() -> None:
+    found = skeleton(
+        [COVER, block("p2-b1", "Anmerkung", size=8), block("p2-b2", BODY), block("p2-b3", BODY, size=9)]
+    )
+
+    assert found.body_size == 10
+
+
+CONTENTS = (
+    "1 Einleitung ..... 3\n"
+    "2 Kompetenzen ..... 4\n"
+    "2.1 Wahrnehmung und Messung . . . . 5\n"
+    "3 GRUNDSÄTZE ....... 9\n"  # set in capitals, named in the body's case
+    "Anhang ..... 9"
+)
+
+
+def contents_document() -> list[Block]:
+    return [
+        COVER,
+        block("p2-b1", "Inhalt", size=16),
+        block("p2-b2", CONTENTS),
+        block("p3-b1", "1 Einleitung", size=16),
+        block("p3-b2", BODY),
+        block("p4-b1", "2 Kompetenzen", size=16),
+        block("p4-b2", BODY),
+        block("p5-b1", "2.1 Wahrnehmung und Messung", size=13),
+        block("p5-b2", BODY),
+        block("p9-b1", "Grundsätze"),  # in the body's type: a heading because the contents name it
+        block("p9-b2", BODY),
+    ]
+
+
+def test_the_table_of_contents_is_read_with_its_pages_and_levels() -> None:
+    found = skeleton(contents_document())
+
+    assert found.contents.entries == (
+        TocEntry("1 Einleitung", "3", 1, 2),
+        TocEntry("2 Kompetenzen", "4", 1, 2),
+        TocEntry("2.1 Wahrnehmung und Messung", "5", 2, 2),
+        TocEntry("3 GRUNDSÄTZE", "9", 1, 2),
+        TocEntry("Anhang", "9", None, 2),  # no numbering, no level
+    )
+    assert found.contents.positions == frozenset({1, 2})  # its title with it
+
+
+def test_an_entry_is_read_with_its_runs_of_white_space_as_one() -> None:
+    # a converter's tabs and spaces: as one the entry's form is read in linear time
+    lines = ["1\tEinleitung    3", "2   Kompetenzen \t 4", "3  Anhang" + " " * 5000 + "5"]
+    contents = [block("p2-b1", "Inhalt", size=16), block("p2-b2", "\n".join(lines))]
+
+    found = skeleton([COVER, *contents, block("p5-b1", BODY)])
+
+    assert [(entry.title, entry.page) for entry in found.contents.entries] == [
+        ("1 Einleitung", "3"),
+        ("2 Kompetenzen", "4"),
+        ("3 Anhang", "5"),
+    ]
+
+
+def test_the_table_of_contents_is_never_a_heading_nor_what_stands_before_it() -> None:
+    found = skeleton(contents_document())
+
+    assert shape(found) == [
+        ("1 Einleitung", 1, None),
+        ("2 Kompetenzen", 1, None),
+        ("2.1 Wahrnehmung und Messung", 2, "H2"),
+        ("Grundsätze", 1, None),  # the contents give its level: 3 is of the top
+    ]
+
+
+def test_what_stands_before_the_contents_is_no_heading() -> None:
+    # a foreword before the contents: the title pages, read as the document's front matter
+    blocks = [COVER, block("p2-b1", "Vorwort", size=16), block("p2-b2", BODY), *contents_document()[1:]]
+
+    assert titles(skeleton(blocks))[0] == "1 Einleitung"
+
+
+def imprint_document(*parts: str) -> list[Block]:
+    """Contents naming three parts, an imprint after them on their page set larger than the parts
+    (Hochbauberufe BW 2026, acceptance M1), then ``parts`` as the body's headings, and a last page
+    the contents' pages lie within."""
+    entries = [
+        "Teil I Vorbemerkungen",
+        "Teil II Bildungs- und Erziehungsauftrag",
+        "Teil III Didaktische Grundsätze",
+    ]
+    body = [
+        made
+        for page, part in enumerate(parts, start=3)
+        for made in (block(f"p{page}-b1", part, size=12, bold=True), block(f"p{page}-b2", BODY, size=11))
+    ]
+    return [
+        COVER,
+        block("p2-b1", "Inhaltsverzeichnis", size=14, bold=True),
+        *(
+            block(f"p2-b{at}", f"{entry} ........ {at + 1}", size=12)
+            for at, entry in enumerate(entries, start=2)
+        ),
+        block("p2-b5", "Impressum", size=14, bold=True),
+        block("p2-b6", "Herausgeber:", size=11, bold=True),
+        block(
+            "p2-b7", "Ministerium für Kultus, Jugend und Sport, Postfach 10 34 42, 70029 Stuttgart", size=11
+        ),
+        *body,
+        block("p9-b1", BODY, size=11),
+    ]
+
+
+def test_the_title_pages_run_on_past_an_imprint_after_the_contents() -> None:
+    # the imprint is front matter: as a heading it held every part, and X2 skipped them with it
+    found = skeleton(imprint_document("Teil I Vorbemerkungen", "Teil II Bildungs- und Erziehungsauftrag"))
+
+    assert shape(found) == [
+        ("Teil I Vorbemerkungen", 1, None),
+        ("Teil II Bildungs- und Erziehungsauftrag", 1, None),
+    ]
+
+
+def test_the_title_pages_end_at_the_contents_first_entry_though_they_name_the_imprint() -> None:
+    # contents often list the imprint last; it stands on their page all the same
+    blocks = imprint_document("Teil I Vorbemerkungen", "Teil II Bildungs- und Erziehungsauftrag")
+    blocks[4] = block("p2-b4", "Impressum ........ 9", size=12)  # in place of the third entry
+
+    assert titles(skeleton(blocks)) == ["Teil I Vorbemerkungen", "Teil II Bildungs- und Erziehungsauftrag"]
+
+
+def test_the_title_pages_end_on_the_page_of_the_first_entry_s_heading_not_at_it() -> None:
+    # a chapter's line without a page heads the contents (Rahmencurriculum Integrationskurse, BAMF):
+    # its heading stands before the first entry's, on that page, and is the body's
+    blocks = [
+        COVER,
+        block("p2-b1", "Inhalt", size=14, bold=True),
+        block("p2-b2", "1. Präambel", size=12),
+        block(
+            "p2-b3", "1.1 Der Auftrag ........ 3\n1.2 Die Zielgruppe ........ 3\n2. Ziele ........ 4", size=12
+        ),
+        block("p2-b4", "Impressum", size=14, bold=True),
+        block("p3-b1", "1 Präambel", size=16, bold=True),
+        block("p3-b2", "1.1 Der Auftrag", size=12, bold=True),
+        block("p3-b3", BODY, size=11),
+        block("p3-b4", "1.2 Die Zielgruppe", size=12, bold=True),
+        block("p3-b5", BODY, size=11),
+        block("p4-b1", "2 Ziele", size=16, bold=True),
+        block("p4-b2", BODY, size=11),
+    ]
+
+    assert shape(skeleton(blocks)) == [
+        ("1 Präambel", 1, None),
+        ("1.1 Der Auftrag", 2, "H1"),
+        ("1.2 Die Zielgruppe", 2, "H1"),
+        ("2 Ziele", 1, None),
+    ]
+
+
+def test_contents_that_name_no_heading_after_them_end_the_title_pages_where_they_stand() -> None:
+    found = skeleton(imprint_document("Vorbemerkungen", "Bildungsauftrag"))
+
+    assert titles(found)[:2] == ["Impressum", "Herausgeber:"]
+
+
+def test_a_first_entry_s_heading_missed_leaves_the_title_pages_where_the_contents_stand() -> None:
+    # its footnote's mark: the next entry's heading comes first, and an annex's "Einleitung" further
+    # in, numbered by none, never takes the chapters before it
+    blocks = [
+        COVER,
+        block("p2-b1", "Inhalt", size=14, bold=True),
+        block("p2-b2", "1 Einleitung ..... 3\n2 Ziele ..... 4\n3 Anhang ..... 5"),
+        block("p3-b1", "1 Einleitung\N{SUPERSCRIPT ONE}", size=16, bold=True),
+        block("p3-b2", BODY, size=11),
+        block("p4-b1", "2 Ziele", size=16, bold=True),
+        block("p4-b2", BODY, size=11),
+        block("p5-b1", "3 Anhang", size=16, bold=True),
+        block("p5-b2", "Einleitung", size=12, bold=True),
+        block("p5-b3", BODY, size=11),
+        block("p6-b1", BODY, size=11),
+    ]
+
+    assert titles(skeleton(blocks)) == [
+        "1 Einleitung\N{SUPERSCRIPT ONE}",
+        "2 Ziele",
+        "3 Anhang",
+        "Einleitung",
+    ]
+
+
+def test_a_namesake_numbered_otherwise_is_never_the_first_entry_s_heading() -> None:
+    # both first headings missed (footnotes' marks), so no bound at the next one: "3.1 Einleitung" is
+    # not "1 Einleitung", whatever their keys
+    blocks = [
+        COVER,
+        block("p2-b1", "Inhalt", size=14, bold=True),
+        block("p2-b2", "1 Einleitung ..... 3\n2 Ziele ..... 4\n3 Inhalte ..... 5\n3.1 Einleitung ..... 5"),
+        block("p3-b1", "1 Einleitung\N{SUPERSCRIPT ONE}", size=16, bold=True),
+        block("p3-b2", BODY, size=11),
+        block("p4-b1", "2 Ziele\N{SUPERSCRIPT TWO}", size=16, bold=True),
+        block("p4-b2", BODY, size=11),
+        block("p5-b1", "3 Inhalte", size=16, bold=True),
+        block("p5-b2", "3.1 Einleitung", size=12, bold=True),
+        block("p5-b3", BODY, size=11),
+        block("p6-b1", BODY, size=11),
+    ]
+
+    assert len(titles(skeleton(blocks))) == 4
+
+
+def divided() -> list[Block]:
+    """Contents naming a part without a page, then its divider page before its first chapter's page."""
+    return [
+        COVER,
+        block("p2-b1", "Inhalt", size=14, bold=True),
+        block(
+            "p2-b2",
+            "Teil A Grundlagen\nA.1 Leitgedanken ..... 4\nA.2 Ziele ..... 4\nTeil B Lernfelder ..... 5",
+        ),
+        block("p3-b1", "Teil A Grundlagen", size=16, bold=True),
+        block("p4-b1", "A.1 Leitgedanken", size=12, bold=True),
+        block("p4-b2", BODY, size=11),
+        block("p4-b3", "A.2 Ziele", size=12, bold=True),
+        block("p4-b4", BODY, size=11),
+        block("p5-b1", "Teil B Lernfelder", size=16, bold=True),
+        block("p5-b2", BODY, size=11),
+    ]
+
+
+def test_a_part_on_a_divider_page_of_its_own_the_contents_name_without_a_page_heads_its_chapters() -> None:
+    assert shape(skeleton(divided())) == [
+        ("Teil A Grundlagen", 1, None),
+        ("A.1 Leitgedanken", 2, "H1"),
+        ("A.2 Ziele", 2, "H1"),
+        ("Teil B Lernfelder", 1, None),
+    ]
+
+
+def test_a_part_named_without_a_page_and_no_divider_ends_the_title_pages_at_its_chapter() -> None:
+    blocks = [made for made in divided() if made.id != "p3-b1"]  # no divider page
+
+    assert titles(skeleton(blocks)) == ["A.1 Leitgedanken", "A.2 Ziele", "Teil B Lernfelder"]
+
+
+def test_lines_of_numbers_later_in_the_text_never_make_what_stands_before_them_title_pages() -> None:
+    # a KMK Rahmenlehrplan: its contents without leaders go unread; the learning fields' overview
+    # unruled comes as text, its hours where pages would stand; a block of notes; a list of figures
+    overview = (
+        "1 Die eigene Rolle im Betrieb mitgestalten 80\n2 Büroprozesse gestalten 80\n3 Aufträge bearbeiten 80"
+    )
+    notes = "1 Vgl. Beschluss der KMK vom 2007\n2 Ebd., S. 12\n3 Handreichung der KMK 2021"
+    figures = "1 Abbildung Lernfelder 3\n2 Abbildung Zeitrichtwerte 5\n3 Abbildung Prüfungen 7"
+    history = "1 Erlass vom 2005\n2 Ergänzt im Jahr 2012\n3 Neu gefasst 2019"  # rising, past the pages
+    hours = "1 Kunden beraten 4\n2 Waren annehmen 4\n3 Lager führen 4"  # all one page
+    annexes = "1 Anlage Stundentafel 5\n2 Anlage Zeugnis 3\n3 Anlage Formblatt 7"  # back a page
+    blocks = [
+        COVER,
+        block("p2-b1", "Teil I Vorbemerkungen", size=16),
+        block("p2-b2", BODY),
+        block("p3-b1", "Teil II Bildungsauftrag", size=16),
+        block("p3-b2", BODY),
+        block("p6-b1", notes),
+        block("p6-b2", BODY),
+        block("p6-b3", history),
+        block("p6-b4", BODY),
+        block("p6-b5", hours),
+        block("p6-b6", BODY),
+        block("p6-b7", annexes),
+        block("p7-b1", "Teil V Lernfelder", size=16),
+        block("p7-b2", overview),
+        block("p8-b1", BODY),
+        block("p8-b2", figures),
+        block("p9-b1", BODY),
+    ]
+
+    found = skeleton(blocks)
+
+    assert titles(found) == ["Teil I Vorbemerkungen", "Teil II Bildungsauftrag", "Teil V Lernfelder"]
+    # pages that fall, or run past the document's, are no contents; a list of figures is, late
+    assert [entry.title for entry in found.contents.entries] == [
+        "1 Abbildung Lernfelder",
+        "2 Abbildung Zeitrichtwerte",
+        "3 Abbildung Prüfungen",
+    ]
+
+
+def test_titled_contents_end_the_title_pages_however_far_in_they_stand() -> None:
+    # a foreword of six pages, then the contents under their title
+    blocks = [COVER, block("p2-b1", "Vorwort", size=16), block("p2-b2", BODY)]
+    blocks += [block(f"p{page}-b1", BODY) for page in range(3, 7)]
+    blocks += [
+        block("p7-b1", "Inhalt", size=16),
+        block("p7-b2", "1 Ziele ..... 8\n2 Inhalte ..... 9\n3 Methoden ..... 10"),
+    ]
+    blocks += [block("p8-b1", "1 Ziele", size=16), block("p10-b1", BODY)]
+
+    found = skeleton(blocks)
+
+    assert titles(found) == ["1 Ziele"]
+
+
+def annexed(front_title: bool) -> list[Block]:
+    """Contents up front whose pages run past the document's twelve (a web PDF without its blank
+    pages), and an annex with titled contents of its own on page 10."""
+    front = "1 Einleitung ..... 3\n2 Kompetenzen ..... 6\n3 Inhalte ..... 9\n4 Anhang ..... 14"
+    annex = "A1 Formblatt ..... 11\nA2 Zeugnis ..... 12\nA3 Stundentafel ..... 12"
+    title = [block("p2-b1", "Inhalt", size=16)] if front_title else []
+    return [
+        COVER,
+        *title,
+        block("p2-b2", front),
+        block("p3-b1", "1 Einleitung", size=16),
+        block("p3-b2", BODY),
+        block("p5-b1", "2 Kompetenzen", size=16),
+        block("p5-b2", BODY),
+        block("p8-b1", "3 Inhalte", size=16),
+        block("p8-b2", BODY),
+        block("p10-b1", "4 Anhang", size=16),
+        block("p10-b2", "Inhalt", size=16),
+        block("p10-b3", annex),
+        block("p11-b1", "A1 Formblatt", size=14),
+        block("p12-b1", BODY),
+    ]
+
+
+@pytest.mark.parametrize("front_title", [True, False], ids=["titled", "untitled"])
+def test_contents_up_front_whose_pages_run_past_the_document_leave_the_title_pages_to_no_later_contents(
+    front_title: bool,
+) -> None:
+    # the first contents decide where the title pages end - titled, there; else, nowhere
+    found = skeleton(annexed(front_title))
+
+    assert titles(found) == ["1 Einleitung", "2 Kompetenzen", "3 Inhalte", "4 Anhang", "A1 Formblatt"]
+    annex = ["A1 Formblatt", "A2 Zeugnis", "A3 Stundentafel"]
+    # titled, their entries are read though their pages end no title pages (app/pipeline/toc.py)
+    front = ["1 Einleitung", "2 Kompetenzen", "3 Inhalte", "4 Anhang"] if front_title else []
+    assert [entry.title for entry in found.contents.entries] == [*front, *annex]
+    assert found.contents.front_end == (2 if front_title else None)
+
+
+def test_titled_contents_deep_in_whose_pages_run_past_the_document_end_no_title_pages() -> None:
+    # no contents up front; an annex's on page 9 with the gazette's pages (245 ff.)
+    blocks = [
+        COVER,
+        block("p2-b1", "1 Einleitung", size=16),
+        block("p2-b2", BODY),
+        block("p4-b1", "2 Kompetenzen", size=16),
+        block("p4-b2", BODY),
+        block("p7-b1", "3 Inhalte", size=16),
+        block("p7-b2", BODY),
+        block("p9-b1", "4 Anhang", size=16),
+        block("p9-b2", "Inhalt", size=16),
+        block("p9-b3", "A1 Formblatt ..... 245\nA2 Zeugnis ..... 247\nA3 Stundentafel ..... 249"),
+        block("p10-b1", "A1 Formblatt", size=14),
+        block("p12-b1", BODY),
+    ]
+
+    found = skeleton(blocks)
+
+    assert found.contents.front_end is None
+    assert {"1 Einleitung", "2 Kompetenzen", "3 Inhalte", "4 Anhang", "A1 Formblatt"} <= set(titles(found))
+
+
+def test_untitled_contents_read_past_the_first_pages_leave_the_title_pages_to_no_later_contents() -> None:
+    # a foreword of four pages, untitled contents on page 6, an annex's titled contents on page 10
+    blocks = [COVER, block("p2-b1", "Vorwort", size=16), block("p2-b2", BODY)]
+    blocks += [block(f"p{page}-b1", BODY) for page in range(3, 6)]
+    blocks += [
+        block("p6-b1", "1 Einleitung ..... 7\n2 Ziele ..... 8\n3 Anhang ..... 10"),
+        block("p7-b1", "1 Einleitung", size=16),
+        block("p7-b2", BODY),
+        block("p8-b1", "2 Ziele", size=16),
+        block("p8-b2", BODY),
+        block("p10-b1", "3 Anhang", size=16),
+        block("p10-b2", "Inhalt", size=16),
+        block("p10-b3", "A1 Formblatt ..... 11\nA2 Zeugnis ..... 12\nA3 Stundentafel ..... 12"),
+        block("p11-b1", "A1 Formblatt", size=14),
+        block("p12-b1", BODY),
+    ]
+
+    found = skeleton(blocks)
+
+    assert found.contents.front_end is None
+    assert titles(found) == ["Vorwort", "1 Einleitung", "2 Ziele", "3 Anhang", "A1 Formblatt"]
+
+
+REAL = {"1 Einleitung", "2 Kompetenzen", "3 Inhalte", "4 Anhang", "A1 Formblatt"}
+
+
+def behind_a_foreword(first_run: list[Block]) -> list[Block]:
+    """A foreword of five pages, a first run of entries on page 7, the sections, and an annex's titled
+    contents on page 13 whose pages are read."""
+    blocks = [COVER, block("p2-b1", "Vorwort", size=16), block("p2-b2", BODY)]
+    blocks += [block(f"p{page}-b1", BODY) for page in range(3, 7)]
+    return [
+        *blocks,
+        *first_run,
+        block("p8-b1", "1 Einleitung", size=16),
+        block("p8-b2", BODY),
+        block("p10-b1", "2 Kompetenzen", size=16),
+        block("p10-b2", BODY),
+        block("p12-b1", "3 Inhalte", size=16),
+        block("p12-b2", BODY),
+        block("p13-b1", "4 Anhang", size=16),
+        block("p13-b2", "Inhalt", size=16),
+        block("p13-b3", "A1 Formblatt ..... 14\nA2 Zeugnis ..... 15\nA3 Stundentafel ..... 16"),
+        block("p14-b1", "A1 Formblatt", size=14),
+        block("p16-b1", BODY),
+    ]
+
+
+ENTRIES = "1 Einleitung ..... 8\n2 Kompetenzen ..... 10\n3 Inhalte ..... 12\n4 Anhang ..... 17"
+
+
+@pytest.mark.parametrize(
+    "first_run",
+    [
+        # the contents titled, their pages refused (one past the document's sixteen)
+        [block("p7-b1", "Inhalt", size=16), block("p7-b2", ENTRIES)],
+        # the same, the title in the entries' block
+        [block("p7-b1", "Inhalt\n" + ENTRIES)],
+        # no contents: a learning fields' overview with its hours as text
+        [block("p7-b1", "1 Den Betrieb erkunden 80\n2 Kunden beraten 60\n3 Waren annehmen 40")],
+    ],
+    ids=["titled", "title_within", "overview"],
+)
+def test_the_first_run_of_entries_decides_the_title_pages_and_an_annex_s_contents_after_it_do_not(
+    first_run: list[Block],
+) -> None:
+    found = skeleton(behind_a_foreword(first_run))
+
+    assert found.contents.front_end is None  # not read deep in: they end nowhere
+    assert set(titles(found)) >= REAL
+
+
+@pytest.mark.parametrize("page", [3, 5])
+def test_untitled_contents_read_up_front_end_the_title_pages(page: int) -> None:
+    blocks = [COVER, block("p2-b1", "Vorwort", size=16), block("p2-b2", BODY)]
+    blocks += [block(f"p{between}-b1", BODY) for between in range(3, page)]
+    blocks += [
+        block(f"p{page}-b1", "1 Einleitung ..... 6\n2 Ziele ..... 7\n3 Inhalte ..... 8"),
+        block("p6-b1", "1 Einleitung", size=16),
+        block("p7-b1", "2 Ziele", size=16),
+        block("p8-b1", "3 Inhalte", size=16),
+        block("p8-b2", BODY),
+    ]
+
+    found = skeleton(blocks)
+
+    assert titles(found) == ["1 Einleitung", "2 Ziele", "3 Inhalte"]
+    assert found.contents.front_end == len(blocks) - 5
+
+
+def test_contents_of_roman_pages_alone_are_contents() -> None:
+    # a front matter's own: "iii" is no page a document's count can be held against
+    lines = "Vorwort ..... iii\nGeleitwort ..... iv\nEinführung ..... v"
+    blocks = [COVER, block("p2-b1", "Inhalt", size=16), block("p2-b2", lines), block("p3-b1", BODY)]
+
+    found = skeleton(blocks)
+
+    assert [(entry.title, entry.page) for entry in found.contents.entries] == [
+        ("Vorwort", "iii"),
+        ("Geleitwort", "iv"),
+        ("Einführung", "v"),
+    ]
+
+
+def test_a_table_is_never_contents() -> None:
+    # numbered rows whose last numbers rise as a contents' pages do (a learning fields' overview with
+    # its weeks): a table is not read as contents
+    overview = table("p3-b1", 1, [["1", "Den Betrieb erkunden", "4"], ["2", "Kunden beraten", "6"],
+                                  ["3", "Waren annehmen", "9"]])  # fmt: skip
+    blocks = [COVER, block("p2-b1", "Teil I Vorbemerkungen", size=16), block("p2-b2", BODY), overview]
+    blocks.append(block("p9-b1", BODY))
+
+    found = skeleton(blocks)
+
+    assert found.contents.entries == ()
+    assert titles(found) == ["Teil I Vorbemerkungen"]
+
+
+def test_contents_of_one_line_a_block_are_contents_from_three_lines_on() -> None:
+    entries = [
+        block("p2-b1", "1 Einleitung 3"),
+        block("p2-b2", "2 Bildungsbereiche 5"),
+        block("p2-b3", "2.1 Sprache 6"),
+    ]
+
+    rest = [block("p3-b1", "1 Einleitung", size=16), block("p6-b1", BODY)]  # the pages the entries name
+    three = skeleton([COVER, *entries, *rest])
+    two = skeleton([COVER, *entries[:2], *rest])
+
+    assert [entry.title for entry in three.contents.entries] == [
+        "1 Einleitung",
+        "2 Bildungsbereiche",
+        "2.1 Sprache",
+    ]
+    assert three.contents.positions == frozenset({1, 2, 3})
+    assert two.contents.entries == ()
+    # text between them parts them: two and one are no contents
+    parted = [*entries[:2], block("p2-b4", BODY), block("p2-b5", "3 Sprache 6")]
+    assert skeleton([COVER, *parted, *rest]).contents.entries == ()
+
+
+def test_a_heading_without_a_printed_code_gets_its_place_among_its_siblings() -> None:
+    found = skeleton([
+        COVER,
+        block("p2-b1", "Vorwort", size=16),
+        block("p2-b2", BODY),
+        block("p2-b3", "Einleitung", size=16),
+        block("p2-b4", "Ziele", size=13),
+        block("p2-b5", BODY),
+        block("p2-b6", "Aufbau", size=13),
+        block("p2-b7", BODY),
+    ])  # fmt: skip
+
+    assert [(heading.code, heading.code_assigned) for heading in found.headings] == [
+        ("1", True), ("2", True), ("1", True), ("2", True),
+    ]  # fmt: skip
+
+
+# --- the lexicon's patterns: a heading of its own, and a node type where one is strong (≥ 0.9)
+
+
+def as_cue(found: LexicalCue) -> Cue:
+    return Cue(
+        iri=found.iri,
+        role=found.role,
+        kind=found.kind,
+        maps_to=tuple(found.maps_to),
+        surface_form=found.surface_form,
+        pattern=found.pattern,
+        layout_signal=found.layout_signal,
+        also_maps_to=tuple(found.also_maps_to),
+        scope_regions=frozenset(found.scope_regions),
+        scope_document_types=frozenset(found.scope_document_types),
+        plan_generations=frozenset(found.plan_generations),
+        strength=None if found.strength is None else float(found.strength),
+        positive_examples=tuple(found.positive_examples),
+        negative_examples=tuple(found.negative_examples),
+    )
+
+
+@functools.cache
+def sector(name: str) -> tuple[tuple[Cue, ...], frozenset[str]]:
+    """The cues of a sector's profile and its node types, as the ontology holds them."""
+    vocabulary = read_vocabulary(ONTOLOGY)
+    profile = f"{PROFILE}{name}#Terminology"
+    namespace = vocabulary.profiles[profile].namespace
+    cues = tuple(as_cue(found) for found in vocabulary.cues.values() if found.profile == profile)
+    node_types = frozenset(
+        iri
+        for iri, concept in vocabulary.concepts.items()
+        if NODE_TYPE in concept.types and iri.startswith(namespace)
+    )
+    return cues, node_types
+
+
+def in_sector(
+    name: str, *regions: str, document_type: str | None = None
+) -> tuple[list[ActiveCue], frozenset[str]]:
+    cues, node_types = sector(name)
+    return active_cues(
+        cues, frozenset(REGION + region for region in regions), document_type, None
+    ), node_types
+
+
+def headed(*headings: str) -> list[Block]:
+    """A cover page, then each heading bold above a paragraph."""
+    blocks = [COVER]
+    for number, heading in enumerate(headings):
+        blocks += [block(f"p2-b{2 * number + 1}", heading, bold=True), block(f"p2-b{2 * number + 2}", BODY)]
+    return blocks
+
+
+def typed(found: Skeleton) -> list[tuple[str, str | None, str | None]]:
+    def short(iri: str | None) -> str | None:
+        return None if iri is None else iri.removeprefix(PROFILE)
+
+    return [(heading.title, short(heading.node_type), short(heading.rule_id)) for heading in found.headings]
+
+
+def test_a_learning_field_is_typed_by_its_pattern_and_coded_by_its_number() -> None:
+    cues, node_types = in_sector("vocational")
+
+    found = skeleton(headed("Lernfeld 5: Kunden akquirieren", "Lernfeld 13GH: Projekt"), cues, node_types)
+
+    assert typed(found) == [
+        ("Lernfeld 5: Kunden akquirieren", "vocational#Lernfeld", "vocational#c-lf-1"),
+        ("Lernfeld 13GH: Projekt", "vocational#Lernfeld", "vocational#c-lf-1"),
+    ]
+    assert [(heading.code, heading.code_assigned) for heading in found.headings] == [
+        ("5", False),
+        ("13GH", False),
+    ]
+
+
+def test_a_content_field_is_typed_where_its_pattern_holds_and_only_with_its_colon() -> None:
+    # the pattern asks for a colon or a full stop behind the number (school#cue-ib-inhaltsfeld)
+    in_nw, school = in_sector("school", "DE-NW")
+    in_by, _ = in_sector("school", "DE-BY")
+
+    assert typed(skeleton(headed("Inhaltsfeld 3: Optik", "Inhaltsfeld 4 Elektrik"), in_nw, school)) == [
+        ("Inhaltsfeld 3: Optik", "school#Inhaltsbereich", "school#cue-ib-inhaltsfeld"),
+        ("Inhaltsfeld 4 Elektrik", None, None),
+    ]
+    assert typed(skeleton(headed("Inhaltsfeld 3: Optik"), in_by, school)) == [
+        ("Inhaltsfeld 3: Optik", None, None)
+    ]
+
+
+def test_a_weaker_pattern_makes_a_heading_and_leaves_its_type_to_the_model() -> None:
+    cues, node_types = in_sector("vocational")  # c-hf-1 is of 0.8
+
+    found = skeleton(
+        [COVER, block("p2-b1", "Handlungsfeld 1: Bildung und Erziehung"), block("p2-b2", BODY)],
+        cues,
+        node_types,
+    )
+
+    assert typed(found) == [("Handlungsfeld 1: Bildung und Erziehung", None, None)]
+    assert found.headings[0].code == "1"
+
+
+def test_a_pattern_of_a_statement_kind_makes_no_heading() -> None:
+    # c-fkf-1 names a statement subkind (FKF), no node type: its lines stay text
+    cues, node_types = in_sector("vocational", document_type=PROFILE + "vocational#dt-Ausbildungsordnung")
+
+    found = skeleton(
+        [
+            COVER,
+            block("p2-b1", "Einleitung", size=16),
+            block("p2-b2", "a) Aufbau und Organisation erläutern"),
+            block("p2-b3", BODY),
+        ],
+        cues,
+        node_types,
+    )
+
+    assert titles(found) == ["Einleitung"]
+
+
+def test_a_table_opened_by_a_heading_pattern_is_a_heading_any_other_table_is_none() -> None:
+    cues, node_types = in_sector("vocational")
+    learning_field = table("p2-b3", 1, [["Lernfeld 5: Kunden akquirieren", "2. Ausbildungsjahr"], [BODY, ""]])
+    other = table("p3-b1", 2, [["Kompetenzen", "Inhalte"], ["Kunden beraten", "Angebote"]])
+
+    found = skeleton(
+        [COVER, block("p2-b1", "Teil V Lernfelder", size=16), block("p2-b2", BODY), learning_field, other],
+        cues,
+        node_types,
+    )
+
+    assert typed(found) == [
+        ("Teil V Lernfelder", None, None),
+        ("Lernfeld 5: Kunden akquirieren", "vocational#Lernfeld", "vocational#c-lf-1"),
+    ]
+    assert found.headings[1].block_id == "p2-b3"
+    # the number behind a heading's first word is its code only where a pattern found it
+    assert (found.headings[0].code, found.headings[0].code_assigned) == ("1", True)
+
+
+def strong_cues(name: str) -> list[tuple[Cue, str]]:
+    """The cues of a sector that may type a heading alone, each with the node type it names."""
+    cues, node_types = sector(name)
+    return [
+        (found, targets[0])
+        for found in cues
+        if found.kind in (HEADING_PATTERN, CODE_PATTERN)
+        and found.pattern is not None
+        and (found.strength or 0) >= 0.9
+        and len(targets := [target for target in found.maps_to if target in node_types]) == 1
+    ]
+
+
+def test_the_lexicon_s_negative_examples_are_never_typed_by_their_cue_and_its_positive_ones_are() -> None:
+    wrong: list[tuple[str, str]] = []
+    checked = 0
+    for name in ("school", "vocational", "higher-education", "adult-education", "early-childhood"):
+        for found, target in strong_cues(name):
+            regions = {region.removeprefix(REGION) for region in found.scope_regions}
+            document_type = min(found.scope_document_types, default=None)
+            cues, node_types = in_sector(name, *regions, document_type=document_type)
+            for example in found.negative_examples:
+                checked += 1
+                if any(
+                    heading.rule_id == found.iri
+                    for heading in skeleton(headed(example), cues, node_types).headings
+                ):
+                    wrong.append((found.iri, example))
+            for example in found.positive_examples:
+                checked += 1
+                if [
+                    heading.node_type for heading in skeleton(headed(example), cues, node_types).headings
+                ] != [target]:
+                    wrong.append((found.iri, example))
+
+    assert checked > 10
+    assert wrong == []
+
+
+def own_cue(
+    name: str, pattern: str, target: str, *, strength: float = 0.95, role: str = CV + "role_cue"
+) -> Cue:
+    return Cue(
+        iri=name, role=role, kind=HEADING_PATTERN, maps_to=(target,), pattern=pattern, strength=strength
+    )
+
+
+def test_a_homonym_a_tie_or_two_types_type_no_heading_two_cues_for_one_type_do() -> None:
+    types = frozenset({"T", "U"})
+    homonym = own_cue("homonym", r"^Bereich\s+\d", "T", role=HOMONYM)
+    tie = [own_cue("tie-a", r"^Feld\s+\d", "T"), own_cue("tie-b", r"^Feld\s+\d", "U")]
+    apart = [own_cue("apart-a", r"^Stufe", "T"), own_cue("apart-b", r"^Stufe\s+\d", "U")]
+    agree = [own_cue("agree-a", r"^Kurs\s+\d", "T"), own_cue("agree-b", r"^Kurs\s+\d+:", "T")]
+
+    found = skeleton(
+        headed("Bereich 1: Sprache", "Feld 2: Natur", "Stufe 4: Lesen", "Kurs 3: Kunst"),
+        active_cues([homonym, *tie, *apart, *agree], frozenset(), None, None),
+        types,
+    )
+
+    assert typed(found) == [
+        ("Bereich 1: Sprache", None, None),
+        ("Feld 2: Natur", None, None),
+        ("Stufe 4: Lesen", None, None),
+        ("Kurs 3: Kunst", "T", "agree-a"),
+    ]
+
+
+def test_a_negative_cue_makes_no_heading() -> None:
+    negative = own_cue("negative", r"^Bereich\s", "T", role=NEGATIVE)
+
+    found = skeleton(
+        [
+            COVER,
+            block("p2-b1", "Einleitung", size=16),
+            block("p2-b2", "Bereich Sprache"),
+            block("p2-b3", BODY),
+        ],
+        active_cues([negative], frozenset(), None, None),
+        frozenset({"T"}),
+    )
+
+    assert titles(found) == ["Einleitung"]
+
+
+def test_a_contents_pattern_of_the_lexicon_reads_contents_the_others_miss() -> None:
+    chapters = Cue(iri="chapters", role=CV + "role_cue", kind=HEADING_PATTERN, maps_to=(IN_CONTENTS,),
+                   pattern=r"^Kapitel\s+\d+\s", strength=0.9)  # fmt: skip
+    # the last a line the pattern finds without a page behind it
+    lines = ["Kapitel 1 Ziele 3", "Kapitel 2 Inhalte 5", "Kapitel 3 Methoden 8", "Kapitel 4 Anhang"]
+    blocks = [COVER, *(block(f"p2-b{number}", line) for number, line in enumerate(lines, start=1))]
+    blocks.append(block("p8-b1", BODY))  # the pages the entries name
+
+    found = skeleton(blocks, active_cues([chapters], frozenset(), None, None))
+
+    assert [(entry.title, entry.page, entry.level) for entry in found.contents.entries] == [
+        ("Kapitel 1 Ziele", "3", None),
+        ("Kapitel 2 Inhalte", "5", None),
+        ("Kapitel 3 Methoden", "8", None),
+    ]
+
+
+def test_a_block_most_of_whose_lines_are_no_entries_is_no_contents() -> None:
+    entries = [block("p2-b1", "1 Einleitung 3"), block("p2-b2", "2 Ziele 5")]
+    note = block("p2-b3", "Die Hinweise\nstehen im Anhang\n3 Seiten 9")
+
+    # the pages the lines name stand: only the majority of lines tells the note from the contents
+    found = skeleton([COVER, *entries, note, block("p3-b1", "1 Einleitung", size=16), block("p9-b1", BODY)])
+
+    assert found.contents.entries == ()
+
+
+def test_a_pattern_that_takes_too_long_types_nothing_and_is_named() -> None:
+    # 0.2 s on 190 signs, four times the limit
+    slow = own_cue("slow", r"(x+x+x+x+)+y", "T")
+
+    paragraphs = [block(f"p2-b{number}", BODY) for number in range(2, 5)]
+    found = skeleton(
+        [COVER, block("p2-b1", "x" * 190, size=16), *paragraphs],
+        active_cues([slow], frozenset(), None, None),
+        frozenset({"T"}),
+    )
+
+    assert typed(found) == [("x" * 190, None, None)]
+    assert found.timeouts == frozenset({"slow"})
+
+
+@pytest.mark.parametrize(
+    ("slow", "rule"),
+    [
+        (own_cue("slow", r"(x+x+x+x+)+y", "T", strength=0.5, role=HOMONYM), None),  # it may have found it
+        (own_cue("slow", r"(x+x+x+x+)+y", "U"), None),  # it may have named another type
+        (own_cue("slow", r"(x+x+x+x+)+y", "U", strength=0.5), "strong"),  # it types nothing
+    ],
+    ids=["homonym", "strong", "weak"],
+)
+def test_a_cue_that_takes_too_long_and_may_have_said_otherwise_leaves_the_type_to_the_model(
+    slow: Cue, rule: str | None
+) -> None:
+    strong = own_cue("strong", r"^x+$", "T")
+
+    paragraphs = [block(f"p2-b{number}", BODY) for number in range(2, 5)]
+    found = skeleton(
+        [COVER, block("p2-b1", "x" * 190, size=16), *paragraphs],
+        active_cues([slow, strong], frozenset(), None, None),
+        frozenset({"T", "U"}),
+    )
+
+    assert found.timeouts == frozenset({"slow"})
+    assert typed(found) == [("x" * 190, "T" if rule else None, rule)]
+
+
+def test_a_heading_is_a_plain_value() -> None:
+    # the stage writes it as the run's result and builds nodes from it
+    heading = skeleton(headed("Einleitung")).headings[0]
+
+    assert heading == Heading(
+        key="H1", position=1, block_id="p2-b1", page=2, level=1, parent=None, title="Einleitung", code="1",
+        code_assigned=True, node_type=None, rule_id=None,
+    )  # fmt: skip

@@ -1,0 +1,58 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-NW-69361002eb3e,
+        eb:re-DE-NW-6ee7085134c3,
+        eb:re-DE-NW-7b0a48e66202 .
+
+eb:re-DE-NW-69361002eb3e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: recht.nrw.de WbG § 11"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:pa-beruf,
+        eb:pa-grundbildung,
+        eb:pa-politik,
+        eb:pa-sprachen ;
+    cur:negativeHint "Ordnung nur teilweise den VHS-Programmbereichen zuzuordnen."@de ;
+    cur:positiveExample "politische Bildung | arbeitswelt- und berufsbezogene Weiterbildung | kompensatorische Grundbildung | schulabschlussbezogene Bildung | lebensgestaltende Bildung und Existenzfragen | Schlüsselqualifikationen (Sprachen, Medienkompetenz) | Familienbildung" ;
+    cur:recognitionHint "Pflichtangebot der Volkshochschulen mit sieben Bereichen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pflichtangebot" ;
+    cur:verified false .
+
+eb:re-DE-NW-6ee7085134c3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mitteilung Heinrich-Böll-Stiftung NRW"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:positiveExample "Einrichtung der Arbeitnehmerweiterbildung nach § 10 AWbG unter dem Aktenzeichen 48.06.01.13.18 (Bezirksregierung Düsseldorf) anerkannt" ;
+    cur:recognitionHint "Einrichtungsanerkennung mit Aktenzeichen der Bezirksregierung"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "als Einrichtung der Arbeitnehmerweiterbildung nach § 10 AWbG" ;
+    cur:verified false .
+
+eb:re-DE-NW-7b0a48e66202 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: recht.nrw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:negativeHint "Nicht der Arbeitnehmerweiterbildung."@de ;
+    cur:positiveExample "Erstes Gesetz zur Ordnung und Förderung der Weiterbildung im Lande Nordrhein-Westfalen (Weiterbildungsgesetz - WbG)" ;
+    cur:recognitionHint "Erstes Gesetz zur Ordnung und Förderung der Weiterbildung"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weiterbildungsgesetz" ;
+    cur:verified false .
+

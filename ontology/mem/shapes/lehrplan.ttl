@@ -1,0 +1,22 @@
+@prefix rdf:   <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sh:    <http://www.w3.org/ns/shacl#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ex:    <http://www.example.org/#> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+
+#
+# Ein Lerplan ist immer mindestens einem Bundesland zugeordnet
+#
+
+@prefix lehrplan: <https://w3id.org/lehrplan/ontology/LP_0000438> .
+@prefix hat_bundesland: <https://w3id.org/lehrplan/ontology/LP_0000029> .
+
+ex:LPBundeslandShape
+    a sh:NodeShape ;
+    sh:targetClass  lehrplan: ;    
+    sh:property [              
+        sh:path hat_bundesland: ;  
+        sh:minCount 1 ;
+    ] ;
+    .

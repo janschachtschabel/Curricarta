@@ -1,0 +1,49 @@
+Curricarta
+Copyright 2026 Jan Schachtschabel
+https://github.com/janschachtschabel/Curricarta
+
+The source code of this project is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+Attribution: whoever redistributes Curricarta or a work derived from it - as source or in any other
+form - keeps this NOTICE and the copyright notices with it, as section 4 of the licence requires, and
+names "Curricarta, Copyright Jan Schachtschabel" with the address above.
+
+The data of this project are licensed under Creative Commons Attribution 4.0 International (CC BY 4.0),
+https://creativecommons.org/licenses/by/4.0/ - attribution: "Curricarta, Jan Schachtschabel", with the
+address above:
+
+  Curriculum Core ontology, its vocabularies, profiles, schemas, shapes and examples
+    ontology/ontologie, ontology/vokabulare, ontology/profile (but schule-lexikon-fwu.ttl, below),
+    ontology/schemas, ontology/pruefung/*.ttl, ontology/beispiele, ontology/konzept.md
+    Its IRIs under https://w3id.org/wlo/curriculum/ are provisional; the namespace is not registered yet.
+  Research notes
+    ontology/recherche-auftraege, ontology/recherche-ergebnisse
+    Machine-generated working notes, unverified. Terms and short quotations from public curricula
+    name their source and remain their authors'.
+
+The parts below are the work of others and carry their own licences.
+
+Lehrplan Ontology of FWU
+  ontology/werkzeuge/quellen/lp.ttl (unchanged), ontology/werkzeuge/quellen/fwu-landesklassen.csv,
+  ontology/mem/ (shapes renamed, an extract and a derived table), ontology/profile/schule-lexikon-fwu.ttl
+  (derived)
+  "Lehrplan Ontology. Version 1.0.0rc3, https://w3id.org/lehrplan/ontology"
+  https://github.com/FWU-DE/lehrplan-ontologie
+  Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0), as the ontology declares.
+  https://creativecommons.org/licenses/by-sa/4.0/
+  Creators and changes: ontology/mem/LIZENZ.md. Derived works of these files stay under CC BY-SA 4.0.
+
+Seed of the source register
+  data/seed/vergleichsdatensatz/
+  Derived from a dataset published under CC0 1.0 Universal; see the README there.
+
+Tokenizer encoding
+  backend/app/llm/o200k_base.tiktoken
+  OpenAI, MIT License; source and checksum in backend/app/llm/o200k_base.tiktoken.license.
+
+Not part of this repository: curriculum texts of third parties and data of MEM-Schule. The application
+fetches such data at run time, on its operator's request; the test fixtures are synthetic
+(backend/tests/sources/fixtures/mem/HERKUNFT.md).
+
+Fonts are bundled at build time from npm packages under the SIL Open Font License 1.1; the build writes
+their licences to dist/licenses.txt.

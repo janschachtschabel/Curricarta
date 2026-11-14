@@ -1,0 +1,74 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-SN-469a02142140,
+        hs:re-DE-SN-6f756f1578ea,
+        hs:re-DE-SN-b731530f0c07,
+        hs:re-DE-SN-f83e2f82045b .
+
+hs:re-DE-SN-469a02142140 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SächsHSG § 37 Abs. 3 Satz 5 (Fassung vom 22.06.2023)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:Modul,
+        hs:dt-Modulhandbuch ;
+    cur:negativeHint "gesetzliche Anlageformel - sie gilt für das Modulhandbuch als Anlage der Studienordnung und nicht der Prüfungsordnung"@de ;
+    cur:positiveExample "Die Hochschule erstellt für modularisierte Studiengänge Modulbeschreibungen und fügt sie der Studienordnung als Anlage bei." ;
+    cur:recognitionHint "Modulbeschreibungen als Anlage der Studienordnung"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modulbeschreibungen" ;
+    cur:verified false .
+
+hs:re-DE-SN-6f756f1578ea a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: TUD S.1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:dt-Modulhandbuch ;
+    cur:negativeHint "Datei liegt unter studien_und_pruefungsordnungen und nennt keinen Studiengang im Kopf"@de ;
+    cur:positiveExample "Module descriptions" ;
+    cur:recognitionHint "Englische Sammlung von Modulbeschreibungen ohne Deckblatt"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Module descriptions" ;
+    cur:verified false .
+
+hs:re-DE-SN-b731530f0c07 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SächsHSG § 37 Abs. 1 (Fassung vom 22.06.2023)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:dt-Pruefungsordnung,
+        hs:dt-Studienordnung ;
+    cur:negativeHint "zwei Ordnungen je Studiengang - Prüfungsordnung nach § 35"@de ;
+    cur:positiveExample "Die Hochschule erlässt für jeden Studiengang auf der Grundlage der Prüfungsordnung eine Studienordnung." ;
+    cur:recognitionHint "Studienordnung baut auf der Prüfungsordnung auf"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Hochschule erlässt für jeden Studiengang auf der Grundlage der Prüfungsordnung eine Studienordnung." ;
+    cur:verified false .
+
+hs:re-DE-SN-f83e2f82045b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: revosax.sachsen.de (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt,
+        hs:dt-Staatsexamen ;
+    cur:negativeHint "Ermächtigung im Schulgesetz für den Freistaat Sachsen § 40 Abs. 3 - Hochschulstudium endet mit der Ersten Staatsprüfung"@de ;
+    cur:positiveExample "Verordnung vom 19. Januar 2022 (Fassung vom 01.02.2022)" ;
+    cur:recognitionHint "Verordnung zur Ersten Staatsprüfung für Grundschulen Oberschulen Gymnasien Förderschulen berufsbildende Schulen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehramtsprüfungsordnung I (LAPO I)" ;
+    cur:verified false .
+

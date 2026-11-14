@@ -1,0 +1,820 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-SH-0a98f08f1d0b,
+        elem:re-DE-SH-158b31d15fed,
+        elem:re-DE-SH-1c744ef94fc8,
+        elem:re-DE-SH-2d40924be564,
+        elem:re-DE-SH-34480bfd4fbd,
+        elem:re-DE-SH-380883d6557a,
+        elem:re-DE-SH-3b00bd79ccd5,
+        elem:re-DE-SH-3b5ac6fc338e,
+        elem:re-DE-SH-3cf8934d6510,
+        elem:re-DE-SH-4084502d9072,
+        elem:re-DE-SH-40d443f3c1d2,
+        elem:re-DE-SH-41b562bef7fe,
+        elem:re-DE-SH-426b0f8b50e1,
+        elem:re-DE-SH-43b74cc0016d,
+        elem:re-DE-SH-4ed067599de5,
+        elem:re-DE-SH-5459ecc066c9,
+        elem:re-DE-SH-644a581ce667,
+        elem:re-DE-SH-6460dd0fe081,
+        elem:re-DE-SH-68a9ee3f36dd,
+        elem:re-DE-SH-6ff30084aa63,
+        elem:re-DE-SH-75db431e821f,
+        elem:re-DE-SH-7d3e3a7c5bae,
+        elem:re-DE-SH-7dfc525d9ee7,
+        elem:re-DE-SH-828872d77a6d,
+        elem:re-DE-SH-89fb12d6bd18,
+        elem:re-DE-SH-8a4a3005cf5c,
+        elem:re-DE-SH-8cf716efaef6,
+        elem:re-DE-SH-9d60b7fb566a,
+        elem:re-DE-SH-9dade505d274,
+        elem:re-DE-SH-a295688fb478,
+        elem:re-DE-SH-a6c774acec2d,
+        elem:re-DE-SH-b00fd58cdd1a,
+        elem:re-DE-SH-b335db08ae75,
+        elem:re-DE-SH-b804d7d53861,
+        elem:re-DE-SH-bc4451b85521,
+        elem:re-DE-SH-c3c9747b9a67,
+        elem:re-DE-SH-c73cd30b0fb8,
+        elem:re-DE-SH-c8a97d7748d7,
+        elem:re-DE-SH-ccc332fcf010,
+        elem:re-DE-SH-d645467962fe,
+        elem:re-DE-SH-d8a1d365593d,
+        elem:re-DE-SH-e65d53031f91,
+        elem:re-DE-SH-e6e991b9f222,
+        elem:re-DE-SH-f78a9865a739,
+        elem:re-DE-SH-f8361fbce747 .
+
+elem:re-DE-SH-0a98f08f1d0b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 47–48"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:negativeHint "Die Beispiele sind Szenen aus den Wimmelbild-Geschichten oder Fachkraft-Handlungen und keine Ziele"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Duc ist fast fertig damit, den Frühstückstisch zu decken" ;
+    cur:recognitionHint "Absatz mit „B E I S P I E L :“ und einer Szene mit Namen"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "BEISPIEL" ;
+    cur:verified false .
+
+elem:re-DE-SH-158b31d15fed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 16"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Partizipationsorientierung – Berücksichtigung des Verhältnisses der Generationen" ;
+    cur:recognitionHint "Abschnitt 2.1, Zusatz „Berücksichtigung des Verhältnisses der Generationen“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Partizipationsorientierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-1c744ef94fc8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 25–26"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:f-aesthetik,
+        elem:f-medien,
+        elem:f-musik ;
+    cur:negativeHint "Nicht mehr in der Fassung 2026"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Dem Bildungsbereich „Musisch-ästhetische Bildung und Medien“ geht es darum" ;
+    cur:recognitionHint "Abschnitt 3.1 mit Teilen „Zum Thema Musisch-ästhetische Bildung“ und „Zum Thema Medien“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Musisch-ästhetische Bildung und Medien – oder: sich und die Welt mit allen Sinnen wahrnehmen" ;
+    cur:verified false .
+
+elem:re-DE-SH-2d40924be564 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-61e6b09c4251-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 43"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsbereich,
+        elem:Sammelabschnitt ;
+    cur:negativeHint "Im Text und im KiTaG auch kurz „Bildungsthemen“. Die Vorliste führt die Einzahl „Bildungs- und Erziehungsthema“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Bildungs- und Erziehungsthemen in Kindertageseinrichtungen und der Kindertagespflege" ;
+    cur:recognitionHint "Kapitel 3 bündelt sieben Themen mit je 3 Unterabschnitten"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsthemen" ;
+    cur:verified false .
+
+elem:re-DE-SH-34480bfd4fbd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-18a3dd4fa837-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 25, 28"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:negativeHint "Titel enthält „Antidiskriminierung“, nicht nur „Inklusion“. Fassung 2020: „Inklusionsorientierung“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Inklusion als das Recht aller Kinder und Familien, in ihrer Vielfalt respektiert zu werden, und als das Recht auf Schutz vor Diskriminierung" ;
+    cur:recognitionHint "Abschnitt 2.2 mit 2.2.1 bis 2.2.3"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inklusion und Antidiskriminierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-380883d6557a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 11"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "„Kompetenzbereiche“ meint hier Kompetenzarten ohne Weltausschnitt, nicht Bildungsbereiche. Selbst-, Sozial- und Lernkompetenz auch in KiTaG § 19 Abs. 1"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Selbstkompetenz (auch Personal- oder Ich-Kompetenz genannt) umfasst verschiedene Schlüsselqualifikationen im Umgang mit sich selbst" ;
+    cur:recognitionHint "Kompetenzbereich 1 von 4 mit Zusatz „auch Personal- oder Ich-Kompetenz genannt“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Selbstkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-SH-3b00bd79ccd5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 57"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mint ;
+    cur:negativeHint "Fassung 2020 und KiTaG: „Naturwissenschaft“ im Singular"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Mathematik, Naturwissenschaften und Technik" ;
+    cur:recognitionHint "Abschnitt 3.4"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Welt und ihre Zusammenhänge erforschen – oder: Mathematik, Naturwissenschaften und Technik" ;
+    cur:verified false .
+
+elem:re-DE-SH-3b5ac6fc338e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 53"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-literacy,
+        elem:f-sprache ;
+    cur:negativeHint "Im KiTaG und in der Fassung 2020 steht „Sprache(n)“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "sich eine oder mehrere Sprachen anzueignen" ;
+    cur:recognitionHint "Abschnitt 3.3. Schreibung „Sprachen“ im Plural ohne Klammer"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mit anderen sprechen und denken – oder: Sprachen, Zeichen/Schrift und Kommunikation" ;
+    cur:verified false .
+
+elem:re-DE-SH-3cf8934d6510 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 126–134"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Literatur" ;
+    cur:recognitionHint "Verzeichnisse am Ende"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Literatur" ;
+    cur:verified false .
+
+elem:re-DE-SH-4084502d9072 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 9, 44"@de,
+        "Plangeneration laut Länderrecherche: KiTaG und Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Bildungsbereich ;
+    cur:negativeHint "Gleichbedeutend mit „Bildungs- und Erziehungsthemen“"@de ;
+    cur:occursIn cv:occ_body,
+        cv:occ_box ;
+    cur:positiveExample "Dabei sind in die umfassende Arbeit der Kindertageseinrichtung folgende Bildungsthemen einzubeziehen" ;
+    cur:recognitionHint "Wortlaut aus § 19 Abs. 1 KiTaG, siebenstellige Liste"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsthemen" ;
+    cur:verified false .
+
+elem:re-DE-SH-40d443f3c1d2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 61"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-demokratie-gesellschaft,
+        elem:f-kulturelle-vielfalt ;
+    cur:negativeHint "Fassung 2020 hieß der Bereich „Kultur, Gesellschaft und Politik“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Beide Aspekte der Demokratie (Demokratie als Regierungs- und als Lebensform) müssen Bildungsinhalt der pädagogischen Arbeit sein" ;
+    cur:recognitionHint "Abschnitt 3.5"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Gemeinschaft mitgestalten – oder: Kultur, Gesellschaft, Demokratie und Antidiskriminierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-41b562bef7fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 18"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-geschlechtersensibel ;
+    cur:negativeHint "Im Prinzipienkapitel 2026 entfallen. § 19 Abs. 2 KiTaG nennt Gleichstellung der Geschlechter weiter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Genderorientierung – Berücksichtigung des Verhältnisses der Geschlechter" ;
+    cur:recognitionHint "Abschnitt 2.2"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Genderorientierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-426b0f8b50e1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 6–8"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Es soll ein Kompass für eine moderne frühkindliche Bildung in Schleswig-Holstein sein" ;
+    cur:recognitionHint "Vorwort der Ministerin und Einleitung mit Aufbau der sechs Kapitel"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einleitung" ;
+    cur:verified false .
+
+elem:re-DE-SH-43b74cc0016d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 24"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsbereich,
+        elem:Sammelabschnitt ;
+    cur:negativeHint "In der Neufassung heißt das Kapitel „Bildungs- und Erziehungsthemen“. Die Bereiche sind laut Text „keine Schulfächer“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Bildungsbereiche (Kapitel 3)" ;
+    cur:recognitionHint "Kapitel 3 mit sechs Abschnitten"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-SH-4ed067599de5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 28"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Gilt als Fachkraft-Aufgabe, nicht als Kindziel"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "beobachten, wie Kinder die Welt mit allen Sinnen wahrnehmen" ;
+    cur:recognitionHint "Satzanfang mit Aufzählung „l“ am Ende jedes Bildungsbereichs"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Fachkräfte können Kinder in diesem Bildungsbereich insbesondere fördern, indem sie" ;
+    cur:verified false .
+
+elem:re-DE-SH-5459ecc066c9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 71–72"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Didaktisches Handeln in der Kindertagesbetreuung" ;
+    cur:recognitionHint "Kapitel 4, didaktisches Handeln, Bildungsdialoge, Reflexion"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Umsetzung der Leitlinien für Bildung und Erziehung im pädagogischen Alltag" ;
+    cur:verified false .
+
+elem:re-DE-SH-644a581ce667 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 87"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls,
+        elem:Reflexionsfrage ;
+    cur:negativeHint "Sie-Anrede in „... und für Ihre Kinder?“ (S. 86)"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Welche Alltagssituationen bestimmen den Tagesablauf?" ;
+    cur:recognitionHint "Kasten mit Fragen und Aufzählung „›“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregung für die Entdeckung und Reflexion von Alltagssituationen in der eigenen Kindertagespflegestelle bzw. Kindertageseinrichtung" ;
+    cur:verified false .
+
+elem:re-DE-SH-6460dd0fe081 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 19–22"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Bildung, Erziehung und Betreuung in Übergängen" ;
+    cur:recognitionHint "Abschnitt 1.3 mit 1.3.1 bis 1.3.4 (Familie, Krippe/Tagespflege, Elementarbereich, Schule und Ganztag)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung, Erziehung und Betreuung in Übergängen" ;
+    cur:verified false .
+
+elem:re-DE-SH-68a9ee3f36dd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 126–134"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Literatur" ;
+    cur:recognitionHint "Verzeichnisse am Ende"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachbeirat" ;
+    cur:verified false .
+
+elem:re-DE-SH-6ff30084aa63 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 10"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Basiskompetenzen,
+        elem:Grundlagen ;
+    cur:negativeHint "Ausdrücklich keine überprüfbaren Wissens- oder Könnensziele je Bereich"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Das Ziel frühkindlicher Bildungsbegleitung ist es, jedes Kind bei seiner Entwicklung zu einer eigenständigen und gemeinschaftsfähigen Persönlichkeit zu unterstützen" ;
+    cur:recognitionHint "Abschnitt 1.4 mit vier Kompetenzbereichen (Selbst-, Sozial-, Sach-, Lernmethodische Kompetenz)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele von Bildungsbegleitung in Kindertageseinrichtungen" ;
+    cur:verified false .
+
+elem:re-DE-SH-75db431e821f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 25, 35"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderschutz ;
+    cur:negativeHint "In der Fassung 2020 kein eigener Abschnitt"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Kinderschutz als das Recht auf Schutz vor Gewalt und Grenzüberschreitungen" ;
+    cur:recognitionHint "Abschnitt 2.3 mit 2.3.1 (§ 45 und 47 SGB VIII) und 2.3.2 (§ 8a SGB VIII)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinderschutz" ;
+    cur:verified false .
+
+elem:re-DE-SH-7d3e3a7c5bae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 126–134"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Literatur" ;
+    cur:recognitionHint "Verzeichnisse am Ende"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Expert*innen" ;
+    cur:verified false .
+
+elem:re-DE-SH-7dfc525d9ee7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 25, 39"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bne ;
+    cur:negativeHint "Fassung 2020: „Demokratie und Nachhaltige Entwicklung als Leitprinzipien“ (Abschnitt 1.5)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Nachhaltigkeit als das Recht der künftigen Generationen auf die Berücksichtigung ihrer Interessen" ;
+    cur:recognitionHint "Abschnitt 2.4 mit 2.4.1 und 2.4.3. Das Prinzip gilt laut Text als das komplexeste"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Nachhaltigkeit" ;
+    cur:verified false .
+
+elem:re-DE-SH-828872d77a6d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 1–2"@de,
+        "Plangeneration laut Länderrecherche: Fassung Februar 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Abgelöst 2026. Gleicher Haupttitel wie die Neufassung"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Leitlinien zum Bildungsauftrag" ;
+    cur:recognitionHint "Titelseite und Impressum mit Datum Februar 2020"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erfolgreich starten – Leitlinien zum Bildungsauftrag in Kindertagesstätten" ;
+    cur:verified false .
+
+elem:re-DE-SH-89fb12d6bd18 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 74 | Leitlinien 2020 S. 3, 52"@de,
+        "Plangeneration laut Länderrecherche: beide Fassungen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Kein eigenes Kapitel „Beobachtung und Dokumentation“ 2026"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Zur Bedeutung von Alltagsbeobachtungen für die Bildungsbegleitung" ;
+    cur:recognitionHint "Abschnitt 4.3 mit „Alltagsbeobachtungen“. Fassung 2020 Abschnitt 4.5 „Beobachten und dokumentieren“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zugang zu den Bildungsprozessen der verschiedenen Kinder finden" ;
+    cur:verified false .
+
+elem:re-DE-SH-8a4a3005cf5c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 47"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-aesthetik,
+        elem:f-bildnerisch,
+        elem:f-musik,
+        elem:f-sinneswahrnehmung,
+        elem:f-tanz-darstellendes-spiel ;
+    cur:negativeHint "Medien sind ab 2026 ein eigenes Thema 3.7. In der Fassung 2020 gehörten sie zum Bereich 3.1"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Dazu gehört die Beschäftigung mit Musik, Tanz, bildnerischem Gestalten oder Theater und darstellender Kunst" ;
+    cur:recognitionHint "Abschnitt 3.1 mit Unterabschnitten 3.1.1 bis 3.1.3. Inhalt: Musik, Tanz, bildnerisches Gestalten, Theater, sinnliche Wahrnehmung"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sich und die Welt mit allen Sinnen wahrnehmen und gestalten – oder: musisch-ästhetische Bildung" ;
+    cur:verified false .
+
+elem:re-DE-SH-8cf716efaef6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 57"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Fragen an die Fachkraft ohne Fragezeichen am Satzende der Einleitung"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Die Berücksichtigung der Handlungsprinzipien kann in Bezug auf die Themen Sprachen, Zeichen/Schrift und Kommunikation bedeuten, sich zu fragen, ..." ;
+    cur:recognitionHint "Wiederkehrender Block am Ende jedes Themas mit „... sich zu fragen, ...“ und Pfeil „➔“ je Prinzip"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Handlungsprinzipien berücksichtigen" ;
+    cur:verified false .
+
+elem:re-DE-SH-9d60b7fb566a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 12"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-subject ;
+    cur:negativeHint "Das Beherrschen einer Sprache zählt zur Sachkompetenz"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sach- oder Fachkompetenz beinhaltet die Fertigkeiten und Kenntnisse von Kindern" ;
+    cur:recognitionHint "Kompetenzbereich 3 von 4 mit Zusatz „Sach- oder Fachkompetenz“"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sachkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-SH-9dade505d274 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-8519e6698cc0-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 1–2"@de,
+        "Plangeneration laut Länderrecherche: Neufassung Februar 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Der Haupttitel „Erfolgreich starten“ ist auch der Titel der Fassung 2020. Unterscheidung über Untertitel und Jahr im Impressum"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Leitlinien für Bildung und Erziehung" ;
+    cur:recognitionHint "Titelseite und Impressum mit Datum Februar 2026"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erfolgreich starten – Leitlinien für Bildung und Erziehung in Kindertageseinrichtungen und der Kindertagespflege" ;
+    cur:verified false .
+
+elem:re-DE-SH-a295688fb478 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 16"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:negativeHint "Ersetzt 2026 durch vier „Handlungsprinzipien“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Querschnittsdimensionen von Bildung in Kindertageseinrichtungen" ;
+    cur:recognitionHint "Kapitel 2 mit sechs Orientierungen"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querschnittsdimensionen" ;
+    cur:verified false .
+
+elem:re-DE-SH-a6c774acec2d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 25"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Dritte Person, kein Imperativ. Die Fachkraft-Aufgaben stehen auch als Fließtext „Pädagogische Fachkräfte unterstützen Kinder …, wenn sie“ (S. 63)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Damit Partizipation ein Recht aller Kinder in der Kindertageseinrichtung und der Kindertagespflege ist, braucht es pädagogische Fachkräfte, die" ;
+    cur:recognitionHint "Satzanfang mit Aufzählung „›“ je Handlungsprinzip"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "braucht es pädagogische Fachkräfte, die" ;
+    cur:verified false .
+
+elem:re-DE-SH-b00fd58cdd1a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 19"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Interkulturelle Orientierung – Berücksichtigung des Verhältnisses unterschiedlicher Kulturen" ;
+    cur:recognitionHint "Abschnitt 2.3"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Interkulturelle Orientierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-b335db08ae75 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 49"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-bewegung,
+        elem:f-koerper ;
+    cur:negativeHint "Reihenfolge von Haupt- und „oder“-Teil ist anders als in Abschnitt 3.1"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Körper, Gesundheit und Bewegung" ;
+    cur:recognitionHint "Abschnitt 3.2. Der Titel steht vor dem Themennamen"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mit sich und der Welt in Kontakt treten – Körper, Gesundheit und Bewegung" ;
+    cur:verified false .
+
+elem:re-DE-SH-b804d7d53861 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-1d002a5aa4b7-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 25"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderrechte,
+        elem:p-partizipation ;
+    cur:negativeHint "Der Titel „demokratische Mitbestimmung“ der Vorliste kommt als Prinzipientitel nicht vor, nur „Selbst- und Mitbestimmungsrechte“ im Fließtext"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Demokratische Partizipation als das Recht der Kinder, sich an Entscheidungen im Alltag und an Planungen, die sie betreffen, demokratisch zu beteiligen" ;
+    cur:recognitionHint "Abschnitt 2.1 mit 2.1.1 bis 2.1.3 („als Kinderrecht“, „als Bildungsprozess“, „im Sozialraum“)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Demokratische Partizipation" ;
+    cur:verified false .
+
+elem:re-DE-SH-bc4451b85521 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 89"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Die Fragen 1 bis 7 sind für alle sechs Geschichten gleich. Die Wimmelbild-Geschichte selbst ist ein Praxisbeispiel"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "1. Was könnte in dieser Situation für die Kinder wichtig sein?" ;
+    cur:recognitionHint "Sieben nummerierte Fragen zu jeder Wimmelbild-Geschichte (Frage 6 zitiert)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wie könnte man in dieser Situation mit den Kindern in Dialoge über ihre Bildungsprozesse kommen (Bildungsdialoge)?" ;
+    cur:verified false .
+
+elem:re-DE-SH-c3c9747b9a67 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-96c9613429f0-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 4, 9, 68"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026 und KiTaG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-digitale-technologien,
+        elem:f-medien ;
+    cur:negativeHint "Vorliste ordnet „Medien und Digitalisierung“ der Fassung vor 2026 zu. 2020 war Medien nur Teil von 3.1"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Medien und Digitalisierung" ;
+    cur:recognitionHint "Abschnitt 3.7, neues siebtes Thema"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sich mit Medien beschäftigen – Medien und Digitalisierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-c73cd30b0fb8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 11"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-social ;
+    cur:negativeHint "Kommunikationsfähigkeit ist hier der Sozialkompetenz zugeordnet"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sozialkompetenz ermöglicht es dem Kind, das soziale Zusammenleben mit zu gestalten" ;
+    cur:recognitionHint "Kompetenzbereich 2 von 4"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sozialkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-SH-c8a97d7748d7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 14"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bne,
+        elem:p-partizipation ;
+    cur:negativeHint "„Leitprinzip“ ist hier der Begriff der Fassung 2020 neben „Querschnittsdimension“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Demokratie als Leitprinzip verlangt also Partizipation" ;
+    cur:recognitionHint "Abschnitt 1.5"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Demokratie und Nachhaltige Entwicklung als Leitprinzipien" ;
+    cur:verified false .
+
+elem:re-DE-SH-ccc332fcf010 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 6–8"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Es soll ein Kompass für eine moderne frühkindliche Bildung in Schleswig-Holstein sein" ;
+    cur:recognitionHint "Vorwort der Ministerin und Einleitung mit Aufbau der sechs Kapitel"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorwort zu den Leitlinien für Bildung und Erziehung" ;
+    cur:verified false .
+
+elem:re-DE-SH-d645467962fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 20"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-inklusion ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Inklusionsorientierung – Berücksichtigung unterschiedlicher Begabungen und Beeinträchtigungen" ;
+    cur:recognitionHint "Abschnitt 2.4"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inklusionsorientierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-d8a1d365593d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 38"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:f-demokratie-gesellschaft,
+        elem:f-kulturelle-vielfalt ;
+    cur:negativeHint "Ersetzt 2026 durch „Kultur, Gesellschaft, Demokratie und Antidiskriminierung“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Kultur, Gesellschaft und Politik" ;
+    cur:recognitionHint "Abschnitt 3.5"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kultur, Gesellschaft und Politik – oder: die Gemeinschaft mitgestalten" ;
+    cur:verified false .
+
+elem:re-DE-SH-e65d53031f91 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 3, 23"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-sozialraum ;
+    cur:negativeHint "2026 nur als „im Sozialraum“ (2.1.3) und Handreichung Sozialraum"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sozialraumorientierung – Berücksichtigung unterschiedlicher Lebensumfelder" ;
+    cur:recognitionHint "Abschnitt 2.6"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sozialraumorientierung" ;
+    cur:verified false .
+
+elem:re-DE-SH-e6e991b9f222 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2020 S. 11"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Die Aufzählungen beschreiben das Kind, sind aber an die Fachkraft adressiert"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "sich selbst zu schätzen und ein positives Selbstbild zu entwickeln" ;
+    cur:recognitionHint "Aufzählung unter jedem der vier Kompetenzbereiche"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Fachkräfte können die Entwicklung von Selbstkompetenz und damit auch von Resilienz fördern, indem sie das Kind dabei unterstützen," ;
+    cur:verified false .
+
+elem:re-DE-SH-f78a9865a739 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitlinien 2026 S. 5, 121–124"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet,
+        elem:Rahmenbedingungen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Anforderungen an Leitungen" ;
+    cur:recognitionHint "Kapitel 6 mit Anforderungen an Leitungen, Träger, Fachberatung"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung, Erziehung und Betreuung in gemeinsamer (und geteilter) Verantwortung" ;
+    cur:verified false .
+
+elem:re-DE-SH-f8361fbce747 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-8e358ed6e2ad-SH"@de,
+        "Länderrecherche, Beleg E: Leitlinien 2026 S. 3, 23–24"@de,
+        "Plangeneration laut Länderrecherche: Neufassung 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:negativeHint "Die Vorliste führt die Einzahl „Handlungsprinzip“. Fassung 2020 sprach von „Querschnittsdimensionen“ und „Leitprinzipien“"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Die vier Handlungsprinzipien ergänzen und bedingen sich gegenseitig" ;
+    cur:recognitionHint "Kapitel 2 mit genau vier Prinzipien. Auch in „Die Handlungsprinzipien berücksichtigen“ am Ende jedes Themas"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handlungsprinzipien" ;
+    cur:verified false .
+

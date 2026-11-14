@@ -1,0 +1,372 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-SN-02ee43fb504d,
+        beruf:re-DE-SN-0b99813e4444,
+        beruf:re-DE-SN-1b2415e4ee05,
+        beruf:re-DE-SN-242954953d8e,
+        beruf:re-DE-SN-36b846a48eb8,
+        beruf:re-DE-SN-3bd50e3ec9a0,
+        beruf:re-DE-SN-3d7200c358d6,
+        beruf:re-DE-SN-47f7010837b7,
+        beruf:re-DE-SN-5bececf7abc7,
+        beruf:re-DE-SN-6da8e3793b1a,
+        beruf:re-DE-SN-7017a9a7748d,
+        beruf:re-DE-SN-709695add74d,
+        beruf:re-DE-SN-7cd97bc98d9f,
+        beruf:re-DE-SN-82df4fcfecfa,
+        beruf:re-DE-SN-87539869c5b2,
+        beruf:re-DE-SN-9403472cfe19,
+        beruf:re-DE-SN-b26c6b97a0ca,
+        beruf:re-DE-SN-bdd0e570d528,
+        beruf:re-DE-SN-c5aacc76dd67,
+        beruf:re-DE-SN-d2a13258c945,
+        beruf:re-DE-SN-f0aa22efff2b .
+
+beruf:re-DE-SN-02ee43fb504d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 14 | Kürzel LBW FS-DE S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Zusätzlich zu den Pflicht-Lernbereichen bearbeitbar (\"Zusätzlich kann jeweils ein Lernbereich mit Wahlcharakter bearbeitet werden\"). Englisch hat stattdessen \"Module mit Wahlcharakter\""@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wahlbereich 1: Arbeit mit Gesetzestexten" ;
+    cur:recognitionHint "\"Lernbereiche mit Wahlcharakter\" mit Unterzeilen \"Wahlbereich <n>:\" und ohne Zeitrichtwert"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereich mit Wahlcharakter" ;
+    cur:verified false .
+
+beruf:re-DE-SN-0b99813e4444 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lb-1"@de,
+        "Länderrecherche, Beleg E: FS-DE S. 1 | Landesliste S. 33-34"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Das Wort lautet \"Bereich\", nicht \"Lernbereich\". Die Vorliste (fachrichtungsübergreifender Lernbereich) trifft in Sachsen nur sinngemäß"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplan Fachschule Deutsch Fachrichtungsübergreifender Bereich" ;
+    cur:recognitionHint "Titelzusatz und Landeslistenabschnitt \"Fachrichtungsübergreifender Bereich\" / \"Fachrichtungsbezogener Bereich\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachrichtungsübergreifender Bereich" ;
+    cur:verified false .
+
+beruf:re-DE-SN-1b2415e4ee05 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FS-Soz S. 5 10 | Handreichung S. 12 | DUBAS-M S. 14 (Schrift Arial Italic bestätigt)"@de,
+        "Plangeneration laut Länderrecherche: 2017-2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Inhalte stehen in Klammern hinter der Handlung, ohne Etikett"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Lernfelder des Lehrplanes bestehen aus Zielformulierungen und kursiv gesetzten Mindestinhalten." ;
+    cur:recognitionHint "Kursivschrift im Fließtext der Zielformulierung bzw. in Klammern"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "kursiv gesetzten Mindestinhalten" ;
+    cur:verified false .
+
+beruf:re-DE-SN-242954953d8e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lf-1"@de,
+        "Länderrecherche, Beleg E: DUBAS-I S. 4"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2020, freigegeben ab 2022-08-01"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernfeld ;
+    cur:negativeHint "Muster der Vorliste verlangt Großbuchstaben nach der Zahl. Sachsen schreibt Kleinbuchstaben (15a) sowie Mehrfachnummern (\"Lernfeld 16b, 16d, 16SE\") und im Inhaltsverzeichnis teils ohne Doppelpunkt"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Lernfeld 15a Benutzerschnittstellen gestalten und entwickeln" ;
+    cur:recognitionHint "^Lernfeld\\s+\\d+[A-Za-z]*(,\\s*\\d+[a-z])*"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernfeld 15a" ;
+    cur:verified false .
+
+beruf:re-DE-SN-36b846a48eb8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Handreichung S. 3 22"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Jahresplanung ;
+    cur:negativeHint "\"Instrument zur Abstimmung der im Bildungsgang beteiligten Lehrkräfte\". Pflicht und amtliche Vorlage nicht belegt (VwV nennt nur Kompetenzentwicklungspläne)"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "2.5 Didaktischer Jahresplan" ;
+    cur:recognitionHint "Kapitel 2.5 der Handreichung"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktischer Jahresplan" ;
+    cur:verified false .
+
+beruf:re-DE-SN-3bd50e3ec9a0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Englisch-Lehrplan selbst nicht gelesen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Eine Ausnahme bildet das Fach Englisch mit verbindlich zu unterrichtenden Modulen und Modulen mit Wahlcharakter." ;
+    cur:recognitionHint "Englisch mit \"Modulen\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modul" ;
+    cur:verified false .
+
+beruf:re-DE-SN-3d7200c358d6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SozAss S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2005/2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Bei DUBAS und Fachschule nicht eigens ausgewiesen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Didaktisch-methodische Hinweise zum Unterricht haben Empfehlungscharakter." ;
+    cur:recognitionHint "Abschnitt am Lernfeldende"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "didaktisch-methodische Hinweise" ;
+    cur:verified false .
+
+beruf:re-DE-SN-47f7010837b7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FOS-INF S. 3 | WK S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LearningToLearn ;
+    cur:negativeHint "Abschnitt mit verbindlichen Aussagen zur Lernkompetenz. Verweissymbol \"Lernkompetenz\""@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Lernen lernen" ;
+    cur:recognitionHint "Abschnitt im Teil Grundlagen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernen lernen" ;
+    cur:verified false .
+
+beruf:re-DE-SN-5bececf7abc7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2020 (WK Fassung 2022 maßgeblich)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Einheit innerhalb eines Fachs und einer Klassenstufe mit Zeitrichtwert, kein übergreifender Bereich. Ziel beruf:Lernbereich beschreibt dagegen einen Bereich (= sächsisch \"berufsübergreifender Bereich\")"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernbereich 1: Arbeit und Beruf: Aus- und Weiterbildung 12 Ustd." ;
+    cur:recognitionHint "\"Lernbereich <n>:\" mit Titel und rechts \"<n> Ustd.\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereich" ;
+    cur:verified false .
+
+beruf:re-DE-SN-6da8e3793b1a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Enthält Verweise (Pfeile), Methodenhinweise und Differenzierung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Bemerkungen haben Empfehlungscharakter." ;
+    cur:recognitionHint "Spaltenkopf \"Bemerkungen\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-SN-7017a9a7748d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DUBAS-M S. 7 | AM-E-GS S. 15"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernsituation ;
+    cur:negativeHint "Im Arbeitsmaterial amtlich als Beispiel mit Zeitrichtwerten, die die Schule vor Ort anpasst. Im Lehrplan nur Verweis auf schulische Umsetzung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Lernsituation 1.1 Analyse elektrotechnischer Systeme der Schule 30 Ustd." ;
+    cur:recognitionHint "\"Lernsituationen konkretisieren die Vorgaben des Lernfeldes\" bzw. Abschnitt \"Beispiele für Lernsituationen\" mit Nummern 1.1"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernsituation" ;
+    cur:verified false .
+
+beruf:re-DE-SN-709695add74d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DUBAS-I S. 12-13 | DUBAS-M S. 11 (\"Technik\")"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Buendelungsfach ;
+    cur:negativeHint "Fach, das die Lernfelder bündelt (Unterrichtsstunden je Ausbildungsjahr), Leistungskurs im Beruflichen Gymnasium"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Berufsbezogener Bereich/Informatiksysteme 440 297 297 297" ;
+    cur:recognitionHint "Fachzeile der Stundentafel mit Lernfeld-Liste darunter"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsbezogener Bereich/Informatiksysteme" ;
+    cur:verified false .
+
+beruf:re-DE-SN-7cd97bc98d9f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SozAss S. 12"@de,
+        "Plangeneration laut Länderrecherche: 2005/2020 | 2017/2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "\"Die Zielformulierungen definieren das Lernfeld\" (SozAss S. 7). In DUBAS fehlt die Überschrift, die Sätze stehen ohne Etikett"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zielformulierung:" ;
+    cur:recognitionHint "Zwischenüberschrift \"Zielformulierung:\" und Fließtext \"Die Schülerinnen und Schüler …\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zielformulierung" ;
+    cur:verified false .
+
+beruf:re-DE-SN-82df4fcfecfa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SozAss S. 9 | FS-Soz S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo ctx:practice-placement ;
+    cur:negativeHint "Stundenzahl geht von einer Wochenarbeitszeit von 40 Zeitstunden aus (VwV 2017 I.5)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Berufspraktische Ausbildung 800" ;
+    cur:recognitionHint "Zeile der Stundentafel mit Pflichtpraktika in Wochen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufspraktische Ausbildung" ;
+    cur:verified false .
+
+beruf:re-DE-SN-87539869c5b2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DUBAS-M S. 34"@de,
+        "Plangeneration laut Länderrecherche: 2020-08-01"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:Lernfeld ;
+    cur:negativeHint "Wahl innerhalb des Berufs, nicht mit Wahlqualifikation der Ausbildungsordnung verwechseln"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wahlpflichtlernfeld 1 / Speicherprogrammierbare Steuerungen erstellen / 4. Ausbildungsjahr / Zeitrichtwert: 54 Ustd." ;
+    cur:recognitionHint "\"Wahlpflichtlernfeld <n>\" im Lernfeldkopf"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahlpflichtlernfeld" ;
+    cur:verified false .
+
+beruf:re-DE-SN-9403472cfe19 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 4 | FOS-INF S. 4"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "\"Lernziele und Lerninhalte sind verbindlich\" (verbindlich) gegenüber Bemerkungen (Empfehlung)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Lernziele und Lerninhalte sind verbindlich" ;
+    cur:recognitionHint "Spaltenkopf \"Lerninhalte\" (FOS und BG: gemeinsame Spalte \"Lernziele und Lerninhalte\")"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lerninhalte" ;
+    cur:verified false .
+
+beruf:re-DE-SN-b26c6b97a0ca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: WK S. 3-4"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Enthält Aufbau, Verbindlichkeit, Ziele und Aufgaben der Schulart, Fächerverbindenden Unterricht und \"Lernen lernen\". Nicht je Fach neu verfasst"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil Grundlagen / Aufbau und Verbindlichkeit der Lehrpläne" ;
+    cur:recognitionHint "Teil \"Grundlagen\" vor \"Teil Fachlehrplan <Fach>\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil Grundlagen" ;
+    cur:verified false .
+
+beruf:re-DE-SN-bdd0e570d528 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AM-E-GS S. 1 | Landesliste S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2003-2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Umsetzungshilfe ;
+    cur:negativeHint "Kein Lehrplan: der KMK-RLP bleibt maßgeblich (\"i. V. m. RLP\"). Verbindlichkeit des Arbeitsmaterials selbst nicht ausdrücklich erklärt"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Arbeitsmaterial für die Berufsschule Elektroniker für Geräte und Systeme" ;
+    cur:recognitionHint "Titel \"Arbeitsmaterial für die Berufsschule <Beruf>\" und Form \"AM\" in der Landesliste"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Arbeitsmaterial" ;
+    cur:verified false .
+
+beruf:re-DE-SN-c5aacc76dd67 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: FOS-INF S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2017-2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Ein Lehrplan = ein Fach (Fachlehrplan). Im berufsbezogenen Bereich steht dafür das Lernfeld"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Teil Fachlehrplan Informatik" ;
+    cur:recognitionHint "\"Teil Fachlehrplan <Fach>\" im Inhaltsverzeichnis"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fach" ;
+    cur:verified false .
+
+beruf:re-DE-SN-d2a13258c945 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DUBAS-I S. 6 9 | FS-DE S. 7-9"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Bildungsauftrag ;
+    cur:negativeHint "Gleiche Begriffe tragen die Querverweise (Selbstkompetenz, Sozialkompetenz)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Bildungs- und Erziehungsziele der Berufsschule sind auf die Entwicklung und Ausprägung von beruflicher Handlungskompetenz gerichtet" ;
+    cur:recognitionHint "Abschnitt \"Ziele und Aufgaben des Bildungsganges\" bzw. der Schulart"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsziele" ;
+    cur:verified false .
+
+beruf:re-DE-SN-f0aa22efff2b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SozAss S. 11"@de,
+        "Plangeneration laut Länderrecherche: 2005/2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Einleitender Absatz vor Zielformulierung, ohne Zielcharakter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Erläuterung" ;
+    cur:recognitionHint "Zwischenüberschrift am Lernfeldanfang"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erläuterung" ;
+    cur:verified false .
+

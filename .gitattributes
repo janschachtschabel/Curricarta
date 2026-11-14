@@ -1,0 +1,12 @@
+# One line ending everywhere: the code runs in Linux containers, and mixed endings break
+# byte comparisons and shell scripts.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.pdf binary
+*.gz binary
+# The comparison dataset as it was published: its checksums name these bytes, BOM and CRLF too
+data/seed/vergleichsdatensatz/*.csv -text
+# The tokenizer's encoding as tiktoken fetches it: its SHA-256 names these bytes (app/llm/budget.py);
+# 200,000 lines of base64 no diff should print
+*.tiktoken -text -diff

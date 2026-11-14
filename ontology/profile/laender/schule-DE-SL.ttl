@@ -1,0 +1,669 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-SL-00182cf4d484,
+        schul:re-DE-SL-01955a536d57,
+        schul:re-DE-SL-02746bd9ed27,
+        schul:re-DE-SL-0c26ef1a106d,
+        schul:re-DE-SL-0ff28ea796e9,
+        schul:re-DE-SL-1761c333150b,
+        schul:re-DE-SL-1b25d6e1f65e,
+        schul:re-DE-SL-2b1c7afb1832,
+        schul:re-DE-SL-32945c8b64ba,
+        schul:re-DE-SL-362e94b07725,
+        schul:re-DE-SL-363e4b0dd7f1,
+        schul:re-DE-SL-3707584dfa18,
+        schul:re-DE-SL-48fa90d30491,
+        schul:re-DE-SL-4e261cf2ea91,
+        schul:re-DE-SL-586dbd395f42,
+        schul:re-DE-SL-67d28330c22b,
+        schul:re-DE-SL-714063f0513b,
+        schul:re-DE-SL-72c7e9ab5f42,
+        schul:re-DE-SL-7e9ace2cd2be,
+        schul:re-DE-SL-8129afcde949,
+        schul:re-DE-SL-86785ed04340,
+        schul:re-DE-SL-9119b8cfc6ad,
+        schul:re-DE-SL-9747d2b408fe,
+        schul:re-DE-SL-992994a2408a,
+        schul:re-DE-SL-9c7476ba4f6f,
+        schul:re-DE-SL-9e7bd5b2ef6d,
+        schul:re-DE-SL-a5f09f3512f5,
+        schul:re-DE-SL-aa2bd99a7680,
+        schul:re-DE-SL-b14bbb304cf8,
+        schul:re-DE-SL-b2f63a8bd965,
+        schul:re-DE-SL-b5721bdb7c48,
+        schul:re-DE-SL-bc921a2a4051,
+        schul:re-DE-SL-c1922ce94559,
+        schul:re-DE-SL-d6392aa8a99b,
+        schul:re-DE-SL-d818e2cb2543,
+        schul:re-DE-SL-db7448e952cc,
+        schul:re-DE-SL-e0df792e5524,
+        schul:re-DE-SL-e52b00f44d39,
+        schul:re-DE-SL-ed297fc06b35,
+        schul:re-DE-SL-f4d9f39fdcd6,
+        schul:re-DE-SL-fb1222879710 .
+
+schul:re-DE-SL-00182cf4d484 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Bildungsabschluss" ;
+    cur:verified false .
+
+schul:re-DE-SL-01955a536d57 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 41"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Zeichen im Textlayer kein Buchstabe"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Beispiele und ein Verfahren zur Leistungsbeurteilung im Sachunterricht sind den Empfehlungen entnehmen" ;
+    cur:recognitionHint "Zeichen Æ steht fuer einen Wingdings-Pfeil vor Verweis auf Empfehlungen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Æ (U+00C6) Beispiele und ein Verfahren zur Leistungsbeurteilung" ;
+    cur:verified false .
+
+schul:re-DE-SL-02746bd9ed27 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-nv-ea | schul:cue-nv-ga"@de,
+        "Länderrecherche, Beleg E: APA Deutsch Seite 2"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:negativeHint "erhoehtes oder grundlegendes Anforderungsniveau wurde nicht gefunden"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Im Grundkurs sind die Anforderungsbereiche I und II im Leistungskurs II und III stärker zu akzentuieren" ;
+    cur:recognitionHint "Kursarten der Oberstufe"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungskurs" ;
+    cur:verified false .
+
+schul:re-DE-SL-0c26ef1a106d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-sa-jahrgangsstufe"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 7 und 3"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Saarland sagt Klassenstufe - Jahrgangsstufe nur im Wort Doppeljahrgangsstufen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Klassenstufen 1 und 2" ;
+    cur:recognitionHint "Titelblatt zwischen den Teilen und Kopfzeile Sachunterricht 1/2"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Klassenstufen 1 und 2" ;
+    cur:verified false .
+
+schul:re-DE-SL-0ff28ea796e9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 3-5"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:four-social ;
+    cur:negativeHint "Kompetenzbereich bedeutet hier Dimension - nicht Fachbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Lehrplan Sachunterricht unterscheidet die vier Kompetenzbereiche" ;
+    cur:recognitionHint "Vier Kompetenzbereiche im Vorwort"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sozialkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-SL-1761c333150b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Deutsch Gym 9 Seite 4"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "vgl. auch die Kompetenzbereiche Lesen – mit Texten und Medien umgehen" ;
+    cur:recognitionHint "vgl. + Pfeil + Name des Bereichs"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "vgl. auch die Kompetenzbereiche" ;
+    cur:verified false .
+
+schul:re-DE-SL-1b25d6e1f65e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-ib-themenfeld"@de,
+        "Länderrecherche, Beleg E: Informatik GemS 9 Seite 5"@de,
+        "Plangeneration laut Länderrecherche: ab 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Richtwerte nur grob - keine Reihenfolge"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Information und Daten ca. 55 %" ;
+    cur:recognitionHint "Tabelle mit Richtwert in Prozent"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themenfelder Klassenstufe 9" ;
+    cur:verified false .
+
+schul:re-DE-SL-2b1c7afb1832 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030141"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 11"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtsauftrag ;
+    cur:negativeHint "Auftrag an Lehrkraefte - verbindlich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Durchführung von mindestens zwei Unterrichtsgängen pro Schuljahr" ;
+    cur:recognitionHint "Kasten am Ende jedes Themenkomplexes"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorgaben zum Erwerb von Methodenkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-SL-32945c8b64ba a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002233"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 8 und 30"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Spalte enthaelt auch z.B.-Beispiele - keine verbindlichen Inhalte"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Zahnmodell z.B. aus Knete herstellen" ;
+    cur:recognitionHint "Rechte Spalte Grundschule"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorschläge / Hinweise zur Umsetzung" ;
+    cur:verified false .
+
+schul:re-DE-SL-362e94b07725 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: ZVO-GS § 5 (sehr gut: eine den Anforderungen in besonderem Maße entsprechende Leistung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ausreichend" ;
+    cur:verified false .
+
+schul:re-DE-SL-363e4b0dd7f1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-sa-qualifikationsphase"@de,
+        "Länderrecherche, Beleg E: APA Deutsch Seite 2"@de,
+        "Plangeneration laut Länderrecherche: ab 2018/19"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-qualifikation ;
+    cur:negativeHint "Qualifikationsphase wird im Saarland nicht verwendet"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "die beiden Jahrgangsstufen der Hauptphase der Oberstufe" ;
+    cur:recognitionHint "Wortlaut der Oberstufe"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptphase" ;
+    cur:verified false .
+
+schul:re-DE-SL-3707584dfa18 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Deutsch Gym 9 Seite 2 und Informatik GemS 9 Seite 3"@de,
+        "Plangeneration laut Länderrecherche: 2020 | 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zum Umgang mit dem Lehrplan" ;
+    cur:recognitionHint "Erlaeuterung der Spalten"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zum Umgang mit dem Lehrplan" ;
+    cur:verified false .
+
+schul:re-DE-SL-48fa90d30491 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002239"@de,
+        "Länderrecherche, Beleg E: Deutsch Gym 9 Seite 3 und Informatik GemS 9 Seite 8"@de,
+        "Plangeneration laut Länderrecherche: 2020 | 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Der Beispielsatz ist eine Zulassung (Hinweis) - nicht Erwartung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Unterrichtsgänge, die anstelle der Datenbanksprache SQL auf die Sprache Prolog zurückgreifen, sind ebenfalls zulässig." ;
+    cur:recognitionHint "Rechte Spalte bzw. Abschnitt"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorschläge und Hinweise" ;
+    cur:verified false .
+
+schul:re-DE-SL-4e261cf2ea91 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: ZVO-GS § 5 (sehr gut: eine den Anforderungen in besonderem Maße entsprechende Leistung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-SL-586dbd395f42 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030152"@de,
+        "Länderrecherche, Beleg E: Informatik GemS 9 Seite 8 und 11"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo qz:LanguageEducation,
+        schul:Hinweis ;
+    cur:negativeHint "Im Vorwort: erheben keinen Anspruch auf Verbindlichkeit (Seite 4)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Fachwortschatz: der Entscheidungsbaum ordnet jedem Objekt/Datensatz eine der Kategorien zu" ;
+    cur:recognitionHint "Kasten mit Beispielsaetzen und Fachwortschatz"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zum sprachsensiblen Unterricht" ;
+    cur:verified false .
+
+schul:re-DE-SL-67d28330c22b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-SL-714063f0513b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: ZVO-GS § 5 (sehr gut: eine den Anforderungen in besonderem Maße entsprechende Leistung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-SL-72c7e9ab5f42 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: ZVO-GS § 5 (sehr gut: eine den Anforderungen in besonderem Maße entsprechende Leistung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-SL-7e9ace2cd2be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030016"@de,
+        "Länderrecherche, Beleg E: Deutsch Gym 9 Seiten 3-6 (rechte Spalte)"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Im Textlayer Private Use Area - Aufzaehlung ist U+F0B7"@de ;
+    cur:positiveExample "Lehrplan 5/6: Rechtschreibstrategien" ;
+    cur:recognitionHint "Wingdings-Pfeil U+F0E0 vor Verweis auf anderen Lehrplan oder Kompetenzbereich"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "➔ (U+F0E0) Lehrplan 5/6: Rechtschreibstrategien" ;
+    cur:verified false .
+
+schul:re-DE-SL-8129afcde949 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 2-3 und Informatik GemS 9 Seite 2"@de,
+        "Plangeneration laut Länderrecherche: 2010 | 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verzeichnis ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Vorwort" ;
+    cur:recognitionHint "erstes Kapitel"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorwort" ;
+    cur:verified false .
+
+schul:re-DE-SL-86785ed04340 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Suchauszug Kernlehrplan Deutsch 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Democracy,
+        qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: keine Kuerzel; markiert: Querschnittsthemen laut Suchauszug"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Kernlehrplaene Grundschule 2026" ;
+    cur:verified false .
+
+schul:re-DE-SL-9119b8cfc6ad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 3-5"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:four-self ;
+    cur:negativeHint "Kompetenzbereich bedeutet hier Dimension - nicht Fachbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Lehrplan Sachunterricht unterscheidet die vier Kompetenzbereiche" ;
+    cur:recognitionHint "Vier Kompetenzbereiche im Vorwort"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Personalkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-SL-9747d2b408fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030154"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 6"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "mit dem Fach Mathematik: Maßeinheiten anwenden und berechnen" ;
+    cur:recognitionHint "Kapitel mit Fachlisten"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fächerverbindendes Arbeiten" ;
+    cur:verified false .
+
+schul:re-DE-SL-992994a2408a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030163"@de,
+        "Länderrecherche, Beleg S: Suchauszug Mathematik GemS 5/6 2025"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Didaktische Hintergründe | Digitale Werkzeuge" ;
+    cur:recognitionHint "Unterrubrik im Mathematikplan"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Digitale Werkzeuge" ;
+    cur:verified false .
+
+schul:re-DE-SL-9c7476ba4f6f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Informatik GemS 9 Seite 6"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhalt ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Komponenten und Alltagsbezug" ;
+    cur:recognitionHint "Linke Spalte"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-SL-9e7bd5b2ef6d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-sa-jahrgangsstufe"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 7 und 3"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Saarland sagt Klassenstufe - Jahrgangsstufe nur im Wort Doppeljahrgangsstufen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Klassenstufen 1 und 2" ;
+    cur:recognitionHint "Titelblatt zwischen den Teilen und Kopfzeile Sachunterricht 1/2"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Doppeljahrgangsstufen 1/2 und 3/4" ;
+    cur:verified false .
+
+schul:re-DE-SL-a5f09f3512f5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: ZVO-GS § 5 (sehr gut: eine den Anforderungen in besonderem Maße entsprechende Leistung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ungenügend" ;
+    cur:verified false .
+
+schul:re-DE-SL-aa2bd99a7680 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030062"@de,
+        "Länderrecherche, Beleg E: Deutsch Gym 9 Seite 3"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Eher Rahmen als Erwartung - Nominalisierte Infinitive ohne Satzstamm"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "kennen und anwenden verschiedener Schreibformen" ;
+    cur:recognitionHint "Vorspann je Kompetenzbereich mit Aufzaehlung"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verbindliche fachspezifische Fertigkeiten/Fähigkeiten und fachspezifische Methoden" ;
+    cur:verified false .
+
+schul:re-DE-SL-b14bbb304cf8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 11"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Mit ACHTUNG: eingeleitet - sicherheitsrelevant"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Beim Umgang mit Pflanzen und Tieren Hygiene, Allergien und Naturschutzbestimmungen beachten!" ;
+    cur:recognitionHint "Kasten unter Vorgaben zum Erwerb von Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise" ;
+    cur:verified false .
+
+schul:re-DE-SL-b2f63a8bd965 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Informatik GemS 9 Seiten 8, 11 und 12"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: Chilischote(n) 1 bis 4 (Grafik - kein Unicode-Zeichen im Textlayer); markiert: Randsymbole neben Sprachbausteinen und Anhang"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprachsensibler Fachunterricht" ;
+    cur:verified false .
+
+schul:re-DE-SL-b5721bdb7c48 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-nv-ea | schul:cue-nv-ga"@de,
+        "Länderrecherche, Beleg E: APA Deutsch Seite 2"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "erhoehtes oder grundlegendes Anforderungsniveau wurde nicht gefunden"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Im Grundkurs sind die Anforderungsbereiche I und II im Leistungskurs II und III stärker zu akzentuieren" ;
+    cur:recognitionHint "Kursarten der Oberstufe"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundkurs" ;
+    cur:verified false .
+
+schul:re-DE-SL-bc921a2a4051 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-hw-bietetsichan"@de,
+        "Länderrecherche, Beleg E: Informatik GemS 9 Seite 10 und Sachunterricht GS Seite 3"@de,
+        "Plangeneration laut Länderrecherche: 2010 | 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Als browserbasierte Software zur schrittweisen Entwicklung und Durchführung des Lernalgorithmus empfiehlt sich CODAP." ;
+    cur:recognitionHint "Hinweisformel"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "empfiehlt sich" ;
+    cur:verified false .
+
+schul:re-DE-SL-c1922ce94559 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: saarland.de Basiscurriculum.pdf"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: sechs Kompetenzbereiche nach NRW-Medienkompetenzrahmen (laut Suchauszug); markiert: Einarbeitung ueber Lehrplankommissionen in alle Fachlehrplaene (Suchauszug)"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Basiscurriculum Medienbildung und informatische Bildung Klassenstufen 1 bis 10" ;
+    cur:verified false .
+
+schul:re-DE-SL-d6392aa8a99b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Informatik GemS 9 Seiten 2-4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: keine Kuerzel; markiert: Vorwort und Abschnitt Zum Umgang mit dem Lehrplan - Querschnittsthemen werden laut Seite 3 passend integriert ohne explizit ausgewiesen zu werden"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querschnittsthemen im Vorwort Gemeinschaftsschule 2025" ;
+    cur:verified false .
+
+schul:re-DE-SL-d818e2cb2543 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-rt-operatoren"@de,
+        "Länderrecherche, Beleg E: APA Deutsch Seite 1 (Inhaltsuebersicht)"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Operatoren stehen im Wortlaut Beschreiben Sie - Erfassen Sie"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anlage 1: Grundstock von Operatoren" ;
+    cur:recognitionHint "Anlage 1 der APA"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundstock von Operatoren" ;
+    cur:verified false .
+
+schul:re-DE-SL-db7448e952cc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seite 2 und 41"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Sachunterricht ist ein nichtschriftliches Fach"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zur Leistungsfeststellung" ;
+    cur:recognitionHint "Schlusskapitel"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zur Leistungsfeststellung" ;
+    cur:verified false .
+
+schul:re-DE-SL-e0df792e5524 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002233"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS Seite 8 und 30"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Spalte enthaelt auch z.B.-Beispiele - keine verbindlichen Inhalte"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Zahnmodell z.B. aus Knete herstellen" ;
+    cur:recognitionHint "Rechte Spalte Grundschule"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zur Umsetzung" ;
+    cur:verified false .
+
+schul:re-DE-SL-e52b00f44d39 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030149"@de,
+        "Länderrecherche, Beleg E: Informatik GemS 9 Seite 7 und 10"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo qz:CareerOrientation ;
+    cur:negativeHint "Auch Querschnittsthema im Vorwort (Seite 4)- das Zeilenlabel markiert die zugehoerige Erwartung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "recherchieren Berufsfelder und Berufsbiografien mit Bezug zu Datenbanksystemen bzw. Datenbankadministration." ;
+    cur:recognitionHint "Zeilenlabel in der Kompetenztabelle"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufliche Orientierung" ;
+    cur:verified false .
+
+schul:re-DE-SL-ed297fc06b35 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Suchauszug Schengen-Lyzeum"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "ARBEITSPLAN MATHEMATIK KLASSENSTUFEN: 5, 6, 7, 8, 9 APRIL 2013" ;
+    cur:recognitionHint "Titel der Plaene des Schengen-Lyzeums"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Arbeitsplan" ;
+    cur:verified false .
+
+schul:re-DE-SL-f4d9f39fdcd6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS Seiten 19 und 39"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:recognitionHint "Kürzel oder Symbol: Praefix Verkehrserziehung: | Umwelterziehung:; markiert: Praefix in Kompetenzerwartung und eigenes Themenfeld im Themenkomplex Individuum Gruppe und Gesellschaft"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verkehrserziehung und Umwelterziehung in der Grundschule" ;
+    cur:verified false .
+
+schul:re-DE-SL-fb1222879710 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SL.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Informatik GemS 9 Seiten 7 und 10"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:CareerOrientation ;
+    cur:recognitionHint "Kürzel oder Symbol: Zeilenlabel Berufliche Orientierung; markiert: Letzte Zeile je Themenfeld in der Tabelle Inhalte | Kompetenzerwartungen"@de ;
+    cur:scopeRegion land:DE-SL ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufliche Orientierung" ;
+    cur:verified false .
+

@@ -1,0 +1,513 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-NW-03b380029dbc,
+        schul:re-DE-NW-0e2794728e9d,
+        schul:re-DE-NW-104e3b092aa5,
+        schul:re-DE-NW-18dae8e80eaf,
+        schul:re-DE-NW-336cbe590476,
+        schul:re-DE-NW-36e2926ce8af,
+        schul:re-DE-NW-3e69cd3d4ef5,
+        schul:re-DE-NW-483255470435,
+        schul:re-DE-NW-4b42fcdca62b,
+        schul:re-DE-NW-4dc0843a7bb8,
+        schul:re-DE-NW-5a5f34c6b1e9,
+        schul:re-DE-NW-5d3abade54b7,
+        schul:re-DE-NW-603a36edee5c,
+        schul:re-DE-NW-62b1e7274af8,
+        schul:re-DE-NW-66f05af834a1,
+        schul:re-DE-NW-6c44d5dcc756,
+        schul:re-DE-NW-6c507867f243,
+        schul:re-DE-NW-75fac01fc661,
+        schul:re-DE-NW-7a496d038b54,
+        schul:re-DE-NW-7d774e8eed6f,
+        schul:re-DE-NW-81db81d4ccd2,
+        schul:re-DE-NW-82bfa0814da5,
+        schul:re-DE-NW-8458a97f4c6a,
+        schul:re-DE-NW-88b7869f40aa,
+        schul:re-DE-NW-a99f4d085279,
+        schul:re-DE-NW-b06b05f3bbda,
+        schul:re-DE-NW-b1da984da495,
+        schul:re-DE-NW-bec16f28cc07,
+        schul:re-DE-NW-cf1011085ac3,
+        schul:re-DE-NW-d3d6d33c92b3,
+        schul:re-DE-NW-da0faa52960d,
+        schul:re-DE-NW-e07d09ac3d0d,
+        schul:re-DE-NW-faafca46ee34 .
+
+schul:re-DE-NW-03b380029dbc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-GOSt-Phy-2022 S. 59"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Pruefungsvorgabe ;
+    cur:negativeHint "jährliche „Vorgaben für die schriftlichen Abiturprüfungen“ sind eigenes Dokument"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "4 Abiturprüfung",
+        "drei Anforderungsbereiche" ;
+    cur:recognitionHint "Kapitel 4 nur Sek II"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Abiturprüfung" ;
+    cur:verified false .
+
+schul:re-DE-NW-0e2794728e9d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: LP-PS-SU-2021 PDF S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "nicht „Kernlehrplan“"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrplan für die Primarstufe in Nordrhein-Westfalen" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan für die Primarstufe" ;
+    cur:verified false .
+
+schul:re-DE-NW-104e3b092aa5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-GOSt-Phy-2022 S. 12"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Experiment ;
+    cur:negativeHint "-"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kontexten und Schlüsselexperimenten (kursiv hervorgehoben)" ;
+    cur:recognitionHint "Kursivdruck im Grundkurs"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schlüsselexperimente (kursiv hervorgehoben)" ;
+    cur:verified false .
+
+schul:re-DE-NW-18dae8e80eaf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 10"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: keine Kürzel; markiert: Fließtextabsatz Kapitel 1"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprache im Fach" ;
+    cur:verified false .
+
+schul:re-DE-NW-336cbe590476 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RL-2024 S. 1 3"@de,
+        "Plangeneration laut Länderrecherche: 2024 (ab 01.08.2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Rahmendokument ;
+    cur:negativeHint "ältere Schulform-Richtlinien (1989-1999) gelten bis 31.07.2025 fort"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Richtlinien – Bildungs- und Erziehungsgrundsätze für die allgemeinbildenden Schulen" ;
+    cur:recognitionHint "Titel plus Auszug Amtsblatt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtlinien" ;
+    cur:verified false .
+
+schul:re-DE-NW-36e2926ce8af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030075"@de,
+        "Länderrecherche, Beleg E: LP-PS-M-2021 gedr. S. 72 (PDF S. 2) und KLP-GesS-GL-2020 S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2021 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "als Wort „Inhalt“ allein ist es keine Ebene - „zentrale Inhalte“ in Generation 2011"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.2 Inhalte",
+        "Kompetenzen und Inhalte bis zum Ende der Jahrgangsstufe 6" ;
+    cur:recognitionHint "Bereichsüberschrift 2.2 und Kapitelwort"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-NW-3e69cd3d4ef5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: VB-Integration-SU-2022 S. 1-2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:ConsumerEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: „VB Ü, Z1“ „VB A, Z 1-6“ „VB B“ „VB C“ „VB D“; markiert: am Satzende in Klammern in der Tabelle des Zusatzdokuments"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenvorgabe Verbraucherbildung" ;
+    cur:verified false .
+
+schul:re-DE-NW-483255470435 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Leistungskurs" ;
+    cur:verified false .
+
+schul:re-DE-NW-4b42fcdca62b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-M-2019 S. 6 28"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "nicht gleich Doppeljahrgang"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.4.1 Erste Stufe" ;
+    cur:recognitionHint "„2.4.1 Erste Stufe“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erste Stufe" ;
+    cur:verified false .
+
+schul:re-DE-NW-4dc0843a7bb8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-GesS-NW-2011 S. 13"@de,
+        "Länderrecherche, Beleg E: KLP-GesS-NW-2011 S. 14"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:CareerOrientation,
+        qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: Fußnote „2“; markiert: Fußnote im Fließtext Kapitel 1"@de,
+        "Kürzel oder Symbol: Fußnoten „3“ „4“; markiert: Fließtext Kapitel 1"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gesamtschule Naturwissenschaften" ;
+    cur:verified false .
+
+schul:re-DE-NW-5a5f34c6b1e9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: APO-S I S. 13 ff."@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-G ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundkurse" ;
+    cur:verified false .
+
+schul:re-DE-NW-5d3abade54b7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: LP-PS-SU-2021 gedr. S. 185"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Klassen 1/2"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Kompetenzerwartungen am Ende der Schuleingangsphase" ;
+    cur:recognitionHint "Spaltenkopf"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schuleingangsphase" ;
+    cur:verified false .
+
+schul:re-DE-NW-603a36edee5c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Navigator Seite Vorgaben sonderpädagogische Förderung"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Sonderpaedagogisch ;
+    cur:negativeHint "Aufbau nicht geprüft"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Unterrichtsvorgaben Naturwissenschaftlicher Unterricht (Biologie Chemie Physik)" ;
+    cur:recognitionHint "Titel im Sonderpädagogik-Bereich des Navigators"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Unterrichtsvorgaben" ;
+    cur:verified false .
+
+schul:re-DE-NW-62b1e7274af8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 10"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:Diversity,
+        qz:Intercultural,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: keine Kürzel; markiert: Fließtext Kapitel 1"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querschnittsaufgaben" ;
+    cur:verified false .
+
+schul:re-DE-NW-66f05af834a1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: APO-S I S. 13 ff."@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-E ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erweiterungskurse" ;
+    cur:verified false .
+
+schul:re-DE-NW-6c44d5dcc756 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 6 20"@de,
+        "Plangeneration laut Länderrecherche: 2019 und 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Pendant „Schuleingangsphase“ in Primarstufe"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "bis zum Ende der Erprobungsstufe" ;
+    cur:recognitionHint "Kapitel 2.2"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erprobungsstufe" ;
+    cur:verified false .
+
+schul:re-DE-NW-6c507867f243 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MKR-Integration-SU-2022 S. 1-2"@de,
+        "Länderrecherche, Beleg S: https://www.medienkompetenzrahmen.nrw/"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Bereiche 1-6; markiert: Poster und Broschüre"@de,
+        "Kürzel oder Symbol: „MKR 1.1“ bis „MKR 6.4“ (z. B. „(MKR 2.1, 2.2)“); markiert: am Satzende in Klammern in der Tabelle „Bereich | Am Ende der SEP | Am Ende der Klasse 4“ - nicht im Fachplan selbst"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Medienkompetenzrahmen NRW (MKR)" ;
+    cur:verified false .
+
+schul:re-DE-NW-75fac01fc661 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ungenügend (6)" ;
+    cur:verified false .
+
+schul:re-DE-NW-7a496d038b54 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: RV-VB-2017 und VB-Integration-SU-2022"@de,
+        "Plangeneration laut Länderrecherche: 2017"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:negativeHint "nicht Teil des Fachplans"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Rahmenvorgabe Verbraucherbildung" ;
+    cur:recognitionHint "Titel „Rahmenvorgabe Verbraucherbildung“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Rahmenvorgabe" ;
+    cur:verified false .
+
+schul:re-DE-NW-7d774e8eed6f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ausreichend (4)" ;
+    cur:verified false .
+
+schul:re-DE-NW-81db81d4ccd2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: LP-PS-SU-2021 gedr. S. 179 183"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: keine; markiert: Fließtext Kapitel 1 und Bereich „Technik, digitale Technologien und Arbeit“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Primarstufe Sachunterricht" ;
+    cur:verified false .
+
+schul:re-DE-NW-82bfa0814da5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "gut (2)" ;
+    cur:verified false .
+
+schul:re-DE-NW-8458a97f4c6a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: LP-PS-SU-2021 gedr. S. 179-180"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:ConsumerEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: keine Kürzel; markiert: Fließtext Kapitel 1 als Aufzählung"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querschnittsaufgaben (Primarstufe)" ;
+    cur:verified false .
+
+schul:re-DE-NW-88b7869f40aa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-RS-Phy-2011 S. 19"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Zeitpunkt hängt vom Organisationsmodell ab - keine Klassenangabe"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "erste Progressionsstufe",
+        "zweite Progressionsstufe" ;
+    cur:recognitionHint "Kapitel „erste/zweite Progressionsstufe“"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Progressionsstufe" ;
+    cur:verified false .
+
+schul:re-DE-NW-a99f4d085279 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "mangelhaft (5)" ;
+    cur:verified false .
+
+schul:re-DE-NW-b06b05f3bbda a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 20"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:UebergeordneteKompetenzerwartung ;
+    cur:negativeHint "in Generation 2011 „übergeordnete Kompetenzen“ bzw. „Übergeordnete Kompetenzerwartungen – erste Progressionsstufe“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "zunächst übergeordnete Kompetenzerwartungen zu allen Kompetenzbereichen" ;
+    cur:recognitionHint "Kürzel UF1 E1 K1 B1"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "übergeordnete Kompetenzerwartungen" ;
+    cur:verified false .
+
+schul:re-DE-NW-b1da984da495 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Grundkurs" ;
+    cur:verified false .
+
+schul:re-DE-NW-bec16f28cc07 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030006"@de,
+        "Länderrecherche, Beleg E: KLP-RS-Phy-2011 S. 22 und KLP-GesS-NW-2011 S. 31"@de,
+        "Plangeneration laut Länderrecherche: nur Generation 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Singular „Möglicher Kontext“ nicht vorhanden - Gym 2019: „Lernen in Kontexten“ ist verbindlich, Kontexte legen die Lehrkräfte fest (S. 9)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Inhaltliche Schwerpunkte | Mögliche Kontexte",
+        "Vorschläge für mögliche Kontexte" ;
+    cur:recognitionHint "Spaltenkopf rechts neben den Inhaltlichen Schwerpunkten"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mögliche Kontexte" ;
+    cur:verified false .
+
+schul:re-DE-NW-cf1011085ac3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "sehr gut (1)" ;
+    cur:verified false .
+
+schul:re-DE-NW-d3d6d33c92b3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: § 48 Abs. 3 SchulG"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "befriedigend (3)" ;
+    cur:verified false .
+
+schul:re-DE-NW-da0faa52960d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 22"@de,
+        "Plangeneration laut Länderrecherche: alle"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:KonkretisierteKompetenzerwartung ;
+    cur:negativeHint "Kommunikation nur übergeordnet"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "ergeben sich die nachfolgenden konkretisierten Kompetenzerwartungen" ;
+    cur:recognitionHint "nach Bezugnahme auf Schwerpunkte"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "konkretisierte Kompetenzerwartungen" ;
+    cur:verified false .
+
+schul:re-DE-NW-e07d09ac3d0d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 3 und S. 7"@de,
+        "Plangeneration laut Länderrecherche: alle"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Schulintern ;
+    cur:negativeHint "Ministeriumsbeispiele (DOCX) sind „Umsetzungsbeispiel“"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "schuleigene Vorgaben",
+        "schulinterne Lehrpläne" ;
+    cur:recognitionHint "Vorwort und Kapitel 2"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "schulinterne Lehrpläne" ;
+    cur:verified false .
+
+schul:re-DE-NW-faafca46ee34 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KLP-Gym-SI-Phy-2019 S. 46"@de,
+        "Plangeneration laut Länderrecherche: alle"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "-"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3 Lernerfolgsüberprüfung und Leistungsbewertung" ;
+    cur:recognitionHint "Kapitel 3 (Primarstufe: „Leistungen fördern und bewerten“)"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernerfolgsüberprüfung und Leistungsbewertung" ;
+    cur:verified false .
+

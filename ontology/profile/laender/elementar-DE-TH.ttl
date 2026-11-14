@@ -1,0 +1,552 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-TH-0b474479356b,
+        elem:re-DE-TH-12a1fd9262da,
+        elem:re-DE-TH-12c2f3099c53,
+        elem:re-DE-TH-16fa48b3f6aa,
+        elem:re-DE-TH-17d7fca8b986,
+        elem:re-DE-TH-28bb5030f7a1,
+        elem:re-DE-TH-45838b968aa9,
+        elem:re-DE-TH-4b64c457dd29,
+        elem:re-DE-TH-4c74d36026d5,
+        elem:re-DE-TH-4e8d61a40eaa,
+        elem:re-DE-TH-4fe33f1374a1,
+        elem:re-DE-TH-6221f35d957c,
+        elem:re-DE-TH-63f3301e3706,
+        elem:re-DE-TH-687aece999f3,
+        elem:re-DE-TH-6fe661a71fbf,
+        elem:re-DE-TH-7d5c7cd48e1a,
+        elem:re-DE-TH-7f1ea5b079d1,
+        elem:re-DE-TH-9b445d5b96fe,
+        elem:re-DE-TH-a2730497a7db,
+        elem:re-DE-TH-a27e74fada5b,
+        elem:re-DE-TH-ab500cdd2def,
+        elem:re-DE-TH-b7a1ce3a4acf,
+        elem:re-DE-TH-bcc24e4b7794,
+        elem:re-DE-TH-bff603324cc2,
+        elem:re-DE-TH-c1085db46b97,
+        elem:re-DE-TH-c8ae7546b0ff,
+        elem:re-DE-TH-d55a3c58e2ae,
+        elem:re-DE-TH-e66daaf83fb8,
+        elem:re-DE-TH-e7eadbba693b,
+        elem:re-DE-TH-ea9d5a97e0d6,
+        elem:re-DE-TH-f0c7a414ddd0,
+        elem:re-DE-TH-f38d74195397,
+        elem:re-DE-TH-f5bdcde946b7 .
+
+elem:re-DE-TH-0b474479356b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 10"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "1 Bildungswissenschaftliche Grundlagen" ;
+    cur:recognitionHint "Kapitel 1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungswissenschaftliche Grundlagen" ;
+    cur:verified false .
+
+elem:re-DE-TH-12a1fd9262da a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-subject ;
+    cur:negativeHint "Spaltenkopf ohne das Wort Dimension"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "sachlich" ;
+    cur:recognitionHint "Spaltenkopf. Im Fließtext sachliche Dimension"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sachlich" ;
+    cur:verified false .
+
+elem:re-DE-TH-12c2f3099c53 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 27"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-resilience ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterpunkt von 1.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Umgang mit widrigen Lebensumständen – Resilienz" ;
+    cur:verified false .
+
+elem:re-DE-TH-16fa48b3f6aa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 143 | S. 233"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:set-hort ;
+    cur:negativeHint "Keine Hort-spezifischen Aussagen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kindertageseinrichtungen, Hort, Grundschule, Musikverein und Musikschule" ;
+    cur:recognitionHint "Nennungen in Aufzählungen von Bildungsorten, kein eigenes Kapitel"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hort" ;
+    cur:verified false .
+
+elem:re-DE-TH-17d7fca8b986 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 42"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:p-spiel ;
+    cur:negativeHint "Zusatzinformation, kein Leitprinzip"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterpunkt von 1.6 Zusatzinformationen"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Entwicklung und Formen des kindlichen Spiels" ;
+    cur:verified false .
+
+elem:re-DE-TH-28bb5030f7a1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 6 | S. 282-285"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Anhang bzw. Kapitelende"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Literatur" ;
+    cur:verified false .
+
+elem:re-DE-TH-45838b968aa9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 38"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderschutz ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterpunkt von 1.5"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder- und Jugendschutz" ;
+    cur:verified false .
+
+elem:re-DE-TH-4b64c457dd29 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 267"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Perspektiven, keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Perspektiven auf pädagogische Qualität in Kap. 3.1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungsqualität" ;
+    cur:verified false .
+
+elem:re-DE-TH-4c74d36026d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 32"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:set-kindertagespflege ;
+    cur:negativeHint "Das Wort Kindertagespflege kommt im Plan nicht vor"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "In Krabbelgruppen und auf Spielplätzen, in Tagespflegestellen oder in Kindertageseinrichtungen" ;
+    cur:recognitionHint "Nur in der Aufzählung früher Bildungsorte, kein eigenes Kapitel"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Tagespflegestellen" ;
+    cur:verified false .
+
+elem:re-DE-TH-4e8d61a40eaa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "Spaltenkopf ohne das Wort Dimension"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "personal" ;
+    cur:recognitionHint "Spaltenkopf. Im Fließtext personale Dimension"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "personal" ;
+    cur:verified false .
+
+elem:re-DE-TH-4fe33f1374a1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 38"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderrechte ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "1.5" ;
+    cur:recognitionHint "Kapitel 1.5 mit Unterpunkten Kinder- und Jugendschutz | Teilhabe und Mitbestimmung (Partizipation)"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder- und Jugendrechte" ;
+    cur:verified false .
+
+elem:re-DE-TH-6221f35d957c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 6 | S. 282-285"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Anhang bzw. Kapitelende"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Glossar" ;
+    cur:verified false .
+
+elem:re-DE-TH-63f3301e3706 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 18 | S. 56"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Impuls ;
+    cur:negativeHint "Aufzählungen nach Satzkopf. Ähnlich: gelingen in Umwelten, in denen: | schließen Möglichkeiten ein:"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Basale sprachliche und schriftsprachliche Bildungsprozesse werden angeregt durch:" ;
+    cur:recognitionHint "Zeilenkopf dritte Ebene. Zellen sind Aufzählungen mit Aufzählungszeichen"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Welche konkreten Lernarrangements können ermöglicht werden?" ;
+    cur:verified false .
+
+elem:re-DE-TH-687aece999f3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 7"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Erster Punkt im Inhaltsverzeichnis, ohne Nummer"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einleitung" ;
+    cur:verified false .
+
+elem:re-DE-TH-6fe661a71fbf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 40"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterpunkt von 1.5"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teilhabe und Mitbestimmung (Partizipation)" ;
+    cur:verified false .
+
+elem:re-DE-TH-7d5c7cd48e1a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 31"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-uebergaenge ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "1.4" ;
+    cur:recognitionHint "Kapitel 1.4 mit Unterpunkten Von der Familie in die Institutionen frühkindlicher Bildung | Von den Institutionen frühkindlicher Bildung in die Schule | Innerschulische Übergänge | Von der Schule in die nachschulische Bildung | Übergänge zwischen den Lebensbereichen"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gestaltung von Übergängen" ;
+    cur:verified false .
+
+elem:re-DE-TH-7f1ea5b079d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-subject ;
+    cur:negativeHint "Muster der Vorliste nur im Fließtext wirksam. Tabellenkopf per Adjektiv erkennen"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:recognitionHint "Spaltenköpfe sind nur die Adjektive. Das Muster ^(personale|soziale|sachliche) (Bildungs)?[Dd]imension$ trifft daher keinen Tabellenkopf"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sachlich" ;
+    cur:verified false .
+
+elem:re-DE-TH-9b445d5b96fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 48"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "2 Bildungsbereiche" ;
+    cur:recognitionHint "Kapitel 2 bündelt die zehn Bereiche"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-TH-a2730497a7db a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "Muster der Vorliste nur im Fließtext wirksam. Tabellenkopf per Adjektiv erkennen"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:recognitionHint "Spaltenköpfe sind nur die Adjektive. Das Muster ^(personale|soziale|sachliche) (Bildungs)?[Dd]imension$ trifft daher keinen Tabellenkopf"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "personal" ;
+    cur:verified false .
+
+elem:re-DE-TH-a27e74fada5b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 173"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:set-kindergarten,
+        elem:set-krippe ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "in der Frühpädagogik in Krippen und Kindergärten" ;
+    cur:recognitionHint "Einmalige Nennung im Bereich Künstlerisch-ästhetische Bildung"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Krippen und Kindergärten" ;
+    cur:verified false .
+
+elem:re-DE-TH-ab500cdd2def a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 9"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Die Begriffe werden synonym verwendet. Aufgaben stehen nicht als Anrede oder Imperativ"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "das professionelle Personal ... als pädagogisch Tätige bzw. Pädagog_innen bezeichnet" ;
+    cur:recognitionHint "Sammelbezeichnung für Personal in Kita, Schule und außerschulischer Bildung. Keine Aufgabensätze in der Form Pädagogische Fachkräfte"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "pädagogisch Tätige" ;
+    cur:verified false .
+
+elem:re-DE-TH-b7a1ce3a4acf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 23"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:p-geschlechtersensibel ;
+    cur:negativeHint "Vielfalt der Geschlechter, nicht Sexualbildung"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterpunkt von 1.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Geschlechtliche und sexuelle Vielfalt" ;
+    cur:verified false .
+
+elem:re-DE-TH-bcc24e4b7794 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 267"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Perspektiven, keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Perspektiven auf pädagogische Qualität in Kap. 3.1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wirkungsqualität" ;
+    cur:verified false .
+
+elem:re-DE-TH-bff603324cc2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 267"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Perspektiven, keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Perspektiven auf pädagogische Qualität in Kap. 3.1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Strukturqualität" ;
+    cur:verified false .
+
+elem:re-DE-TH-c1085db46b97 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 267"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Perspektiven, keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Perspektiven auf pädagogische Qualität in Kap. 3.1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Prozessqualität" ;
+    cur:verified false .
+
+elem:re-DE-TH-c8ae7546b0ff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-social ;
+    cur:negativeHint "Spaltenkopf ohne das Wort Dimension"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "sozial" ;
+    cur:recognitionHint "Spaltenkopf. Im Fließtext soziale Dimension"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sozial" ;
+    cur:verified false .
+
+elem:re-DE-TH-d55a3c58e2ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 8"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-kita ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "in der Kindertageseinrichtung, in der Schule, im Museum, im Verein" ;
+    cur:recognitionHint "Bildungsort neben Schule und anderen Orten"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kindertageseinrichtung" ;
+    cur:verified false .
+
+elem:re-DE-TH-e66daaf83fb8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 9"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Die Begriffe werden synonym verwendet. Aufgaben stehen nicht als Anrede oder Imperativ"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "das professionelle Personal ... als pädagogisch Tätige bzw. Pädagog_innen bezeichnet" ;
+    cur:recognitionHint "Sammelbezeichnung für Personal in Kita, Schule und außerschulischer Bildung. Keine Aufgabensätze in der Form Pädagogische Fachkräfte"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagog_innen" ;
+    cur:verified false .
+
+elem:re-DE-TH-e7eadbba693b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 6 | S. 282-285"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Anhang bzw. Kapitelende"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beteiligte" ;
+    cur:verified false .
+
+elem:re-DE-TH-ea9d5a97e0d6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 5 | S. 21"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:negativeHint "Grundlagenkapitel, keine Bereichsebene"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "1.2" ;
+    cur:recognitionHint "Kapitel 1.2 mit Unterpunkten Vielfalt und inklusives Bildungsverständnis | Geschlechtliche und sexuelle Vielfalt | Sozioökonomische Vielfalt | Soziokulturelle Vielfalt | Vielfalt von Weltanschauung und Religiosität"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Individuelle und soziale Vielfalt – Umgang mit Heterogenität" ;
+    cur:verified false .
+
+elem:re-DE-TH-f0c7a414ddd0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 10"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:p-ko-konstruktion ;
+    cur:negativeHint "Begriff im Kasten, kein Kapitel"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Kinder und Jugendliche lernen in einem gemeinsamen sozialen Austausch mit anderen" ;
+    cur:recognitionHint "Begriffskasten im Überblick zum Bildungsverständnis"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ko-Konstruktion" ;
+    cur:verified false .
+
+elem:re-DE-TH-f38d74195397 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 18 | S. 58"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsanspruch ;
+    cur:negativeHint "Leitfrage als Zeilenkopf, Zelleninhalt beschreibend. Nicht als Ziel mit Satzanfang Das Kind"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Sprachliche Interaktionen gelingen angstfrei, gelassen" ;
+    cur:recognitionHint "Zeilenkopf zweite Ebene der Tabelle. Zellen beschreiben Ansprüche in Fließtext"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Welche Ansprüche haben Kinder und Jugendliche auf Bildung?" ;
+    cur:verified false .
+
+elem:re-DE-TH-f5bdcde946b7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-th-dimension"@de,
+        "Länderrecherche, Beleg E: S. 18 | S. 55"@de,
+        "Plangeneration laut Länderrecherche: Stand Dezember 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-social ;
+    cur:negativeHint "Muster der Vorliste nur im Fließtext wirksam. Tabellenkopf per Adjektiv erkennen"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:recognitionHint "Spaltenköpfe sind nur die Adjektive. Das Muster ^(personale|soziale|sachliche) (Bildungs)?[Dd]imension$ trifft daher keinen Tabellenkopf"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sozial" ;
+    cur:verified false .
+

@@ -1,0 +1,1334 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-HE-029a94839703,
+        elem:re-DE-HE-02c305f8d194,
+        elem:re-DE-HE-038b8ad0c885,
+        elem:re-DE-HE-04dc90ee96f8,
+        elem:re-DE-HE-0810b010e35a,
+        elem:re-DE-HE-0aee64274049,
+        elem:re-DE-HE-0b47095577a5,
+        elem:re-DE-HE-132fc5d392cf,
+        elem:re-DE-HE-147edf544a3d,
+        elem:re-DE-HE-168c2fd95465,
+        elem:re-DE-HE-1713a8afd72d,
+        elem:re-DE-HE-1934dbb4dcb6,
+        elem:re-DE-HE-1e8a71381784,
+        elem:re-DE-HE-213df4ba580e,
+        elem:re-DE-HE-22b2aea40517,
+        elem:re-DE-HE-2c401ae0c7e5,
+        elem:re-DE-HE-35dedfc9dae0,
+        elem:re-DE-HE-363517eb0a72,
+        elem:re-DE-HE-36473afbbebf,
+        elem:re-DE-HE-3dc2b99d97fb,
+        elem:re-DE-HE-3f59a6503e68,
+        elem:re-DE-HE-46a54183af1a,
+        elem:re-DE-HE-4d61af0e46b3,
+        elem:re-DE-HE-4e9e1a9d191f,
+        elem:re-DE-HE-54c7433d7a7b,
+        elem:re-DE-HE-59563db892bb,
+        elem:re-DE-HE-5db1122985e4,
+        elem:re-DE-HE-5f37cd7d1ab6,
+        elem:re-DE-HE-5f64840e9967,
+        elem:re-DE-HE-62c7dae0b6bc,
+        elem:re-DE-HE-65ad5bf488c0,
+        elem:re-DE-HE-66854861353d,
+        elem:re-DE-HE-685fef8f2c42,
+        elem:re-DE-HE-6d7656f34560,
+        elem:re-DE-HE-6edb2aa73827,
+        elem:re-DE-HE-70934c1d2391,
+        elem:re-DE-HE-719c364e932f,
+        elem:re-DE-HE-74440bce2127,
+        elem:re-DE-HE-796cabd957d3,
+        elem:re-DE-HE-7a194505663a,
+        elem:re-DE-HE-81b28ec52080,
+        elem:re-DE-HE-8304165f1bec,
+        elem:re-DE-HE-872fa8baa96a,
+        elem:re-DE-HE-8cd529e289cc,
+        elem:re-DE-HE-8e6c21edebbb,
+        elem:re-DE-HE-90580c7682fc,
+        elem:re-DE-HE-944809d2f7e3,
+        elem:re-DE-HE-980f6618a817,
+        elem:re-DE-HE-985313f8c32f,
+        elem:re-DE-HE-9e402055354a,
+        elem:re-DE-HE-9fdeb2065c29,
+        elem:re-DE-HE-9ffb378f4892,
+        elem:re-DE-HE-a62a5b473c04,
+        elem:re-DE-HE-a86ffe06431d,
+        elem:re-DE-HE-b13091dad134,
+        elem:re-DE-HE-b322ac55d218,
+        elem:re-DE-HE-b5e79696cf8f,
+        elem:re-DE-HE-ba5d54367539,
+        elem:re-DE-HE-bc294af37733,
+        elem:re-DE-HE-bdafd1277b81,
+        elem:re-DE-HE-be2b01a9b22f,
+        elem:re-DE-HE-bfd3c7710880,
+        elem:re-DE-HE-c82f36088a9c,
+        elem:re-DE-HE-c892ffb510e6,
+        elem:re-DE-HE-c931b5e8cb4d,
+        elem:re-DE-HE-d10a7008ee06,
+        elem:re-DE-HE-d3867403473b,
+        elem:re-DE-HE-d5e32f6f2b5b,
+        elem:re-DE-HE-d6e480d4c3e9,
+        elem:re-DE-HE-da9d7ee491d5,
+        elem:re-DE-HE-eb85376247b4,
+        elem:re-DE-HE-ebafad77fcc4,
+        elem:re-DE-HE-ebfa3a4541ce,
+        elem:re-DE-HE-ec4d3109494a,
+        elem:re-DE-HE-edd4e9db6ebe,
+        elem:re-DE-HE-f2eef9fa4dd6,
+        elem:re-DE-HE-f79f7e8aee6a,
+        elem:re-DE-HE-f8f2c2ec8d80,
+        elem:re-DE-HE-f9ec7b7120e3,
+        elem:re-DE-HE-fcd860db3087,
+        elem:re-DE-HE-ff29061241e3 .
+
+elem:re-DE-HE-029a94839703 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 64–65"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-lebenspraxis ;
+    cur:negativeHint "In den Lupen Alltag und Lebenspraxis"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Starke Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lebenspraxis" ;
+    cur:verified false .
+
+elem:re-DE-HE-02c305f8d194 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 63"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Selbstkonzept und Motivation sind hier Aspekte und keine Kompetenzdimensionen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fünf Zwischenüberschriften in Bewegung und Sport"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motivation" ;
+    cur:verified false .
+
+elem:re-DE-HE-038b8ad0c885 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 61"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-koerperwahrnehmung-sexualitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fette Zwischenüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sexualität" ;
+    cur:verified false .
+
+elem:re-DE-HE-04dc90ee96f8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 124"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Literatur, Glossar, Autorenverzeichnis"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil 4 Anhang" ;
+    cur:verified false .
+
+elem:re-DE-HE-0810b010e35a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 41–42"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "Oberbegriff für die personale Dimension"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt mit Personale | Motivation betreffende | Emotionale | Kognitive | Körperbezogene Kompetenzen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Individuumsbezogene Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-0aee64274049 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Verständnis von Bildung" ;
+    cur:verified false .
+
+elem:re-DE-HE-0b47095577a5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 118"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Innovationsfähigkeit und Bildungsqualität – Qualitätsentwicklung und Qualitätsmanagement auf Einrichtungsebene" ;
+    cur:verified false .
+
+elem:re-DE-HE-132fc5d392cf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung als lebenslanger Prozess und der hohe Stellenwert der frühen Bildung" ;
+    cur:verified false .
+
+elem:re-DE-HE-147edf544a3d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-spiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verhältnis von Spielen und Lernen" ;
+    cur:verified false .
+
+elem:re-DE-HE-168c2fd95465 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Stärkung von Kompetenzen als Leitziel von Bildung" ;
+    cur:verified false .
+
+elem:re-DE-HE-1713a8afd72d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 67"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-phonologische-bewusstheit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Phonologische Bewusstheit" ;
+    cur:verified false .
+
+elem:re-DE-HE-1934dbb4dcb6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-b362d511e23e | elem:cue-hf-gestaltung"@de,
+        "Länderrecherche, Beleg E: BEP S. 4, S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "Handlungsfeld ohne Überschrift Aufgaben der pädagogischen Fachkräfte"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 3 zu Ansätzen der pädagogischen Gestaltung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Moderierung von Bildungs- und Erziehungsprozessen" ;
+    cur:verified false .
+
+elem:re-DE-HE-1e8a71381784 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 61"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-gesundheit-ernaehrung ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fette Zwischenüberschrift im Zieleteil von Gesundheit"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ernährung" ;
+    cur:verified false .
+
+elem:re-DE-HE-213df4ba580e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 88"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Enthält Handlungsfeld, Übergänge, Kooperation, Evaluation"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Teil mit Zahl"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil 3 Konsistenz im Bildungsverlauf und in der Bildungsorganisation" ;
+    cur:verified false .
+
+elem:re-DE-HE-22b2aea40517 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Verhältnis von Bildung zu Bindung und Entwicklung" ;
+    cur:verified false .
+
+elem:re-DE-HE-2c401ae0c7e5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 16, S. 34"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 1"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Charakteristika dieses Plans" ;
+    cur:verified false .
+
+elem:re-DE-HE-35dedfc9dae0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 84–85"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-demokratie-gesellschaft ;
+    cur:negativeHint "Zuordnung Annahme"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Verantwortungsvoll und werteorientiert handelnde Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Demokratie und Politik" ;
+    cur:verified false .
+
+elem:re-DE-HE-363517eb0a72 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-3a68e61d6dd0-HE"@de,
+        "Länderrecherche, Beleg E: BEP S. 1"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan-0-10 ;
+    cur:negativeHint "Kurzform BEP. Ein Plan für Kita und Grundschule. Titel der Vorliste um in Hessen ergänzt"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Titelseite mit Reihentitel Bildung von Anfang an"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsplan für Kinder von 0 bis 10 Jahren in Hessen" ;
+    cur:verified false .
+
+elem:re-DE-HE-36473afbbebf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 82–84"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-demokratie-gesellschaft,
+        elem:f-kulturelle-vielfalt ;
+    cur:negativeHint "Zuordnung Annahme"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich mit Zwischenüberschriften Gesellschaft | Wirtschaft | Kultur"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gesellschaft, Wirtschaft und Kultur" ;
+    cur:verified false .
+
+elem:re-DE-HE-3dc2b99d97fb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-01b253826824"@de,
+        "Länderrecherche, Beleg E: BEP S. 4, S. 94–105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:negativeHint "Wechsel zwischen Betreuungsumgebungen am selben Tag gelten ausdrücklich nicht als Transition (S. 94)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel mit vier Übergängen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Moderierung und Bewältigung von Übergängen (Transitionen)" ;
+    cur:verified false .
+
+elem:re-DE-HE-3f59a6503e68 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben von Hilfestellung" ;
+    cur:verified false .
+
+elem:re-DE-HE-46a54183af1a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 16, S. 34"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 1"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Notwendigkeit eines (neuen) Bildungs- und Erziehungsplans" ;
+    cur:verified false .
+
+elem:re-DE-HE-4d61af0e46b3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 56"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Enthält die Bildungsbereiche"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Teil mit Zahl"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil 2 Konsistenz in den Bildungs- und Erziehungszielen" ;
+    cur:verified false .
+
+elem:re-DE-HE-4e9e1a9d191f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-543b5f00abe9-HE"@de,
+        "Länderrecherche, Beleg E: BEP S. 3, S. 41–44"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Kompetenzabschnitt ohne Weltausschnitt. Kapiteltitel ist länger als das Stichwort der Vorliste"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 1 mit vier Kompetenzgruppen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Stärkung der Basiskompetenzen des Kindes" ;
+    cur:verified false .
+
+elem:re-DE-HE-54c7433d7a7b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-3e0ec8d0312c"@de,
+        "Länderrecherche, Beleg E: BEP S. 4, S. 115–116"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Titel länger als Vorliste"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt mit Sinn und Zweck | Formen der Dokumentation | Grundsätze der Dokumentation"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachtung und Dokumentation von Lern- und Entwicklungsprozessen" ;
+    cur:verified false .
+
+elem:re-DE-HE-59563db892bb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 43"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-participation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fähigkeit und Bereitschaft zur demokratischen Teilhabe" ;
+    cur:verified false .
+
+elem:re-DE-HE-5db1122985e4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 42"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-responsibility ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fähigkeit und Bereitschaft zur Verantwortungsübernahme" ;
+    cur:verified false .
+
+elem:re-DE-HE-5f37cd7d1ab6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 97–105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vier Übergangskapitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang von der Familie in die Kindertageseinrichtung oder Kindertagespflege" ;
+    cur:verified false .
+
+elem:re-DE-HE-5f64840e9967 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 97, S. 102"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Auch Eltern sind Zielgruppe der Ziele"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Identität mit verändertem Status und Kompetenz als Schulkind entwickeln" ;
+    cur:recognitionHint "Adressatenüberschriften in Ziele im Einzelnen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Für die Eltern" ;
+    cur:verified false .
+
+elem:re-DE-HE-62c7dae0b6bc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 103, S. 105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Adressat Lehrkraft und nicht pädagogische Fachkraft"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Mit Kindertageseinrichtung kooperieren und auf den dort entwickelten Kompetenzen aufbauen" ;
+    cur:recognitionHint "Aufzählung in Infinitivform"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Für die Lehrerinnen und Lehrer" ;
+    cur:verified false .
+
+elem:re-DE-HE-65ad5bf488c0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 96–112"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Adressat wechselt je Untergruppe"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Überschrift in Teil 3 vor Für die Kinder | Für die Eltern | Für die Erzieherinnen und Erzieher"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele im Einzelnen" ;
+    cur:verified false .
+
+elem:re-DE-HE-66854861353d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 78–79"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-technik ;
+    cur:negativeHint "Rahmen-Bereich 3 (Zuordnung Annahme)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Lernende, forschende und entdeckungsfreudige Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Technik" ;
+    cur:verified false .
+
+elem:re-DE-HE-685fef8f2c42 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 21, S. 89"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-ko-konstruktion ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschrift. Vertieft als Bildungsprozesse mit Kindern kooperativ gestalten (Ko-Konstruktion)"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung als sozialer Prozess – Der Ansatz der Ko-Konstruktion" ;
+    cur:verified false .
+
+elem:re-DE-HE-6d7656f34560 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben der lernenden Gemeinschaft" ;
+    cur:verified false .
+
+elem:re-DE-HE-6edb2aa73827 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Bild vom Kind" ;
+    cur:verified false .
+
+elem:re-DE-HE-70934c1d2391 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-he-verantwortung"@de,
+        "Länderrecherche, Beleg E: BEP S. 3, S. 79"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Leitbild ;
+    cur:negativeHint "Vorliste schreibt wertorientiert. Wortlaut ist werteorientiert"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Leitbild-Gruppenüberschrift mit vier Bereichen. Im Seitentext getrennt als werte-/orientiert"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verantwortungsvoll und werteorientiert handelnde Kinder" ;
+    cur:verified false .
+
+elem:re-DE-HE-719c364e932f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 63"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Selbstkonzept und Motivation sind hier Aspekte und keine Kompetenzdimensionen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fünf Zwischenüberschriften in Bewegung und Sport"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kognition" ;
+    cur:verified false .
+
+elem:re-DE-HE-74440bce2127 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben der Ko-Konstruktion" ;
+    cur:verified false .
+
+elem:re-DE-HE-796cabd957d3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 41"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "Eigene Zeile ohne eigenes kd-Feld"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Emotionale Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-7a194505663a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 12–14"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kurzdarstellung der drei Konsistenz-Teile mit Zählung 1. 2. 3."@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorspann" ;
+    cur:verified false .
+
+elem:re-DE-HE-81b28ec52080 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 80–81"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschriften in Religiosität und Werteorientierung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sinn- und Bedeutungsfragen" ;
+    cur:verified false .
+
+elem:re-DE-HE-8304165f1bec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 79–81"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-religion-weltanschauung,
+        elem:f-werte-ethik-philosophie ;
+    cur:negativeHint "Rahmen-Bereich 2 (Zuordnung Annahme). In Querverweisen auch Religion, Ethik und Wertehaltung"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Verantwortungsvoll und werteorientiert handelnde Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Religiosität und Werteorientierung" ;
+    cur:verified false .
+
+elem:re-DE-HE-872fa8baa96a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 32"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Demokratieprinzip" ;
+    cur:verified false .
+
+elem:re-DE-HE-8cd529e289cc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Lernen im Kindesalter" ;
+    cur:verified false .
+
+elem:re-DE-HE-8e6c21edebbb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 119–123"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt mit Leitungsprofil | Leitungsaufgaben"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Schlüsselrolle von Einrichtungsleitung, Trägern, Schulleitung, Fach- und Lehrkräften" ;
+    cur:verified false .
+
+elem:re-DE-HE-90580c7682fc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 41"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-motivation,
+        kd:ec-self-regulation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift mit Autonomieerleben | Selbstwirksamkeit | Selbstregulation | Neugier"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motivation betreffende Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-944809d2f7e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 63"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Selbstkonzept und Motivation sind hier Aspekte und keine Kompetenzdimensionen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fünf Zwischenüberschriften in Bewegung und Sport"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motorik" ;
+    cur:verified false .
+
+elem:re-DE-HE-980f6618a817 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 115–118"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel mit Beobachtung und Dokumentation | Selbst- und Fremdevaluation | Qualitätsentwicklung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Laufende Reflexion und Evaluation" ;
+    cur:verified false .
+
+elem:re-DE-HE-985313f8c32f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 97–105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vier Übergangskapitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang in eine nachfolgende Kindertageseinrichtung" ;
+    cur:verified false .
+
+elem:re-DE-HE-9e402055354a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 97–105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vier Übergangskapitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang von der Kindertageseinrichtung in die Grundschule" ;
+    cur:verified false .
+
+elem:re-DE-HE-9fdeb2065c29 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 63"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Selbstkonzept und Motivation sind hier Aspekte und keine Kompetenzdimensionen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fünf Zwischenüberschriften in Bewegung und Sport"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Selbstkonzept" ;
+    cur:verified false .
+
+elem:re-DE-HE-9ffb378f4892 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 97, S. 102"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Auch Eltern sind Zielgruppe der Ziele"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Identität mit verändertem Status und Kompetenz als Schulkind entwickeln" ;
+    cur:recognitionHint "Adressatenüberschriften in Ziele im Einzelnen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Für die Kinder" ;
+    cur:verified false .
+
+elem:re-DE-HE-a62a5b473c04 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 61"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-praevention-sicherheit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fette Zwischenüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sicherheit und Schutz" ;
+    cur:verified false .
+
+elem:re-DE-HE-a86ffe06431d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 102"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Einleitung der Zielliste in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Dies beinhaltet insbesondere folgende Ziele:" ;
+    cur:verified false .
+
+elem:re-DE-HE-b13091dad134 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 42"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-physical ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körperbezogene Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-b322ac55d218 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 68"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-literacy ;
+    cur:negativeHint "Heißt Kompetenzen, ist aber ein Aspekt innerhalb der Ziele"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fette Zwischenüberschrift im Zieleteil"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Literacybezogene Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-b5e79696cf8f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 99, S. 101"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Variante Für die Erzieherinnen und Erzieher auf S. 103 (Beispiel Anschlussfähigkeit gewährleisten)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sich über Angebote in der Kinderkrippe bzw. im Kindergarten austauschen" ;
+    cur:recognitionHint "Aufzählung in Infinitivform oder Nominalform ohne Anrede"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Für die Erzieherinnen und Erzieher, Tagespflegeeltern" ;
+    cur:verified false .
+
+elem:re-DE-HE-ba5d54367539 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 41–42"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-cognition ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterüberschrift mit Problemlösen | Kreativität | Gedächtnis | Denkfähigkeit | Differenzierte Wahrnehmung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kognitive Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HE-bc294af37733 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 80–81"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschriften in Religiosität und Werteorientierung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wertesystem" ;
+    cur:verified false .
+
+elem:re-DE-HE-bdafd1277b81 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 66"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-nonverbale-kommunikation ;
+    cur:negativeHint "Keine Ziele darunter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fette Zwischenüberschrift im Leitgedanken-Teil von Sprache und Literacy"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Nonverbale Aspekte von Kommunikation" ;
+    cur:verified false .
+
+elem:re-DE-HE-be2b01a9b22f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 67"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-mehrsprachigkeit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zwei- und Mehrsprachigkeit" ;
+    cur:verified false .
+
+elem:re-DE-HE-bfd3c7710880 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben von Problemlösen" ;
+    cur:verified false .
+
+elem:re-DE-HE-c82f36088a9c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 20"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 1"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundsätze und Prinzipien, die diesem Plan zugrunde liegen" ;
+    cur:verified false .
+
+elem:re-DE-HE-c892ffb510e6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 63"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Selbstkonzept und Motivation sind hier Aspekte und keine Kompetenzdimensionen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fünf Zwischenüberschriften in Bewegung und Sport"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Soziale Beziehungen" ;
+    cur:verified false .
+
+elem:re-DE-HE-c931b5e8cb4d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 26"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bindung-beziehung ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bindung als Voraussetzung für Bildung" ;
+    cur:verified false .
+
+elem:re-DE-HE-d10a7008ee06 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 9"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Einleitung von Prof. Fthenakis"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einleitung" ;
+    cur:verified false .
+
+elem:re-DE-HE-d3867403473b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 106–114"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel in Teil 3 mit Beteiligung der Kinder | Eltern | Team | Gemeinwesen | Kindeswohl"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kooperation und Beteiligung" ;
+    cur:verified false .
+
+elem:re-DE-HE-d5e32f6f2b5b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 112"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-sozialraum ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gemeinwesenorientierung – Kooperation und Vernetzung mit anderen Stellen" ;
+    cur:verified false .
+
+elem:re-DE-HE-d6e480d4c3e9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben von Projekt- und Aufgabenanalyse" ;
+    cur:verified false .
+
+elem:re-DE-HE-da9d7ee491d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89–93"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Aufgaben meint hier die Rolle des Ansatzes und nicht Aufgaben der Fachkräfte im Sinne von mandate"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randmarke neben den Ansätzen in Teil 3"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben des Philosophierens" ;
+    cur:verified false .
+
+elem:re-DE-HE-eb85376247b4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 77"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-naturwissenschaft ;
+    cur:negativeHint "Rahmen-Bereich 3 (Zuordnung Annahme)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Lernende, forschende und entdeckungsfreudige Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Naturwissenschaften" ;
+    cur:verified false .
+
+elem:re-DE-HE-ebafad77fcc4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 142"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Anhang"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Glossar" ;
+    cur:verified false .
+
+elem:re-DE-HE-ebfa3a4541ce a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 4, S. 97–105"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vier Übergangskapitel"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang von der Grundschule in eine weiterführende Schule" ;
+    cur:verified false .
+
+elem:re-DE-HE-ec4d3109494a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 73–74"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-musik,
+        elem:f-tanz-darstellendes-spiel ;
+    cur:negativeHint "Rahmen-Bereich 5 (Zuordnung Annahme)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Kreative, fantasievolle und künstlerische Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Musik und Tanz" ;
+    cur:verified false .
+
+elem:re-DE-HE-edd4e9db6ebe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 71–72"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-bildnerisch,
+        elem:f-tanz-darstellendes-spiel ;
+    cur:negativeHint "Rahmen-Bereich 5 (Zuordnung Annahme)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Bereich unter Kreative, fantasievolle und künstlerische Kinder"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildnerische und darstellende Kunst" ;
+    cur:verified false .
+
+elem:re-DE-HE-f2eef9fa4dd6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:cue-gen-schwerpunkt | elem:lex-f551d51384fe"@de,
+        "Länderrecherche, Beleg E: BEP S. 57"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Schwerpunkte bezeichnet hier das ganze Kapitel und nicht Teilbereiche"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitelüberschrift vor den Leitbild-Gruppen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ineinander greifende Schwerpunkte der Bildungs- und Erziehungsprozesse der Kinder" ;
+    cur:verified false .
+
+elem:re-DE-HE-f79f7e8aee6a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 20–30"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Randtitel und nicht Zwischenüberschrift im Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Randtitel im Kapitel Grundsätze und Prinzipien"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verhältnis von Spielen und Lernen" ;
+    cur:verified false .
+
+elem:re-DE-HE-f8f2c2ec8d80 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 80–81"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Zwischenüberschriften in Religiosität und Werteorientierung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterschiedliche Religionen" ;
+    cur:verified false .
+
+elem:re-DE-HE-f9ec7b7120e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 3, S. 16"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Enthält Grundlagen und Basiskompetenzen"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Teil mit Zahl im Inhaltsverzeichnis"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil 1 Konsistenz in den Grundlagen" ;
+    cur:verified false .
+
+elem:re-DE-HE-fcd860db3087 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 58"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Punkte beginnen auch mit Nominalphrase (Kontinuierliche Erweiterung des eigenen Wortschatzes, S. 68)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Sich der eigenen Gefühle bewusst werden, sie akzeptieren und sie ausdrücken können" ;
+    cur:recognitionHint "Aufzählungspunkt ohne Subjekt in Infinitivform unter Dies umfasst insbesondere folgende Aspekte"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sich der eigenen Gefühle bewusst werden, sie akzeptieren und sie ausdrücken können" ;
+    cur:verified false .
+
+elem:re-DE-HE-ff29061241e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEP S. 89, S. 90"@de,
+        "Plangeneration laut Länderrecherche: BEP 2019/2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Die Vorliste führt Pädagogische Fachkräfte. Der BEP sagt Pädagogische Bezugspersonen, daneben Fachkraft (S. 89) und Erzieherinnen und Erzieher"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Pädagogische Bezugspersonen können mit Kindern Wissen ko-konstruieren" ;
+    cur:recognitionHint "Modalsatz im Fließtext von Teil 3 Moderierung"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Bezugspersonen können" ;
+    cur:verified false .
+

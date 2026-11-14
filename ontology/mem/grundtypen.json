@@ -1,0 +1,1303 @@
+{
+ "hinweis": "Grundtypen der curricularen Landesklassen aus werkzeuge/quellen/fwu-landesklassen.csv (Spalte basistyp_iri), eine Hilfe zur Typisierung beim Import: für Klassen, deren Grundtyp aus ihrem Funktionswert folgt, folgt er nicht aus lp.ttl (reasoned.ttl folgert nur die Verweise).",
+ "grundtypen": {
+  "https://w3id.org/lehrplan/ontology/LP_0000268": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000328": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000345": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000350": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000352": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000353": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000423": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000424": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000425": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000428": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000431": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000432": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000445": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000447": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000448": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000449": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0000459": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001001": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001002": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001003": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001005": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001006": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001007": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001009": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001223": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001224": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001226": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001227": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001228": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001445": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001447": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001448": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001449": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0001459": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002043": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002044": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002046": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002048": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002049": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002050": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002052": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002057": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002059": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002060": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002061": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002063": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002110": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002113": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002114": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002115": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002116": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002122": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002126": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002128": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002129": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002130": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002133": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002134": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002135": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002136": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002139": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002140": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002143": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002144": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002145": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002147": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002149": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002151": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002153": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002163": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002169": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002174": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002175": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002177": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002178": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002179": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002181": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002182": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002186": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002187": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002188": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002190": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002191": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002192": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002193": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002195": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002196": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002197": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002198": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002200": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002201": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002202": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002203": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002205": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002206": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002207": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002208": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002209": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002210": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002211": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002212": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002214": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002215": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002218": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002219": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002220": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002221": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002223": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002224": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002225": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002226": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002227": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002228": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002229": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002230": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002232": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002233": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002234": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002235": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002238": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002239": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002240": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002241": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0002243": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030001": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030002": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030005": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030006": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030007": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030008": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030009": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030011": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030012": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030013": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030014": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030015": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030016": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030017": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030018": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030019": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030020": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030021": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030022": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030023": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030024": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030025": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030026": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030027": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030028": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030029": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030030": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030031": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030032": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030033": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030034": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030035": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030036": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030037": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030038": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030042": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030043": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030044": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030045": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030047": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030048": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030049": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030050": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030052": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030054": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030058": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030059": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030060": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030061": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030062": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030063": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030064": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030066": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030067": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030068": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030069": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030070": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030073": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030074": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030075": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030076": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030077": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030078": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030079": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030081": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030082": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030083": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030084": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030085": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030086": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030087": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030088": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030089": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030090": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030092": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030093": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030094": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030095": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030096": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030097": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030098": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030099": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030100": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030101": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030102": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030103": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030104": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030105": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030106": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030107": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030108": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030109": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030110": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030111": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030112": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030113": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030114": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030115": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030116": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030117": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030118": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030119": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030120": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030121": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030122": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030123": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030124": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030125": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030126": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030127": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030128": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030129": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030130": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030131": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030132": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030133": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030134": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030135": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030136": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030137": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030138": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030139": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030140": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030141": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030142": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030143": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030144": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030145": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030146": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030147": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030148": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030149": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030150": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030151": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030152": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030153": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030154": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030155": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030156": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030157": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030158": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030159": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030160": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030161": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030162": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030163": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030164": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030165": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030166": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030167": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030168": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030169": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030170": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030171": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030172": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030173": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030174": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030175": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030176": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030177": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030178": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030179": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030180": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030181": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030182": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030183": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030184": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030185": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030186": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030187": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030188": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030189": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030190": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030191": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030192": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030193": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030194": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030195": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030196": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030197": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030198": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030199": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030200": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030201": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030202": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030203": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030204": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030205": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030206": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030207": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030208": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030209": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030210": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030211": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030212": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030213": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030214": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030215": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030216": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030217": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030218": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030219": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030220": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030221": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030222": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030223": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030224": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030225": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030226": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030227": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030228": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030229": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030230": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030231": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030232": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030233": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030234": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030235": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030236": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030237": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030238": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030239": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030240": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030241": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030242": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030243": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030244": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030245": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030246": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030247": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030248": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030249": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030250": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030251": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030252": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030253": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030254": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030255": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030256": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030257": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030258": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030259": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030260": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030261": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030262": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030263": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030264": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030265": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030266": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030268": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030269": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030270": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030271": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030272": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030273": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030274": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030275": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030276": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030277": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030278": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030279": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030280": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030281": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030282": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030283": [
+   "https://w3id.org/lehrplan/ontology/LP_0000263"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030284": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332",
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030285": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030286": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030287": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030288": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030289": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030290": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030291": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030292": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030293": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030294": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030295": [
+   "https://w3id.org/lehrplan/ontology/LP_0000332"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030296": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030297": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030298": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030299": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030300": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030301": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030302": [
+   "https://w3id.org/lehrplan/ontology/LP_0030065"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030303": [
+   "https://w3id.org/lehrplan/ontology/LP_0000852"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030304": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030305": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030306": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030307": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030308": [
+   "https://w3id.org/lehrplan/ontology/LP_0001015"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030309": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030310": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030311": [
+   "https://w3id.org/lehrplan/ontology/LP_0000349"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030318": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030327": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030328": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030329": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030330": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030331": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030332": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030333": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030334": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030335": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ],
+  "https://w3id.org/lehrplan/ontology/LP_0030336": [
+   "https://w3id.org/lehrplan/ontology/LP_0030325"
+  ]
+ }
+}

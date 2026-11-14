@@ -1,0 +1,40 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-TH-757e123f6c56,
+        eb:re-DE-TH-8847bf0caf61 .
+
+eb:re-DE-TH-757e123f6c56 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: umwelt-online Auszug"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:positiveExample "ThürEBG - Thüringer Erwachsenenbildungsgesetz" ;
+    cur:recognitionHint "Anerkennung von Einrichtungen in drei Gruppen"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Thüringer Erwachsenenbildungsgesetz" ;
+    cur:verified false .
+
+eb:re-DE-TH-8847bf0caf61 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Broschüre Bildungsfreistellung 2025 VHS Erfurt Jena Weimar Gotha"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:negativeHint "Lernbereiche gesellschaftspolitisch arbeitsweltbezogen ehrenamtsbezogen."@de ;
+    cur:positiveExample "nach dem Thüringer Bildungsfreistellungsgesetz auf dem Gebiet der arbeitsweltbezogenen Bildung anerkannten Bildungsfreistellungskurse" ;
+    cur:recognitionHint "Formel der VHS mit Gesetz und Lernbereich"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "nach dem Thüringer Bildungsfreistellungsgesetz auf dem Gebiet der arbeitsweltbezogenen Bildung anerkannten Bildungsfreistellungskurse" ;
+    cur:verified false .
+

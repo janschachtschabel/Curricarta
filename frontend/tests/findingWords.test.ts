@@ -1,0 +1,121 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import type { DocumentFinding } from "@/api";
+import { isolate } from "@/bidi";
+import { findingRow, findingText, focusText } from "@/findingWords";
+import { messages, t } from "@/i18n/de";
+
+import { sourceFiles } from "./sources";
+
+function backendCode(): string {
+  return sourceFiles(join(process.cwd(), "..", "backend", "app"), /\.py$/)
+    .map((path) => readFileSync(path, "utf8"))
+    .join("\n");
+}
+
+/**
+ * The rules whose findings X3 to X6 write, by name without their stage: a `Finding("x5.…"` of X5's
+ * checks, a stage's own (`f"{…stage}.pattern_timeout"`), and what the reading of an answer notes
+ * (`reading.note("unknown_block", …)`, app/pipeline/statement_read.py, x3_read.py).
+ */
+function backendRules(code: string): string[] {
+  const named = [...code.matchAll(/Finding\(\s*"x[3-6]\.([a-z_]+)"/g)];
+  const staged = [...code.matchAll(/Finding\(\s*f"\{[a-z_.]+\}\.([a-z_]+)"/g)];
+  const noted = [...code.matchAll(/\bnote\(\s*"([a-z_]+)"/g)];
+  return [...new Set([...named, ...staged, ...noted].map(([, rule]) => rule))].sort();
+}
+
+function finding(changes: Partial<DocumentFinding> = {}): DocumentFinding {
+  return {
+    rule: "x5.wording_not_found",
+    severity: "violation",
+    stage: "X5",
+    focus: { kind: "statement", id: "s1", label: "Die Lernenden messen." },
+    path: null,
+    message: "the wording is not in the blocks its anchor names",
+    message_lang: null,
+    unit: null,
+    ...changes,
+  };
+}
+
+describe("a finding in words", () => {
+  it("finds the rules the backend writes", () => {
+    const rules = backendRules(backendCode());
+
+    expect(rules).toEqual(expect.arrayContaining(["wording_not_found", "unknown_block", "unanswered", "pattern_timeout"]));
+  });
+
+  it("has words for every rule X3 to X6 write", () => {
+    // the reading's rules are named alike at every stage that reads an answer (x3., x4., x6.)
+    for (const rule of backendRules(backendCode())) expect(Object.keys(messages.documents.findings.rules)).toContain(rule);
+  });
+
+  it("says a rule it has words for in them, whichever stage wrote it", () => {
+    expect(findingText(finding())).toEqual({ text: t("documents.findings.rules.wording_not_found") });
+    expect(findingText(finding({ rule: "x6.unknown_block", message: "a block the conversion does not hold" }))).toEqual({
+      text: t("documents.findings.rules.unknown_block"),
+    });
+    expect(findingText(finding({ rule: "x1.unknown_block" }))).toEqual({ text: t("documents.findings.rules.unknown_block") });
+  });
+
+  it("says a message in German where the server says it is, and quotes any other as English", () => {
+    // SHACL's own messages are German where the shapes give one; pyshacl writes its own in English
+    const shacl = finding({
+      rule: "shacl.StatementShape",
+      message: "Eine Aussage braucht genau einen Wortlaut.",
+      message_lang: "de",
+    });
+    const generic = finding({ rule: "shacl.StatementShape", message: "Less than 1 values on cur:obligation" });
+
+    expect(findingText(shacl)).toEqual({ text: "Eine Aussage braucht genau einen Wortlaut." });
+    expect(findingText(generic)).toEqual({ text: "Less than 1 values on cur:obligation", lang: "en" });
+    expect(findingText(finding({ rule: "x1.regions_differ", message: "the Länder read differ" }))).toEqual({
+      text: "the Länder read differ",
+      lang: "en",
+    });
+  });
+
+  it("names what a finding is about by its kind, its wording or title, and the work package", () => {
+    // the wording set apart, so its direction does not turn the sentence around it
+    expect(focusText(finding())).toBe(
+      t("documents.findings.about", { kind: t("documents.findings.kinds.statement"), label: isolate("Die Lernenden messen.") }),
+    );
+    expect(focusText(finding({ focus: { kind: "document", id: "d1", label: null }, unit: "E2" }))).toBe(
+      t("documents.findings.inUnit", { what: t("documents.findings.kinds.document"), unit: "E2" }),
+    );
+    expect(focusText(finding({ focus: { kind: "work", id: "w1", label: null } }))).toBe("work");
+  });
+
+  it("says a statement no longer there is gone: why it alone has no row to lead to", () => {
+    const gone = finding({ focus: { kind: "statement", id: "s1", label: null }, unit: "E3" });
+
+    expect(focusText(gone)).toBe(t("documents.findings.inUnit", { what: t("documents.findings.statementGone"), unit: "E3" }));
+  });
+});
+
+describe("the row a finding is about", () => {
+  it("is the node's or the statement's row of the tree, where the finding is about one", () => {
+    expect(findingRow(finding({ focus: { kind: "node", id: "n1", label: "Optik" } }))).toBe("node:n1");
+    expect(findingRow(finding({ focus: { kind: "statement", id: "s1", label: "Sie erklären." } }))).toBe(
+      "statement:s1",
+    );
+  });
+
+  it("is a node's row even where the node has neither title nor code", () => {
+    expect(findingRow(finding({ focus: { kind: "node", id: "n1", label: null } }))).toBe("node:n1");
+  });
+
+  it("is none for a statement no longer there: a repair of its package dropped it, its wording with it", () => {
+    expect(findingRow(finding({ focus: { kind: "statement", id: "s1", label: null } }))).toBeNull();
+  });
+
+  it("is none for what has no row of its own: an anchor, a frame part, the document", () => {
+    for (const kind of ["anchor", "frame_part", "document", "variant"]) {
+      expect(findingRow(finding({ focus: { kind, id: "x1", label: null } }))).toBeNull();
+    }
+  });
+});

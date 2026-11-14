@@ -1,0 +1,40 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-NI-6d33380e4a5f,
+        eb:re-DE-NI-749a866ded8d .
+
+eb:re-DE-NI-6d33380e4a5f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: NEBG § 1 Abs. 1 (umwelt-online Auszug)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:negativeHint "Finanzhilfe statt Anerkennung."@de ;
+    cur:positiveExample "die allgemeine, politische, kulturelle und berufliche Bildung" ;
+    cur:recognitionHint "Förderrecht mit Finanzhilfeberechtigung"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Niedersächsisches Erwachsenenbildungsgesetz" ;
+    cur:verified false .
+
+eb:re-DE-NI-749a866ded8d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: umwelt-online NBildUG (Suchtreffer)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:positiveExample "Arbeitnehmer und Arbeitnehmerinnen haben einen Anspruch auf Bildungsurlaub zur Teilnahme an nach § 10 dieses Gesetzes anerkannten Bildungsveranstaltungen." ;
+    cur:recognitionHint "Anspruch nur für anerkannte Veranstaltungen"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "nach § 10 dieses Gesetzes anerkannten Bildungsveranstaltungen" ;
+    cur:verified false .
+

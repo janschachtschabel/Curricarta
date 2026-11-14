@@ -1,0 +1,41 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-MV-15f25fe211a4,
+        eb:re-DE-MV-b9d4fc394fd5 .
+
+eb:re-DE-MV-15f25fe211a4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: umwelt-online WBFöG M-V § 6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:pt-vhs ;
+    cur:negativeHint "Einrichtungszusatz nicht Kursformel."@de ;
+    cur:positiveExample "Staatlich anerkannte Einrichtung nach dem Weiterbildungsförderungsgesetz Mecklenburg-Vorpommern" ;
+    cur:recognitionHint "Zusatz zur Bezeichnung anerkannter Einrichtungen"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Staatlich anerkannte Einrichtung nach dem Weiterbildungsförderungsgesetz Mecklenburg-Vorpommern" ;
+    cur:verified false .
+
+eb:re-DE-MV-b9d4fc394fd5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: umwelt-online WBFöG M-V § 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-politik ;
+    cur:negativeHint "Keine VHS-Programmbereiche."@de ;
+    cur:positiveExample "Weiterbildungsbereiche" ;
+    cur:recognitionHint "Drei gleichrangige Bereiche allgemeine politische berufliche Weiterbildung"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Weiterbildungsbereiche" ;
+    cur:verified false .
+

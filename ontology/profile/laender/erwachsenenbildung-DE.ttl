@@ -1,0 +1,604 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-007e432c7959,
+        eb:re-DE-08f4dd1a036d,
+        eb:re-DE-0ca905071fec,
+        eb:re-DE-10801c997d45,
+        eb:re-DE-14a54b2ad6b8,
+        eb:re-DE-1dca3ae130b5,
+        eb:re-DE-23a3608971be,
+        eb:re-DE-2c47660c37a5,
+        eb:re-DE-2e1d0616817b,
+        eb:re-DE-2f09352b5942,
+        eb:re-DE-441f9adb621c,
+        eb:re-DE-48590509d767,
+        eb:re-DE-4d7522493160,
+        eb:re-DE-54ee6ad8914f,
+        eb:re-DE-57928e700dc4,
+        eb:re-DE-61306e5b38a1,
+        eb:re-DE-62c9c8358fee,
+        eb:re-DE-63eccefe317f,
+        eb:re-DE-690da766c475,
+        eb:re-DE-6adf8bcc2b14,
+        eb:re-DE-6f8187ae6b4e,
+        eb:re-DE-7102e89992a9,
+        eb:re-DE-82fc82a9a405,
+        eb:re-DE-834746130a06,
+        eb:re-DE-8dafeccdfc17,
+        eb:re-DE-91c49766e3d9,
+        eb:re-DE-9341dde048f9,
+        eb:re-DE-966c6869bc35,
+        eb:re-DE-99ddac891c78,
+        eb:re-DE-9c9adc658e88,
+        eb:re-DE-a9b88db026ba,
+        eb:re-DE-aa49bfb81b1d,
+        eb:re-DE-ce7eaef6f5d0,
+        eb:re-DE-d43b489fb929,
+        eb:re-DE-d9d9d1a4629a,
+        eb:re-DE-dffbfe490f88,
+        eb:re-DE-edfeff29a637 .
+
+eb:re-DE-007e432c7959 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept gering Literalisierte S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:cf-zweitschrift ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Etablierung einer eigenen Kursart für Zweitschriftlernende 2017" ;
+    cur:recognitionHint "Kursart 2017"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zweitschriftlernende" ;
+    cur:verified false .
+
+eb:re-DE-08f4dd1a036d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RC S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D2 ;
+    cur:negativeHint "Nur Sprachkurs (Orientierungskurs hat eigenes Curriculum)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "RAHMENCURRICULUM FÜR INTEGRATIONSKURSE DEUTSCH ALS ZWEITSPRACHE" ;
+    cur:recognitionHint "Umschlagtitel in Versalien"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmencurriculum für Integrationskurse Deutsch als Zweitsprache" ;
+    cur:verified false .
+
+eb:re-DE-0ca905071fec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GRETA S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Kompetenzbereich ;
+    cur:negativeHint "Aspekt ist die höchste Ebene. Bereich nächste. Facette dritte (eb:Kompetenzeinheit)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "vier sogenannte Kompetenzaspekte (äußerer Ring)" ;
+    cur:recognitionHint "Äußerer Ring"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzaspekte" ;
+    cur:verified false .
+
+eb:re-DE-10801c997d45 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: telc-LZK S. 22 und S. 23"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Lernziel,
+        eb:SprachlicheHandlung ;
+    cur:negativeHint "Gliederung nicht dezimal. Feinlernziele z. B. 3.1"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3 Stellenanzeigen verstehen und ihnen Informationen entnehmen" ;
+    cur:recognitionHint "Nummer 1 bis 60"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Groblernziele" ;
+    cur:verified false .
+
+eb:re-DE-14a54b2ad6b8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: telc-LZK S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:eb-strategic ;
+    cur:negativeHint "Entspricht Fokus Landeskunde und Strategien des Rahmencurriculums nur ungefähr"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Kann Nicht-Verstehen signalisieren und nachfragen." ;
+    cur:recognitionHint "Zeilenüberschriften je Groblernziel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Strategische Kompetenz" ;
+    cur:verified false .
+
+eb:re-DE-1dca3ae130b5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RC S. 18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:dt-D7 ;
+    cur:negativeHint "Eigener Referenzrahmen nicht geprüft"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "gemäß GER bzw. Profile Deutsch" ;
+    cur:recognitionHint "Bezug für Niveauzuordnung"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Profile Deutsch" ;
+    cur:verified false .
+
+eb:re-DE-23a3608971be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RC S. 22"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:eb-strategic ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Auch strategische Kompetenzen lassen sich nicht einzelnen Lernzielen zuordnen." ;
+    cur:recognitionHint "Absatz in 4.4.2"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "STRATEGISCHE KOMPETENZ" ;
+    cur:verified false .
+
+eb:re-DE-2c47660c37a5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu eb:r16"@de,
+        "Länderrecherche, Beleg E: DVV S. 22 und S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Vermittlungshinweis ;
+    cur:negativeHint "Hinweise zur Vermittlung wörtlich nicht gefunden. Erläuterungen sind Hintergrundinformation"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Didaktische Hinweise:" ;
+    cur:recognitionHint "Zwei Absatzüberschriften je Ziel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erläuterungen" ;
+    cur:verified false .
+
+eb:re-DE-2e1d0616817b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: telc-LZK S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:act-interaktion,
+        eb:act-lesen ;
+    cur:negativeHint "Klassifikation nach Rezeption Interaktion. Nicht die Fertigkeitswerte des Rahmencurriculums"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "interaktiv mündlich" ;
+    cur:recognitionHint "Zellwerte rezeptiv schriftlich interaktiv mündlich"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aktivität" ;
+    cur:verified false .
+
+eb:re-DE-2f09352b5942 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OK S. 12 und S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Modul ;
+    cur:negativeHint "Weitere Module II und III siehe T9"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Modul I: Politik in der Demokratie (35 UE)" ;
+    cur:recognitionHint "Modul mit UE"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modul I: Politik in der Demokratie" ;
+    cur:verified false .
+
+eb:re-DE-441f9adb621c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:cf-orientierung ;
+    cur:negativeHint "100 UE"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "C. Orientierungskurs" ;
+    cur:recognitionHint "Eigenes Curriculum"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungskurs" ;
+    cur:verified false .
+
+eb:re-DE-48590509d767 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Modul ;
+    cur:negativeHint "Je 300 UE"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "A. Basissprachkurs" ;
+    cur:recognitionHint "Überschriften A. und B. im Konzept"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufbausprachkurs" ;
+    cur:verified false .
+
+eb:re-DE-4d7522493160 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DVV S. 26 (Lesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Lernziel ;
+    cur:negativeHint "Nummer in Klammern entspricht lea.-Kann-Beschreibung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Teilnehmer*innen können kurze Wörter in ihre einzelnen Laute zerlegen" ;
+    cur:recognitionHint "Satz je Ziel Nummer (1.1.01)"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Teilnehmer*innen können" ;
+    cur:verified false .
+
+eb:re-DE-54ee6ad8914f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DTZ S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D6 ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "DEUTSCH-TEST FÜR ZUWANDERER A2-B1 PRÜFUNGSZIELE TESTBESCHREIBUNG" ;
+    cur:recognitionHint "Untertitel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Prüfungsziele Testbeschreibung" ;
+    cur:verified false .
+
+eb:re-DE-57928e700dc4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DTZ S. 6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Sprachinventar ;
+    cur:negativeHint "Strukturen als Grammatikinventar (eb:lct-grammatik). Wortlisten als Wortschatz (eb:lct-wortschatz)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "8.1 THEMEN" ;
+    cur:recognitionHint "Kapitel 8"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "SPRACHLICHE INVENTARE" ;
+    cur:verified false .
+
+eb:re-DE-61306e5b38a1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DTZ S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Pruefungsteil ;
+    cur:negativeHint "Lesen Schreiben Sprechen analog"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "5.1 PRÜFUNGSTEIL „HÖREN“" ;
+    cur:recognitionHint "Kapitel 5.1 bis 5.4"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "PRÜFUNGSTEIL „HÖREN“" ;
+    cur:verified false .
+
+eb:re-DE-62c9c8358fee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept B2 S. 3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Modul ;
+    cur:negativeHint "100 UE"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anlage 2: Konzept für ein Brückenelement B1/B2" ;
+    cur:recognitionHint "Anlage 2"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Brückenelement B1/B2" ;
+    cur:verified false .
+
+eb:re-DE-63eccefe317f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alpha-Konzept S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:cf-alpha ;
+    cur:negativeHint "Bis zu 1300 UE"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Konzept für einen bundesweiten Alphabetisierungskurs" ;
+    cur:recognitionHint "Titel des Konzepts"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Alphabetisierungskurs" ;
+    cur:verified false .
+
+eb:re-DE-690da766c475 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DigComp S. 23"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:knowledge,
+        kd:skills ;
+    cur:negativeHint "Attitudes ohne ID in kd:"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "defined in terms of knowledge, skills and attitudes" ;
+    cur:recognitionHint "Gruppierung der learning outcomes"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "knowledge, skills and attitudes" ;
+    cur:verified false .
+
+eb:re-DE-6adf8bcc2b14 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GRETA S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Kompetenzeinheit ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kompetenzfacetten (mittlerer Ring)" ;
+    cur:recognitionHint "Mittlerer Ring"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzfacetten" ;
+    cur:verified false .
+
+eb:re-DE-6f8187ae6b4e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alpha-Konzept S. 22"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:cefr-A2 ;
+    cur:negativeHint "Unterstufen A2.1 und A2.2 sind in der Zielliste nicht vorgesehen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "bis zum Niveau A2.2" ;
+    cur:recognitionHint "Unterstufe"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "A2.2" ;
+    cur:verified false .
+
+eb:re-DE-7102e89992a9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche"@de,
+        "Länderrecherche, Beleg E: Konzept B2 S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:cf-berufssprache ;
+    cur:negativeHint "Zielliste nennt Basis- und Spezialmodule. Die Dokumente sagen Basiskurs und Spezialkurs"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die berufsbezogene Deutschsprachförderung ist modular aufgebaut und in verschiedene Basis- und Spezialkurse unterteilt" ;
+    cur:recognitionHint "Basiskurse und Spezialkurse"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufssprachkurse" ;
+    cur:verified false .
+
+eb:re-DE-82fc82a9a405 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 10"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:cf-allgemein ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Integrationskurs umfasst pro Teilnehmer maximal 700 Unterrichtseinheiten" ;
+    cur:recognitionHint "Kursart ohne Zusatz"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "allgemeiner Integrationskurs" ;
+    cur:verified false .
+
+eb:re-DE-834746130a06 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: telc-LZK S. 22"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:UebergreifenderBereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "A Gestaltung sozialer Kontakte am Arbeitsplatz" ;
+    cur:recognitionHint "Buchstaben A bis D"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergreifende Handlungsfelder" ;
+    cur:verified false .
+
+eb:re-DE-8dafeccdfc17 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DVV S. 21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:dt-D7 ;
+    cur:negativeHint "Kein Referenzrahmen im Sinne GER sondern Diagnosemodell"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Das Kompetenzmodell lea. wurde im Verbundprojekt lea. an den Universitäten Bremen und Hamburg entwickelt" ;
+    cur:recognitionHint "Bezugsmodell"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzmodell lea." ;
+    cur:verified false .
+
+eb:re-DE-91c49766e3d9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DVV S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D1 ;
+    cur:negativeHint "Empfohlen. Niveau zugewiesen über Alpha-Level"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "DVV-Rahmencurricula kompakt" ;
+    cur:recognitionHint "Reihenname"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "DVV-Rahmencurricula" ;
+    cur:verified false .
+
+eb:re-DE-9341dde048f9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:cf-alpha,
+        eb:cf-eltern,
+        eb:cf-jugend ;
+    cur:negativeHint "Intensivkurse separat (eb:cf-intensiv)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Jugendintegrationskurse, Eltern- und Frauenintegrationskurse, Alphabetisierungskurse, Förderkurse" ;
+    cur:recognitionHint "Aufzählung"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Integrationskurse für spezielle Zielgruppen" ;
+    cur:verified false .
+
+eb:re-DE-966c6869bc35 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RC S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Pruefungsziel ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "als repräsentative Lernziele gleichzeitig Prüfungsziele" ;
+    cur:recognitionHint "Kapitel 5"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Prüfungsziele" ;
+    cur:verified false .
+
+eb:re-DE-99ddac891c78 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Klett-Seite"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D7 ;
+    cur:negativeHint "Begleitband ergänzt GER 2001"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Gemeinsamer europäischer Referenzrahmen für Sprachen lernen, lehren, beurteilen – Begleitband" ;
+    cur:recognitionHint "Titel und Untertitel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Gemeinsamer europäischer Referenzrahmen für Sprachen" ;
+    cur:verified false .
+
+eb:re-DE-9c9adc658e88 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OK S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D4 ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Überarbeitete Neuauflage für 100 UE – April 2017" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Curriculum für einen bundesweiten Orientierungskurs" ;
+    cur:verified false .
+
+eb:re-DE-a9b88db026ba a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D3 ;
+    cur:negativeHint "Ergänzt Rahmencurriculum um Zeit und Kursarten"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Überarbeitete Neuauflage – April 2015" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konzept für einen bundesweiten Integrationskurs" ;
+    cur:verified false .
+
+eb:re-DE-aa49bfb81b1d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept IK S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Modul ;
+    cur:negativeHint "Je 300 UE"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "A. Basissprachkurs" ;
+    cur:recognitionHint "Überschriften A. und B. im Konzept"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basissprachkurs" ;
+    cur:verified false .
+
+eb:re-DE-ce7eaef6f5d0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DigComp S. 18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Kompetenzeinheit ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "1.1 Browsing, searching and filtering information" ;
+    cur:recognitionHint "Spalte COMPETENCE TITLE"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "competences" ;
+    cur:verified false .
+
+eb:re-DE-d43b489fb929 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DigComp S. 18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:Kompetenzbereich ;
+    cur:negativeHint "Nur englische Fassung gefunden"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "1. INFORMATION SEARCH, EVALUATION AND MANAGEMENT" ;
+    cur:recognitionHint "Spalte COMPETENCE AREA TITLE AND DESCRIPTOR"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "competence areas" ;
+    cur:verified false .
+
+eb:re-DE-d9d9d1a4629a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Konzept gering Literalisierte S. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:cefr-PreA1 ;
+    cur:negativeHint "Verweis auf Deskriptoren des Begleitbands zum GER"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Ziele der Kursabschnitte 1 und 2 („vor A1“)" ;
+    cur:recognitionHint "Kursabschnitte 1 und 2"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "vor A1" ;
+    cur:verified false .
+
+eb:re-DE-dffbfe490f88 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu eb:r16"@de,
+        "Länderrecherche, Beleg E: DVV S. 22 und S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:Vermittlungshinweis ;
+    cur:negativeHint "Hinweise zur Vermittlung wörtlich nicht gefunden. Erläuterungen sind Hintergrundinformation"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Didaktische Hinweise:" ;
+    cur:recognitionHint "Zwei Absatzüberschriften je Ziel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktische Hinweise" ;
+    cur:verified false .
+
+eb:re-DE-edfeff29a637 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05B-eb-rahmendokumente.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: telc-LZK S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D5 ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lernziele Spezialberufssprachkurse A2 und B1 Basisberufssprachkurse B2 und C1" ;
+    cur:recognitionHint "Titel"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernzielkatalog" ;
+    cur:verified false .
+

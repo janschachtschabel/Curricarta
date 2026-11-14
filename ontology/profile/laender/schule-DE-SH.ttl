@@ -1,0 +1,892 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-SH-014057187ae9,
+        schul:re-DE-SH-06e9922bac90,
+        schul:re-DE-SH-08bd3f9ce34e,
+        schul:re-DE-SH-0fcb4e04b2ff,
+        schul:re-DE-SH-158ec6c09c51,
+        schul:re-DE-SH-1811f0124f10,
+        schul:re-DE-SH-1c89c8c28ed5,
+        schul:re-DE-SH-1f293775b1fb,
+        schul:re-DE-SH-27465bd693a7,
+        schul:re-DE-SH-2e80a973ea38,
+        schul:re-DE-SH-321a0f5fadd0,
+        schul:re-DE-SH-32eb9f11e29d,
+        schul:re-DE-SH-4107f55a89be,
+        schul:re-DE-SH-480043af62af,
+        schul:re-DE-SH-5318fd7ebab0,
+        schul:re-DE-SH-5d9c975b53bc,
+        schul:re-DE-SH-6087053ce34a,
+        schul:re-DE-SH-61bc7c2a59ea,
+        schul:re-DE-SH-677385f300be,
+        schul:re-DE-SH-6e658bcb0ece,
+        schul:re-DE-SH-72271f16542c,
+        schul:re-DE-SH-7270b9a9ecf8,
+        schul:re-DE-SH-788cbe9ed785,
+        schul:re-DE-SH-7ead5524ef32,
+        schul:re-DE-SH-866f675d2237,
+        schul:re-DE-SH-8babeb7c41d1,
+        schul:re-DE-SH-8e3dd20de045,
+        schul:re-DE-SH-93dafb336a03,
+        schul:re-DE-SH-9589b3cc251e,
+        schul:re-DE-SH-9bdf9ff4a358,
+        schul:re-DE-SH-9cea0500f7c5,
+        schul:re-DE-SH-a06c38b7af2e,
+        schul:re-DE-SH-a3c364c3570e,
+        schul:re-DE-SH-a790977571fd,
+        schul:re-DE-SH-b3739f243725,
+        schul:re-DE-SH-b5ae2f7bd05f,
+        schul:re-DE-SH-b86370179668,
+        schul:re-DE-SH-bca972e7b415,
+        schul:re-DE-SH-be08f1139202,
+        schul:re-DE-SH-be8d0511fb12,
+        schul:re-DE-SH-c01cf71dbbca,
+        schul:re-DE-SH-c0686a05f431,
+        schul:re-DE-SH-cb5b48aeedc5,
+        schul:re-DE-SH-cc88fcefb1ad,
+        schul:re-DE-SH-ccc1ec8c0097,
+        schul:re-DE-SH-cea4399bb2e6,
+        schul:re-DE-SH-d292d5addc51,
+        schul:re-DE-SH-d5908cd6297e,
+        schul:re-DE-SH-e443494a8d0a,
+        schul:re-DE-SH-e7113ba28952,
+        schul:re-DE-SH-e84e06776d9d,
+        schul:re-DE-SH-ea0c4b52cfad,
+        schul:re-DE-SH-ebda02e48e68,
+        schul:re-DE-SH-f24cbb6704f3 .
+
+schul:re-DE-SH-014057187ae9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 | Fachanforderungen Mathematik Einleitung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss (MSA)" ;
+    cur:verified false .
+
+schul:re-DE-SH-06e9922bac90 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.20"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Zuordnung zu Klassenstufen kann im schulinternen Fachcurriculum abweichen. Zeitgeschichte nach 1945 mindestens ein Viertel"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die acht Themen sind als Halbjahresthemen konzipiert" ;
+    cur:recognitionHint "Acht Themen als Halbjahresthemen mit Titelfrage"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Halbjahresthemen" ;
+    cur:verified false .
+
+schul:re-DE-SH-08bd3f9ce34e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M24S S.18 | PH26 S.20 | PH19 S.13 | GE16 S.13"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:school-AHR,
+        lvl:school-ESA,
+        lvl:school-MSA,
+        lvl:school-transition ;
+    cur:negativeHint "Nicht Anforderungsniveaus (Sek II) und nicht Anforderungsbereiche. Kennzeichnung im Plan über Typografie oder Spalten"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "auf drei Anforderungsebenen ausgewiesen" ;
+    cur:recognitionHint "Abschnitt 1.4 Anforderungsebenen und Anforderungsbereiche in jeder Sekundarstufe-I-Fachplanung"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungsebenen" ;
+    cur:verified false .
+
+schul:re-DE-SH-0fcb4e04b2ff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.4 und S.45 | AT24 S.6 | PH26 S.42"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtsauftrag,
+        schul:dt-Schulintern ;
+    cur:negativeHint "Ordnet Inhalte den Jahrgangsstufen zu. Das Landesdokument tut es nicht. Kein amtliches Landesdokument"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Aufgabe der schulinternen Fachcurricula ist es, die Kompetenzen und Inhalte über die einzelnen Jahrgangsstufen hinweg aufzubauen" ;
+    cur:recognitionHint "Kapitel 4 bzw. 5 Schulinternes Fachcurriculum. Tabelle Aspekte | Vereinbarungen"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulinternes Fachcurriculum" ;
+    cur:verified false .
+
+schul:re-DE-SH-158ec6c09c51 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DE24S S.18"@de,
+        "Plangeneration laut Länderrecherche: DE24S (2024)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Beispiele Zu anderen sprechen | Verstehend zuhören | Miteinander sprechen | Vor anderen sprechen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Mit der Bezeichnung Kernbereiche werden die zentralen fachlichen Ideen benannt" ;
+    cur:recognitionHint "Kernbereiche gliedern jeden Kompetenzbereich im Deutschunterricht"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kernbereiche" ;
+    cur:verified false .
+
+schul:re-DE-SH-1811f0124f10 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.39"@de,
+        "Plangeneration laut Länderrecherche: PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Kürzel S E K B bezeichnen Sachkompetenz | Erkenntnisgewinnung | Kommunikation | Bewertung. Nicht verwechseln mit K1 bis K6 der Medienkompetenz"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "(K 1.1)" ;
+    cur:recognitionHint "Kürzel in Klammern verweist auf Teilkompetenzen aus Kapitel 2"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "(S 1.1)" ;
+    cur:verified false .
+
+schul:re-DE-SH-1c89c8c28ed5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.11"@de,
+        "Länderrecherche, Beleg E: AT24 S.12"@de,
+        "Länderrecherche, Beleg E: AT24 S.13"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:Democracy,
+        qz:Diversity,
+        qz:Intercultural,
+        qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 5"@de,
+        "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 5. In Plänen bis 2023 Niederdeutsch und Friesisch"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Allgemeiner Teil 2024. Aufgabenfelder von besonderer Bedeutung" ;
+    cur:verified false .
+
+schul:re-DE-SH-1f293775b1fb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ausreichend (4)" ;
+    cur:verified false .
+
+schul:re-DE-SH-27465bd693a7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.39"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:recognitionHint "Kürzel oder Symbol: Erkennen (analytisch) | Bewerten (reflexiv) | Handeln (partizipativ). Verweise (K 1.1) (S 1.1) (E 1.2); markiert: Tabelle in Kapitel 3 nach der Themenübersicht"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Physik Sekundarstufe I 2026. Kernkompetenzen im Lernbereich Globale Entwicklung (KMK-Orientierungsrahmen)" ;
+    cur:verified false .
+
+schul:re-DE-SH-2e80a973ea38 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-nv-esa-msa"@de,
+        "Länderrecherche, Beleg E: AT24 S.7 | PH19 S.4 | GE16 S.16 | M24S S.18"@de,
+        "Plangeneration laut Länderrecherche: Dritte Ebene heißt Übergang in die Oberstufe in PH19 und GE16 (2016 bis 2022) und Allgemeine Hochschulreife (AHR) in AT24 M24S DE24S PH26 WP26A"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:negativeHint "Anforderungsebene (Sek I) ist nicht Anforderungsniveau (Sek II) und nicht Anforderungsbereich (I bis III). AHR in Sek I meint die über MSA hinausgehende Regelanforderung und nicht das Abitur"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Anforderungsebene beschreibt die Regelanforderungen für den Erwerb des ESA" ;
+    cur:recognitionHint "Drei Anforderungsebenen in Sekundarstufe I. Dritte Ebene Übergang in die Oberstufe oder Allgemeine Hochschulreife (AHR)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss (MSA)" ;
+    cur:verified false .
+
+schul:re-DE-SH-321a0f5fadd0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "mangelhaft (5)" ;
+    cur:verified false .
+
+schul:re-DE-SH-32eb9f11e29d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SP04 Inhaltsverzeichnis"@de,
+        "Plangeneration laut Länderrecherche: 2002/2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:sn-emsoz,
+        schul:sn-geistig,
+        schul:sn-hoeren,
+        schul:sn-koerper,
+        schul:sn-lernen,
+        schul:sn-sehen,
+        schul:sn-sprache ;
+    cur:negativeHint "Dazu autistisches Verhalten und Unterricht kranker Schülerinnen und Schüler als eigene Kapitel. Förderschwerpunkt Geistige Entwicklung mit großem G"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Förderschwerpunkt Geistige Entwicklung" ;
+    cur:recognitionHint "Kapitel 4 Sonderpädagogische Förderschwerpunkte mit Unterkapiteln 4.1 bis 4.9"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Förderschwerpunkt" ;
+    cur:verified false .
+
+schul:re-DE-SH-4107f55a89be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.8 und S.46 | AT24 S.13"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtsauftrag ;
+    cur:negativeHint "Unterrichtsbeiträge stärker gewichtet als Leistungsnachweise. In Deutsch Teilnoten Verstehensleistung und Darstellungsleistung (DE24S Kap. 5)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unterrichtsbeiträge und Leistungsnachweise" ;
+    cur:recognitionHint "Zwei Beurteilungsbereiche. Klassenarbeiten als Leistungsnachweise"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsnachweise" ;
+    cur:verified false .
+
+schul:re-DE-SH-480043af62af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.9 | MK24 S.6-9 | M18P S.7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: K1 | K2 | K3 | K4 | K5 | K6; markiert: Aufzählung in AT24 Kap. 2. Tabelle in MK24 Kap. 4. In M18P Übersichtstabelle mit Kürzel in Klammern"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Medienkompetenz in allen Fächern (KMK-Strategie Bildung in der digitalen Welt)" ;
+    cur:verified false .
+
+schul:re-DE-SH-5318fd7ebab0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.38"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:recognitionHint "Kürzel oder Symbol: SDG 3 | SDG 5 | SDG 7 | SDG 9 | SDG 10 | SDG 11 | SDG 13 | SDG 14 | SDG 16; markiert: Vierte Spalte der Themenübersicht je Thema (Energie | Elektrizitätslehre und Magnetismus | Mechanik ...)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Physik Sekundarstufe I 2026. Zuordnung der Ziele für nachhaltige Entwicklung" ;
+    cur:verified false .
+
+schul:re-DE-SH-5d9c975b53bc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.37-38 | PH19 S.34"@de,
+        "Plangeneration laut Länderrecherche: PH19 (2019) PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Reihenfolge und nicht Jahrgang. Block I bis Ende des zweiten Lernjahres bei zwei Wochenstunden"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "alle im ersten Block angegebenen Themen unterrichtet werden, bevor man sich den Themen des zweiten Blocks zuwendet" ;
+    cur:recognitionHint "Zeitgruppen der Themen ohne Jahrgangszuordnung"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Block I" ;
+    cur:verified false .
+
+schul:re-DE-SH-6087053ce34a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M24S S.18 | SU19 S.15 | PH26 S.20 | M18P S.14-15"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:afb-I ;
+    cur:negativeHint "Namen je Fach verschieden. Mathematik Reproduzieren | Zusammenhänge herstellen | Verallgemeinern und Reflektieren. Sachunterricht Nachvollziehen und Reproduzieren | Analysieren und Anwenden | Werten und Transferieren. Kein steigender Schwierigkeitsgrad (M18P S.15). An Aufgaben und Beurteilung gebunden und nicht an Kompetenzerwartungen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anforderungsbereich I: Reproduzieren" ;
+    cur:recognitionHint "Aufzählung mit Namen je Fach. Gelten auf allen Anforderungsebenen und Niveaus"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungsbereich I" ;
+    cur:verified false .
+
+schul:re-DE-SH-61bc7c2a59ea a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030281"@de,
+        "Länderrecherche, Beleg E: SU19 S.28-30"@de,
+        "Plangeneration laut Länderrecherche: SU19 (2019)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis,
+        schul:Inhalt ;
+    cur:negativeHint "Gegenstück zu Verbindliche Themen und Inhalte in der Mathematik. Singular Mögliches Thema nicht gefunden"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Diese sind fakultativ gestellt, um aktuellen und/oder regionalen Aspekten im Unterricht Raum zu geben" ;
+    cur:recognitionHint "Spaltenkopf der Übersichtstabelle in Kap. 4. Inhalte sind ausdrücklich fakultativ"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mögliche Themen und Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-SH-677385f300be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.5-6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 2.2 im Allgemeinen Teil der Plangeneration bis 2023. Kein Fachplanbezug"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematik Primarstufe 2018. Auseinandersetzung mit Kernproblemen des gesellschaftlichen Lebens" ;
+    cur:verified false .
+
+schul:re-DE-SH-6e658bcb0ece a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030018"@de,
+        "Länderrecherche, Beleg E: AT24 S.6 | PH26 S.21"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo schul:Regelstandard,
+        schul:dt-Bildungsstandards ;
+    cur:negativeHint "Die Bildungsstandards sind Grundlage und Quelle. Die Erwartungen stehen als eigene Kompetenzen im Plan. PH26 nennt die Teilkompetenzen Regelstandards"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "In allen Fächern, in denen die Kultusministerkonferenz Bildungsstandards beschlossen hat, liegen diese den Fachanforderungen zugrunde" ;
+    cur:recognitionHint "Grundlagenhinweis in Geltungsbereich. Keine Kennzeichnung einzelner Erwartungen als Bildungsstandard"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsstandards der Kultusministerkonferenz" ;
+    cur:verified false .
+
+schul:re-DE-SH-72271f16542c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030260"@de,
+        "Länderrecherche, Beleg E: M18P S.16-18 | M24P S.23-24 | M24S S.27-28 | PH19 S.23ff"@de,
+        "Plangeneration laut Länderrecherche: ab 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nur Plural als Spaltenkopf. Vorgabe (verbindlich) und Hinweis (didaktisch) stehen in einer Spalte. Kennzeichnung der Hinweise durch Kursivdruck in M18P und M24P. PH26 Sek I nutzt stattdessen Inhalte und Hinweise"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Vorgaben sind umzusetzen" ;
+    cur:recognitionHint "Rechte Tabellenspalte. Verbindliche Vorgaben und kursiv gedruckte didaktische Hinweise"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorgaben und Hinweise" ;
+    cur:verified false .
+
+schul:re-DE-SH-7270b9a9ecf8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.8 und S.46 | AT24 S.13"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtsauftrag ;
+    cur:negativeHint "Unterrichtsbeiträge stärker gewichtet als Leistungsnachweise. In Deutsch Teilnoten Verstehensleistung und Darstellungsleistung (DE24S Kap. 5)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unterrichtsbeiträge und Leistungsnachweise" ;
+    cur:recognitionHint "Zwei Beurteilungsbereiche. Klassenarbeiten als Leistungsnachweise"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterrichtsbeiträge" ;
+    cur:verified false .
+
+schul:re-DE-SH-788cbe9ed785 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.20-21"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Historische Inhalte dürfen im schulinternen Fachcurriculum modifiziert werden. Fachmethodische Schwerpunkte nur gewichtet"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die den Themen zugeordneten fachmethodischen Schwerpunkte sind in ihrer Gesamtheit verbindlich" ;
+    cur:recognitionHint "Spalten der Tabelle Verbindliche Themen in Sekundarstufe I"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Historische Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-SH-7ead5524ef32 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.39"@de,
+        "Plangeneration laut Länderrecherche: PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Kürzel S E K B bezeichnen Sachkompetenz | Erkenntnisgewinnung | Kommunikation | Bewertung. Nicht verwechseln mit K1 bis K6 der Medienkompetenz"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "(K 1.1)" ;
+    cur:recognitionHint "Kürzel in Klammern verweist auf Teilkompetenzen aus Kapitel 2"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "(K 1.1)" ;
+    cur:verified false .
+
+schul:re-DE-SH-866f675d2237 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.50 | PH19 S.39 | GE16 S.26"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-advanced,
+        lvl:course-basic ;
+    cur:negativeHint "Grundlegendes Niveau ist Regelfall. Erhöhtes Niveau in Geschichte als profilgebendes Fach. In den Tabellen grau hinterlegt und fett"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "das grundlegende und das erhöhte Anforderungsniveau" ;
+    cur:recognitionHint "Abschnitt 1.4 Anforderungsniveaus und Anforderungsbereiche in Teil III Sekundarstufe II"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungsniveaus" ;
+    cur:verified false .
+
+schul:re-DE-SH-8babeb7c41d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.27-28"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Vorschläge und kein Pflichtinhalt. Im Gegensatz dazu sind fett gedruckte Historische Inhalte verbindlich (GE16 S.27)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die Problemorientierten Fragestellungen sind Vorschläge" ;
+    cur:recognitionHint "Rechte Spalte der Oberstufentabellen. KONTROVERSE: in Großbuchstaben als Zeilenmarke"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Problemorientierte Fragestellungen" ;
+    cur:verified false .
+
+schul:re-DE-SH-8e3dd20de045 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.9 | MK24 S.9"@de,
+        "Plangeneration laut Länderrecherche: AT24 und MK24 (2024). M18P S.7: Suchen und Arbeiten (K1)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo qz:DigitalWorld,
+        qz:kmkdig-1,
+        qz:kmkdig-2,
+        qz:kmkdig-3,
+        qz:kmkdig-4,
+        qz:kmkdig-5,
+        qz:kmkdig-6 ;
+    cur:negativeHint "Name von K1 hat sich 2018 zu 2024 geändert. K2 Kommunizieren und Kooperieren. K3 Produzieren und Präsentieren. K4 Schützen und sicher Agieren. K5 Problemlösen und Handeln. K6 Analysieren und Reflektieren"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "K1: Suchen, Verarbeiten und Aufbewahren" ;
+    cur:recognitionHint "Kürzel K1 bis K6 für die sechs KMK-Medienkompetenzbereiche"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "K1 Suchen, Verarbeiten und Aufbewahren" ;
+    cur:verified false .
+
+schul:re-DE-SH-93dafb336a03 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.22-23"@de,
+        "Plangeneration laut Länderrecherche: PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Teilkompetenz ist die kleinste Aussage. Kompetenz (S1) ist Gruppenüberschrift"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Kompetenzen | Teilkompetenzen | Konkretisierungen" ;
+    cur:recognitionHint "Spaltenkopf mit Kürzel S 1.1 und Einleitung Die Schülerinnen und Schüler …"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teilkompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-SH-9589b3cc251e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.20-21"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Historische Inhalte dürfen im schulinternen Fachcurriculum modifiziert werden. Fachmethodische Schwerpunkte nur gewichtet"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die den Themen zugeordneten fachmethodischen Schwerpunkte sind in ihrer Gesamtheit verbindlich" ;
+    cur:recognitionHint "Spalten der Tabelle Verbindliche Themen in Sekundarstufe I"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachmethodische Schwerpunkte" ;
+    cur:verified false .
+
+schul:re-DE-SH-9bdf9ff4a358 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M24P S.20-21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Grafiksymbole (kein Codepunkt im Textlayer. dort nur ( ) mit U+0020); markiert: Fließtext und Tabellenzellen in Kapitel 3 (Lage nicht geprüft)"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematik Primarstufe 2024. Fachdidaktische Potenziale digitaler Medien und informatische Bildung" ;
+    cur:verified false .
+
+schul:re-DE-SH-9cea0500f7c5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.8 | M24S S.19"@de,
+        "Plangeneration laut Länderrecherche: ab 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:lgr-different ;
+    cur:negativeHint "Förderplan mit individuell zu erreichenden Leistungserwartungen. Zielgleich ist nicht ausdrücklich benannt"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "die zieldifferent unterrichtet werden" ;
+    cur:recognitionHint "Zieldifferentes Unterrichten mit Förderplan"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "zieldifferent" ;
+    cur:verified false .
+
+schul:re-DE-SH-a06c38b7af2e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.38-39"@de,
+        "Plangeneration laut Länderrecherche: PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo qz:BNE ;
+    cur:negativeHint "Kürzel SDG und Zahl. Daneben Tabelle Kernkompetenzen im Lernbereich Globale Entwicklung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "SDG 7: Bezahlbare und saubere Energie" ;
+    cur:recognitionHint "Vierte Spalte der Themenübersicht mit SDG-Nummer und Titel"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zuordnung der Ziele für nachhaltige Entwicklung" ;
+    cur:verified false .
+
+schul:re-DE-SH-a3c364c3570e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.11-13 | M18P S.5-6"@de,
+        "Plangeneration laut Länderrecherche: ab 2024. Vorher Auseinandersetzung mit Kernproblemen des gesellschaftlichen Lebens und Aufgabenfelder von besonderer Bedeutung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Keine Marker im Fachplan. Fachpläne greifen sie nur punktuell auf (PH26 SDG-Zuordnung)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "nicht dem Unterricht einzelner Fächer zugeordnet" ;
+    cur:recognitionHint "Zwei Kapitel im Allgemeinen Teil. Nicht dem Unterricht einzelner Fächer zugeordnet"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zentrale Themen des gesellschaftlichen Lebens" ;
+    cur:verified false .
+
+schul:re-DE-SH-a790977571fd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-ib-themenbereich"@de,
+        "Länderrecherche, Beleg E: SU19 S.20"@de,
+        "Plangeneration laut Länderrecherche: SU19 (2019)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Nachgeordnet dem Themenfeld und kein Inhaltsbereich. Keine Nummerierung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Themenbereiche Ernährung, Bewegung, Hygiene, Zahngesundheit, Psychohygiene" ;
+    cur:recognitionHint "Nur im Fließtext unter einem Themenfeld. Keine eigene Überschrift"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Themenbereiche" ;
+    cur:verified false .
+
+schul:re-DE-SH-b3739f243725 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.21"@de,
+        "Plangeneration laut Länderrecherche: PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo schul:Regelstandard ;
+    cur:negativeHint "Hier ist Regelstandard der Name der Teilkompetenz-Aussagen im Landesplan und nicht der KMK-Rahmen. Beim Import beide trennen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Sie werden in Form von Regelstandards präzisiert" ;
+    cur:recognitionHint "Im Text: Kompetenzbereiche werden in Form von Regelstandards präzisiert"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Regelstandards" ;
+    cur:verified false .
+
+schul:re-DE-SH-b5ae2f7bd05f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.16-17"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016). Ab 2024 AHR"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo lvl:school-transition ;
+    cur:negativeHint "Entspricht Allgemeine Hochschulreife (AHR) der neueren Pläne"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "ESA MSA Übergang Oberstufe" ;
+    cur:recognitionHint "Dritte Spalte in der Kompetenzmatrix ESA | MSA | Übergang Oberstufe"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang Oberstufe" ;
+    cur:verified false .
+
+schul:re-DE-SH-b86370179668 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.11"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Democracy,
+        qz:Diversity,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 4 im Allgemeinen Teil. Keine Markierung im Fachplan"@de,
+        "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 4. Keine Markierung im Fachplan"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Allgemeiner Teil 2024. Zentrale Themen des gesellschaftlichen Lebens" ;
+    cur:verified false .
+
+schul:re-DE-SH-bca972e7b415 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030276"@de,
+        "Länderrecherche, Beleg E: PH26 S.58-59 | PH19 Kap. III.2.2"@de,
+        "Plangeneration laut Länderrecherche: PH19 und PH26"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis,
+        schul:Inhalt ;
+    cur:negativeHint "Nur Plural als Spaltenkopf. Illustriert den Aspekt und ist keine Pflichtvorgabe"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Aspekte | Beispielinhalte" ;
+    cur:recognitionHint "Spaltenkopf neben Aspekte in den Basiskonzept-Tabellen der Sekundarstufe II"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispielinhalte" ;
+    cur:verified false .
+
+schul:re-DE-SH-be08f1139202 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ungenügend (6)" ;
+    cur:verified false .
+
+schul:re-DE-SH-be8d0511fb12 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M24P S.20-21 | M24P S.23-28"@de,
+        "Plangeneration laut Länderrecherche: M24P (2024). M18P ohne Symbole"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:negativeHint "Symbolform im Textlayer nicht lesbar. Nur die Legende im Fließtext vorhanden. Position (Randspalte oder Zelle) nicht geprüft"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "mit den Symbolen für fachdidaktische Potenziale digitaler Medien und für Inhalte informatischer Bildung gekennzeichnet" ;
+    cur:recognitionHint "Grafiksymbole im Fließtext und in Tabellen. Textlayer zeigt nur ( ) mit U+0020 zwischen den Klammern. Kein Codepunkt"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Symbole für fachdidaktische Potenziale digitaler Medien und für Inhalte informatischer Bildung" ;
+    cur:verified false .
+
+schul:re-DE-SH-c01cf71dbbca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030022"@de,
+        "Länderrecherche, Beleg E: PH26 S.22 | DE24S S.19"@de,
+        "Plangeneration laut Länderrecherche: ab 2024 (DE24S) und 2026 (PH26)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis,
+        schul:Inhalt ;
+    cur:negativeHint "Nicht Konkretisierung - Hinweis und Vorschlag. Konkretisierungen sind beispielhaft und in Deutsch durch gleichwertige Gegenstände ersetzbar"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "z. B. beim Erklären der Entstehung eines Regenbogens" ;
+    cur:recognitionHint "Dritte Spalte der Teilkompetenztabellen. Beispiele mit Anfang z. B. In Deutsch zweite Spalte mit fachlichen Auslegungen"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konkretisierungen" ;
+    cur:verified false .
+
+schul:re-DE-SH-c0686a05f431 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.11-13 | M18P S.5-6"@de,
+        "Plangeneration laut Länderrecherche: ab 2024. Vorher Auseinandersetzung mit Kernproblemen des gesellschaftlichen Lebens und Aufgabenfelder von besonderer Bedeutung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Keine Marker im Fachplan. Fachpläne greifen sie nur punktuell auf (PH26 SDG-Zuordnung)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "nicht dem Unterricht einzelner Fächer zugeordnet" ;
+    cur:recognitionHint "Zwei Kapitel im Allgemeinen Teil. Nicht dem Unterricht einzelner Fächer zugeordnet"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgabenfelder von besonderer Bedeutung" ;
+    cur:verified false .
+
+schul:re-DE-SH-cb5b48aeedc5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "befriedigend (3)" ;
+    cur:verified false .
+
+schul:re-DE-SH-cc88fcefb1ad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: AT24 S.7 | GE16 S.26"@de,
+        "Plangeneration laut Länderrecherche: ab 2014"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:st-gemeinschaftsschule ;
+    cur:negativeHint "Gemeinschaftsschule muss allen drei Anforderungsebenen gerecht werden. Gymnasium vorrangig Übergang bzw. AHR"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Unterricht in der Sekundarstufe I der Gemeinschaftsschule führt Schülerinnen und Schüler ... zum Ersten allgemeinbildenden Schulabschluss" ;
+    cur:recognitionHint "Schulartname in Geltungsbereich und Oberstufenkapitel"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gemeinschaftsschule" ;
+    cur:verified false .
+
+schul:re-DE-SH-ccc1ec8c0097 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 | Fachanforderungen Mathematik Einleitung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-transition ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergang in die Oberstufe" ;
+    cur:verified false .
+
+schul:re-DE-SH-cea4399bb2e6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SU19 S.17 | S.20 | S.27"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld,
+        qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Abschnitt 3.1.2 Fachwissen und Themenfelder 3.2.3 Gesundheit | 3.2.6 Mobilität | 3.2.10 Medien"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sachunterricht Primarstufe 2019. Fächerübergreifende Bereiche und Themenfeld Medien" ;
+    cur:verified false .
+
+schul:re-DE-SH-d292d5addc51 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 | Fachanforderungen Mathematik Einleitung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erster allgemeinbildender Schulabschluss (ESA)" ;
+    cur:verified false .
+
+schul:re-DE-SH-d5908cd6297e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.4 | SU19 S.16 | M24P S.22"@de,
+        "Plangeneration laut Länderrecherche: ab 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-eingang ;
+    cur:negativeHint "Jahrgangsstufen 1 und 2 und flexibel („ein bis drei Jahre Zeit“ M18P S.16). Vorläuferfähigkeiten werden zu Beginn festgestellt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sie gliedert sich in eine Eingangsphase und die Jahrgangsstufen 3 und 4" ;
+    cur:recognitionHint "Zwischenüberschrift in den Kompetenztabellen. Eigenes Kapitel 2 Das Fach ... in der Eingangsphase"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Eingangsphase" ;
+    cur:verified false .
+
+schul:re-DE-SH-e443494a8d0a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SU19 S.21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Themenfeld 3.2.4 als Inhaltsbereich und nicht als Querschnitt markiert"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sachunterricht Primarstufe 2019. Themenfeld Soziales und Politisches" ;
+    cur:verified false .
+
+schul:re-DE-SH-e7113ba28952 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PH26 S.37-38 | PH19 S.34"@de,
+        "Plangeneration laut Länderrecherche: PH19 (2019) PH26 (2026)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Reihenfolge und nicht Jahrgang. Block I bis Ende des zweiten Lernjahres bei zwei Wochenstunden"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "alle im ersten Block angegebenen Themen unterrichtet werden, bevor man sich den Themen des zweiten Blocks zuwendet" ;
+    cur:recognitionHint "Zeitgruppen der Themen ohne Jahrgangszuordnung"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Block II" ;
+    cur:verified false .
+
+schul:re-DE-SH-e84e06776d9d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: M18P S.25 | M24P S.29"@de,
+        "Plangeneration laut Länderrecherche: ab 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Eingangsdiagnose vor der Eingangsphase. Keine Erwartung am Ende des Abschnitts"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Zu Beginn der Eingangsphase sind die Vorläuferfähigkeiten festzustellen" ;
+    cur:recognitionHint "Erste Tabelle je Inhaltsbereich mit Spalte Vorläuferfähigkeiten statt Verbindliche Themen und Inhalte"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorläuferfähigkeiten" ;
+    cur:verified false .
+
+schul:re-DE-SH-ea0c4b52cfad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "gut (2)" ;
+    cur:verified false .
+
+schul:re-DE-SH-ebda02e48e68 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GE16 S.27-28"@de,
+        "Plangeneration laut Länderrecherche: GE16 (2016)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Vorschläge und kein Pflichtinhalt. Im Gegensatz dazu sind fett gedruckte Historische Inhalte verbindlich (GE16 S.27)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die Problemorientierten Fragestellungen sind Vorschläge" ;
+    cur:recognitionHint "Rechte Spalte der Oberstufentabellen. KONTROVERSE: in Großbuchstaben als Zeilenmarke"@de ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "KONTROVERSE:" ;
+    cur:verified false .
+
+schul:re-DE-SH-f24cbb6704f3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: ZVO Gesamtausgabe 31.07.2018 bis 30.07.2023 S. 1-2 | Jahrgang 3 laut news4teachers 2018 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-SH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sehr gut (1)" ;
+    cur:verified false .
+

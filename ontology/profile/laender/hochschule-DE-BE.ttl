@@ -1,0 +1,56 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-BE-62fc539e415e,
+        hs:re-DE-BE-83bcb43fe696,
+        hs:re-DE-BE-9e17e8c1e200 .
+
+hs:re-DE-BE-62fc539e415e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: lexaris-Gesetzestext (Sekundärquelle) und Senatsseite"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt ;
+    cur:negativeHint "Praxissemester im dritten Mastersemester - Änderungsentwurf 2025 zur Streckung über mehrere Semester"@de ;
+    cur:positiveExample "Gesetz über die Aus-, Fort- und Weiterbildung der Lehrerinnen und Lehrer im Land Berlin" ;
+    cur:recognitionHint "Gesetz über die Aus-, Fort- und Weiterbildung der Lehrerinnen und Lehrer im Land Berlin"@de ;
+    cur:scopeRegion land:DE-BE ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehrkräftebildungsgesetz (LBiG)" ;
+    cur:verified false .
+
+hs:re-DE-BE-83bcb43fe696 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BHT S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Studienbereich ;
+    cur:negativeHint "Ordnet das Modul einem Fachgebiet zu und nicht einem Strukturknoten mit LP-Forderung"@de ;
+    cur:positiveExample "Lerngebiet Mathematisch-naturwissenschaftliche Grundlagen" ;
+    cur:recognitionHint "Feld mit Wert wie Mathematisch-naturwissenschaftliche Grundlagen"@de ;
+    cur:scopeRegion land:DE-BE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lerngebiet" ;
+    cur:verified false .
+
+hs:re-DE-BE-9e17e8c1e200 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BHT S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Modulziel ;
+    cur:negativeHint "Kurzer Fließtext statt Aufzählung"@de ;
+    cur:positiveExample "Lernziele / Kompetenzen" ;
+    cur:recognitionHint "Feldname mit Schrägstrich"@de ;
+    cur:scopeRegion land:DE-BE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernziele / Kompetenzen" ;
+    cur:verified false .
+

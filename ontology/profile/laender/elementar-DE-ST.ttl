@@ -1,0 +1,629 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-ST-0034d8123af2,
+        elem:re-DE-ST-0ff38b679524,
+        elem:re-DE-ST-240042e3ab75,
+        elem:re-DE-ST-24fa699d6582,
+        elem:re-DE-ST-263bdd7be21b,
+        elem:re-DE-ST-2736a125fae5,
+        elem:re-DE-ST-27b12eeb6cd2,
+        elem:re-DE-ST-37960de0d976,
+        elem:re-DE-ST-406855501e34,
+        elem:re-DE-ST-4a395914dac8,
+        elem:re-DE-ST-4bad0436995d,
+        elem:re-DE-ST-5420c8c793d0,
+        elem:re-DE-ST-55f827baf2fa,
+        elem:re-DE-ST-5aa047a79b4b,
+        elem:re-DE-ST-5ac7fc506a13,
+        elem:re-DE-ST-65aebc283ea4,
+        elem:re-DE-ST-65cea9742e9b,
+        elem:re-DE-ST-75b268f9e945,
+        elem:re-DE-ST-7b23e5611a54,
+        elem:re-DE-ST-7e447f93554d,
+        elem:re-DE-ST-82fb3c858494,
+        elem:re-DE-ST-8e65827114af,
+        elem:re-DE-ST-8f148d9da1bf,
+        elem:re-DE-ST-9432f20be75b,
+        elem:re-DE-ST-a220feac1f40,
+        elem:re-DE-ST-b18baf021ff5,
+        elem:re-DE-ST-bc45f40e9071,
+        elem:re-DE-ST-bd4ed7230b89,
+        elem:re-DE-ST-c3667a79a797,
+        elem:re-DE-ST-c4c5158a02d2,
+        elem:re-DE-ST-d0141b8ba7b3,
+        elem:re-DE-ST-d8b0762f8224,
+        elem:re-DE-ST-dd79d82376ae,
+        elem:re-DE-ST-e3fc0db8c662,
+        elem:re-DE-ST-e537dbe29a11,
+        elem:re-DE-ST-e810af6b0fb0,
+        elem:re-DE-ST-f105cdcd7f0f,
+        elem:re-DE-ST-fc40abe95f32,
+        elem:re-DE-ST-fef108dc7aa9 .
+
+elem:re-DE-ST-0034d8123af2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 52"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-geschlechtersensibel ;
+    cur:negativeHint "Bezeichnung weicht von geschlechtersensibler Pädagogik ab"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von 1.6"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.6.4 Geschlechtergerechtigkeit" ;
+    cur:verified false .
+
+elem:re-DE-ST-0ff38b679524 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 28"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bindung-beziehung ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.3 Bindung und Vertrauen" ;
+    cur:verified false .
+
+elem:re-DE-ST-240042e3ab75 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: https://www.st-martin-kita.de/html/bildungsbereiche.html"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-naturwissenschaft ;
+    cur:negativeHint "2025 zusammengefasst unter MINT"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2013: Natur - wissenschaftliche Grunderfahrungen (Schreibweise mit Bindestrich wie auf der Quelle)"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Natur - wissenschaftliche Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-24fa699d6582 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: https://www.st-martin-kita.de/html/bildungsbereiche.html"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-technik ;
+    cur:negativeHint "2025 zusammengefasst unter MINT"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2013: Technik"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Technik" ;
+    cur:verified false .
+
+elem:re-DE-ST-263bdd7be21b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 73"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-kindergarten ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Altersgruppenabschnitt"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.2.2 Kinder im Alter von drei Jahren bis zum Schuleintritt" ;
+    cur:verified false .
+
+elem:re-DE-ST-2736a125fae5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 48"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Fachkraft Anrede in dritter Person Erzieherinnen und Erzieher"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Erzieherinnen und Erzieher achten insbesondere darauf, dass sie" ;
+    cur:recognitionHint "Fassung 2004: Aufzählung mit Einleitung Erzieherinnen und Erzieher achten insbesondere darauf, dass sie"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungen an das erzieherische Handeln" ;
+    cur:verified false .
+
+elem:re-DE-ST-27b12eeb6cd2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 46"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Frage ist an das Kind gerichtet und nicht an die Fachkraft. Entspricht der späteren Reflexionsfrage nur funktional"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Was ist dem Kind angenehm - was nicht?" ;
+    cur:recognitionHint "Fassung 2004: Fragen an die Beobachtung der Erzieherinnen"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitfragen für die Beobachtung" ;
+    cur:verified false .
+
+elem:re-DE-ST-37960de0d976 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 70"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mathematik ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Bereich 5"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-406855501e34 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 57"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-kulturelle-vielfalt,
+        elem:f-personal-sozial ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Bereich 3"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "(Inter)kulturelle und soziale Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-4a395914dac8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 55"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:room-design ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.7 Gestaltung von Bildungsräumen" ;
+    cur:verified false .
+
+elem:re-DE-ST-4bad0436995d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Satzform im Abschnitt nicht eingesehen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Abschnitt je Bereich"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erfahrungen, die jedes Kind in diesem Bildungsbereich machen sollte" ;
+    cur:verified false .
+
+elem:re-DE-ST-5420c8c793d0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 19"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderrechte ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.1 Kinderrechte" ;
+    cur:verified false .
+
+elem:re-DE-ST-55f827baf2fa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 76"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-hort ;
+    cur:negativeHint "Zuordnung zum Hort aus Kapitel 3.4 abgeleitet"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Altersgruppenabschnitt für Schulkinder"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.2.3 Kinder im Alter von sechs bis 14 Jahren" ;
+    cur:verified false .
+
+elem:re-DE-ST-5aa047a79b4b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: IV2025 S. 184 | S. 202 | S. 216 | S. 100"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe,
+        elem:Handlungsfeld ;
+    cur:negativeHint "Aufgaben der Fachkräfte nach Titel zu erwarten. Satzform nicht geprüft"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "wiederholt als x.x.2 in jedem Bildungsbereich und als 2.5.3 Pädagogisches Handeln gestalten"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Pädagogisches Handeln" ;
+    cur:verified false .
+
+elem:re-DE-ST-5ac7fc506a13 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-c6b7135302e4"@de,
+        "Länderrecherche, Beleg E: IV2025 S. 86"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:negativeHint "Reihenfolge Erziehungs- und Bildungspartnerschaft (nicht Bildungs- und Erziehungspartnerschaft)"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel mit 2.4.2 Erziehungs- und Bildungspartnerschaft in der Praxis"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.4 Eltern und Familien" ;
+    cur:verified false .
+
+elem:re-DE-ST-65aebc283ea4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 60"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Mischt Kinder mit Rahmenbedingungen von Fachkraft Team Leitung Träger"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kapitel 2 mit 2.1 bis 2.10"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2 Kindertageseinrichtungen als Bildungsraum" ;
+    cur:verified false .
+
+elem:re-DE-ST-65cea9742e9b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: IV2025 S. 194 | S. 208 | S. 230"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls,
+        elem:Praxisbeispiel ;
+    cur:negativeHint "Aussageart (Impuls oder Praxisbeispiel) nicht am Text geprüft"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "wiederholt als x.x.3 in jedem Bildungsbereich"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Ideen für die Gestaltung des pädagogischen Alltags" ;
+    cur:verified false .
+
+elem:re-DE-ST-75b268f9e945 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 132"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-sozialraum ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 2"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.10 Kooperation und Netzwerke" ;
+    cur:verified false .
+
+elem:re-DE-ST-7b23e5611a54 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 148"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:transitions-in-day ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 3"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3.2 Übergänge im Tagesverlauf" ;
+    cur:verified false .
+
+elem:re-DE-ST-7e447f93554d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: IV2025 S. 181 | S. 197 | S. 211"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Funktion (Teilbereich versus Bildungsziel) ohne Textlektüre nicht entscheidbar"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "wiederholt als x.x.1 in jedem Bildungsbereich"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Interesse und Handeln der Kinder" ;
+    cur:verified false .
+
+elem:re-DE-ST-82fb3c858494 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 39"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo qz:Democracy ;
+    cur:negativeHint "Kein Bildungsbereich und gehört zu den Leitgedanken"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von 1.5 Teilhabe"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.5.2 Demokratiebildung" ;
+    cur:verified false .
+
+elem:re-DE-ST-8e65827114af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 30"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-spiel ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.4 Spiel und Bildung" ;
+    cur:verified false .
+
+elem:re-DE-ST-8f148d9da1bf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 68"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-krippe ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Altersgruppenabschnitt"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.2.1 Kinder bis zum dritten Lebensjahr" ;
+    cur:verified false .
+
+elem:re-DE-ST-9432f20be75b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 166–174"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "Nummerierung als Leitlinie statt QA"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Leitlinie 8: Qualitätsmanagement" ;
+    cur:recognitionHint "nummerierte Leitlinie mit Namen"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitlinie 1: Partizipation" ;
+    cur:verified false .
+
+elem:re-DE-ST-a220feac1f40 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 74"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-naturwissenschaft ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Bereich 6"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Welterkundung und naturwissenschaftliche Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-b18baf021ff5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 34"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von 1.5 Teilhabe"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.5.1 Partizipation und Selbstbestimmung" ;
+    cur:verified false .
+
+elem:re-DE-ST-bc45f40e9071 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 63"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-aesthetik ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Bereich 4"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ästhetik und Kreativität" ;
+    cur:verified false .
+
+elem:re-DE-ST-bd4ed7230b89 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.2 Verständnis von Bildungsprozessen" ;
+    cur:verified false .
+
+elem:re-DE-ST-c3667a79a797 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: https://www.st-martin-kita.de/html/bildungsbereiche.html"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-bildnerisch ;
+    cur:negativeHint "2025 zusammengefasst unter Ästhetische Bildung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2013: Bildende Kunst"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Bildende Kunst" ;
+    cur:verified false .
+
+elem:re-DE-ST-c4c5158a02d2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: https://www.st-martin-kita.de/html/bildungsbereiche.html"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-tanz-darstellendes-spiel ;
+    cur:negativeHint "2025 zusammengefasst unter Ästhetische Bildung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2013: Darstellende Kunst"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Darstellende Kunst" ;
+    cur:verified false .
+
+elem:re-DE-ST-d0141b8ba7b3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 176"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kapitelüberschrift über den sieben Bereichen"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "5 Bildungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-ST-d8b0762f8224 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 49"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-literacy,
+        elem:f-sprache ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: Bereich 2"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikation, Sprache(n) und Schriftkultur" ;
+    cur:verified false .
+
+elem:re-DE-ST-dd79d82376ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 164–174"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Leitlinien sind keine Querschnittsprinzipien und entsprechen funktional den Qualitätsansprüchen. Satzform nicht geprüft"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Leitlinie 1: Partizipation" ;
+    cur:recognitionHint "Kapitel 4 mit 4.1 bis 4.8 als Leitlinie 1 bis 8"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "4 Leitlinien: Qualitätskriterien für die pädagogische Arbeit in den Kindertageseinrichtungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-e3fc0db8c662 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 61"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderschutz ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 2"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.1 Kinderschutz" ;
+    cur:verified false .
+
+elem:re-DE-ST-e537dbe29a11 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 41"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 1 mit 1.6.1 bis 1.6.4"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1.6 Pädagogik der Vielfalt und Inklusion" ;
+    cur:verified false .
+
+elem:re-DE-ST-e810af6b0fb0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 156"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:school-preparation,
+        elem:Uebergang ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 3"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3.4 Übergang in die Schule und den Hort" ;
+    cur:verified false .
+
+elem:re-DE-ST-f105cdcd7f0f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: https://www.st-martin-kita.de/html/bildungsbereiche.html"@de,
+        "Plangeneration laut Länderrecherche: 2013"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:f-koerper ;
+    cur:negativeHint "Fassung 2013 und nicht 2025"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2013: Körper"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Bildungsbereiche (neun Bereiche)" ;
+    cur:verified false .
+
+elem:re-DE-ST-fc40abe95f32 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP2004 S. 28–38"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Fassung 2004: 2.2 mit Elementare Bildung | Bildung von Anfang an | Förderung von Schlüsselkompetenzen | Partizipation | Diversität und Integration | Kontextorientierung"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachliche Grundorientierungen" ;
+    cur:verified false .
+
+elem:re-DE-ST-fef108dc7aa9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-ST.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: IV2025 S. 125"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:childminding ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Unterkapitel von Kapitel 2"@de ;
+    cur:scopeRegion land:DE-ST ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2.9 Kindertagespflege" ;
+    cur:verified false .
+

@@ -1,0 +1,160 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-BW-071d9e3cd68a,
+        hs:re-DE-BW-08ffe81e4099,
+        hs:re-DE-BW-3e301100604a,
+        hs:re-DE-BW-4088aae83987,
+        hs:re-DE-BW-451d61bc21e4,
+        hs:re-DE-BW-5b8a438cbcf5,
+        hs:re-DE-BW-85eafd1d7715,
+        hs:re-DE-BW-b0aa4babc092,
+        hs:re-DE-BW-bace06b1e348,
+        hs:re-DE-BW-da9468847f5a .
+
+hs:re-DE-BW-071d9e3cd68a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Amtliche Bekanntmachungen der DHBW Nr. 21/2023 vom 24. Juli 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:dt-SPO ;
+    cur:negativeHint "eine Satzung gilt für alle Studiengänge eines Studienbereichs - Modul- und Prüfungspläne stehen je Studiengang in Anlage 2"@de ;
+    cur:positiveExample "Studien- und Prüfungsordnung für die Bachelorstudiengänge im Studienbereich Technik der Dualen Hochschule Baden-Württemberg (DHBW) (Studien- und Prüfungsordnung DHBW Technik – StuPrO DHBW Technik)" ;
+    cur:recognitionHint "Kürzel StuPrO mit Studienbereich im Titel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Studien- und Prüfungsordnung DHBW Technik – StuPrO DHBW Technik" ;
+    cur:verified false .
+
+hs:re-DE-BW-08ffe81e4099 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Trossingen S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:KuenstlerischesHauptfach ;
+    cur:negativeHint "Hier Fach des Schwerpunkts ohne Ausdruck Hauptfach"@de ;
+    cur:positiveExample "Orgel (E)" ;
+    cur:recognitionHint "Zeile in Künstlerischer Schwerpunkt (KSP) mit SWS und LP je Semester"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orgel" ;
+    cur:verified false .
+
+hs:re-DE-BW-3e301100604a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DHBW S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:af-klausur ;
+    cur:negativeHint "Dauer verweist auf die Prüfungsordnung statt Wert"@de ;
+    cur:positiveExample "EINGESETZTE PRÜFUNGSFORMEN PRÜFUNGSLEISTUNG PRÜFUNGSUMFANG (IN MINUTEN) BENOTUNG ja Siehe Pruefungsordnung Klausur" ;
+    cur:recognitionHint "Versalienabschnitt mit Spalten PRÜFUNGSLEISTUNG | PRÜFUNGSUMFANG (IN MINUTEN) | BENOTUNG"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "EINGESETZTE PRÜFUNGSFORMEN" ;
+    cur:verified false .
+
+hs:re-DE-BW-4088aae83987 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Amtliche Bekanntmachungen der DHBW Nr. 21/2023 S. 1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Aenderungssatzung ;
+    cur:negativeHint "Neubekanntmachung enthält Änderungen bis einschließlich der Siebten Änderungssatzung - nicht als eigene Ordnung lesen"@de ;
+    cur:positiveExample "wurde zur vorliegenden Neubekanntmachung ermächtigt" ;
+    cur:recognitionHint "Formel zur Bekanntmachung der Fassung einschließlich Änderungssatzungen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Neubekanntmachung" ;
+    cur:verified false .
+
+hs:re-DE-BW-451d61bc21e4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Amtliche Bekanntmachungen der DHBW Nr. 21/2023 Inhaltsübersicht"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Studienverlaufsplan ;
+    cur:negativeHint "Anlage der Satzung und kein eigenständiges Modulhandbuch - das Wort Modulhandbuch kommt in der Satzung nicht vor"@de ;
+    cur:positiveExample "Anlage 2 Übersicht über die Modul- und Prüfungspläne der Studiengänge im Studienbereich Technik" ;
+    cur:recognitionHint "Anlage zur Satzung mit je einem Modul- und Prüfungsplan pro Studiengang"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anlage 2 Übersicht über die Modul- und Prüfungspläne der Studiengänge im Studienbereich Technik" ;
+    cur:verified false .
+
+hs:re-DE-BW-5b8a438cbcf5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: PH Freiburg Gesamtausgabe (Sekundärquelle) § 2 Studienumfang Regelstudienzeiten Kooperationen Schulpraxis"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt ;
+    cur:negativeHint "Gymnasiallehrerprüfungsordnung I (GymPO I) regelt die Erste Staatsprüfung und läuft aus"@de ;
+    cur:positiveExample "RahmenVO-KM vom 27. April 2015 (Gültig ab 01.08.2015)" ;
+    cur:recognitionHint "Verordnung für Lehramtsstudiengänge Grundschule Sekundarstufe I Gymnasium Sonderpädagogik"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Rahmenvorgabenverordnung Lehramtsstudiengänge (RahmenVO-KM)" ;
+    cur:verified false .
+
+hs:re-DE-BW-85eafd1d7715 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DHBW S.4 | DHBW S.28"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Modulziel ;
+    cur:negativeHint "Unterfelder dürfen leer sein (Wert -)"@de ;
+    cur:positiveExample "FACHKOMPETENZ Mit Abschluss des Moduls haben die Studierenden" ;
+    cur:recognitionHint "Vier Unterfelder FACHKOMPETENZ | METHODENKOMPETENZ | PERSONALE UND SOZIALE KOMPETENZ | ÜBERGREIFENDE HANDLUNGSKOMPETENZ"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "FACHKOMPETENZ" ;
+    cur:verified false .
+
+hs:re-DE-BW-b0aa4babc092 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DHBW S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Modulziel ;
+    cur:negativeHint "Unterfelder siehe nächste Zeile"@de ;
+    cur:positiveExample "QUALIFIKATIONSZIELE UND KOMPETENZEN FACHKOMPETENZ" ;
+    cur:recognitionHint "Versalienüberschrift mit Unterfeldern"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "QUALIFIKATIONSZIELE UND KOMPETENZEN" ;
+    cur:verified false .
+
+hs:re-DE-BW-bace06b1e348 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DHBW S.28"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Inhalt ;
+    cur:positiveExample "LERNEINHEITEN UND INHALTE" ;
+    cur:recognitionHint "Versalienüberschrift mit Tabelle LEHR- UND LERNEINHEITEN und Aufzählung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "LERNEINHEITEN UND INHALTE" ;
+    cur:verified false .
+
+hs:re-DE-BW-da9468847f5a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: DHBW S.4 | DHBW S.28"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Lehrveranstaltung ;
+    cur:negativeHint "Im Text Unit genannt (Die Unit Betriebssysteme)"@de ;
+    cur:positiveExample "LEHR- UND LERNEINHEITEN PRÄSENZZEIT SELBSTSTUDIUM" ;
+    cur:recognitionHint "Tabelle Einheit mit Präsenzzeit und Selbststudium je Zeile"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "LEHR- UND LERNEINHEITEN" ;
+    cur:verified false .
+

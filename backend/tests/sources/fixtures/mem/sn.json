@@ -1,0 +1,621 @@
+{
+ "closure": [
+  {
+   "ancestors": "https://example.org/mem/sn/t0009",
+   "grades": "",
+   "label": "Regel",
+   "n": "https://example.org/mem/sn/t0010",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60304",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010",
+   "grades": "",
+   "label": "Aufgabe Abschnitt Ordnung Einheit",
+   "n": "https://example.org/mem/sn/t0011",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60306",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011",
+   "grades": "",
+   "label": "Skizze der Darstellung zu Grundlage Lösung Beispiel",
+   "n": "https://example.org/mem/sn/t0012",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60308",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0012",
+   "description": "Frage sowie Lösung für Zusammenhang sammeln Wirkung schrittweise und...",
+   "grades": "",
+   "label": "Form beschreiben mit Ergebnis",
+   "n": "https://example.org/mem/sn/t0013",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60315",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0012",
+   "description": "Ergebnis weitere zu Vorgang nutzen Aufgabe eigene Ordnung Einheit ordnen für Material sammeln Übersicht schrittweise und...",
+   "grades": "",
+   "label": "passende darstellen Übersicht",
+   "n": "https://example.org/mem/sn/t0014",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60318",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0012",
+   "description": "Tabelle Inhalt eine zeigen 2. Auswahl sachgerecht Thema der. Frage zu gemeinsam nutzen, an eigene Wirkung...",
+   "grades": "",
+   "label": "Beispiel",
+   "n": "https://example.org/mem/sn/t0015",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60332",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0012",
+   "description": "Wirkung Beobachtung vergleichen Begriff Schritt planen über beschreiben mit eine Gruppe...",
+   "grades": "",
+   "label": "sowie Muster",
+   "n": "https://example.org/mem/sn/t0016",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60343",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011",
+   "grades": "",
+   "label": "Beobachtung bei sachgerecht Schritt der Anordnung",
+   "n": "https://example.org/mem/sn/t0017",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60345",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002113"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Antwort 12",
+   "n": "https://example.org/mem/sn/t0018",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60348",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Begriff",
+   "n": "https://example.org/mem/sn/t0019",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60354",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0019",
+   "description": "Wirkung Beobachtung eine zeigen bei Form prüfen der Ergebnis- zu Gruppe nutzen Muster...",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Vorgang das Aufgabe von Ordnung- erklären Reihe",
+   "n": "https://example.org/mem/sn/t0020",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030050"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0019",
+   "description": "Abschnitt Ordnung vergleichen in Verfahren planen über Übersicht mit Inhalt zeigen Antwort sachgerecht...",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Antwort ordnen Skizze",
+   "n": "https://example.org/mem/sn/t0021",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030050"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0019",
+   "description": "Thema Darstellung von selbstständig erklären Beispiel, passende darstellen Wirkung vergleichen Folge einfache Schritt über beschreiben Angabe...",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Begriff zu Form nutzen an Ergebnis auswerten Gruppe ordnen für Aufgabe",
+   "n": "https://example.org/mem/sn/t0022",
+   "position": "3",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030050"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018",
+   "description": "Schritt an eigene auswerten Ergebnis",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "hours": "6",
+   "label": "Ordnung einfache planen über Material",
+   "n": "https://example.org/mem/sn/t0023",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60380",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002113"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0025",
+   "grades": "",
+   "label": "Beispiel mit eine Wirkung",
+   "n": "https://example.org/mem/sn/t0024",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Regel prüfen der weitere Begriff gemeinsam Form an Angabe",
+   "n": "https://example.org/mem/sn/t0025",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60382",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0025",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Aufgabe über beschreiben Einheit",
+   "n": "https://example.org/mem/sn/t0026",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60383",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0025|https://example.org/mem/sn/t0029",
+   "grades": "",
+   "label": "Vorgang: Muster, Aufgabe",
+   "n": "https://example.org/mem/sn/t0028",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0025",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Skizze passende Darstellung oder vergleichen Lösung",
+   "n": "https://example.org/mem/sn/t0029",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60385",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0034",
+   "grades": "",
+   "label": "Antwort Auswahl",
+   "n": "https://example.org/mem/sn/t0033",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Form und Angabe benennen Bereich selbstständig Vorgang, Muster passende darstellen Ordnung",
+   "n": "https://example.org/mem/sn/t0034",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60390",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0037",
+   "grades": "",
+   "label": "Begriff für ihre Anordnung",
+   "n": "https://example.org/mem/sn/t0036",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Material sowie Übersicht für ihre Methode nach Auswahl und Thema benennen von Grundlage",
+   "n": "https://example.org/mem/sn/t0037",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60392",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0037",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Beispiel weitere Regel",
+   "n": "https://example.org/mem/sn/t0039",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60394",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0023|https://example.org/mem/sn/t0037",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Vorgang",
+   "n": "https://example.org/mem/sn/t0040",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60395",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018",
+   "description": "Verfahren sachgerecht Merkmal der weitere Inhalt",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "hours": "22",
+   "label": "Darstellung erklären Grundlage passende darstellen Zusammenhang",
+   "n": "https://example.org/mem/sn/t0041",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60396",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002113"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041|https://example.org/mem/sn/t0043",
+   "grades": "",
+   "label": "Reihe gemeinsam Material an eigene Tabelle: Inhalt, Methode- für Auswahl...",
+   "n": "https://example.org/mem/sn/t0042",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Antwort oder vergleichen Thema",
+   "n": "https://example.org/mem/sn/t0043",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60398",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041|https://example.org/mem/sn/t0048",
+   "grades": "",
+   "label": "Grundlage zeigen Beispiel sachgerecht Regel: Wirkung, Beobachtung, Folge...",
+   "n": "https://example.org/mem/sn/t0047",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Begriff benennen von Anordnung erklären Ergebnis",
+   "n": "https://example.org/mem/sn/t0048",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60402",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041|https://example.org/mem/sn/t0051",
+   "grades": "",
+   "label": "Bereich in Vorgang planen Aufgabe: Abschnitt, Ordnung, Einheit, ...",
+   "n": "https://example.org/mem/sn/t0050",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Reihe für ihre Merkmal",
+   "n": "https://example.org/mem/sn/t0051",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60404",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041|https://example.org/mem/sn/t0056",
+   "grades": "",
+   "label": "Inhalt: Methode erklären Auswahl passende Thema oder vergleichen Grundlage – Lösung...",
+   "n": "https://example.org/mem/sn/t0055",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0018|https://example.org/mem/sn/t0041",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000012",
+   "label": "Grundlage gemeinsam Beispiel an eigene Wirkung sowie Folge für ihre sammeln Anordnung",
+   "n": "https://example.org/mem/sn/t0056",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60408",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Reihe 13",
+   "n": "https://example.org/mem/sn/t0060",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60414",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060",
+   "description": "Lösung planen über Regel",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "hours": "6",
+   "label": "Angabe nach schrittweise Gruppe",
+   "n": "https://example.org/mem/sn/t0061",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60416",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002113"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "",
+   "label": "Beobachtung sammeln nach Schritt und Anordnung",
+   "n": "https://example.org/mem/sn/t0062",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Bereich zeigen Vorgang sachgerecht prüfen Abschnitt",
+   "n": "https://example.org/mem/sn/t0063",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60419",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Inhalt in Antwort",
+   "n": "https://example.org/mem/sn/t0064",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60420",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063|https://example.org/mem/sn/t0066",
+   "grades": "",
+   "label": "Ordnung an eigene auswerten Material",
+   "n": "https://example.org/mem/sn/t0065",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Beobachtung",
+   "n": "https://example.org/mem/sn/t0066",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60422",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Ordnung",
+   "n": "https://example.org/mem/sn/t0067",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60424",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Darstellung",
+   "n": "https://example.org/mem/sn/t0069",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60427",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Angabe",
+   "n": "https://example.org/mem/sn/t0071",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60430",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0061|https://example.org/mem/sn/t0063",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Übersicht planen Inhalt",
+   "n": "https://example.org/mem/sn/t0072",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60431",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060",
+   "description": "Gruppe Vorgang",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "hours": "18",
+   "label": "Übersicht Tabelle",
+   "n": "https://example.org/mem/sn/t0073",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60434",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002113"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Regel die Beobachtung",
+   "n": "https://example.org/mem/sn/t0074",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60437",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074|https://example.org/mem/sn/t0076",
+   "grades": "",
+   "label": "Darstellung (Frage): Grundlage der Beispiel zu gemeinsam Wirkung",
+   "n": "https://example.org/mem/sn/t0075",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Aufgabe schrittweise Ordnung",
+   "n": "https://example.org/mem/sn/t0076",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60440",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074|https://example.org/mem/sn/t0078",
+   "grades": "",
+   "label": "Angabe: Ergebnis über Gruppe mit Muster Aufgabe: Abschnitt sachgerecht Einheit...",
+   "n": "https://example.org/mem/sn/t0077",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Skizze auswerten Darstellung ordnen Grundlage",
+   "n": "https://example.org/mem/sn/t0078",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60442",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "prüfen Anordnung",
+   "n": "https://example.org/mem/sn/t0079",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60446",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0074",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Material beschreiben mit Tabelle",
+   "n": "https://example.org/mem/sn/t0081",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60449",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073|https://example.org/mem/sn/t0083",
+   "grades": "",
+   "label": "Übersicht die passende Methode oder vergleichen Skizze einfache planen Frage beschreiben Lösung ...",
+   "n": "https://example.org/mem/sn/t0082",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000852|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002116"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010|https://example.org/mem/sn/t0011|https://example.org/mem/sn/t0060|https://example.org/mem/sn/t0073",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000013",
+   "label": "Beispiel darstellen Regel vergleichen in Folge",
+   "n": "https://example.org/mem/sn/t0083",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60453",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000332|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002115"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010",
+   "grades": "",
+   "label": "Grundlage",
+   "n": "https://example.org/mem/sn/t0085",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60469",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010",
+   "grades": "",
+   "label": "Bereich",
+   "n": "https://example.org/mem/sn/t0086",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60475",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  },
+  {
+   "ancestors": "https://example.org/mem/sn/t0009|https://example.org/mem/sn/t0010",
+   "grades": "",
+   "label": "Inhalt",
+   "n": "https://example.org/mem/sn/t0087",
+   "page": "https://www.schulportal.sachsen.de/lplandb/lplan/211/qvgN80DA9liDucw5WjZk/60477",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0002110"
+  }
+ ],
+ "endpoint": "https://sparql.mem.edufeed.org/sparql",
+ "graph": "https://w3id.org/lehrplan/sn",
+ "plan": "https://example.org/mem/sn/t0009",
+ "read_at": "2026-11-09",
+ "references": [
+  {
+   "label": "Reihe, Verfahren",
+   "target": "https://example.org/mem/sn/t0007",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0027",
+   "x": "https://example.org/mem/sn/t0026"
+  },
+  {
+   "label": "Grundlage",
+   "target": "https://example.org/mem/sn/t0003",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0030",
+   "x": "https://example.org/mem/sn/t0029"
+  },
+  {
+   "label": "Bereich",
+   "target": "https://example.org/mem/sn/t0002",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0031",
+   "x": "https://example.org/mem/sn/t0029"
+  },
+  {
+   "label": "Inhalt ihre sammeln Auswahl",
+   "target": "https://example.org/mem/sn/t0001",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0032",
+   "x": "https://example.org/mem/sn/t0029"
+  },
+  {
+   "label": "Beobachtung",
+   "target": "https://example.org/mem/sn/t0008",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0035",
+   "x": "https://example.org/mem/sn/t0034"
+  },
+  {
+   "label": "Ordnung",
+   "target": "https://example.org/mem/sn/t0000",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0038",
+   "x": "https://example.org/mem/sn/t0037"
+  },
+  {
+   "label": "Darstellung",
+   "target": "https://example.org/mem/sn/t0000",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0044",
+   "x": "https://example.org/mem/sn/t0043"
+  },
+  {
+   "label": "Angabe",
+   "target": "https://example.org/mem/sn/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0045",
+   "x": "https://example.org/mem/sn/t0043"
+  },
+  {
+   "label": "sammeln Tabelle",
+   "target": "https://example.org/mem/sn/t0004",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0046",
+   "x": "https://example.org/mem/sn/t0043"
+  },
+  {
+   "label": "Regel eigene auswerten Folge",
+   "target": "https://example.org/mem/sn/t0001",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0049",
+   "x": "https://example.org/mem/sn/t0048"
+  },
+  {
+   "label": "Aufgabe",
+   "target": "https://example.org/mem/sn/t0000",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0052",
+   "x": "https://example.org/mem/sn/t0051"
+  },
+  {
+   "label": "Skizze",
+   "target": "https://example.org/mem/sn/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0053",
+   "x": "https://example.org/mem/sn/t0051"
+  },
+  {
+   "label": "Form",
+   "target": "https://example.org/mem/sn/t0006",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0054",
+   "x": "https://example.org/mem/sn/t0051"
+  },
+  {
+   "label": "Material",
+   "target": "https://example.org/mem/sn/t0006",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0057",
+   "x": "https://example.org/mem/sn/t0056"
+  },
+  {
+   "label": "Beispiel",
+   "target": "https://example.org/mem/sn/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0058",
+   "x": "https://example.org/mem/sn/t0056"
+  },
+  {
+   "label": "der Muster",
+   "target": "https://example.org/mem/sn/t0004",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0059",
+   "x": "https://example.org/mem/sn/t0056"
+  },
+  {
+   "label": "Antwort",
+   "target": "https://example.org/mem/sn/t0000",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0068",
+   "x": "https://example.org/mem/sn/t0067"
+  },
+  {
+   "label": "Begriff",
+   "target": "https://example.org/mem/sn/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0070",
+   "x": "https://example.org/mem/sn/t0069"
+  },
+  {
+   "label": "Reihe",
+   "target": "https://example.org/mem/sn/t0006",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0080",
+   "x": "https://example.org/mem/sn/t0079"
+  },
+  {
+   "label": "Grundlage",
+   "target": "https://example.org/mem/sn/t0002",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0002089|https://w3id.org/lehrplan/ontology/LP_0030065|https://w3id.org/lehrplan/ontology/LP_0030191",
+   "v": "https://example.org/mem/sn/t0084",
+   "x": "https://example.org/mem/sn/t0083"
+  }
+ ],
+ "synthetic": true
+}

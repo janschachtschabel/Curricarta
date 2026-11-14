@@ -1,0 +1,749 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-RP-0215e82351fa,
+        schul:re-DE-RP-02b5f42b7c47,
+        schul:re-DE-RP-03602161103c,
+        schul:re-DE-RP-0498ebd4ff33,
+        schul:re-DE-RP-067732fc31f7,
+        schul:re-DE-RP-0b9823b3a223,
+        schul:re-DE-RP-1793c66160b2,
+        schul:re-DE-RP-280eab7d52bf,
+        schul:re-DE-RP-2ddbfa93bcef,
+        schul:re-DE-RP-305e41d1c740,
+        schul:re-DE-RP-30d367a7e7b0,
+        schul:re-DE-RP-5d018eb5517e,
+        schul:re-DE-RP-61750579fef9,
+        schul:re-DE-RP-646366298b4c,
+        schul:re-DE-RP-66ce09d82314,
+        schul:re-DE-RP-73c6362db57f,
+        schul:re-DE-RP-765b64ef30e1,
+        schul:re-DE-RP-77f0d89539d5,
+        schul:re-DE-RP-79985a4275c5,
+        schul:re-DE-RP-79f1fedf8410,
+        schul:re-DE-RP-7a3c0c2632f1,
+        schul:re-DE-RP-7ecf63b9a4f3,
+        schul:re-DE-RP-7ef22844c093,
+        schul:re-DE-RP-87f5321ac47b,
+        schul:re-DE-RP-8b765acadaed,
+        schul:re-DE-RP-8c95154d2a96,
+        schul:re-DE-RP-8db54b8aa458,
+        schul:re-DE-RP-8ed5a78e5d15,
+        schul:re-DE-RP-8f3b5ffa7cf8,
+        schul:re-DE-RP-90505a3b6805,
+        schul:re-DE-RP-9337cce0c19e,
+        schul:re-DE-RP-9a6dc8f3339f,
+        schul:re-DE-RP-af437ffdc555,
+        schul:re-DE-RP-b54b150c5f75,
+        schul:re-DE-RP-bbf96132df87,
+        schul:re-DE-RP-bcbc5b3fe107,
+        schul:re-DE-RP-bdfdde48753b,
+        schul:re-DE-RP-be29ac5836f8,
+        schul:re-DE-RP-cb6f8e8dc0e5,
+        schul:re-DE-RP-d03995825d02,
+        schul:re-DE-RP-df36fe56b690,
+        schul:re-DE-RP-e4135067c16b,
+        schul:re-DE-RP-f3b9258d2bd3,
+        schul:re-DE-RP-f61fc8eefb48,
+        schul:re-DE-RP-fe519b3add77,
+        schul:re-DE-RP-ff040d44ff83 .
+
+schul:re-DE-RP-0215e82351fa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 88"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "EK: Individuelle Lebenswege der Lernenden (I.1 – Orientierung in Rheinland-Pfalz)" ;
+    cur:recognitionHint "Zeile In den Fächern EK/SK mit Verweisen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bezüge zu anderen Lernfeldern" ;
+    cur:verified false .
+
+schul:re-DE-RP-02b5f42b7c47 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 11 und S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:nw-evaluation ;
+    cur:negativeHint "Wissen nutzen ohne Ziel in der Zielliste"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kompetenzen in den Bereichen" ;
+    cur:recognitionHint "Rubrik Kompetenzen in den Bereichen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bewertung" ;
+    cur:verified false .
+
+schul:re-DE-RP-03602161103c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik MSS S. 14-15"@de,
+        "Plangeneration laut Länderrecherche: 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Orientierungsstufe hat sieben andere Basiskonzepte"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.5.1 Erhaltung und Gleichgewicht" ;
+    cur:recognitionHint "2.5.1 Erhaltung und Gleichgewicht | Superposition und Komponenten | Mathematisieren und Vorhersagen | Zufall und Determiniertheit"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basiskonzepte Physik Oberstufe" ;
+    cur:verified false .
+
+schul:re-DE-RP-0498ebd4ff33 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de,
+        "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ausreichend (4)" ;
+    cur:verified false .
+
+schul:re-DE-RP-067732fc31f7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0000432"@de,
+        "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 16 | NaWi OS S. 18 | GW Sek I S. 88"@de,
+        "Plangeneration laut Länderrecherche: 2007 bis 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Mathematik Sek I Prozesskompetenz und keine Erwartung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "K2: Geeignete Strategien zum Problemlösen anwenden" ;
+    cur:recognitionHint "Mathematik Sek I nennt allgemeine Kompetenz K1 bis K6 | NaWi Schüleraktivitäten"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-RP-0b9823b3a223 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002197"@de,
+        "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 16 | Mathematik MSS S. 22"@de,
+        "Plangeneration laut Länderrecherche: 2007 und 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo schul:Inhalt,
+        schul:Kompetenzerwartung ;
+    cur:negativeHint "Sek I Inhalt. Oberstufe Spalte Ziele / Inhalte mit Operator gleich Kompetenzerwartung"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Natürliche Zahlen ordnen, runden und veranschaulichen" ;
+    cur:recognitionHint "Mathematik Sek I Stichwörter | Oberstufe Operatorsätze"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-RP-1793c66160b2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 (kein erweiterter erster Abschluss ausgewiesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsreife" ;
+    cur:verified false .
+
+schul:re-DE-RP-280eab7d52bf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 11 und S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:nw-inquiry ;
+    cur:negativeHint "Wissen nutzen ohne Ziel in der Zielliste"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kompetenzen in den Bereichen" ;
+    cur:recognitionHint "Rubrik Kompetenzen in den Bereichen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erkenntnisgewinnung" ;
+    cur:verified false .
+
+schul:re-DE-RP-2ddbfa93bcef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030100"@de,
+        "Länderrecherche, Beleg E: NaWi OS S. 19"@de,
+        "Plangeneration laut Länderrecherche: Rahmenlehrplan 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Plural. Ganze Sätze und keine Stichwörter"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Sinneseindrücke ermöglichen die Orientierung in der Umwelt." ;
+    cur:recognitionHint "Erste Spalte unter Anschlussfähiges Fachwissen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhalte und Zusammenhänge" ;
+    cur:verified false .
+
+schul:re-DE-RP-305e41d1c740 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht GS S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2006"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Daneben Lehrplan und Rahmenlehrplan"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "RAHMENPLAN GRUNDSCHULE Teilrahmenplan Sachunterricht" ;
+    cur:recognitionHint "Titelblatt"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenplan Grundschule Teilrahmenplan" ;
+    cur:verified false .
+
+schul:re-DE-RP-30d367a7e7b0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 5-7"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:gw-action,
+        schul:Bildungsbeitrag ;
+    cur:negativeHint "Orientierungs- und Gestaltungskompetenz ohne Ziel in der Zielliste"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Handlungskompetenz ist eine Leitkompetenz" ;
+    cur:recognitionHint "Orientierungskompetenz | Handlungskompetenz | Gestaltungskompetenz"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitkompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-RP-5d018eb5517e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030099"@de,
+        "Länderrecherche, Beleg E: Physik MSS S. 16 und S. 24"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Plural. Nicht verbindlich nur bei Wahlpflichtbausteinen offen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "a) Zielrichtung mit einer Aussage über die Intensität und den Umfang" ;
+    cur:recognitionHint "Rubrik mit Unterpunkten a) b) c) im Baustein"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zur unterrichtlichen Umsetzung" ;
+    cur:verified false .
+
+schul:re-DE-RP-61750579fef9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002200"@de,
+        "Länderrecherche, Beleg E: Mathematik MSS S. 22-23"@de,
+        "Plangeneration laut Länderrecherche: Stand März 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Plural Ziele / Inhalte"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "4. Faktor-, Summen- und Potenzregel kennen und anwenden (4.05g, 4.06g)" ;
+    cur:recognitionHint "Nummerierte Sätze mit Operator und Kompetenzkürzel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele / Inhalte (Sach- und Methodenkompetenz)" ;
+    cur:verified false .
+
+schul:re-DE-RP-646366298b4c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030113"@de,
+        "Länderrecherche, Beleg S: Bio HR TF1 S. 5 und S. 8"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 7-9/10 ab 2014/15"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Plural im Original. Kein Kursniveau"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der erste Abschnitt reduziert das Themengebiet auf ein grundlegendes Verständnis." ;
+    cur:recognitionHint "Rubrik am Ende der Themenfeld-Doppelseite mit zwei Absätzen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Differenzierungsmöglichkeiten" ;
+    cur:verified false .
+
+schul:re-DE-RP-66ce09d82314 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 88 und S. 12"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "Müssen am Ende Klasse 9 bzw. 10 selbstständig erklärt werden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Geschichte, Zeit, Zeitrechnungen, Chronologie, Quelle – Darstellung" ;
+    cur:recognitionHint "Zeile unter dem Lernfeldtitel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundbegriffe" ;
+    cur:verified false .
+
+schul:re-DE-RP-73c6362db57f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ungenügend (6)" ;
+    cur:verified false .
+
+schul:re-DE-RP-765b64ef30e1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik MSS S. 17"@de,
+        "Länderrecherche, Beleg E: Physik MSS S. 7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Wahlpflichtbaustein Individuelles Thema; markiert: Fliesstext"@de,
+        "Kürzel oder Symbol: digitale Werkzeuge; markiert: Fliesstext"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan Physik MSS" ;
+    cur:verified false .
+
+schul:re-DE-RP-77f0d89539d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 15 und S. 17"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Computer (Textlayer U+001D); markiert: Hinweisspalte"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenlehrplan Mathematik Sek I Symbole in der Hinweisspalte" ;
+    cur:verified false .
+
+schul:re-DE-RP-79985a4275c5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 9"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: Lebenskompetenzen als Leitziel (Randnotiz); markiert: Randspalte und Fliesstext"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rahmenlehrplan Naturwissenschaften 5/6" ;
+    cur:verified false .
+
+schul:re-DE-RP-79f1fedf8410 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Rahmenteil und kein Lernfeld"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die unter Basis aufgeführten Inhalte sind verpflichtend." ;
+    cur:recognitionHint "Abschnitt 5 der Gesamtkonzeption"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zur Differenzierung und zur Stundentafel" ;
+    cur:verified false .
+
+schul:re-DE-RP-7a3c0c2632f1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 12-13"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Oberstufe Physik hat vier andere Basiskonzepte"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "die elf einzelnen Basiskonzepte der Fächer Biologie, Chemie und Physik zu sieben gemeinsamen zusammengefasst" ;
+    cur:recognitionHint "System | Struktur – Eigenschaft – Funktion | Stoff – Teilchen – Materie | Chemische Reaktion | Wechselwirkung | Energiekonzept | Entwicklung"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basiskonzepte (sieben)" ;
+    cur:verified false .
+
+schul:re-DE-RP-7ecf63b9a4f3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 15 und S. 19"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Nicht Anwendungsfähiges Wissen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anschlussfähiges Fachwissen" ;
+    cur:recognitionHint "Titel der Tabelle auf Seite 3"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anschlussfähiges Fachwissen" ;
+    cur:verified false .
+
+schul:re-DE-RP-7ef22844c093 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 14 | NaWi OS S. 14"@de,
+        "Plangeneration laut Länderrecherche: 2007 und 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-orientierung ;
+    cur:negativeHint "Phase vor der Mittelstufe"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "6 Orientierungsstufe" ;
+    cur:recognitionHint "Klassenstufen 5 und 6 aller Schularten"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungsstufe" ;
+    cur:verified false .
+
+schul:re-DE-RP-87f5321ac47b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 3 und S. 19"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: Verbindlicher Demokratietag; markiert: Eigenes Kapitel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan Gesellschaftswissenschaften Sek I" ;
+    cur:verified false .
+
+schul:re-DE-RP-8b765acadaed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik MSS S. 6 | NaWi OS S. 6 | RLP Mathematik Sek I S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2007 bis 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Bildungsbeitrag,
+        schul:Rahmenteil ;
+    cur:negativeHint "Überschrift lautet je Plan etwas anders"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.1 Der Bildungsbeitrag des Faches Physik" ;
+    cur:recognitionHint "Kapitel 1"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beitrag des Faches" ;
+    cur:verified false .
+
+schul:re-DE-RP-8c95154d2a96 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Deutsch Sek I (RFB) S. 3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy,
+        qz:DigitalWorld,
+        qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: Leitprinzipien; markiert: Allgemeiner Teil"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehrplan Deutsch Sek I" ;
+    cur:verified false .
+
+schul:re-DE-RP-8db54b8aa458 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de,
+        "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sehr gut (1)" ;
+    cur:verified false .
+
+schul:re-DE-RP-8ed5a78e5d15 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: Leitgedanke der Partizipation; markiert: Fachvorbemerkung Sozialkunde"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan Gesellschaftswissenschaften Sek I Sozialkunde" ;
+    cur:verified false .
+
+schul:re-DE-RP-8f3b5ffa7cf8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 7"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:recognitionHint "Kürzel oder Symbol: Gestaltungskompetenz; markiert: Fliesstext Gesamtkonzeption"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan Gesellschaftswissenschaften Sek I Leitkompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-RP-90505a3b6805 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de,
+        "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "gut (2)" ;
+    cur:verified false .
+
+schul:re-DE-RP-9337cce0c19e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de,
+        "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "befriedigend (3)" ;
+    cur:verified false .
+
+schul:re-DE-RP-9a6dc8f3339f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002198"@de,
+        "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 15-16"@de,
+        "Plangeneration laut Länderrecherche: Rahmenlehrplan Mai 2007"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis,
+        schul:Verweis ;
+    cur:negativeHint "Plural. Spalte mischt Hinweise und Verweise (® →)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "® L2: Messen und Größen" ;
+    cur:recognitionHint "Dritte Spalte der Tabelle Kompetenzen | Inhalte | Hinweise"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise und Vernetzung" ;
+    cur:verified false .
+
+schul:re-DE-RP-af437ffdc555 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 10 und S. 88"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Unterrichtsauftrag ;
+    cur:negativeHint "Leitfragen müssen im problemorientierten Unterricht berücksichtigt werden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Geschichte umgibt uns" ;
+    cur:recognitionHint "Erste Rubrik der ersten Seite"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitfrage(n)/Leitgedanke(n)" ;
+    cur:verified false .
+
+schul:re-DE-RP-b54b150c5f75 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 66 | GW Sek I S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2007 und 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:negativeHint "qualifizierter Sekundarabschluss I gleich MSA"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Klassenstufe 9 (Qualifikation der Berufsreife)" ;
+    cur:recognitionHint "Klassenstufe 9 bzw. 10"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-RP-bbf96132df87 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP Mathematik Sek I S. 4-5"@de,
+        "Plangeneration laut Länderrecherche: 2007"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:sk-process,
+        schul:Kompetenzbereich ;
+    cur:negativeHint "Prozessbezogen und keine Inhaltsbereiche"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "K1: Mathematisch argumentieren" ;
+    cur:recognitionHint "K1: Mathematisch argumentieren bis K6: Kommunizieren"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "allgemeine mathematische Kompetenzen K1 bis K6" ;
+    cur:verified false .
+
+schul:re-DE-RP-bcbc5b3fe107 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: G8GTS-Richtlinien S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Handreichung ;
+    cur:negativeHint "Kein eigener Lehrplan: gelten in Verbindung mit den Lehrplänen (S. 4)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "RICHTLINIEN zur Umsetzung der Lehrpläne Biologie, Chemie und Physik" ;
+    cur:recognitionHint "Titel RICHTLINIEN zur Umsetzung der Lehrpläne"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtlinien" ;
+    cur:verified false .
+
+schul:re-DE-RP-bdfdde48753b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002201"@de,
+        "Länderrecherche, Beleg E: Mathematik MSS S. 22-23"@de,
+        "Plangeneration laut Länderrecherche: Stand März 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Plural. Laut S. 12 nicht verbindlich"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Der Begriff Grenzwert soll exemplarisch an Zahlenfolgen erfahren werden." ;
+    cur:recognitionHint "Rechte Spalte neben Ziele / Inhalte"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zur Unterrichtsgestaltung und Methodenkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-RP-be29ac5836f8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 80-81 und S. 86"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Gruppiert mehrere Lernfelder"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "ESP 5 – Von den Bürgerlichen Revolutionen zu den Nationalstaaten" ;
+    cur:recognitionHint "Sieben ESP verbindlich für alle Schularten"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Epochaler Schwerpunkt (ESP)" ;
+    cur:verified false .
+
+schul:re-DE-RP-cb6f8e8dc0e5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 15 und S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Bildungsbeitrag ;
+    cur:negativeHint "In Sek I Biologie heißt die Rubrik Intention"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Sinne sind unser natürlicher Zugang zur Welt." ;
+    cur:recognitionHint "Erste Seite des Themenfelds"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Charakterisierung" ;
+    cur:verified false .
+
+schul:re-DE-RP-d03995825d02 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GW Sek I S. 88-89"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Nicht Lernfeld im Sinne der Berufsbildung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernfeld I.1 Einführung in das Fach Geschichte" ;
+    cur:recognitionHint "Nummer und Titel mit Stundenansatz"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernfeld" ;
+    cur:verified false .
+
+schul:re-DE-RP-df36fe56b690 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NaWi OS S. 11 und S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:nw-communication ;
+    cur:negativeHint "Wissen nutzen ohne Ziel in der Zielliste"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kompetenzen in den Bereichen" ;
+    cur:recognitionHint "Rubrik Kompetenzen in den Bereichen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikation" ;
+    cur:verified false .
+
+schul:re-DE-RP-e4135067c16b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de,
+        "Länderrecherche, Beleg E: § 53 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "mangelhaft (5)" ;
+    cur:verified false .
+
+schul:re-DE-RP-f3b9258d2bd3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07C-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: § 34 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ungenügend (6) ab Klassenstufe 3" ;
+    cur:verified false .
+
+schul:re-DE-RP-f61fc8eefb48 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25 (kein erweiterter erster Abschluss ausgewiesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualifizierter Sekundarabschluss I" ;
+    cur:verified false .
+
+schul:re-DE-RP-fe519b3add77 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030098"@de,
+        "Länderrecherche, Beleg E: Physik MSS S. 16 und S. 21 und S. 24"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2022"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Hat Zeitumfang daher Einheit statt Inhaltsbereich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kinematik / Einführungsphase Grundfach / Pflichtbaustein / Stundenansatz: 10" ;
+    cur:recognitionHint "Kopfleiste mit Stundenansatz und Pflicht oder Wahlpflicht"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplanbausteine" ;
+    cur:verified false .
+
+schul:re-DE-RP-ff040d44ff83 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030027"@de,
+        "Länderrecherche, Beleg E: Sachunterricht GS S. 11 und S. 28"@de,
+        "Plangeneration laut Länderrecherche: Teilrahmenplan 2006"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Tippfehler Erfahrungbereich in der Vorliste. In Tabellen nur Titel plus Perspektive"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Erfahrungsbereich „Ich und andere“ – Perspektive Gesellschaft" ;
+    cur:recognitionHint "Doppelbenennung Erfahrungsbereich plus Perspektive"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erfahrungsbereich" ;
+    cur:verified false .
+

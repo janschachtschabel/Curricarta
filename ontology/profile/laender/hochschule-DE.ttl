@@ -1,0 +1,143 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-083d43b677d9,
+        hs:re-DE-14220e352cef,
+        hs:re-DE-27c5d656f3b1,
+        hs:re-DE-39118ba18dc2,
+        hs:re-DE-43bfaf324705,
+        hs:re-DE-75108e1673dc,
+        hs:re-DE-7b6295cf1009,
+        hs:re-DE-ef030c328dbe .
+
+hs:re-DE-083d43b677d9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. Thüringen Nr. 6/2026 S. 168 (BY: § 12 Abs. 7 BayStudAkkV)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:sm-dual-ausbildung,
+        hs:sm-dual-beruf,
+        hs:sm-dual-praxis ;
+    cur:negativeHint "berufsbegleitend ohne curriculare Verzahnung ist nicht dual"@de ;
+    cur:positiveExample "Ein Studiengang darf als „dual“ bezeichnet und beworben werden, wenn die Lernorte, zu denen mindestens eine Hochschule oder Berufsakademie und ein Betrieb gehören müssen, systematisch sowohl inhaltlich als auch organisatorisch und vertraglich miteinander verzahnt sind." ;
+    cur:recognitionHint "Voraussetzung systematische Verzahnung der Lernorte"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ein Studiengang darf als „dual“ bezeichnet und beworben werden" ;
+    cur:verified false .
+
+hs:re-DE-14220e352cef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: THWS S.9 | BHT S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:tf-su ;
+    cur:positiveExample "Seminaristischer Unterricht" ;
+    cur:recognitionHint "Wert im Feld Lehrveranstaltungsart bzw. Lernform"@de ;
+    cur:scopeRegion land:DE-BE,
+        land:DE-BY ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Seminaristischer Unterricht" ;
+    cur:verified false .
+
+hs:re-DE-27c5d656f3b1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.13 | HfMT S.5 | Frankfurt S.13 | BHT S.4 | Schmalkalden S.5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Hinweis ;
+    cur:negativeHint "Enthält Unterrichtssprache (Köln) und Meldung zur Prüfung (HfMT)"@de ;
+    cur:positiveExample "11 Sonstige Informationen" ;
+    cur:recognitionHint "Feldname Sonstige Informationen bzw. Sonstiges bzw. Hinweise bzw. Besonderes bzw. Weitere Hinweise"@de ;
+    cur:scopeRegion land:DE-BE,
+        land:DE-HE,
+        land:DE-NW,
+        land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise" ;
+    cur:verified false .
+
+hs:re-DE-39118ba18dc2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Schmalkalden S.1 | Koeln S.1 | UniBwM S.1 | Ulm S.1 | Frankfurt S.1 | BHT S.1 | THWS S.1 | Bayreuth S.1 | DHBW S.1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:dt-Modulhandbuch ;
+    cur:negativeHint "Titel allein belegt keine Verbindlichkeit (siehe Anlage-Zeilen)"@de ;
+    cur:positiveExample "Modulhandbuch zum Studiengang Informatik (Bachelor of Science)" ;
+    cur:recognitionHint "Titelzeile beginnt mit Modulhandbuch"@de ;
+    cur:scopeRegion land:DE-BE,
+        land:DE-BW,
+        land:DE-BY,
+        land:DE-HE,
+        land:DE-NW,
+        land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modulhandbuch" ;
+    cur:verified false .
+
+hs:re-DE-43bfaf324705 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BY und TH Änderungsverordnung (E) - übrige Länder laut Vergleich Akkreditierungsrat (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:Inhalt,
+        hs:Modulziel ;
+    cur:negativeHint "vorher Inhalte und Qualifikationsziele des Moduls (MRVO 2017)"@de ;
+    cur:positiveExample "angestrebte Lernergebnisse und Studieninhalte des Moduls" ;
+    cur:recognitionHint "Pflichtangabe der Modulbeschreibung"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "angestrebte Lernergebnisse und Studieninhalte des Moduls" ;
+    cur:verified false .
+
+hs:re-DE-75108e1673dc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. Bayern Nr. 23/2025 S. 600 und GVBl. Thüringen Nr. 6/2026 S. 168"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Modul ;
+    cur:negativeHint "Sollvorschrift - Ausnahmen möglich"@de ;
+    cur:positiveExample "Module sollen einen Umfang von mindestens fünf Leistungspunkten aufweisen." ;
+    cur:recognitionHint "Mindestumfang nach MRVO 2024"@de ;
+    cur:scopeRegion land:DE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Module sollen einen Umfang von mindestens fünf Leistungspunkten aufweisen." ;
+    cur:verified false .
+
+hs:re-DE-7b6295cf1009 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.11 | Frankfurt S.13"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:of-ws ;
+    cur:positiveExample "Jedes WiSe" ;
+    cur:recognitionHint "Wert Jedes WiSe oder Jedes Wintersemester"@de ;
+    cur:scopeRegion land:DE-HE,
+        land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Jedes WiSe" ;
+    cur:verified false .
+
+hs:re-DE-ef030c328dbe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PHF S.2 | HfMT S.4 | TUD S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:of-semester ;
+    cur:positiveExample "Turnus: jedes Semester" ;
+    cur:recognitionHint "Wert jedes Semester bzw. Ankreuzfeld jedes Sem."@de ;
+    cur:scopeRegion land:DE-BW,
+        land:DE-NW,
+        land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "jedes Semester" ;
+    cur:verified false .
+

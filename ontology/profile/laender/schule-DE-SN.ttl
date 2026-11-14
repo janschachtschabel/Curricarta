@@ -1,0 +1,686 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-SN-0628767b58ae,
+        schul:re-DE-SN-102cc7c35bc5,
+        schul:re-DE-SN-1908e6b2c661,
+        schul:re-DE-SN-1ab757c64307,
+        schul:re-DE-SN-1c333bf638d2,
+        schul:re-DE-SN-2b868962c7ad,
+        schul:re-DE-SN-37b69f24ae7a,
+        schul:re-DE-SN-3a4fb03828cd,
+        schul:re-DE-SN-3ebaf4130793,
+        schul:re-DE-SN-4454c69a6ad7,
+        schul:re-DE-SN-4693a297ec45,
+        schul:re-DE-SN-4b26b2b37a82,
+        schul:re-DE-SN-5337d7e557ea,
+        schul:re-DE-SN-53ec331043a5,
+        schul:re-DE-SN-55eff05ece73,
+        schul:re-DE-SN-5af58fd3bffd,
+        schul:re-DE-SN-5b40c2847db1,
+        schul:re-DE-SN-5c7e76ee3dd2,
+        schul:re-DE-SN-5dbcb992e860,
+        schul:re-DE-SN-605fc27c4b16,
+        schul:re-DE-SN-6d6f960622ad,
+        schul:re-DE-SN-769a591919f4,
+        schul:re-DE-SN-7d42876084cd,
+        schul:re-DE-SN-898731a12f14,
+        schul:re-DE-SN-8d14005a76ed,
+        schul:re-DE-SN-9fe0b9961922,
+        schul:re-DE-SN-afb8b615fc68,
+        schul:re-DE-SN-b00a876b774f,
+        schul:re-DE-SN-b3905c18ac5a,
+        schul:re-DE-SN-b6d00da10147,
+        schul:re-DE-SN-bfcf92d4a595,
+        schul:re-DE-SN-c12eeece138d,
+        schul:re-DE-SN-c977dec4120d,
+        schul:re-DE-SN-d2ce70714401,
+        schul:re-DE-SN-d42baeade307,
+        schul:re-DE-SN-de7b7609e995,
+        schul:re-DE-SN-e35e8b42d011,
+        schul:re-DE-SN-edff25c71aac,
+        schul:re-DE-SN-f2ff52c03240,
+        schul:re-DE-SN-f4b5bb33f099,
+        schul:re-DE-SN-f5fcefa8079d,
+        schul:re-DE-SN-fb486e84bda6 .
+
+schul:re-DE-SN-0628767b58ae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. IV"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo cv:obl_elective ;
+    cur:negativeHint "Jgst. 11: 26 Wochen, Jgst. 12: 22 Wochen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zusätzlich kann in jeder Klassen- bzw. Jahrgangsstufe ein Lernbereich mit Wahlcharakter im Umfang von zwei Wochen bearbeitet werden." ;
+    cur:recognitionHint "Pflicht 25 Wochen, Wahl 2 Wochen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereiche mit Pflichtcharakter" ;
+    cur:verified false .
+
+schul:re-DE-SN-102cc7c35bc5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GS DE S. 9 https://www.schulportal.sachsen.de/lplandb/lehrplan/file/908/1tblk6cNNahu0dAWKRuO"@de,
+        "Plangeneration laut Länderrecherche: ab 01.08.2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzbereich ;
+    cur:negativeHint "Gleiches Wort \"Lernbereich\" wie unit in Generation 2019"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Lernbereich: Sprechen und Zuhören" ;
+    cur:recognitionHint "Lernbereich ohne Zeitrichtwert, Titel = Kompetenzbereich der Bildungsstandards"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereich: Sprechen und Zuhören" ;
+    cur:verified false .
+
+schul:re-DE-SN-1908e6b2c661 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. IV"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo cv:obl_elective ;
+    cur:negativeHint "Jgst. 11: 26 Wochen, Jgst. 12: 22 Wochen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zusätzlich kann in jeder Klassen- bzw. Jahrgangsstufe ein Lernbereich mit Wahlcharakter im Umfang von zwei Wochen bearbeitet werden." ;
+    cur:recognitionHint "Pflicht 25 Wochen, Wahl 2 Wochen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernbereich mit Wahlcharakter (LBW)" ;
+    cur:verified false .
+
+schul:re-DE-SN-1ab757c64307 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Zweite Verweisform neben ➔"@de ;
+    cur:positiveExample "Zusammenarbeit mit GE, ETH, RE/e, RE/k" ;
+    cur:recognitionHint "Text in Bemerkungen ohne Pfeil"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusammenarbeit mit GE, ETH, RE/e, RE/k" ;
+    cur:verified false .
+
+schul:re-DE-SN-1c333bf638d2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. VII, OS MA Grundlagen S. VII"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Marker; markiert: Fließtext im Grundlagenteil, \"integrativ\" in Werteorientierung, BNE und Reflexions- und Diskursfähigkeit (GY) bzw. Sozialkompetenz (OS)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Politische Bildung" ;
+    cur:verified false .
+
+schul:re-DE-SN-2b868962c7ad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-vw-sn-pfeil"@de,
+        "Länderrecherche, Beleg E: Physik GY S. 9, GS DE S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Vorliste-Beispiel \"Kl. 8/9\" nicht gesehen, \"Kl. 1/2\" ja. Glyph nicht Unicode"@de ;
+    cur:positiveExample "➔ MA, Kl. 5, LB 2" ;
+    cur:recognitionHint "Glyph + Fachkürzel/Klasse/LB, auch \"➔ LBW 3\" für Wahlbereich, Doppelklasse \"SU, Kl. 1/2, LB 3\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "➔ (Glyph U+F0DA, Wingdings 3)" ;
+    cur:verified false .
+
+schul:re-DE-SN-37b69f24ae7a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA Grundlagen und S. 8 (⇒ Medienbildung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:DigitalWorld,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: ⇒ Medienbildung|⇒ informatische Bildung|⇒ Werteorientierung|⇒ Bildung für nachhaltige Entwicklung; markiert: Randspalte Bemerkungen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsziele der Oberschule" ;
+    cur:verified false .
+
+schul:re-DE-SN-3a4fb03828cd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY Fachlehrplan S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Nur Beschreibung, nicht Gliederungsebene der Tabellen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anfangsunterricht in den Klassenstufen 6 und 7" ;
+    cur:recognitionHint "Abschnitte im Fachprofil (Kl. 6/7, 8-10, Jgst. 11/12)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anfangsunterricht" ;
+    cur:verified false .
+
+schul:re-DE-SN-3ebaf4130793 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030329"@de,
+        "Länderrecherche, Beleg E: Physik GY S. VII-VIII"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Plural, nicht Singular wie in der Vorliste"@de ;
+    cur:positiveExample "Die überfachlichen Ziele beschreiben darüber hinaus Intentionen, die auf die Persönlichkeitsentwicklung der Schüler gerichtet sind" ;
+    cur:recognitionHint "Randspalte im Grundlagenteil, einzelne Ziele in eckigen Klammern [Wissen], [Kommunikationsfähigkeit], …"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "überfachliche Ziele" ;
+    cur:verified false .
+
+schul:re-DE-SN-4454c69a6ad7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: Physik GY S. IX"@de,
+        "Länderrecherche, Beleg E: Physik GY S. VIII"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:Intercultural,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: ⇒ Bildung für nachhaltige Entwicklung; markiert: Randspalte Bemerkungen"@de,
+        "Kürzel oder Symbol: ⇒ Empathie und Perspektivwechsel; markiert: Randspalte Bemerkungen"@de,
+        "Kürzel oder Symbol: ⇒ Medienbildung; markiert: Randspalte Bemerkungen"@de,
+        "Kürzel oder Symbol: ⇒ Verantwortungsbereitschaft; markiert: Randspalte Bemerkungen"@de,
+        "Kürzel oder Symbol: ⇒ Werteorientierung; markiert: Randspalte Bemerkungen"@de,
+        "Kürzel oder Symbol: ⇒ informatische Bildung; markiert: Randspalte Bemerkungen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsziele des Gymnasiums" ;
+    cur:verified false .
+
+schul:re-DE-SN-4693a297ec45 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Realschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-SN-4b26b2b37a82 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-ke-sn-zielbegriff"@de,
+        "Länderrecherche, Beleg E: Physik GY S. V und S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Regex der Vorliste fehlt \"Beherrschen\" und \"Problemlösen\", Slash-Formen"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Kennen von Phänomenen der Lichtausbreitung" ;
+    cur:recognitionHint "Zielbegriff am Anfang der Lernzielzeile, 7 Stufen, in der Tabelle \"Beschreibung der Lernziele | Begriffe\" definiert"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beherrschen" ;
+    cur:verified false .
+
+schul:re-DE-SN-5337d7e557ea a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY Fachlehrplan S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Nur Beschreibung, nicht Gliederungsebene der Tabellen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anfangsunterricht in den Klassenstufen 6 und 7" ;
+    cur:recognitionHint "Abschnitte im Fachprofil (Kl. 6/7, 8-10, Jgst. 11/12)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wissenschaftspropädeutischer Unterricht" ;
+    cur:verified false .
+
+schul:re-DE-SN-53ec331043a5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-SN-55eff05ece73 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA Grundlagen S. XI"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "-" ;
+    cur:recognitionHint "Überschrift im Grundlagenteil, Randspalte \"Lernkompetenz Strategien Techniken\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-SN-5af58fd3bffd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA Grundlagen S. XI"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "-" ;
+    cur:recognitionHint "Überschrift im Grundlagenteil, Randspalte \"Lernkompetenz Strategien Techniken\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernen lernen" ;
+    cur:verified false .
+
+schul:re-DE-SN-5b40c2847db1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "mangelhaft (5)" ;
+    cur:verified false .
+
+schul:re-DE-SN-5c7e76ee3dd2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GS SU S. 18 https://www.schulportal.sachsen.de/lplandb/lehrplan/file/80/2DYw4je6s74vCaxRHqx6, GS DE S. 9"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:DigitalWorld,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: ⇒ Kommunikationsfähigkeit|⇒ Werteorientierung|⇒ Bildung für nachhaltige Entwicklung|⇒ Medienbildung|⇒ informatische Vorbildung|⇒ Sozialkompetenz|⇒ Methodenkompetenz|⇒ ästhetisches Empfinden; markiert: Randspalte Bemerkungen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsziele der Grundschule (nur im Plan beobachtete Marker)" ;
+    cur:verified false .
+
+schul:re-DE-SN-5dbcb992e860 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "gut (2)" ;
+    cur:verified false .
+
+schul:re-DE-SN-605fc27c4b16 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sehr gut (1)" ;
+    cur:verified false .
+
+schul:re-DE-SN-6d6f960622ad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030050"@de,
+        "Länderrecherche, Beleg E: OS MA S. 2"@de,
+        "Plangeneration laut Länderrecherche: -"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Nicht Inhaltsbereich"@de ;
+    cur:positiveExample "-" ;
+    cur:recognitionHint "Plural \"allgemeine fachliche Ziele\" Randspalte, keine Inhaltsbereiche"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Allgemeines fachliches Ziel (Singular)" ;
+    cur:verified false .
+
+schul:re-DE-SN-769a591919f4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "befriedigend (3)" ;
+    cur:verified false .
+
+schul:re-DE-SN-7d42876084cd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030050"@de,
+        "Länderrecherche, Beleg E: OS MA S. 2 https://www.schulportal.sachsen.de/lplandb/lehrplan/file/67/LBki8uwfGrSWPImJne29"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Entspricht Bildungsbeitrag (aussage:developmentGoal), nicht Kompetenzerwartung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Aus diesem Beitrag zur allgemeinen Bildung leiten sich folgende allgemeine fachliche Ziele ab:" ;
+    cur:recognitionHint "Randspalten \"Beitrag zur allgemeinen Bildung\", \"allgemeine fachliche Ziele\", \"Strukturierung\", \"didaktische Grundsätze\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele und Aufgaben des Faches" ;
+    cur:verified false .
+
+schul:re-DE-SN-898731a12f14 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030329"@de,
+        "Länderrecherche, Beleg E: Physik GY S. VII-VIII"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:negativeHint "Plural, nicht Singular wie in der Vorliste"@de ;
+    cur:positiveExample "Die überfachlichen Ziele beschreiben darüber hinaus Intentionen, die auf die Persönlichkeitsentwicklung der Schüler gerichtet sind" ;
+    cur:recognitionHint "Randspalte im Grundlagenteil, einzelne Ziele in eckigen Klammern [Wissen], [Kommunikationsfähigkeit], …"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsziele" ;
+    cur:verified false .
+
+schul:re-DE-SN-8d14005a76ed a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualifizierender Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-SN-9fe0b9961922 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 6-7"@de,
+        "Plangeneration laut Länderrecherche: 2019-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "\"Grundkurs\"/\"Leistungskurs\" statt \"grundlegendes/erhöhtes Anforderungsniveau\""@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Jahrgangsstufe 11 - Grundkurs" ;
+    cur:recognitionHint "Teilung der Jgst. 11/12"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungskurs" ;
+    cur:verified false .
+
+schul:re-DE-SN-afb8b615fc68 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-lerninhalte"@de,
+        "Länderrecherche, Beleg E: Physik GY S. IV"@de,
+        "Plangeneration laut Länderrecherche: -"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Nicht eigenständig als Überschrift"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "-" ;
+    cur:recognitionHint "nur als Teil von \"Lernziele und Lerninhalte\" gesehen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lerninhalte (allein)" ;
+    cur:verified false .
+
+schul:re-DE-SN-b00a876b774f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Rahmenaussage mit \"Die Schüler\", ohne Prüfanspruch, aber gliedert nach Kompetenzfeldern (Zwischenüberschriften)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Schüler lernen die Physik als Naturwissenschaft kennen und wenden ihr Wissen … an." ;
+    cur:recognitionHint "Überschrift \"Ziele\" direkt unter der Klassenstufe"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele (Klassenstufe)" ;
+    cur:verified false .
+
+schul:re-DE-SN-b3905c18ac5a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2019-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verzeichnis ;
+    cur:negativeHint "In GS DE 2025: \"Übersicht über die Lernbereiche\" ohne Zeitrichtwerte"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Übersicht über die Lernbereiche und Zeitrichtwerte" ;
+    cur:recognitionHint "Überschrift mit Tabelle je Klassenstufe"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übersicht über die Lernbereiche und Zeitrichtwerte" ;
+    cur:verified false .
+
+schul:re-DE-SN-b6d00da10147 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY Fachlehrplan S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Nur Beschreibung, nicht Gliederungsebene der Tabellen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anfangsunterricht in den Klassenstufen 6 und 7" ;
+    cur:recognitionHint "Abschnitte im Fachprofil (Kl. 6/7, 8-10, Jgst. 11/12)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vertiefender Unterricht" ;
+    cur:verified false .
+
+schul:re-DE-SN-bfcf92d4a595 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA S. 4 (Übersicht)"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "Bildungsgang, keine Schulart"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Hauptschulbildungsgang" ;
+    cur:recognitionHint "Teilung ab Klassenstufe 7 im Fachlehrplan"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Realschulbildungsgang" ;
+    cur:verified false .
+
+schul:re-DE-SN-c12eeece138d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 6-7"@de,
+        "Plangeneration laut Länderrecherche: 2019-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "\"Grundkurs\"/\"Leistungskurs\" statt \"grundlegendes/erhöhtes Anforderungsniveau\""@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Jahrgangsstufe 11 - Grundkurs" ;
+    cur:recognitionHint "Teilung der Jgst. 11/12"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundkurs" ;
+    cur:verified false .
+
+schul:re-DE-SN-c977dec4120d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. III"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Grundlagenteil gleich für alle Fächer einer Schulart"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil Fachlehrplan Physik" ;
+    cur:recognitionHint "Zweiteilung jedes Plans, Grundlagen römisch, Fachlehrplan arabisch"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil Grundlagen" ;
+    cur:verified false .
+
+schul:re-DE-SN-d2ce70714401 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA S. 4 (Übersicht)"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "Bildungsgang, keine Schulart"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Hauptschulbildungsgang" ;
+    cur:recognitionHint "Teilung ab Klassenstufe 7 im Fachlehrplan"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulbildungsgang" ;
+    cur:verified false .
+
+schul:re-DE-SN-d42baeade307 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY (Text, Kl. 6 ff., genaue Seite nicht notiert)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: ⇒ Gesundheitserziehung: Maßnahmen der …; markiert: Randspalte Bemerkungen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bemerkungen mit Gesundheitsbezug" ;
+    cur:verified false .
+
+schul:re-DE-SN-de7b7609e995 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ausreichend (4)" ;
+    cur:verified false .
+
+schul:re-DE-SN-e35e8b42d011 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 8, GS DE S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2019 (Schüler) / 2025 (Schülerinnen und Schüler)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "In Ziele (Rahmen), nicht in der Lernziel-Spalte"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Schüler lernen die Physik als Naturwissenschaft kennen" ;
+    cur:recognitionHint "Satzstamm in den \"Ziele\" je Klassenstufe (Generation 2019: \"Die Schüler …\", GS DE 2025: \"Die Schülerinnen und Schüler\" + Anstriche)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Schüler" ;
+    cur:verified false .
+
+schul:re-DE-SN-edff25c71aac a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002116"@de,
+        "Länderrecherche, Beleg E: Physik GY S. IV"@de,
+        "Plangeneration laut Länderrecherche: -"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "-"@de ;
+    cur:positiveExample "-" ;
+    cur:recognitionHint "im Plan nur Plural \"Bemerkungen\" als Spaltenkopf gesehen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bemerkung (Singular)" ;
+    cur:verified false .
+
+schul:re-DE-SN-f2ff52c03240 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SOGS Fassung vom 01.02.2026 S. 8-10 (Stufenwörter im Auszug über Wortlaut Satz 1 Nr. 1 bis 6 belegt - § 18 Abs. 3 Nummerierung nicht im Detail geprüft)"@de,
+        "Länderrecherche, Beleg E: SOGYA Fassung vom 01.08.2026 S. 21"@de,
+        "Länderrecherche, Beleg E: SOOSA Fassung vom 01.08.2026 S. 17 (§ 23 Abs. 2) und S. 21 (§ 27 Abs. 1 Noten in allen unterrichteten Fächern)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ungenügend (6)" ;
+    cur:verified false .
+
+schul:re-DE-SN-f4b5bb33f099 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. 10 und Fachspezifische Vereinbarungen S. 2-3"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Experiment ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "SE: Dichtebestimmung" ;
+    cur:recognitionHint "Präfix in der linken Spalte, \"verbindlich\""@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "\"SE:\" (Schülerexperiment)" ;
+    cur:verified false .
+
+schul:re-DE-SN-f5fcefa8079d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OS MA Grundlagen S. X"@de,
+        "Plangeneration laut Länderrecherche: 2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Querschnittsbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Politische Bildung, Medienbildung und Digitalisierung sowie Bildung für nachhaltige Entwicklung sind besonders geeignet für den fächerverbindenden Unterricht." ;
+    cur:recognitionHint "Überschrift im Grundlagenteil, Perspektiven und thematische Bereiche (Verkehr, Medien, …)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fächerverbindender Unterricht" ;
+    cur:verified false .
+
+schul:re-DE-SN-fb486e84bda6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik GY S. III"@de,
+        "Plangeneration laut Länderrecherche: 2004-2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Grundlagenteil gleich für alle Fächer einer Schulart"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil Fachlehrplan Physik" ;
+    cur:recognitionHint "Zweiteilung jedes Plans, Grundlagen römisch, Fachlehrplan arabisch"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil Fachlehrplan Physik" ;
+    cur:verified false .
+

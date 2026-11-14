@@ -1,0 +1,57 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-TH-247278e936ce,
+        hs:re-DE-TH-676cb28b3fd0,
+        hs:re-DE-TH-f5988fa84d46 .
+
+hs:re-DE-TH-247278e936ce a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu hs:lex-Module-negative-lehrveranstaltung"@de,
+        "Länderrecherche, Beleg E: Schmalkalden S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo hs:Lehrveranstaltung ;
+    cur:negativeHint "Feld nennt die Lehrveranstaltung und nicht das Modul (Modul steht in der Überschrift)"@de ;
+    cur:positiveExample "Modulname Lineare Algebra" ;
+    cur:recognitionHint "Überschrift Modul 1: Mathematik I und Feld Modulname Lineare Algebra"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modulname" ;
+    cur:verified false .
+
+hs:re-DE-TH-676cb28b3fd0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Schmalkalden S.5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:of-jaehrlich ;
+    cur:positiveExample "Häufigkeit des Angebots Einmal im Studienjahr" ;
+    cur:recognitionHint "Wert Einmal im Studienjahr"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einmal im Studienjahr" ;
+    cur:verified false .
+
+hs:re-DE-TH-f5988fa84d46 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. Thüringen Nr. 6/2026 S. 171 (Inhaltsübersicht)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt,
+        hs:dt-Staatsexamen ;
+    cur:negativeHint "Grundlage ist das Thüringer Lehrerbildungsgesetz (ThürLbG) - Verordnungen ThürEStPLGymVO und ThürEStPLRSVO von 2008 - Eingangspraktikum und Praxissemester"@de ;
+    cur:positiveExample "07.07.2026 Thüringer Verordnung zur Änderung der Regelungen über die Erste Staatsprüfung für die Lehrämter an Gymnasien und Regelschulen" ;
+    cur:recognitionHint "Verordnung vom 7. Juli 2026"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Thüringer Verordnung zur Änderung der Regelungen über die Erste Staatsprüfung für die Lehrämter an Gymnasien und Regelschulen" ;
+    cur:verified false .
+

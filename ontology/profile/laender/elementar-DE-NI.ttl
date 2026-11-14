@@ -1,0 +1,481 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-NI-023e1f8c6640,
+        elem:re-DE-NI-04f55f950139,
+        elem:re-DE-NI-06400dd3c003,
+        elem:re-DE-NI-09aa86e3a506,
+        elem:re-DE-NI-0edecdff602f,
+        elem:re-DE-NI-1928e1ca7487,
+        elem:re-DE-NI-1d2703c3eaf7,
+        elem:re-DE-NI-3f1fd9b7ecd8,
+        elem:re-DE-NI-435971635b9a,
+        elem:re-DE-NI-495d8033b40c,
+        elem:re-DE-NI-558dea784996,
+        elem:re-DE-NI-5aaf1413d112,
+        elem:re-DE-NI-624b723f9c64,
+        elem:re-DE-NI-631d786f5c65,
+        elem:re-DE-NI-69e38a2fba3b,
+        elem:re-DE-NI-730436b85a90,
+        elem:re-DE-NI-7b2c3035319e,
+        elem:re-DE-NI-82e02174a640,
+        elem:re-DE-NI-875a480f9f4d,
+        elem:re-DE-NI-93de0e5f464b,
+        elem:re-DE-NI-9e416cc2339e,
+        elem:re-DE-NI-a3b5f207a476,
+        elem:re-DE-NI-af95ca18830f,
+        elem:re-DE-NI-bd2785d02e1f,
+        elem:re-DE-NI-ca1c4baeb4f8,
+        elem:re-DE-NI-d5277956adfa,
+        elem:re-DE-NI-effe55b9bf19,
+        elem:re-DE-NI-f7aaa3e46196 .
+
+elem:re-DE-NI-023e1f8c6640 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SB-GA S. 30 (PDF-S. 85)"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Grundsatz ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sprachbildung ist eine systematische Anbahnung und Gestaltung von vielen und vielfältigen" ;
+    cur:recognitionHint "■-Aufzählung von Merksätzen"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "III. Zusammenfassung" ;
+    cur:verified false .
+
+elem:re-DE-NI-04f55f950139 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 7 (PDF-S. 10) und S. 13 (PDF-S. 16)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Enthält die Bildungsbereiche aber keine Zielliste"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Einführende Bemerkungen" ;
+    cur:recognitionHint "Teilüberschrift über Einführende Bemerkungen und Lernbereiche 1–9"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "II. Bildungsziele in Lernbereichen und Erfahrungsfeldern" ;
+    cur:verified false .
+
+elem:re-DE-NI-06400dd3c003 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: U3-GA S. 26 (PDF-S. 106)"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:f-sprache ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "U3-Variante von Bereich 4"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikation, Sprache und Sprechen" ;
+    cur:verified false .
+
+elem:re-DE-NI-09aa86e3a506 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SB-GA S. 14 (PDF-S. 69)"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe,
+        elem:Handlungsfeld ;
+    cur:negativeHint "Unterpunkte als Tätigkeitsbeschreibungen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "a) Beziehungen aufbauen und pflegen" ;
+    cur:recognitionHint "Kapitel II.1 mit Unterpunkten a) bis g)"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprachbildungs- und Sprachförderkompetenz der Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-NI-0edecdff602f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA PDF-S. 60 und PDF-S. 87"@de,
+        "Plangeneration laut Länderrecherche: 2011 | 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Handreichung ;
+    cur:negativeHint "Handreichung ergänzt den Plan – eigenes Curriculum mit cv:share_supplementary"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Sprachbildung und Sprachförderung | Die Arbeit mit Kindern unter drei Jahren" ;
+    cur:recognitionHint "Titelzusatz bei B und C"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handlungsempfehlungen zum Orientierungsplan für Bildung und Erziehung im Elementarbereich niedersächsischer Tageseinrichtungen für Kinder" ;
+    cur:verified false .
+
+elem:re-DE-NI-1928e1ca7487 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 48 (PDF-S. 51)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1. Zielsetzung – Pluralität der Methoden" ;
+    cur:recognitionHint "Teil IV mit zwei Kapiteln"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "IV. Qualitätsentwicklung und -sicherung" ;
+    cur:verified false .
+
+elem:re-DE-NI-1d2703c3eaf7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP05 Inhaltsverzeichnis (PDF-S. 3) | Tabelle OP-GA S. 55 (PDF-S. 58)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:negativeHint "Nummerierte Praxisbeispiele gibt es nicht – nur dieser Kalender"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Beginn der »Kennenlerntage« und der Absprachen zwischen Kindergarten und Grundschule" ;
+    cur:recognitionHint "Zusatz im Anhangtitel nur in der Ausgabe 2005 – Tabelle Zeitpunkt | Maßnahmen in beiden Fassungen"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiele für einen Kooperationskalender" ;
+    cur:verified false .
+
+elem:re-DE-NI-3f1fd9b7ecd8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-b362d511e23e"@de,
+        "Länderrecherche, Beleg E: OP-GA S. 32 (PDF-S. 35)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "„Aufgaben der Fachkräfte“ steht nur im Titel von III A"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterabschnitt A mit sechs Kapiteln"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "A. Methodische Aspekte und die Aufgaben der Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-NI-435971635b9a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 15 (PDF-S. 18)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Plan nennt sie „Fragen“ nur im Einleitungstext (S. 13) – Überschrift lautet „Anregungen“"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Fühlen sich die Kinder sicher und geborgen?" ;
+    cur:recognitionHint "Überschrift am Ende jedes Lernbereichs 1–9 – danach Aufzählung von Fragen und Fußnote"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen zur Reflexion und Bildungsbegleitung*" ;
+    cur:verified false .
+
+elem:re-DE-NI-495d8033b40c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 14 (PDF-S. 17)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-social ;
+    cur:negativeHint "Auch „Sozialkompetenz“ | „Ich-Stärke“ in III A 1 (S. 33)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "auf der Ebene des sozialen Lernens als interpersonale Kompetenz" ;
+    cur:recognitionHint "Gegenstück zu personale Kompetenz"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "interpersonale Kompetenz" ;
+    cur:verified false .
+
+elem:re-DE-NI-558dea784996 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 11 (PDF-S. 14)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Titel in U3 als „Zum Bildungsverständnis“ verwiesen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wir verstehen somit das Kind als aktiven, kompetenten Akteur seines Lernens" ;
+    cur:recognitionHint "Kapitel I.3 – Bild vom Kind mit Selbstbildung | Ko-Konstruktion"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zum Bildungsverständnis – wie kleine Kinder lernen" ;
+    cur:verified false .
+
+elem:re-DE-NI-5aaf1413d112 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-c6b7135302e4"@de,
+        "Länderrecherche, Beleg E: OP-GA S. 41 (PDF-S. 44)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:negativeHint "U3 verkürzt zu „Erziehungspartnerschaft mit Eltern“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Unterabschnitt III B mit drei Kapiteln"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "B. Erziehungspartnerschaft mit den Eltern" ;
+    cur:verified false .
+
+elem:re-DE-NI-624b723f9c64 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: U3-GA S. 17 (PDF-S. 97)"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-sinneswahrnehmung ;
+    cur:negativeHint "Nur in Abschnitt C – im Plan von 2005 kein Bereich Wahrnehmung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Um der besonderen Bedeutung der Entwicklungsaufgabe „Wahrnehmung“ Rechnung zu tragen" ;
+    cur:recognitionHint "nur in U3 – als „Abschnitt Null“ den Erfahrungsfeldern vorangestellt"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "0. Wahrnehmung" ;
+    cur:verified false .
+
+elem:re-DE-NI-631d786f5c65 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: U3-GA S. 10–11 (PDF-S. 90–91)"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:negativeHint "Kein elem:Leitbild – steht nicht über Bildungsbereichen sondern im Grundlagenteil (Bild vom Kind)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Das konstruierende Kind | Das kompetente Kind | Das soziale Kind | Das selbstständige, starke Kind | Das einzigartige Kind" ;
+    cur:recognitionHint "Zwischenüberschriften „Das [Adjektiv] Kind“ in U3 Teil I Kapitel 1 (Bild vom Kind)"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das aktive, kreative Kind" ;
+    cur:verified false .
+
+elem:re-DE-NI-69e38a2fba3b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SB-GA S. 19 (PDF-S. 74)"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Entwicklungsindikator ;
+    cur:negativeHint "Keine Tabelle – Richtwerte für „normale“ Sprachentwicklung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Mit zwei Jahren beginnen sie Wörter zu kombinieren." ;
+    cur:recognitionHint "Meilensteine mit Altersangabe im Fließtext (18 Monate | zwei | drei | vier Jahre)"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mit zwei Jahren beginnen sie Wörter zu kombinieren." ;
+    cur:verified false .
+
+elem:re-DE-NI-730436b85a90 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA PDF-S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Kein inhaltlicher Teil – nur Trennseite"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Abschnitt A" ;
+    cur:recognitionHint "Trennseite in der Gesamtausgabe vor Plan | Abschnitt B | Abschnitt C"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Abschnitt A" ;
+    cur:verified false .
+
+elem:re-DE-NI-7b2c3035319e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SB-GA S. 23 (PDF-S. 78)"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Überschrift fehlt – Fragenliste ohne Titel"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "■ Welchen Stellenwert hat die Sprachbildung im pädagogischen Gesamtkonzept?" ;
+    cur:recognitionHint "■-Aufzählung von Fragen an die Konzeption"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Welchen Stellenwert hat die Sprachbildung im pädagogischen Gesamtkonzept?" ;
+    cur:verified false .
+
+elem:re-DE-NI-82e02174a640 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 52 (PDF-S. 55)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Anhang 1 Anregungen zur Ausstattung je Lernbereich | Anhang 2 Kooperationskalender"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anhang" ;
+    cur:verified false .
+
+elem:re-DE-NI-875a480f9f4d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 52 (PDF-S. 55)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Impuls ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Es geht bei dieser Aufzählung ausdrücklich um Ideen und Anregungen." ;
+    cur:recognitionHint "Anhang 1 gegliedert nach Lernbereich 1–9 mit Zwischenüberschriften wie „Für Rollenspiele:“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen der Praxis für eine gute räumliche und materielle Ausstattung" ;
+    cur:verified false .
+
+elem:re-DE-NI-93de0e5f464b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP05 S. 58 (PDF-S. 58)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:negativeHint "Fehlt in der Gesamtausgabe 2023 – Unterscheidungsmerkmal der Fassungen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bildungspläne anderer Bundesländer (Stand Frühjahr 2005)" ;
+    cur:recognitionHint "Tabelle Stand Frühjahr 2005 nur in Originalausgabe"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zu Bildungsplänen anderer Bundesländer" ;
+    cur:verified false .
+
+elem:re-DE-NI-9e416cc2339e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA Titelseite (PDF-S. 1)"@de,
+        "Plangeneration laut Länderrecherche: 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Einzelausgabe 2005 hat diesen Zusatz nicht"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Untertitel auf der Titelseite – Kennzeichen der Fassung 2023 mit Abschnitt A B C"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "– Gesamtausgabe –" ;
+    cur:verified false .
+
+elem:re-DE-NI-a3b5f207a476 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 36 (PDF-S. 39)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld,
+        elem:p-spiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel III A 3"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3. Das Spiel – die elementare Lernform von Kindern" ;
+    cur:verified false .
+
+elem:re-DE-NI-af95ca18830f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: U3-GA S. 18 (PDF-S. 98)"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Wir-Form („unser“ | „wir“) statt neutral"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Wie können wir jedem Kind genügend Freiraum geben" ;
+    cur:recognitionHint "U3-Variante in Versalien nach jedem Lernbereich – Fragen in Wir-Form"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ANREGUNGEN ZUR REFLEXION" ;
+    cur:verified false .
+
+elem:re-DE-NI-bd2785d02e1f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 14 (PDF-S. 17)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-personal ;
+    cur:negativeHint "Kein Basiskompetenzkapitel – nur Begriffe im Text"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "auf der Ebene der Persönlichkeit als personale Kompetenz" ;
+    cur:recognitionHint "im Lernbereich 1 als Gegenstück zu „interpersonale Kompetenz“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "personale Kompetenz" ;
+    cur:verified false .
+
+elem:re-DE-NI-ca1c4baeb4f8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 45 (PDF-S. 48)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:Zusammenarbeit,
+        elem:p-uebergaenge ;
+    cur:negativeHint "In U3 stattdessen „C. Übergänge gestalten“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Aufgabe des Kindergartens ist es, konkrete Strukturen" ;
+    cur:recognitionHint "Unterabschnitt III C – Plan"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "C. Zusammenarbeit von Tageseinrichtung und Grundschule" ;
+    cur:verified false .
+
+elem:re-DE-NI-d5277956adfa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 7–8 (PDF-S. 10–11)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "1. Einleitung: Funktion und Charakter des Orientierungsplans" ;
+    cur:recognitionHint "Teil I mit Einleitung | Grundwerte | Bildungsverständnis"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "I. Grundlagen und allgemeine Ziele" ;
+    cur:verified false .
+
+elem:re-DE-NI-effe55b9bf19 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 15 (PDF-S. 18)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Fragen sind nicht abschließend"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:recognitionHint "Fußnote unter jeder Fragenliste | letzte Aufzählung „. . .“"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "* Diese sind beispielhaft zu verstehen und erheben nicht den Anspruch auf Vollständigkeit." ;
+    cur:verified false .
+
+elem:re-DE-NI-f7aaa3e46196 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NI.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP-GA S. 34 (PDF-S. 37)"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo ctx:circle-time ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Über eine Beteiligungskultur (z. B. die Einführung einer Kinderkonferenz im Kindergarten)" ;
+    cur:recognitionHint "Beteiligungskultur im Kindergarten"@de ;
+    cur:scopeRegion land:DE-NI ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinderkonferenz" ;
+    cur:verified false .
+

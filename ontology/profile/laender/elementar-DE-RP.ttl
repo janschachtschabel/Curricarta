@@ -1,0 +1,502 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-RP-10c882dc6fff,
+        elem:re-DE-RP-122976ecefb8,
+        elem:re-DE-RP-1680d83d3a49,
+        elem:re-DE-RP-1a3b7a1354dd,
+        elem:re-DE-RP-1fd8ba7d5b69,
+        elem:re-DE-RP-22c799bfd4b6,
+        elem:re-DE-RP-259905e2e4bc,
+        elem:re-DE-RP-27add1becf91,
+        elem:re-DE-RP-3eccfb3ea3bf,
+        elem:re-DE-RP-42794bc27863,
+        elem:re-DE-RP-45275abacd11,
+        elem:re-DE-RP-4f043e2a547b,
+        elem:re-DE-RP-5b1bb6682309,
+        elem:re-DE-RP-5ec191feafe1,
+        elem:re-DE-RP-69d6a9d27e08,
+        elem:re-DE-RP-73f46d246d9e,
+        elem:re-DE-RP-79e9f45fb17a,
+        elem:re-DE-RP-7ab9aacfc6ac,
+        elem:re-DE-RP-863fdcb506bf,
+        elem:re-DE-RP-a7b0201b0d36,
+        elem:re-DE-RP-a893ca7b0ba6,
+        elem:re-DE-RP-b1926f4442b9,
+        elem:re-DE-RP-b8e33b83f5fe,
+        elem:re-DE-RP-c7d1f4111db0,
+        elem:re-DE-RP-c95746a9883b,
+        elem:re-DE-RP-c9d299df08fe,
+        elem:re-DE-RP-d3d8cbc12994,
+        elem:re-DE-RP-e3753467b6c7,
+        elem:re-DE-RP-f380448c46f7,
+        elem:re-DE-RP-f4604e5d9dda .
+
+elem:re-DE-RP-10c882dc6fff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 S. 172"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "Spalte „Indikatoren“ nicht sicher belegt"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "§ 1 Abs. 1 SGB VIII | Art. 12 UN KRK" ;
+    cur:recognitionHint "Spaltenköpfe bzw. Randspalten in Teil B. „Rechtliche Grundlagen“ führen Normen auf"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rechtliche Grundlagen" ;
+    cur:verified false .
+
+elem:re-DE-RP-122976ecefb8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 26"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-musik ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "3.4.2"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Musikalischer Bereich" ;
+    cur:verified false .
+
+elem:re-DE-RP-1680d83d3a49 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 22 | BEE-2020 S. 54"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Das Subjekt ist die Einrichtung. Kind-Satzanfänge „Das Kind …“ oder „Kinder …“ gibt es nicht"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Sprache sei ein Medium der Kommunikation und Zuwendung" ;
+    cur:recognitionHint "Einleitung eines Zielblocks"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kindern soll die Möglichkeit gegeben werden, zu erfahren und zu entdecken, dass" ;
+    cur:verified false .
+
+elem:re-DE-RP-1a3b7a1354dd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 Inhalt S. 9 (S. 37) | U3-2011 Trennseite 2"@de,
+        "Plangeneration laut Länderrecherche: 2011 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bindung-beziehung ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "2.1.2 nur in 2020 ff. Entspricht Thema 2 der U3-Ergänzung"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der Aufbau einer sicheren Bindungsbeziehung und die Eingewöhnung" ;
+    cur:verified false .
+
+elem:re-DE-RP-1fd8ba7d5b69 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 40"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:negativeHint "Kein Querschnittsthema nach Gliederung, inhaltlich aber Inklusion"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kindertagesstätten haben den Auftrag, die Teilhabe aller Kinder an diesen Bildungsprozessen zu fördern" ;
+    cur:recognitionHint "Kapitel 5. Behinderung, Migration, Armut"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teilhabe an Bildungsprozessen" ;
+    cur:verified false .
+
+elem:re-DE-RP-22c799bfd4b6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-0fff4d927f80-RP"@de,
+        "Länderrecherche, Beleg E: BEE-2004 S. 51"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Vorliste schreibt Singular „Bildungs- und Lerndokumentation“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 8. Plural"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Lerndokumentationen" ;
+    cur:verified false .
+
+elem:re-DE-RP-259905e2e4bc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 S. 173"@de,
+        "Plangeneration laut Länderrecherche: 2010 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "Kein „QA1“-Schema. Keine Zählung der Kriterien"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Das pädagogische Handeln orientiert sich am Kind." ;
+    cur:recognitionHint "Einleitung eines Kriterienblocks in Teil B. Aufzählung ohne Nummern"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "In der Konzeption wird deutlich:" ;
+    cur:verified false .
+
+elem:re-DE-RP-27add1becf91 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 26"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-tanz-darstellendes-spiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "3.4.3"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Theater, Mimik, Tanz" ;
+    cur:verified false .
+
+elem:re-DE-RP-3eccfb3ea3bf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 49"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Getrennt vom Kapitel 8"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 7"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachtung" ;
+    cur:verified false .
+
+elem:re-DE-RP-42794bc27863 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 Inhalt S. 9 (S. 39)"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "2.1.3 nur in 2020 ff."@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vielfältige Übergänge gestalten" ;
+    cur:verified false .
+
+elem:re-DE-RP-45275abacd11 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 45"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "6.5"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Selbstständiges Lernen und Partizipation von Kindern" ;
+    cur:verified false .
+
+elem:re-DE-RP-4f043e2a547b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 44"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-spiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "6.4 unter Kapitel 6 Methodische Aspekte"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Spiel als Lernform" ;
+    cur:verified false .
+
+elem:re-DE-RP-5b1bb6682309 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 64"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:Zusammenarbeit ;
+    cur:negativeHint "Nicht gleich mit KiTaG § 4 „Übergang zur Grundschule“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusammenarbeit zwischen Kindertagesstätte und Grundschule" ;
+    cur:verified false .
+
+elem:re-DE-RP-5ec191feafe1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "die Erfahrung, angenommen zu werden" ;
+    cur:recognitionHint "Aufzählung im Krippenkapitel"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Einrichtung ermöglicht den Kindern:" ;
+    cur:verified false .
+
+elem:re-DE-RP-69d6a9d27e08 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 21 und 23"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel,
+        elem:Kompetenzbeschreibung ;
+    cur:negativeHint "Nur der Bereich Sprache hat ein „können“-Ziel. Sonst Haltungs- und Erfahrungsziele"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "dass Kinder bis zum Eintritt in die Schule aktiv und passiv an einem Gespräch auf Deutsch teilnehmen" ;
+    cur:recognitionHint "Abschlussblock je Bereich. Teils Zustandsbeschreibung mit „können“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Dies geschieht mit dem Ziel," ;
+    cur:verified false .
+
+elem:re-DE-RP-73f46d246d9e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 61"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-sozialraum ;
+    cur:negativeHint "Titel 2004 und 2020 leicht verschieden (2020: „Vernetzung mit dem Jugendhilfesystem“)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 11"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Nachbarschaftszentrum / Bildungs- und Kommunikationszentrum Kindertagesstätte und die Vernetzung im Jugendhilfesystem des Umfeldes" ;
+    cur:verified false .
+
+elem:re-DE-RP-79e9f45fb17a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 S. 173"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Es gibt Dokumente und Unterlagen …" ;
+    cur:recognitionHint "Zwischentitel unter „Nachweismöglichkeiten“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konkretisierung" ;
+    cur:verified false .
+
+elem:re-DE-RP-7ab9aacfc6ac a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 54"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 9"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungen an die pädagogischen Fachkräfte bei der Umsetzung der Bildungs- und Erziehungsempfehlungen" ;
+    cur:verified false .
+
+elem:re-DE-RP-863fdcb506bf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 13"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 1. Bild vom Kind als „aktiv Lernendem“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsverständnis in Kindertagesstätten" ;
+    cur:verified false .
+
+elem:re-DE-RP-a7b0201b0d36 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 25"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-bildnerisch ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "3.4.1"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gestalterisch-kreativer Bereich" ;
+    cur:verified false .
+
+elem:re-DE-RP-a893ca7b0ba6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 S. 172"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "Spalte „Indikatoren“ nicht sicher belegt"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "§ 1 Abs. 1 SGB VIII | Art. 12 UN KRK" ;
+    cur:recognitionHint "Spaltenköpfe bzw. Randspalten in Teil B. „Rechtliche Grundlagen“ führen Normen auf"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder" ;
+    cur:verified false .
+
+elem:re-DE-RP-b1926f4442b9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 36-37"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-hort,
+        elem:set-krippe ;
+    cur:negativeHint "Altersbezug nur als Lebensphase, ohne Monats- oder Jahresangaben"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 4 mit 4.1 Kinder im Krippenalter und 4.2 Kinder im Schulalter"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung und Erziehung bei Kindern im Krippen- und Schulalter" ;
+    cur:verified false .
+
+elem:re-DE-RP-b8e33b83f5fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 49 (Kapitelwechsel)"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:project ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "6.7"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Projekte" ;
+    cur:verified false .
+
+elem:re-DE-RP-c7d1f4111db0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2020 S. 172"@de,
+        "Plangeneration laut Länderrecherche: 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaetsanspruch ;
+    cur:negativeHint "Spalte „Indikatoren“ nicht sicher belegt"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "§ 1 Abs. 1 SGB VIII | Art. 12 UN KRK" ;
+    cur:recognitionHint "Spaltenköpfe bzw. Randspalten in Teil B. „Rechtliche Grundlagen“ führen Normen auf"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kriterien" ;
+    cur:verified false .
+
+elem:re-DE-RP-c95746a9883b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 16"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:negativeHint "Anzahl: 3 (2004) und 5 (2020 ff.)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 2 vor den Bereichen"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querschnittsthemen" ;
+    cur:verified false .
+
+elem:re-DE-RP-c9d299df08fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 22-23"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Subjekt ist die Einrichtung, nicht die Fachkraft. Keine Formel „Pädagogische Fachkräfte …“"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zuhören und dem, was Kinder sagen, Beachtung schenken" ;
+    cur:recognitionHint "Aufzählung nach jedem Zielsatz. Auch „kann diese Erfahrung ermöglichen“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Kindertagesstätte ermöglicht diese Erfahrung durch:" ;
+    cur:verified false .
+
+elem:re-DE-RP-d3d8cbc12994 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-e9054a60e197-RP"@de,
+        "Länderrecherche, Beleg E: BEE-2004 S. 16 | BEE-2020 Inhalt S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-resilience ;
+    cur:negativeHint "Wird als Querschnittsaufgabe geführt, die Basiskompetenzen nennt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "2.1 in der Fassung 2004. In 2020 ff. 2.1 „Kinder stärken“ mit Unterpunkt 2.1.1 „Die Bedeutung von Resilienz“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder stärken – Die Bedeutung von Resilienz" ;
+    cur:verified false .
+
+elem:re-DE-RP-e3753467b6c7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-8d6f0a76c05e-RP"@de,
+        "Länderrecherche, Beleg E: BEE-2004 S. 20"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsbereich,
+        elem:Sammelabschnitt ;
+    cur:negativeHint "Kapitel 2 „Querschnittsthemen“ ist ausdrücklich nicht darunter: Lernkompetenz ist „kein Bildungsbereich im engeren Sinne“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sie stellen keinen abschließenden Katalog dar" ;
+    cur:recognitionHint "Kapitel 3 und Bezeichnung der einzelnen Bereiche (Singular in Fließtext)"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-RP-f380448c46f7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 58"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 10"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungspartnerschaft mit den Eltern" ;
+    cur:verified false .
+
+elem:re-DE-RP-f4604e5d9dda a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-RP.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BEE-2004 S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2004 | 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-kita ;
+    cur:negativeHint "„Kita“ ist die Kurzform im Alltag und auf der Webseite"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kindertagesstätten haben einen eigenständigen Bildungsauftrag" ;
+    cur:recognitionHint "Übliche Bezeichnung. KiTaG nutzt „Tageseinrichtung“"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kindertagesstätte" ;
+    cur:verified false .
+

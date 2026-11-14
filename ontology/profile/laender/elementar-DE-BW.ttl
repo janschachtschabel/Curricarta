@@ -1,0 +1,708 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-BW-017790b0f317,
+        elem:re-DE-BW-0b55c9f4680b,
+        elem:re-DE-BW-140899e9037d,
+        elem:re-DE-BW-14c96ee9d192,
+        elem:re-DE-BW-178faa1171a6,
+        elem:re-DE-BW-218ced9125d1,
+        elem:re-DE-BW-22791730a1be,
+        elem:re-DE-BW-265260935b6b,
+        elem:re-DE-BW-285f3d7e3e74,
+        elem:re-DE-BW-296db03796fe,
+        elem:re-DE-BW-2aec78ba3c19,
+        elem:re-DE-BW-2b02c0134633,
+        elem:re-DE-BW-326ee0617561,
+        elem:re-DE-BW-45c8155d865a,
+        elem:re-DE-BW-4651814c0ce4,
+        elem:re-DE-BW-48094c27e95d,
+        elem:re-DE-BW-4f7ac7ebe968,
+        elem:re-DE-BW-59eabaf7b958,
+        elem:re-DE-BW-61b93d778aaa,
+        elem:re-DE-BW-6a40397ce800,
+        elem:re-DE-BW-6d1a87daff61,
+        elem:re-DE-BW-722f2a307323,
+        elem:re-DE-BW-8abcbe598b44,
+        elem:re-DE-BW-94cdf2c661da,
+        elem:re-DE-BW-97f8ff8bcd3d,
+        elem:re-DE-BW-9e930ce73329,
+        elem:re-DE-BW-9f6229850f21,
+        elem:re-DE-BW-a018b430a1f7,
+        elem:re-DE-BW-a821dacebbb7,
+        elem:re-DE-BW-b869efa21292,
+        elem:re-DE-BW-bd9e9152d526,
+        elem:re-DE-BW-be9fa0db3ee4,
+        elem:re-DE-BW-c200a93fe1d8,
+        elem:re-DE-BW-c8450c5fc22a,
+        elem:re-DE-BW-d7333da35ac2,
+        elem:re-DE-BW-e2f3d72bc8e9,
+        elem:re-DE-BW-e42c0dfc8196,
+        elem:re-DE-BW-ef7b004f6ff8,
+        elem:re-DE-BW-f155185d3ab2,
+        elem:re-DE-BW-f5dbcea9485e,
+        elem:re-DE-BW-f75ff8c5c615,
+        elem:re-DE-BW-f95f0bb8d909 .
+
+elem:re-DE-BW-017790b0f317 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.156"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Naturwissenschaften" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Naturwissenschaften" ;
+    cur:verified false .
+
+elem:re-DE-BW-0b55c9f4680b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.136"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Essen und Trinken" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Essen und Trinken" ;
+    cur:verified false .
+
+elem:re-DE-BW-140899e9037d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.91"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Kein verbindliches Instrument, Verfahren in Verantwortung der Träger (S.20)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.4.4 Beobachtung, Dokumentation und Auswertung" ;
+    cur:recognitionHint "Kapitel 1.4.4"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachtung, Dokumentation und Auswertung" ;
+    cur:verified false .
+
+elem:re-DE-BW-14c96ee9d192 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.31"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Uebergang ;
+    cur:negativeHint "2025: Anschluss an und für die Schule"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Weiterführung in der Schule" ;
+    cur:recognitionHint "Schlussabschnitt jedes Feldes"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weiterführung in der Schule" ;
+    cur:verified false .
+
+elem:re-DE-BW-178faa1171a6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.140"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:negativeHint "2011: Weiterführung in der Schule"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anschluss an und für die Schule" ;
+    cur:recognitionHint "Schlussabschnitt jedes Feldes mit Fächerbezug"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anschluss an und für die Schule" ;
+    cur:verified false .
+
+elem:re-DE-BW-218ced9125d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.248"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Mediengestaltung" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mediengestaltung" ;
+    cur:verified false .
+
+elem:re-DE-BW-22791730a1be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.31"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-sinneswahrnehmung ;
+    cur:negativeHint "Zuordnung ziel_id eigene Annahme"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.2 Bildungs- und Entwicklungsfeld: Sinne" ;
+    cur:recognitionHint "Feld 3.2 der Fassung 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sinne" ;
+    cur:verified false .
+
+elem:re-DE-BW-265260935b6b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.42"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-emotionen,
+        elem:f-personal-sozial ;
+    cur:negativeHint "Zuordnung ziel_id eigene Annahme"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.5 Bildungs- und Entwicklungsfeld: Gefühl und Mitgefühl" ;
+    cur:recognitionHint "Feld 3.5 der Fassung 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gefühl und Mitgefühl" ;
+    cur:verified false .
+
+elem:re-DE-BW-285f3d7e3e74 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-6a2e14ff84de-BW"@de,
+        "Länderrecherche, Beleg E: OP2025 S.1"@de,
+        "Plangeneration laut Länderrecherche: 2025 (Juli 2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Fassung 2011 heißt …in baden-württembergischen Kindergärten und weiteren Kindertageseinrichtungen"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Orientierungsplan für Bildung und Erziehung in baden-württembergischen Kindertageseinrichtungen und Kindertagespflege" ;
+    cur:recognitionHint "Titel 2025 mit Zusatz Kindertagespflege"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungsplan für Bildung und Erziehung in baden-württembergischen Kindertageseinrichtungen und Kindertagespflege" ;
+    cur:verified false .
+
+elem:re-DE-BW-296db03796fe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.220"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kulturelle, weltanschauliche und religiöse Vielfalt" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kulturelle, weltanschauliche und religiöse Vielfalt" ;
+    cur:verified false .
+
+elem:re-DE-BW-2aec78ba3c19 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.247"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Vielfältige Zugänge zu Medien" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vielfältige Zugänge zu Medien" ;
+    cur:verified false .
+
+elem:re-DE-BW-2b02c0134633 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.176"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sprache und Vielfalt" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprache und Vielfalt" ;
+    cur:verified false .
+
+elem:re-DE-BW-326ee0617561 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.133"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Die Kindertageseinrichtung kooperiert mit dem örtlichen Sportverein." ;
+    cur:recognitionHint "Kasten mit Erzählung im Präsens"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiel aus der Praxis" ;
+    cur:verified false .
+
+elem:re-DE-BW-45c8155d865a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.28"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-koerper ;
+    cur:negativeHint "Vorgänger von Körper und Lebensweise"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.1 Bildungs- und Entwicklungsfeld: Körper" ;
+    cur:recognitionHint "Feld 3.1 der Fassung 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körper" ;
+    cur:verified false .
+
+elem:re-DE-BW-4651814c0ce4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.134"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Aufgabe der Fachkraft in dritter Person, keine Anrede"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Handlungskriterium 1: Die pädagogische Fachkraft unterstützt die Kinder mit vielfältigen Angeboten, ihren eigenen Körper kennenzulernen." ;
+    cur:recognitionHint "Nummeriert Handlungskriterium 1:, Satzanfang Die pädagogische Fachkraft …"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handlungskriterien" ;
+    cur:verified false .
+
+elem:re-DE-BW-48094c27e95d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.277-278"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "4 Qualität sichern und weiterentwickeln" ;
+    cur:recognitionHint "Kapitel 4, fünf Dimensionen Orientierungs- | Struktur- | Prozess- | Ergebnisqualität | Organisation und Management"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualität sichern und weiterentwickeln" ;
+    cur:verified false .
+
+elem:re-DE-BW-4f7ac7ebe968 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.235"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Ästhetische Erfahrungen" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ästhetische Erfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-BW-59eabaf7b958 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.221"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kultur- und religionssensible Bildung als Grundlage für ein zuversichtliches Selbst- und Weltbild" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kultur- und religionssensible Bildung als Grundlage für ein zuversichtliches Selbst- und Weltbild" ;
+    cur:verified false .
+
+elem:re-DE-BW-61b93d778aaa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.237"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Rhythmik, Tanz, szenisches Spiel und Theater" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Rhythmik, Tanz, szenisches Spiel und Theater" ;
+    cur:verified false .
+
+elem:re-DE-BW-6a40397ce800 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-cb126465c2d6-BW"@de,
+        "Länderrecherche, Beleg E: OP2025 S.211"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-kulturelle-vielfalt,
+        elem:f-religion-weltanschauung,
+        elem:f-werte-ethik-philosophie ;
+    cur:negativeHint "Vorliste schreibt Kultur, Werte und Religion (mit und). 2011: Sinn, Werte und Religion"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.3.6 Kultur, Werte, Religion" ;
+    cur:recognitionHint "Nr. 2.3.6, Teilbereiche Kulturelle, weltanschauliche und religiöse Vielfalt | Wertebildung | Spiritualität, Theologisieren und Philosophieren"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kultur, Werte, Religion" ;
+    cur:verified false .
+
+elem:re-DE-BW-6d1a87daff61 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.6"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1 Verortung: Grundlagen und Ziele" ;
+    cur:recognitionHint "Kapitel 1"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verortung: Grundlagen und Ziele" ;
+    cur:verified false .
+
+elem:re-DE-BW-722f2a307323 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.2"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Abgelöst ab 2029/30 durch Fassung 2025"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Fassung vom 15. März 2011" ;
+    cur:recognitionHint "Titel 2011 mit Zusatz Fassung vom 15. März 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungsplan für Bildung und Erziehung in baden-württembergischen Kindergärten und weiteren Kindertageseinrichtungen" ;
+    cur:verified false .
+
+elem:re-DE-BW-8abcbe598b44 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.29"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Abgelöst durch Reflexionsfragen. Satzform meist Passiv oder Sicht auf das Kind"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kann das Kind bei Bedarf körperliche Nähe erfahren?" ;
+    cur:recognitionHint "Fragen je Matrixknoten A1, B1 …, Aufzählung Wie …?"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fragen als Denkanstöße" ;
+    cur:verified false .
+
+elem:re-DE-BW-94cdf2c661da a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.190"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Gleiches Wort wie im Feld Wahrnehmen und Denken (Kognitive Basisfunktionen)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Basisfunktionen" ;
+    cur:recognitionHint "Teilbereichstitel im Feld Soziale Entwicklung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basisfunktionen" ;
+    cur:verified false .
+
+elem:re-DE-BW-97f8ff8bcd3d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.288"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Glossar" ;
+    cur:recognitionHint "Anhang mit Pfeil → im Fließtext"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Glossar" ;
+    cur:verified false .
+
+elem:re-DE-BW-9e930ce73329 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.192"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Normen und Werte im pädagogischen Kontext" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Normen und Werte im pädagogischen Kontext" ;
+    cur:verified false .
+
+elem:re-DE-BW-9f6229850f21 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.208"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Erster Teilbereich des Feldes trägt den Feldtitel (siehe T7)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Motivation und Handeln" ;
+    cur:recognitionHint "Teilbereichstitel im Feld Emotion und Motivation"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motivation und Handeln" ;
+    cur:verified false .
+
+elem:re-DE-BW-a018b430a1f7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.29"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Mit Zusatz in Anführungszeichen z. B. Körper"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kinder erwerben grundlegende Bewegungsformen und erweitern ihren Handlungs- und Erfahrungsraum" ;
+    cur:recognitionHint "Zielkasten je Feld, Satzanfang Kinder"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele für das Bildungs- und Entwicklungsfeld" ;
+    cur:verified false .
+
+elem:re-DE-BW-a821dacebbb7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.134"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "2011 Satzanfang Kinder mit Punkt und Komma"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Das Kind erwirbt grundlegende Bewegungsformen und erweitert seinen Handlungs- und Erfahrungsraum." ;
+    cur:recognitionHint "Zeilenkopf je Teilbereich, Aufzählung mit Verb in 3. Person Singular"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele: Das Kind" ;
+    cur:verified false .
+
+elem:re-DE-BW-b869efa21292 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.44"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-religion-weltanschauung,
+        elem:f-werte-ethik-philosophie ;
+    cur:negativeHint "Nachfolger Kultur, Werte, Religion"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.6 Bildungs- und Entwicklungsfeld: Sinn, Werte und Religion" ;
+    cur:recognitionHint "Feld 3.6 der Fassung 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sinn, Werte und Religion" ;
+    cur:verified false .
+
+elem:re-DE-BW-bd9e9152d526 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.222"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Wertebildung und Verantwortung für Gemeinschaft und Umwelt" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wertebildung und Verantwortung für Gemeinschaft und Umwelt" ;
+    cur:verified false .
+
+elem:re-DE-BW-be9fa0db3ee4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.174"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Verbale und nonverbale Kommunikation" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verbale und nonverbale Kommunikation" ;
+    cur:verified false .
+
+elem:re-DE-BW-c200a93fe1d8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.254"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:Zusammenarbeit ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3 Übergänge und Zusammenarbeit gemeinsam gestalten" ;
+    cur:recognitionHint "Kapitel 3 mit 3.1 Von der Familie in die Kindertagesbetreuung und 3.2 Von der Kindertageseinrichtung in die Schule"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergänge und Zusammenarbeit gemeinsam gestalten" ;
+    cur:verified false .
+
+elem:re-DE-BW-c8450c5fc22a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.79"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.4 Professionalität pädagogischer Fachkräfte" ;
+    cur:recognitionHint "Kapitel 1.4 mit Grundhaltung | Beziehungs- und Interaktionsgestaltung | Räumen | Rolle der Einrichtungsleitung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Professionalität pädagogischer Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-BW-d7333da35ac2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.135"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Geschlecht und Sexualität" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Geschlecht und Sexualität" ;
+    cur:verified false .
+
+elem:re-DE-BW-e2f3d72bc8e9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.223"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Spiritualität, Theologisieren und Philosophieren" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Spiritualität, Theologisieren und Philosophieren" ;
+    cur:verified false .
+
+elem:re-DE-BW-e42c0dfc8196 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2011 PDF-S.38"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mint ;
+    cur:negativeHint "Zuordnung ziel_id eigene Annahme"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.4 Bildungs- und Entwicklungsfeld: Denken" ;
+    cur:recognitionHint "Feld 3.4 der Fassung 2011"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Denken" ;
+    cur:verified false .
+
+elem:re-DE-BW-ef7b004f6ff8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.4-5"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Worte vorweg" ;
+    cur:recognitionHint "Vorwort des Staatssekretärs"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Worte vorweg" ;
+    cur:verified false .
+
+elem:re-DE-BW-f155185d3ab2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.176"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Schriftsprachliche Entwicklung" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schriftsprachliche Entwicklung" ;
+    cur:verified false .
+
+elem:re-DE-BW-f5dbcea9485e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.191"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kooperation und Konflikt" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kooperation und Konflikt" ;
+    cur:verified false .
+
+elem:re-DE-BW-f75ff8c5c615 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.155"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Wort Basisfunktionen ist kein Kompetenzmodell"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kognitive Basisfunktionen" ;
+    cur:recognitionHint "Teilbereichstitel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kognitive Basisfunktionen" ;
+    cur:verified false .
+
+elem:re-DE-BW-f95f0bb8d909 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: OP2025 S.134"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Körperlichkeit" ;
+    cur:recognitionHint "Teilbereichstitel mit Ziele: Das Kind"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körperlichkeit" ;
+    cur:verified false .
+

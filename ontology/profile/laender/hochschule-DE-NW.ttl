@@ -1,0 +1,189 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix hs: <https://w3id.org/wlo/curriculum/profile/higher-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+hs:Terminology cur:hasCue hs:re-DE-NW-14fd6b4b1a2b,
+        hs:re-DE-NW-1dd6a78fc904,
+        hs:re-DE-NW-3e41d2ff4542,
+        hs:re-DE-NW-62633492cf47,
+        hs:re-DE-NW-a4e8d090b2e4,
+        hs:re-DE-NW-aed44afec1a9,
+        hs:re-DE-NW-b76cfc809a3a,
+        hs:re-DE-NW-c0694af7714f,
+        hs:re-DE-NW-d4f74674e82e,
+        hs:re-DE-NW-e71da80c9576,
+        hs:re-DE-NW-e92dea449527,
+        hs:re-DE-NW-f4b73f309893 .
+
+hs:re-DE-NW-14fd6b4b1a2b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04A-hochschule-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Hochschulordnungen NRW (Sekundärquelle)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Lehramt ;
+    cur:negativeHint "Praxissemester dauert 5 Monate - Begriffe Bildungswissenschaften und Unterrichtsfach"@de ;
+    cur:positiveExample "Lehrerausbildungsgesetz (LABG) vom 12. Mai 2009" ;
+    cur:recognitionHint "LABG vom 12. Mai 2009 mit Praxissemester in § 12"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehrerausbildungsgesetz (LABG)" ;
+    cur:verified false .
+
+hs:re-DE-NW-1dd6a78fc904 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:dt-Modulhandbuch ;
+    cur:negativeHint "Keine Anlage-Formel gefunden also nicht als Anlage der Ordnung erkennbar"@de ;
+    cur:positiveExample "NACH DER PRÜFUNGSORDNUNG FÜR DEN 1-FACH-BACHELOR-STUDIENGANG INFORMATIK (FASSUNG 31.01.2024)" ;
+    cur:recognitionHint "Bezug auf Prüfungsordnung samt Fassungsdatum auf dem Deckblatt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "NACH DER PRÜFUNGSORDNUNG FÜR DEN 1-FACH-BACHELOR-STUDIENGANG INFORMATIK (FASSUNG 31.01.2024)" ;
+    cur:verified false .
+
+hs:re-DE-NW-3e41d2ff4542 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.13"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:of-ss ;
+    cur:positiveExample "Jedes SoSe" ;
+    cur:recognitionHint "Wert Jedes SoSe"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Jedes SoSe" ;
+    cur:verified false .
+
+hs:re-DE-NW-62633492cf47 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:ct-ergaenzung ;
+    cur:negativeHint "Lokaler Modultyp"@de ;
+    cur:positiveExample "EM Ergänzungsmodul" ;
+    cur:recognitionHint "Legende Kürzel EM"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ergänzungsmodul" ;
+    cur:verified false .
+
+hs:re-DE-NW-a4e8d090b2e4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HfMT S.4 | HfMT S.6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:KuenstlerischesHauptfach ;
+    cur:negativeHint "Jedes Modulsemester ist eine eigene Zeile mit 15 LP"@de ;
+    cur:positiveExample "Instrumentales Hauptfach" ;
+    cur:recognitionHint "LV-Titel in Kernmodul 1 und 2 über je vier Modulsemester"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Instrumentales Hauptfach" ;
+    cur:verified false .
+
+hs:re-DE-NW-aed44afec1a9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.12"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo hs:Modulziel ;
+    cur:negativeHint "Aufzählungspunkte beginnen mit …"@de ;
+    cur:positiveExample "2 Ziele des Moduls und zu erwerbende Kompetenzen Die Studierenden…" ;
+    cur:recognitionHint "Feld 2 mit Einleitung Die Studierenden… und Aufzählung mit …"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele des Moduls und zu erwerbende Kompetenzen" ;
+    cur:verified false .
+
+hs:re-DE-NW-b76cfc809a3a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HfMT S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Lehrveranstaltung ;
+    cur:negativeHint "LV sind Einzelunterricht je Modulsemester (Instrumentales Hauptfach 1. bis 4. Modulsemester)"@de ;
+    cur:positiveExample "3 Modulstruktur" ;
+    cur:recognitionHint "Tabelle Nr. | Typ | Lehrveranstaltung | Status | LP | Präsenz | Selbststudium (h)"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modulstruktur" ;
+    cur:verified false .
+
+hs:re-DE-NW-c0694af7714f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HfMT S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:af-kuenstlerisch ;
+    cur:negativeHint "Besondere Modulprüfung ist das Vorspiel (20 min)"@de ;
+    cur:positiveExample "6 Leistungsüberprüfung: | x | Besondere Modulprüfung" ;
+    cur:recognitionHint "Ankreuzfeld Besondere Modulprüfung | Modulprüfung | Studienleistung"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsüberprüfung" ;
+    cur:verified false .
+
+hs:re-DE-NW-d4f74674e82e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:ct-aufbau ;
+    cur:negativeHint "Lokaler Modultyp"@de ;
+    cur:positiveExample "AM Aufbaumodul" ;
+    cur:recognitionHint "Legende Kürzel AM"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufbaumodul" ;
+    cur:verified false .
+
+hs:re-DE-NW-e71da80c9576 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.4 | Koeln S.11"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:ct-basis ;
+    cur:negativeHint "Lokaler Modultyp nicht Verbindlichkeit"@de ;
+    cur:positiveExample "Art des Moduls o Basismodul" ;
+    cur:recognitionHint "Ankreuzfeld o Basismodul im Steckbrief und Spalte in Modultabelle"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basismodul" ;
+    cur:verified false .
+
+hs:re-DE-NW-e92dea449527 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Koeln S.10 | Koeln S.47"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo hs:Studienbereich ;
+    cur:negativeHint "Fächerübergreifender Bestandteil jedes Bachelorstudiums außer Lehramt"@de ;
+    cur:positiveExample "1.5 Zusatzbereich Studium Integrale" ;
+    cur:recognitionHint "Eigener Abschnitt mit LP-Grenze (maximal 6 LP) und unbenotet"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Studium Integrale" ;
+    cur:verified false .
+
+hs:re-DE-NW-f4b73f309893 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/04B-hochschule-modulhandbuecher.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HfMT S.3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo hs:tf-gruppe ;
+    cur:positiveExample "G Gruppenunterricht" ;
+    cur:recognitionHint "Kürzel G"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gruppenunterricht" ;
+    cur:verified false .
+

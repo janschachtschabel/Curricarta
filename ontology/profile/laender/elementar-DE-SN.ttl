@@ -1,0 +1,666 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-SN-013675e226e2,
+        elem:re-DE-SN-03461246ecbf,
+        elem:re-DE-SN-03a591901411,
+        elem:re-DE-SN-042cbe768f2e,
+        elem:re-DE-SN-05d4fc19efe4,
+        elem:re-DE-SN-0b8636870560,
+        elem:re-DE-SN-12d1f8bc3f8d,
+        elem:re-DE-SN-17af1eea56af,
+        elem:re-DE-SN-24132c70b14b,
+        elem:re-DE-SN-2f2bb4bb8f18,
+        elem:re-DE-SN-3992a7eef0cf,
+        elem:re-DE-SN-51a21012a5d1,
+        elem:re-DE-SN-51d8e05f0cb5,
+        elem:re-DE-SN-5a1a77c39264,
+        elem:re-DE-SN-5c7392eaea60,
+        elem:re-DE-SN-5d77ac8097ce,
+        elem:re-DE-SN-5f3584210110,
+        elem:re-DE-SN-5f401d586b56,
+        elem:re-DE-SN-69f3692f6346,
+        elem:re-DE-SN-6d494a84befe,
+        elem:re-DE-SN-6ea92d53086c,
+        elem:re-DE-SN-7dddc53999c0,
+        elem:re-DE-SN-81e17214ed00,
+        elem:re-DE-SN-820a514f7b2b,
+        elem:re-DE-SN-83d39c1d9666,
+        elem:re-DE-SN-84df09d29283,
+        elem:re-DE-SN-86ae1342863d,
+        elem:re-DE-SN-90bf366c2862,
+        elem:re-DE-SN-9e9ebe3a2024,
+        elem:re-DE-SN-a09e418a1a4e,
+        elem:re-DE-SN-a17b02c2989a,
+        elem:re-DE-SN-a24284e9c97b,
+        elem:re-DE-SN-a62c62933814,
+        elem:re-DE-SN-d0be78d15112,
+        elem:re-DE-SN-dd26d773d718,
+        elem:re-DE-SN-e08a75025489,
+        elem:re-DE-SN-e2e1544dcccd,
+        elem:re-DE-SN-e5712f0696c3,
+        elem:re-DE-SN-f68a2f488235,
+        elem:re-DE-SN-fe87214d503a .
+
+elem:re-DE-SN-013675e226e2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: SEBP S. 6 | S. 144"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mint ;
+    cur:negativeHint "Alte Bereiche Naturwissenschaftliche und Mathematische Bildung sind hier nicht mehr getrennt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "B 6 fasst Naturwissenschaft und Mathematik zusammen (Annahme)  Technik und Informatik neu"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "MINT – Mathematik, Informatik, Naturwissenschaft und Technik" ;
+    cur:verified false .
+
+elem:re-DE-SN-03461246ecbf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 154 | S. 76 | S. 11"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls,
+        elem:Praxisbeispiel ;
+    cur:negativeHint "Beispielhafte Auswahl (S. 11 „ausdrücklich als exemplarische Darstellungen“). Nicht Praxisberichte"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kennenlernen von Begriffen für technische Gegenstände, Geräte und Prozesse" ;
+    cur:recognitionHint "je Bereich in drei Altersgruppen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktische Impulse" ;
+    cur:verified false .
+
+elem:re-DE-SN-03a591901411 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4 | SEBP S. 6"@de,
+        "Plangeneration laut Länderrecherche: alt | neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "alt 3.4 neu C 1.2 und C 2"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergänge zwischen Familie, Kindertagesbetreuung und Schule" ;
+    cur:verified false .
+
+elem:re-DE-SN-042cbe768f2e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 10"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsbereich ;
+    cur:negativeHint "Alt „Bildungsbereich“"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Mit der neuen Bezeichnung als Erziehungs- und Bildungsbereiche wird auch dort die Rolle pädagogischer Fachkräfte stärker hervorgehoben" ;
+    cur:recognitionHint "Bereichsbegriff der Neufassung"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungsbereich" ;
+    cur:verified false .
+
+elem:re-DE-SN-05d4fc19efe4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 3-4 | S. 7-8"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Im SEBP Teil C Bedingungen des Aufwachsens („knüpft an das Kapitel Kontexte an“, S. 13)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel 3"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kontexte" ;
+    cur:verified false .
+
+elem:re-DE-SN-0b8636870560 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 156"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe,
+        elem:Impuls ;
+    cur:negativeHint "Nominale Stichpunkte statt „Fachkräfte …“. Keine Imperativ-Form"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Ermutigung zu selbstständigem Forschen, Experimentieren und Lernen" ;
+    cur:recognitionHint "Unterteilt in Wissen - Haltung - Können, danach Reflexionsfragen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Impulse pädagogischen Handelns" ;
+    cur:verified false .
+
+elem:re-DE-SN-12d1f8bc3f8d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Dialog" ;
+    cur:verified false .
+
+elem:re-DE-SN-17af1eea56af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: SEBP S. 5 | S. 83"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-emotionen,
+        elem:f-soziale-beziehungen ;
+    cur:negativeHint "Neuer Name, Zuordnung zur Sozialen Bildung nicht ausdrücklich angegeben (Annahme)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "B 2"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Emotionen und Beziehungen" ;
+    cur:verified false .
+
+elem:re-DE-SN-24132c70b14b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 5 | S. 10"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Alt „Bildungsbereiche“ (Kapitel 2)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Teil B bündelt die sieben Bereiche"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-SN-2f2bb4bb8f18 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "SEBP: A 1.2 Pädagogische Diagnostik"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "3.1.2 und 3.1.3"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Dokumentieren" ;
+    cur:verified false .
+
+elem:re-DE-SN-3992a7eef0cf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 76 | S. 154"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-kindertagespflege,
+        elem:set-krippe ;
+    cur:negativeHint "Zusammen mit Kinderkrippe genannt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Altersgruppe der Didaktischen Impulse"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder in der Kindertagespflege und Kinderkrippe" ;
+    cur:verified false .
+
+elem:re-DE-SN-51a21012a5d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4 | SEBP S. 7"@de,
+        "Plangeneration laut Länderrecherche: alt | neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "alt 3.2 neu C 4"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusammenarbeit mit Müttern und Vätern" ;
+    cur:verified false .
+
+elem:re-DE-SN-51d8e05f0cb5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 1 | S. 10"@de,
+        "Plangeneration laut Länderrecherche: neu (Redaktionsschluss 2026 gültig ab 2027-01-01)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Löst „Sächsischer Bildungsplan“ ab. Kurzform SEBP"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Titel mit „Erziehungs- und“"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sächsischer Erziehungs- und Bildungsplan" ;
+    cur:verified false .
+
+elem:re-DE-SN-5a1a77c39264 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 12-13"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Ziele leiten das Handeln der Fachkräfte und werden nicht an Kindern geprüft (im Gegensatz zu normativen Zielformulierungen). Keine eigene Zielliste im Kind-Satz"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Formulierungen im Bildungsplan tragen den Charakter von Richtungszielen" ;
+    cur:recognitionHint "Formulierungen „tragen den Charakter von Richtungszielen“"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtungsziele" ;
+    cur:verified false .
+
+elem:re-DE-SN-5c7392eaea60 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 4"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "A 1.2"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Diagnostik" ;
+    cur:verified false .
+
+elem:re-DE-SN-5d77ac8097ce a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 4 | S. 36"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "A 1.4 mit Dimensionen und Qualitätssicherung und -entwicklung"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Qualität" ;
+    cur:verified false .
+
+elem:re-DE-SN-5f3584210110 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 4-5"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "Hier auch Interaktionsqualität und Raum und Material"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "A 1.3 und B x.3.1"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Didaktik" ;
+    cur:verified false .
+
+elem:re-DE-SN-5f401d586b56 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Entdecken" ;
+    cur:verified false .
+
+elem:re-DE-SN-69f3692f6346 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Beteiligung" ;
+    cur:verified false .
+
+elem:re-DE-SN-6d494a84befe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 39 | S. 45 | S. 48"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Kinder-Kasten enthält auch Fragen direkt an das Kind in Du-Form („Was tut dir besonders gut …“) S. 45. Erscheint ohne eigene Überschrift. Vorliste „Anregungen zum Weiterdenken“ ist NICHT dieser Typ"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Welche Stimmung ist bei dem jeweiligen Kind zu beobachten?" ;
+    cur:recognitionHint "Aufzählung mit „•“ im Kästchen nach Leitbegriff und nach jedem Inhalt. Seitenmarken Kinder, Eltern, pädagogisches Handeln, Rahmenbedingungen"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachtungs- und Analysefragen" ;
+    cur:verified false .
+
+elem:re-DE-SN-6ea92d53086c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 76 | S. 154"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-hort ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Altersgruppe der Didaktischen Impulse"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder im Hort" ;
+    cur:verified false .
+
+elem:re-DE-SN-7dddc53999c0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 49 | S. 11"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Kompetenzmodell der Fachkraft nicht des Kindes. Siehe T5"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die professionelle Handlungskompetenz zeigt sich in den Bereichen Wissen, Haltung und Können" ;
+    cur:recognitionHint "Dimensionen professioneller Handlungskompetenz"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Können" ;
+    cur:verified false .
+
+elem:re-DE-SN-81e17214ed00 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 6 | S. 10 | S. 159"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-medien ;
+    cur:negativeHint "Im alten Plan nur Teil von Kommunikative Bildung (Inhalte: Schriftlichkeit und Medien)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Mit dem Erziehungs- und Bildungsbereich Analoge und digitale Medien wird ein weiteres Themenfeld aufgenommen" ;
+    cur:recognitionHint "B 7 neuer Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Analoge und digitale Medien" ;
+    cur:verified false .
+
+elem:re-DE-SN-820a514f7b2b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 76 | S. 154"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-kindergarten ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Altersgruppe der Didaktischen Impulse"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder im Kindergarten" ;
+    cur:verified false .
+
+elem:re-DE-SN-83d39c1d9666 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 49 | S. 11"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Kompetenzmodell der Fachkraft nicht des Kindes. Siehe T5"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die professionelle Handlungskompetenz zeigt sich in den Bereichen Wissen, Haltung und Können" ;
+    cur:recognitionHint "Dimensionen professioneller Handlungskompetenz"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wissen" ;
+    cur:verified false .
+
+elem:re-DE-SN-84df09d29283 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 49 | S. 11"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Kompetenzmodell der Fachkraft nicht des Kindes. Siehe T5"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die professionelle Handlungskompetenz zeigt sich in den Bereichen Wissen, Haltung und Können" ;
+    cur:recognitionHint "Dimensionen professioneller Handlungskompetenz"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Haltung" ;
+    cur:verified false .
+
+elem:re-DE-SN-86ae1342863d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4 | SEBP S. 7"@de,
+        "Plangeneration laut Länderrecherche: alt | neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "alt 3.2 neu C 4"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungspartnerschaft" ;
+    cur:verified false .
+
+elem:re-DE-SN-90bf366c2862 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-b51cd53a21e3-SN"@de,
+        "Länderrecherche, Beleg E: Alter Plan PDF S. 1"@de,
+        "Plangeneration laut Länderrecherche: alt (2006/2007 Fassung 2011)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Vorliste führt nur „Der Sächsische Bildungsplan“. Voller Titel länger. Der SEBP nennt sich ohne „Der“"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Titelblatt mit Zusatz „ein Leitfaden“"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der Sächsische Bildungsplan – ein Leitfaden für pädagogische Fachkräfte in Krippen, Kindergärten und Horten sowie für Kindertagespflege" ;
+    cur:verified false .
+
+elem:re-DE-SN-9e9ebe3a2024 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Wahrnehmen" ;
+    cur:verified false .
+
+elem:re-DE-SN-a09e418a1a4e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 67"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Auch Teilüberschrift „Zielsetzungen pädagogischen Handelns: Kinder im Fokus“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "B x.2 Bildungswert des Bereichs"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder im Fokus" ;
+    cur:verified false .
+
+elem:re-DE-SN-a17b02c2989a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4 | SEBP S. 6"@de,
+        "Plangeneration laut Länderrecherche: alt | neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "alt 3.4 neu C 1.2 und C 2"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kooperation am Übergang zur Grundschule" ;
+    cur:verified false .
+
+elem:re-DE-SN-a24284e9c97b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 11 | S. 14 | S. 155"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Kompetenzbeschreibung ;
+    cur:negativeHint "Kein Dimensionsmodell. Nicht Basiskompetenzen BY/HE. Altersbezug teils im Text („ca. ab dem 5. Lebensjahr“ S. 113)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Das Kind besitzt ein grundlegendes Verständnis für Zahlen und Mengen" ;
+    cur:recognitionHint "Fließtext „Das Kind besitzt …“ „Es kann …“ in B 1 B 2 B 3 B 6"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basale Kompetenzen im Übergang vom Elementar- zum Primarbereich" ;
+    cur:verified false .
+
+elem:re-DE-SN-a62c62933814 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 4"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "SEBP: A 1.2 Pädagogische Diagnostik"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "3.1.2 und 3.1.3"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahrnehmen, Beobachten und Reflektieren" ;
+    cur:verified false .
+
+elem:re-DE-SN-d0be78d15112 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 5 | S. 130"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:f-aesthetik ;
+    cur:negativeHint "Alt „Ästhetische Bildung“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "B 5"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ästhetik" ;
+    cur:verified false .
+
+elem:re-DE-SN-dd26d773d718 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 4 | S. 17 | S. 39"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "A 2 mit fünf Orientierungen (S. 17: „Pädagogische Orientierungen und Leitprinzipien“)"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Orientierungen" ;
+    cur:verified false .
+
+elem:re-DE-SN-e08a75025489 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Ordnen" ;
+    cur:verified false .
+
+elem:re-DE-SN-e2e1544dcccd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 67 | S. 179"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "Nicht die Basiskompetenzen des Kindes"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "B x.3 und Schluss jedes C-Kapitels"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Professionelle Handlungskompetenz" ;
+    cur:verified false .
+
+elem:re-DE-SN-e5712f0696c3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 53 | S. 140"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Keine Reflexionsfragen und keine Impulse. Die Fragenkästen stehen in 2.x.2 und 2.x.3"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "2.x.4 enthält nur Literaturangaben und den Satz „Hier ist Platz für Fragen, eigene Ideen und Literaturhinweise“"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen zum Weiterdenken" ;
+    cur:verified false .
+
+elem:re-DE-SN-f68a2f488235 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Alter Plan PDF S. 44 | S. 64 | S. 82 | S. 99 | S. 117 | S. 135"@de,
+        "Plangeneration laut Länderrecherche: alt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Der Plan nennt sie „Leitbegriff“ (S. 7: „durch einen speziellen Leitbegriff zusammengefasst“). Keine Leitprinzipien über alle Bereiche. Entfallen im SEBP"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Begriff „Ordnen“ leitet sich vom lateinischen Wort „ordinare“ ab und bedeutet „zuordnen“" ;
+    cur:recognitionHint "je ein Abschnitt 2.x.2 pro Bereich"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitbegriff Wohlbefinden" ;
+    cur:verified false .
+
+elem:re-DE-SN-fe87214d503a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-SN.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SEBP S. 155 | S. 93 | S. 168"@de,
+        "Plangeneration laut Länderrecherche: neu"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel,
+        elem:FachkraftAufgabe ;
+    cur:negativeHint "Ziel für das Kind in Fachkraft-Form. Nicht einzeln als verbindlich ausgewiesen. Der Plan nennt sie „zentrale Entwicklungsthemen“ (S. 11)"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "eine forschende Haltung zu entwickeln" ;
+    cur:recognitionHint "Satzanfang „Pädagogische Fachkräfte und Kindertagespflegepersonen unterstützen Kinder darin,“ danach Infinitive"@de ;
+    cur:scopeRegion land:DE-SN ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungsziele" ;
+    cur:verified false .
+

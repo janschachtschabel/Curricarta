@@ -1,0 +1,263 @@
+import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
+import * as api from "@/api";
+import { ApiError, type ReviewList } from "@/api";
+import LexiconSample from "@/components/LexiconSample.vue";
+import { t } from "@/i18n/de";
+
+import { violations } from "./axe";
+import { LABELS, REGION, SCHOOL, cueDecision, reviewCue } from "./lexiconFixtures";
+
+const OTHER = SCHOOL + "re-DE-BY-ba9876543210";
+const GONE = SCHOOL + "re-DE-NW-000000000000";
+let shown: VueWrapper | null = null;
+
+function review(changes: Partial<ReviewList> = {}): ReviewList {
+  return {
+    strata: [
+      { sector: "school", regions: [REGION + "DE-BY"], cues: 30, sampled: 3, decided: 1 },
+      { sector: "school", regions: [REGION + "DE-NW"], cues: 20, sampled: 2, decided: 0 },
+    ],
+    items: [
+      reviewCue(),
+      reviewCue({ iri: OTHER, surface_form: "Lernfeld", regions: [REGION + "DE-BY"], decision: cueDecision({ cue: OTHER }) }),
+    ],
+    retired: [],
+    labels: LABELS,
+    ...changes,
+  };
+}
+
+async function section(): Promise<VueWrapper> {
+  shown = mount(LexiconSample, { attachTo: document.body });
+  await flushPromises();
+  return shown;
+}
+
+const headings = (wrapper: VueWrapper) => wrapper.findAll("article h3").map((one) => one.text());
+const filter = (wrapper: VueWrapper) => wrapper.get("[data-test=open-only]");
+
+beforeEach(() => {
+  vi.restoreAllMocks();
+  // a fresh copy each time: a list read again is another object
+  vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review()));
+});
+
+afterEach(() => {
+  shown?.unmount();
+  shown = null;
+  document.body.innerHTML = "";
+});
+
+describe("the sample of the research's cues", () => {
+  it("shows its strata in a table and each cue of the list", async () => {
+    const wrapper = await section();
+
+    expect(wrapper.get("h2").text()).toBe(t("lexicon.sample.heading"));
+    expect(wrapper.get("caption").text()).toBe(t("lexicon.sample.strata"));
+    // the scroll region named by the caption itself, not said twice
+    expect(wrapper.get("[role=region]").attributes("aria-labelledby")).toBe(wrapper.get("caption").attributes("id"));
+    expect(wrapper.get("[role=region]").attributes("aria-label")).toBeUndefined();
+    const rows = wrapper.findAll("tbody tr").map((row) => row.findAll("th, td").map((cell) => cell.text()));
+    expect(rows).toEqual([
+      ["Schulbildung", "Bayern", "30", "3", "1"],
+      ["Schulbildung", "Nordrhein-Westfalen", "20", "2", "0"],
+    ]);
+    // no row header: a sector stands in several rows, a row is told by its sector and regions together
+    expect(wrapper.find("tbody th").exists()).toBe(false);
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+    expect(wrapper.find("[data-test=retired]").exists()).toBe(false);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("says that it waits until the list comes", async () => {
+    let answer: (list: ReviewList) => void = () => undefined;
+    vi.spyOn(api, "getReview").mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+    shown = mount(LexiconSample, { attachTo: document.body });
+    await flushPromises();
+    expect(shown.get("[role=status]").text()).toBe(t("lexicon.sample.loading"));
+
+    answer(review());
+    await flushPromises();
+    expect(headings(shown)).toHaveLength(2);
+  });
+
+  it("says a failed reading, and reads again on the reader's word", async () => {
+    vi.spyOn(api, "getReview")
+      .mockRejectedValueOnce(new ApiError("server", 503, "service_unavailable"))
+      .mockResolvedValueOnce(review());
+    const wrapper = await section();
+
+    expect(wrapper.get("[role=alert]").text()).toContain(t("lexicon.sample.loadFailed"));
+    await wrapper.get("[role=alert] button").trigger("click");
+    await flushPromises();
+
+    expect(headings(wrapper)).toHaveLength(2);
+  });
+
+  it("says where there is nothing to review", async () => {
+    vi.spyOn(api, "getReview").mockResolvedValue(review({ strata: [], items: [] }));
+    const wrapper = await section();
+
+    expect(wrapper.text()).toContain(t("lexicon.sample.noneTitle"));
+    expect(wrapper.find("table").exists()).toBe(false);
+    expect(wrapper.find("[data-test=open-only]").exists()).toBe(false);
+  });
+
+  it("shows the decisions on retired cues where no stratum is left, with nothing to filter", async () => {
+    const retired = cueDecision({ cue: GONE, retired: true, decision: "rejected", strength: null, applied: true });
+    vi.spyOn(api, "getReview").mockResolvedValue(review({ strata: [], items: [], retired: [retired] }));
+    const wrapper = await section();
+
+    expect(wrapper.text()).not.toContain(t("lexicon.sample.noneTitle"));
+    expect(wrapper.find("[data-test=retired] article").exists()).toBe(true);
+    expect(wrapper.find("[data-test=open-only]").exists()).toBe(false);
+  });
+
+  it("names a stratum of no region as holding everywhere", async () => {
+    const strata = [{ sector: "school", regions: [], cues: 4, sampled: 1, decided: 0 }];
+    vi.spyOn(api, "getReview").mockResolvedValue(review({ strata }));
+    const wrapper = await section();
+
+    expect(wrapper.findAll("tbody td")[1].text()).toBe(t("lexicon.cue.everywhere"));
+  });
+
+  it("shows the open cues alone on the reader's word, and how many are open", async () => {
+    const wrapper = await section();
+
+    expect(filter(wrapper).attributes("aria-pressed")).toBe("false");
+    expect(wrapper.get("[data-test=open-count]").text()).toBe("1 von 2 offen");
+    await filter(wrapper).trigger("click");
+
+    expect(filter(wrapper).attributes("aria-pressed")).toBe("true");
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+  });
+
+  it("takes a decision made into the list and its stratum, and keeps the cue in sight while only open ones show", async () => {
+    const made = cueDecision({ decision: "rejected", strength: null, evidence: null });
+    vi.spyOn(api, "decideCue").mockResolvedValue(made);
+    const wrapper = await section();
+    await filter(wrapper).trigger("click");
+
+    await wrapper.get("[data-test=decide]").trigger("click");
+    await wrapper.get("input[value=rejected]").setValue(true);
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+    expect(wrapper.get("[data-test=decision]").text()).toContain(t("lexicon.cue.rejected"));
+    expect(document.activeElement).toBe(wrapper.get("[data-test=decision]").element);
+    expect(wrapper.findAll("tbody tr")[1].findAll("td").at(-1)?.text()).toBe("1");
+    expect(wrapper.get("[data-test=open-count]").text()).toBe("0 von 2 offen");
+  });
+
+  it("lists the decisions on retired cues apart, as each was judged, decided again in place", async () => {
+    const retired = cueDecision({ cue: GONE, retired: true, decision: "rejected", strength: null, applied: true });
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ retired: [retired] })));
+    const made = { ...retired, decision: "confirmed" as const, strength: "0.8", applied: false };
+    vi.spyOn(api, "decideCue").mockResolvedValue(made);
+    const wrapper = await section();
+
+    const part = wrapper.get("[data-test=retired]");
+    expect(part.get("h3").text()).toBe(t("lexicon.sample.retiredHeading"));
+    // its entries a level below its heading
+    expect(part.findAll("article h4").map((one) => one.text())).toEqual(["„Inhaltsfeld“"]);
+    await part.get("[data-test=decide]").trigger("click");
+    await part.get("input[value=confirmed]").setValue(true);
+    await part.get("select").setValue("0.80");
+    await part.get("input[type=text]").setValue("KLP S. 3");
+    await part.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(part.get("[data-test=decision]").text()).toContain(t("lexicon.cue.retiredSince"));
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("reads the list again where a cue went meanwhile", async () => {
+    vi.spyOn(api, "decideCue").mockRejectedValue(new ApiError("server", 404, "no_cue"));
+    const wrapper = await section();
+    await wrapper.get("[data-test=decide]").trigger("click");
+    await wrapper.get("input[value=rejected]").setValue(true);
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    await wrapper.get("[data-test=decision-reload]").trigger("click");
+    await flushPromises();
+
+    expect(api.getReview).toHaveBeenCalledTimes(2);
+  });
+
+  it("keeps a cue whose form holds what is not saved in sight when only the open ones show", async () => {
+    const wrapper = await section();
+    const decided = wrapper.findAll("article")[1]; // decided before, "Neu entscheiden"
+    await decided.get("[data-test=decide]").trigger("click");
+    await decided.get("textarea").setValue("doch prüfen");
+
+    await filter(wrapper).trigger("click");
+
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+    expect(wrapper.get("textarea").element.value).toBe("doch prüfen");
+
+    // left, the entry stays until the filter is set again: the keyboard back on its button
+    await wrapper.get("[data-test=decision-cancel]").trigger("click");
+    await flushPromises();
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+    expect(document.activeElement).toBe(wrapper.findAll("[data-test=decide]")[1].element);
+    await filter(wrapper).trigger("click");
+    await filter(wrapper).trigger("click");
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+  });
+
+  it("keeps a cue in sight whose form holds input when the list read again says another decided it", async () => {
+    // only the open ones shown, both open: one form holds a note, the other's cue went, so the list is read again
+    const open = review({ items: [reviewCue(), reviewCue({ iri: OTHER, surface_form: "Lernfeld", regions: [REGION + "DE-BY"] })] });
+    const later = review({ items: [reviewCue({ decision: cueDecision({ decided_by: "Andere Redaktion" }) })] });
+    vi.spyOn(api, "getReview").mockResolvedValueOnce(open).mockResolvedValueOnce(later);
+    vi.spyOn(api, "decideCue").mockRejectedValue(new ApiError("server", 404, "no_cue"));
+    const wrapper = await section();
+    await filter(wrapper).trigger("click");
+    const [first, second] = wrapper.findAll("article");
+    await first.get("[data-test=decide]").trigger("click");
+    await first.get("textarea").setValue("noch zu klären");
+    await second.get("[data-test=decide]").trigger("click");
+    await second.get("input[value=rejected]").setValue(true);
+    await second.get("form").trigger("submit");
+    await flushPromises();
+
+    await wrapper.get("[data-test=decision-reload]").trigger("click");
+    await flushPromises();
+
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+    expect(wrapper.get("textarea").element.value).toBe("noch zu klären");
+  });
+
+  it("tells the page the form went when its cue left the list read again", async () => {
+    vi.spyOn(api, "decideCue").mockRejectedValue(new ApiError("server", 404, "no_cue"));
+    vi.spyOn(api, "getReview")
+      .mockResolvedValueOnce(review())
+      .mockResolvedValueOnce(review({ items: [review().items[1]] }));
+    const wrapper = await section();
+    await wrapper.get("[data-test=decide]").trigger("click");
+    await wrapper.get("textarea").setValue("noch offen");
+    await wrapper.get("input[value=rejected]").setValue(true);
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    await wrapper.get("[data-test=decision-reload]").trigger("click");
+    await flushPromises();
+
+    expect(headings(wrapper)).toEqual(["„Lernfeld“"]);
+    expect(wrapper.emitted("dirty")?.at(-1)).toEqual([false]);
+  });
+
+  it("tells the page while a form holds what is not saved", async () => {
+    const wrapper = await section();
+    await wrapper.get("[data-test=decide]").trigger("click");
+
+    await wrapper.get("textarea").setValue("noch offen");
+    await wrapper.get("[data-test=decision-cancel]").trigger("click");
+
+    expect(wrapper.emitted("dirty")).toEqual([[true], [false]]);
+  });
+});

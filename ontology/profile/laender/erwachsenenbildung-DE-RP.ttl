@@ -1,0 +1,141 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-RP-03bb9d5bffad,
+        eb:re-DE-RP-47b6283288bd,
+        eb:re-DE-RP-5ee828357ed9,
+        eb:re-DE-RP-75d726196560,
+        eb:re-DE-RP-8999389660de,
+        eb:re-DE-RP-8c5005b19152,
+        eb:re-DE-RP-a2d23d9afe8b,
+        eb:re-DE-RP-acbf78afaef0,
+        eb:re-DE-RP-fa9edc4bd957 .
+
+eb:re-DE-RP-03bb9d5bffad a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-kultur ;
+    cur:positiveExample "Kunst, kulturelle Bildung, kreatives Gestalten" ;
+    cur:recognitionHint "Sachgebiet 8 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kunst, kulturelle Bildung, kreatives Gestalten" ;
+    cur:verified false .
+
+eb:re-DE-RP-47b6283288bd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 S. 7 und § 1 Abs. 2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:positiveExample "Weiterbildungsgesetz (WBG) vom 17. November 1995" ;
+    cur:recognitionHint "Weiterbildung in allgemeiner politischer und beruflicher Weiterbildung"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weiterbildungsgesetz" ;
+    cur:verified false .
+
+eb:re-DE-RP-5ee828357ed9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-gesundheit ;
+    cur:positiveExample "Gesundheit, Hauswirtschaft, Ernährung" ;
+    cur:recognitionHint "Sachgebiet 9 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gesundheit, Hauswirtschaft, Ernährung" ;
+    cur:verified false .
+
+eb:re-DE-RP-75d726196560 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-beruf ;
+    cur:positiveExample "Wirtschaft, kaufmännische Praxis" ;
+    cur:recognitionHint "Sachgebiet 6 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wirtschaft, kaufmännische Praxis" ;
+    cur:verified false .
+
+eb:re-DE-RP-8999389660de a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. 2026 Nr. 2 § 6 Abs. 1 Nr. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:pt-kammer ;
+    cur:negativeHint "Volkshochschulen entsprechen eb:pt-vhs."@de ;
+    cur:positiveExample "Bildungseinrichtungen des Landes, nach dem Weiterbildungsgesetz anerkannte Volkshochschulen, Landesorganisationen der Weiterbildung in freier Trägerschaft und Heimbildungsstätten, Einrichtungen der nach dem Berufsbildungsgesetz zuständigen Stellen und Einrichtungen von anerkannten Trägern der freien Jugendhilfe gelten als entsprechend qualifiziert." ;
+    cur:recognitionHint "Gelten als qualifiziert"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einrichtungen der nach dem Berufsbildungsgesetz zuständigen Stellen" ;
+    cur:verified false .
+
+eb:re-DE-RP-8c5005b19152 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-grundbildung ;
+    cur:negativeHint "Enthält auch Deutsch als Zweitsprache."@de ;
+    cur:positiveExample "Nachholen von Schulabschlüssen, Alphabetisierung und Grundbildung und Deutsch als Zweitsprache" ;
+    cur:recognitionHint "Sachgebiet 10 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Nachholen von Schulabschlüssen, Alphabetisierung und Grundbildung und Deutsch als Zweitsprache" ;
+    cur:verified false .
+
+eb:re-DE-RP-a2d23d9afe8b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-politik ;
+    cur:negativeHint "Zwölf Sachgebiete statt sechs Programmbereichen."@de ;
+    cur:positiveExample "Politik, Gesellschaft, Gleichstellung" ;
+    cur:recognitionHint "Sachgebiet 2 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Politik, Gesellschaft, Gleichstellung" ;
+    cur:verified false .
+
+eb:re-DE-RP-acbf78afaef0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: MASTD Broschüre 2024 WBGDVO § 8"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo eb:pa-sprachen ;
+    cur:positiveExample "Sprachen" ;
+    cur:recognitionHint "Sachgebiet 5 von 12"@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprachen" ;
+    cur:verified false .
+
+eb:re-DE-RP-fa9edc4bd957 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GVBl. 2026 Nr. 2 § 1 Abs. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:negativeHint "Nachweis der Anerkennung ist dem Arbeitgeberantrag beizufügen (§ 4 Abs. 1)."@de ;
+    cur:positiveExample "Bildungszeit kann nur für anerkannte Veranstaltungen der beruflichen oder der gesellschaftspolitischen Weiterbildung oder der Qualifizierung zur Wahrnehmung ehrenamtlicher Tätigkeiten beansprucht werden." ;
+    cur:recognitionHint "Bildungszeit nur für anerkannte Veranstaltungen. Digital hybrid und Präsenz."@de ;
+    cur:scopeRegion land:DE-RP ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "anerkannte Veranstaltungen" ;
+    cur:verified false .
+

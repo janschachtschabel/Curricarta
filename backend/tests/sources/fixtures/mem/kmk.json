@@ -1,0 +1,80 @@
+{
+ "closure": [
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "das Auswahl von selbstständig Darstellung die passende Lösung oder: Zusammenhang in Wirkung planen Folge, Begriff mit Form zeigen Angabe, sachgerecht prüfen der weitere Muster, gemeinsam nutzen an Einheit auswerten sowie Material für Übersicht sammeln nach Methode",
+   "n": "https://example.org/mem/kmk/t0001",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "Bereich, Gruppe einfache Muster über beschreiben Ordnung eine zeigen bei Material prüfen der Tabelle zu",
+   "n": "https://example.org/mem/kmk/t0002",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "nutzen Einheit eigene Verfahren sowie ordnen für Tabelle sammeln, nach. schrittweise. und Skizze benennen Darstellung selbstständig Grundlage",
+   "n": "https://example.org/mem/kmk/t0003",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "zu Verfahren nutzen an eigene Tabelle sowie ordnen für",
+   "n": "https://example.org/mem/kmk/t0004",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "eine Lösung bei (Zusammenhang prüfen, der, weitere zu gemeinsam. nutzen",
+   "n": "https://example.org/mem/kmk/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "ihre sammeln nach Schritt, Form das Angabe von Bereich erklären die passende Aufgabe (oder. Ordnung. in Reihe) planen",
+   "n": "https://example.org/mem/kmk/t0006",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "beschreiben mit eine Wirkung bei sachgerecht prüfen der weitere Anordnung gemeinsam nutzen Bereich eigene auswerten sowie ordnen für Ordnung sammeln nach Verfahren und das benennen",
+   "n": "https://example.org/mem/kmk/t0007",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "darstellen oder Aufgabe in, einfache Einheit über beschreiben mit Merkmal zeigen bei sachgerecht prüfen der",
+   "n": "https://example.org/mem/kmk/t0008",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "ordnen Schritt ihre Anordnung nach schrittweise und Gruppe benennen, von selbstständig erklären",
+   "n": "https://example.org/mem/kmk/t0009",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  },
+  {
+   "ancestors": "https://example.org/mem/kmk/t0000",
+   "grades": "",
+   "label": "von selbstständig erklären die passende darstellen Darstellung vergleichen in, einfache planen über beschreiben mit Beobachtung zeigen bei sachgerecht Form der weitere zu gemeinsam nutzen an",
+   "n": "https://example.org/mem/kmk/t0010",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000536|https://w3id.org/lehrplan/ontology/LP_0030266"
+  }
+ ],
+ "endpoint": "https://sparql.mem.edufeed.org/sparql",
+ "graph": "https://w3id.org/lehrplan/graph/bista",
+ "plan": "https://example.org/mem/kmk/t0000",
+ "read_at": "2026-11-09",
+ "references": [],
+ "synthetic": true
+}

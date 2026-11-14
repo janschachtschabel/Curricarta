@@ -1,0 +1,115 @@
+"""What the check job found at each address (migration 0010_url_check), and the register status it
+gives the candidates there: the entries of no account with that address and no file yet."""
+
+from collections.abc import Collection, Mapping
+from dataclasses import dataclass
+from typing import Any
+
+import psycopg
+from psycopg.rows import dict_row
+
+from app.sources.register import CheckOutcome, DetectedKind, RegisterStatus
+
+# The candidates' addresses no check has found out about for good yet
+_UNCHECKED = """
+    SELECT DISTINCT s.url FROM source s
+    WHERE s.owner_id IS NULL AND s.url IS NOT NULL AND s.file_id IS NULL
+        AND NOT EXISTS (
+            SELECT 1 FROM url_check c
+            WHERE c.url_sha256 = sha256(convert_to(s.url, 'UTF8')) AND c.outcome <> ALL(%(again)s::text[])
+        )
+    ORDER BY s.url
+"""
+_RECORD = """
+    INSERT INTO url_check (url_sha256, url, outcome, status_code, final_url, content_type,
+        detected_type, size_bytes, sha256, last_modified)
+    VALUES (sha256(convert_to(%(url)s, 'UTF8')), %(url)s, %(outcome)s, %(status_code)s, %(final_url)s,
+        %(content_type)s, %(detected_type)s, %(size)s, %(sha256)s, %(last_modified)s)
+    ON CONFLICT (url_sha256) DO UPDATE SET outcome = EXCLUDED.outcome,
+        status_code = EXCLUDED.status_code, final_url = EXCLUDED.final_url,
+        content_type = EXCLUDED.content_type, detected_type = EXCLUDED.detected_type,
+        size_bytes = EXCLUDED.size_bytes, sha256 = EXCLUDED.sha256,
+        last_modified = EXCLUDED.last_modified, checked_at = now()
+"""
+_FOLLOW = """
+    UPDATE source SET register_status = %(status)s, updated_at = now()
+    WHERE owner_id IS NULL AND url = %(url)s AND file_id IS NULL AND register_status <> %(status)s
+"""
+
+
+# What a check found before, given to the candidates seeded since at the same address
+_CATCH_UP = """
+    UPDATE source s SET register_status = given.status, updated_at = now()
+    FROM url_check c JOIN unnest(%(outcomes)s::text[], %(statuses)s::text[]) AS given (outcome, status)
+        ON given.outcome = c.outcome
+    WHERE c.url_sha256 = sha256(convert_to(s.url, 'UTF8'))
+        AND s.owner_id IS NULL AND s.file_id IS NULL AND s.register_status = 'unchecked'
+"""
+
+
+@dataclass(frozen=True)
+class UrlCheck:
+    url: str
+    outcome: CheckOutcome
+    status_code: int | None = None
+    final_url: str | None = None  # where the redirects ended, if any came
+    content_type: str | None = None
+    detected_type: DetectedKind | None = None
+    size: int | None = None
+    sha256: bytes | None = None
+    last_modified: str | None = None
+
+
+async def check_of(connection: psycopg.AsyncConnection, url: str | None) -> dict[str, Any] | None:
+    """What the check found at ``url``; none before a check, or for an entry without an address."""
+    if url is None:
+        return None
+    cursor = connection.cursor(row_factory=dict_row)
+    await cursor.execute(
+        "SELECT outcome, status_code, detected_type, size_bytes AS size, checked_at FROM url_check"
+        " WHERE url_sha256 = sha256(convert_to(%s, 'UTF8'))",
+        (url,),
+    )
+    return await cursor.fetchone()
+
+
+async def catch_up(
+    connection: psycopg.AsyncConnection, statuses: Mapping[CheckOutcome, RegisterStatus | None]
+) -> None:
+    """Give the unchecked candidates at an address a check found out about what it found: one seeded
+    after the check of its address would stay unchecked, its address being asked no more."""
+    given = [(outcome, status) for outcome, status in statuses.items() if status is not None]
+    await connection.execute(
+        _CATCH_UP,
+        {"outcomes": [outcome for outcome, _ in given], "statuses": [status for _, status in given]},
+    )
+
+
+async def unchecked_addresses(connection: psycopg.AsyncConnection, asked_again: Collection[str]) -> list[str]:
+    """The candidates' addresses with no check yet, or one whose outcome is ``asked_again``."""
+    cursor = await connection.execute(_UNCHECKED, {"again": list(asked_again)})
+    return [url for (url,) in await cursor.fetchall()]
+
+
+async def record_check(
+    connection: psycopg.AsyncConnection, check: UrlCheck, register_status: RegisterStatus | None
+) -> None:
+    """Keep what was found at the address (again, if a check found it before) and, unless
+    ``register_status`` is none, give it to the candidates there - in one transaction."""
+    async with connection.transaction():
+        await connection.execute(
+            _RECORD,
+            {
+                "url": check.url,
+                "outcome": check.outcome,
+                "status_code": check.status_code,
+                "final_url": check.final_url,
+                "content_type": check.content_type,
+                "detected_type": check.detected_type,
+                "size": check.size,
+                "sha256": check.sha256,
+                "last_modified": check.last_modified,
+            },
+        )
+        if register_status is not None:
+            await connection.execute(_FOLLOW, {"status": register_status, "url": check.url})

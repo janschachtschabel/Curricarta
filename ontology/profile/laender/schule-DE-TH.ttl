@@ -1,0 +1,580 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-TH-0546aaee73da,
+        schul:re-DE-TH-0ed124a68008,
+        schul:re-DE-TH-12eebd3e6206,
+        schul:re-DE-TH-13d0ed8a573f,
+        schul:re-DE-TH-25cd6a19d0a6,
+        schul:re-DE-TH-25ce4bcafdae,
+        schul:re-DE-TH-27b30cd68ecd,
+        schul:re-DE-TH-2809ee62c836,
+        schul:re-DE-TH-359603af901f,
+        schul:re-DE-TH-44c04d3e6071,
+        schul:re-DE-TH-4588cb10a09a,
+        schul:re-DE-TH-4cb6dfc8e13f,
+        schul:re-DE-TH-50ff5c3c8e1c,
+        schul:re-DE-TH-5cfd4c43ee22,
+        schul:re-DE-TH-69313bc8b09e,
+        schul:re-DE-TH-82f11ffb7e91,
+        schul:re-DE-TH-86df9b8598a9,
+        schul:re-DE-TH-8b2af8cb49e5,
+        schul:re-DE-TH-8e82e9911086,
+        schul:re-DE-TH-92e4d7843f79,
+        schul:re-DE-TH-9b64d5031088,
+        schul:re-DE-TH-a16b28432639,
+        schul:re-DE-TH-aa2b95090231,
+        schul:re-DE-TH-b442d9531c6e,
+        schul:re-DE-TH-ba145e21430f,
+        schul:re-DE-TH-bea8cbd02c22,
+        schul:re-DE-TH-c04c611313d8,
+        schul:re-DE-TH-c55bc49bdb2c,
+        schul:re-DE-TH-ca1835bacb34,
+        schul:re-DE-TH-cdbed87b17c8,
+        schul:re-DE-TH-cebe44ba42c7,
+        schul:re-DE-TH-d1aa1b7b4175,
+        schul:re-DE-TH-e04cce64dd38,
+        schul:re-DE-TH-e67f6ad5a49a,
+        schul:re-DE-TH-e72aba8b6cc5,
+        schul:re-DE-TH-fde337acccbd .
+
+schul:re-DE-TH-0546aaee73da a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10 | HSK S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Maskulin generisch ohne Schülerinnen und Schüler. Variante Der Schüler kann unter Anleitung (MNT)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der Schüler kann – Körper als abgegrenzte Menge eines Stoffs charakterisieren" ;
+    cur:recognitionHint "Satzstamm vor Aufzählung mit Gedankenstrich und Verbform am Ende (kann beschreiben)"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der Schüler kann" ;
+    cur:verified false .
+
+schul:re-DE-TH-0ed124a68008 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSK S. 8 | Physik RS S. 7 | Mathematik RS S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2011-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Mathematik: allgemeine und inhaltsbezogene mathematische Kompetenzen (K1-K6)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.2 Mathematische Kompetenzen" ;
+    cur:recognitionHint "Abschnitt 1.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Naturwissenschaftliche und fachspezifische Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-TH-12eebd3e6206 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030025"@de,
+        "Länderrecherche, Beleg E: Mathematik RS S. 34"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_negative ;
+    cur:mapsTo schul:Kompetenzbereich ;
+    cur:negativeHint "Verweist auf Lernbereiche Arithmetik/Algebra usw. Kein Gliederungsbegriff"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zielbeschreibungen für die Kompetenzbereiche (vgl. 2)" ;
+    cur:recognitionHint "3.2 Kriterien ergeben sich aus den Zielbeschreibungen für die Kompetenzbereiche (vgl. 2)"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzbereiche" ;
+    cur:verified false .
+
+schul:re-DE-TH-13d0ed8a573f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Lexaris-Gesamtausgabe (Auszug durch Abrufmodell zusammengefasst - Wortlaut nicht vollständig gelesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ungenügend (sechs Notenstufen - Zwischennoten werden nicht erteilt)" ;
+    cur:verified false .
+
+schul:re-DE-TH-25cd6a19d0a6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Realschulabschluss (RSA)" ;
+    cur:verified false .
+
+schul:re-DE-TH-25ce4bcafdae a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Portal tspi=1392 | PDF-Lesezeichen Physik GY"@de,
+        "Plangeneration laut Länderrecherche: 2012-2019"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Nur Portal-Metadaten und Lesezeichen gesehen"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Lehrpläne für den Erwerb der allgemeinen Hochschulreife" ;
+    cur:recognitionHint "Untertitel in Portalreihe und PDF-Lesezeichen"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Lehrplan für den Erwerb der allgemeinen Hochschulreife" ;
+    cur:verified false .
+
+schul:re-DE-TH-27b30cd68ecd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Infoblatt S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Handreichung ;
+    cur:negativeHint "Unverbindlich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Diese haben orientierenden Charakter für den Fachunterricht" ;
+    cur:recognitionHint "Beschreibung im Infoblatt"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "lehrplanbegleitende Materialien" ;
+    cur:verified false .
+
+schul:re-DE-TH-2809ee62c836 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Lexaris-Gesamtausgabe (Auszug durch Abrufmodell zusammengefasst - Wortlaut nicht vollständig gelesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-TH-359603af901f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030296"@de,
+        "Länderrecherche, Beleg E: Physik RS S. 9 und 11"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nicht verbindlich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Diese sind nicht verpflichtend, sondern stellen Angebote für Erweiterungen dar" ;
+    cur:recognitionHint "Zwischenüberschrift am Ende eines Themenbereichs"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Projektvorschläge" ;
+    cur:verified false .
+
+schul:re-DE-TH-44c04d3e6071 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss (HSA)" ;
+    cur:verified false .
+
+schul:re-DE-TH-4588cb10a09a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 5 | Mathematik RS S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Fußnote; markiert: Fußnote und Fließtext in Fachplan (Mathematik: Zielstellungen aus dem Kursplan Medienkunde für die Klassenstufen 5/6, 7/8, 9/10)"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kursplan Medienkunde (2010) als Quelle in Fachplänen" ;
+    cur:verified false .
+
+schul:re-DE-TH-4cb6dfc8e13f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: anwalt24 ThürSchulG und Thüringer Schulordnung (Suchzusammenfassung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Fächer mit erhöhtem Anforderungsniveau" ;
+    cur:verified false .
+
+schul:re-DE-TH-50ff5c3c8e1c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Lexaris-Gesamtausgabe (Auszug durch Abrufmodell zusammengefasst - Wortlaut nicht vollständig gelesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-TH-5cfd4c43ee22 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mathematik RS S. 33 | HSK S. 26"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Gilt bis zur Veröffentlichung einer fachlichen Empfehlung des TMBWK"@de ;
+    cur:occursIn cv:occ_body,
+        cv:occ_heading ;
+    cur:positiveExample "um die pädagogische Funktion der Leistungseinschätzung zu betonen, wird der Begriff Lernerfolgskontrolle empfohlen" ;
+    cur:recognitionHint "Kapitel 3 mit 3.1 Grundsätze und 3.2 Kriterien"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungseinschätzung" ;
+    cur:verified false .
+
+schul:re-DE-TH-69313bc8b09e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Portal tspi=17845"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: ohne Kürzel; markiert: Vorgaben werden schrittweise in Fachlehrpläne integriert"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Rahmenplan für die Sekundarstufe I – Medienkompetenzen in einer Kultur der Digitalität (2024)" ;
+    cur:verified false .
+
+schul:re-DE-TH-82f11ffb7e91 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualifizierender Hauptschulabschluss (QHSA)" ;
+    cur:verified false .
+
+schul:re-DE-TH-86df9b8598a9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10-11 | HSK S. 9-15"@de,
+        "Plangeneration laut Länderrecherche: 2012-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Vorlisten-Begriff Schwerpunkt als Gliederungsebene nicht gesehen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kraft – Der Schüler kann die Kraft als physikalische Größe charakterisieren" ;
+    cur:recognitionHint "unnummerierte Zwischenüberschrift unter Klassenstufe und Sach- und Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Druck" ;
+    cur:verified false .
+
+schul:re-DE-TH-8b2af8cb49e5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSK S. 8 | Physik RS S. 7 | Mathematik RS S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2011-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Mathematik: allgemeine und inhaltsbezogene mathematische Kompetenzen (K1-K6)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.2 Mathematische Kompetenzen" ;
+    cur:recognitionHint "Abschnitt 1.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematische Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-TH-8e82e9911086 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mathematik RS S. 33 | HSK S. 26"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Gilt bis zur Veröffentlichung einer fachlichen Empfehlung des TMBWK"@de ;
+    cur:occursIn cv:occ_body,
+        cv:occ_heading ;
+    cur:positiveExample "um die pädagogische Funktion der Leistungseinschätzung zu betonen, wird der Begriff Lernerfolgskontrolle empfohlen" ;
+    cur:recognitionHint "Kapitel 3 mit 3.1 Grundsätze und 3.2 Kriterien"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernerfolgskontrolle" ;
+    cur:verified false .
+
+schul:re-DE-TH-92e4d7843f79 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10-11 | HSK S. 9-15"@de,
+        "Plangeneration laut Länderrecherche: 2012-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Vorlisten-Begriff Schwerpunkt als Gliederungsebene nicht gesehen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kraft – Der Schüler kann die Kraft als physikalische Größe charakterisieren" ;
+    cur:recognitionHint "unnummerierte Zwischenüberschrift unter Klassenstufe und Sach- und Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körper und Stoffe" ;
+    cur:verified false .
+
+schul:re-DE-TH-9b64d5031088 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:four-method,
+        kd:four-subject ;
+    cur:negativeHint "Zusammengefasste Überschrift"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Sach- und Methodenkompetenz" ;
+    cur:recognitionHint "Zwischenüberschrift Physik Kl. 7-10"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sach- und Methodenkompetenz" ;
+    cur:verified false .
+
+schul:re-DE-TH-a16b28432639 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 5 Fußnote 2 | Mathematik RS S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2010-2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:negativeHint "Abgelöst durch Rahmenplan Medienkompetenzen 2024"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Thüringer Ministerium für Bildung, Wissenschaft und Kultur: Kursplan Medienkunde, 2010." ;
+    cur:recognitionHint "Fußnote"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kursplan Medienkunde" ;
+    cur:verified false .
+
+schul:re-DE-TH-aa2b95090231 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030268"@de,
+        "Länderrecherche, Beleg E: Physik RS S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Land Thüringen: Rahmenteil, nicht Inhaltsbereich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "vgl. Zeile Basiskonzepte"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basiskonzept (DE)" ;
+    cur:verified false .
+
+schul:re-DE-TH-b442d9531c6e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mathematik RS S. 3 und 8"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Heißen inhaltsbezogene mathematische Kompetenzen, wirken wie Leitideen. Fünf Leitideen werden auf vier reduziert"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.1.1 Arithmetik/Algebra – mit Zahlen, Variablen und Symbolen umgehen" ;
+    cur:recognitionHint "Name der vier inhaltsbezogenen Kompetenzen mit Gedankenstrich-Zusatz"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Arithmetik/Algebra – mit Zahlen, Variablen und Symbolen umgehen" ;
+    cur:verified false .
+
+schul:re-DE-TH-ba145e21430f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSK S. 8, 13, 16 | Mathematik RS S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Verweist auf Abschnitt 1.1 oder Ziele"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "experimentieren (vgl.1.1)" ;
+    cur:recognitionHint "Klammer mit vgl. und Abschnittsnummer"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "vgl.1.1" ;
+    cur:verified false .
+
+schul:re-DE-TH-bea8cbd02c22 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: anwalt24 ThürSchulG und Thüringer Schulordnung (Suchzusammenfassung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Fächer mit grundlegendem Anforderungsniveau" ;
+    cur:verified false .
+
+schul:re-DE-TH-c04c611313d8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Infoblatt S. 1"@de,
+        "Länderrecherche, Beleg E: Infoblatt S. 1 (get-data/37c488d4…WeiterentwickelteLehrplaene_allgemeinbildendeSchule.pdf)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: BNE; markiert: nicht ermittelt"@de,
+        "Kürzel oder Symbol: BO; markiert: nicht ermittelt"@de,
+        "Kürzel oder Symbol: DB; markiert: nicht ermittelt"@de,
+        "Kürzel oder Symbol: DS; markiert: nicht ermittelt"@de,
+        "Kürzel oder Symbol: MB; markiert: nicht ermittelt (nur Aufzählung im Infoblatt. Fachplan-Markierung in Erprobungsfassungen 2026 nicht gelesen)"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weiterentwickelte Thüringer Lehrpläne – Querschnittsaufgaben" ;
+    cur:verified false .
+
+schul:re-DE-TH-c55bc49bdb2c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10-11 | HSK S. 9-15"@de,
+        "Plangeneration laut Länderrecherche: 2012-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Vorlisten-Begriff Schwerpunkt als Gliederungsebene nicht gesehen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kraft – Der Schüler kann die Kraft als physikalische Größe charakterisieren" ;
+    cur:recognitionHint "unnummerierte Zwischenüberschrift unter Klassenstufe und Sach- und Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mechanische Energie" ;
+    cur:verified false .
+
+schul:re-DE-TH-ca1835bacb34 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Lexaris-Gesamtausgabe (Auszug durch Abrufmodell zusammengefasst - Wortlaut nicht vollständig gelesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-TH-cdbed87b17c8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSK S. 8 | Physik RS S. 7 | Mathematik RS S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2011-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Mathematik: allgemeine und inhaltsbezogene mathematische Kompetenzen (K1-K6)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.2 Mathematische Kompetenzen" ;
+    cur:recognitionHint "Abschnitt 1.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachspezifische Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-TH-cebe44ba42c7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 10-11 | HSK S. 9-15"@de,
+        "Plangeneration laut Länderrecherche: 2012-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Vorlisten-Begriff Schwerpunkt als Gliederungsebene nicht gesehen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kraft – Der Schüler kann die Kraft als physikalische Größe charakterisieren" ;
+    cur:recognitionHint "unnummerierte Zwischenüberschrift unter Klassenstufe und Sach- und Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kraft" ;
+    cur:verified false .
+
+schul:re-DE-TH-d1aa1b7b4175 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030097"@de,
+        "Länderrecherche, Beleg E: HSK S. 8 | Mathematik RS S. 34"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:Kompetenzerwartung ;
+    cur:negativeHint "Vorlisten-Eintrag Ziel bestätigt nur als Teil von Zielbeschreibungen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die nachfolgenden Zielbeschreibungen weisen Sach-, Methoden-, Selbst- und Sozialkompetenzen … aus" ;
+    cur:recognitionHint "Sammelbegriff in Kapitel 2 und 3.2"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zielbeschreibungen" ;
+    cur:verified false .
+
+schul:re-DE-TH-e04cce64dd38 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 5 Fußnote 3 | Portal tspi=1382"@de,
+        "Plangeneration laut Länderrecherche: 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Rahmendokument ;
+    cur:negativeHint "Inhalt nicht gelesen. Infoblatt: wird überarbeitet"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Leitgedanken zu den Thüringer Lehrplänen für den Erwerb der allgemein bildenden Schulabschlüsse" ;
+    cur:recognitionHint "Fußnote in Fachplänen verweist auf Leitgedanken zu den Thüringer Lehrplänen für den Erwerb der allgemein bildenden Schulabschlüsse, 2011"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitgedanken" ;
+    cur:verified false .
+
+schul:re-DE-TH-e67f6ad5a49a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSK S. 8, 13, 16 | Mathematik RS S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2010-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Verweist auf Abschnitt 1.1 oder Ziele"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "experimentieren (vgl.1.1)" ;
+    cur:recognitionHint "Klammer mit vgl. und Abschnittsnummer"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "(vgl. 2.1 – 2.4)" ;
+    cur:verified false .
+
+schul:re-DE-TH-e72aba8b6cc5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07D-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Lexaris-Gesamtausgabe (Auszug durch Abrufmodell zusammengefasst - Wortlaut nicht vollständig gelesen)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "ausreichend" ;
+    cur:verified false .
+
+schul:re-DE-TH-fde337acccbd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-TH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik RS S. 6 | Mathematik RS S. 6 | HSK S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2011-2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:sk-cross,
+        schul:Rahmenteil ;
+    cur:negativeHint "Überfachlich. Getrennt von Sachkompetenz (nicht von ihr zu lösen laut HSK)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Im Mittelpunkt steht dabei die Entwicklung der Methoden-, Selbst- und Sozialkompetenzen" ;
+    cur:recognitionHint "Abschnitt 1.1"@de ;
+    cur:scopeRegion land:DE-TH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernkompetenzen" ;
+    cur:verified false .
+

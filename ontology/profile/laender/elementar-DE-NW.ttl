@@ -1,0 +1,454 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-NW-04db5be202ef,
+        elem:re-DE-NW-0fd11b20834d,
+        elem:re-DE-NW-1534f832f17b,
+        elem:re-DE-NW-19d548c240f5,
+        elem:re-DE-NW-204f1453341a,
+        elem:re-DE-NW-29b4d78b6ec5,
+        elem:re-DE-NW-2eb40291df4a,
+        elem:re-DE-NW-38f9c35abebd,
+        elem:re-DE-NW-3e6bb3416ebe,
+        elem:re-DE-NW-464d42323167,
+        elem:re-DE-NW-4851144ae53c,
+        elem:re-DE-NW-488bfdefa8c3,
+        elem:re-DE-NW-5daf6a15df6e,
+        elem:re-DE-NW-5e702471abac,
+        elem:re-DE-NW-647ef9a4e9ec,
+        elem:re-DE-NW-88197a6e4485,
+        elem:re-DE-NW-aeb6ef9c19cd,
+        elem:re-DE-NW-b5ba7aa645c4,
+        elem:re-DE-NW-b7fdb6c57f5d,
+        elem:re-DE-NW-beee833aa518,
+        elem:re-DE-NW-dd201165beec,
+        elem:re-DE-NW-dd54d6776270,
+        elem:re-DE-NW-de20d69b0e2e,
+        elem:re-DE-NW-de87af08c60e,
+        elem:re-DE-NW-ea6b1cdab8f1,
+        elem:re-DE-NW-ef4c0f564a2e .
+
+elem:re-DE-NW-04db5be202ef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen,
+        elem:set-krippe ;
+    cur:negativeHint "Keine eigene U3-Handreichung gefunden"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bildung, Erziehung und Betreuung in den ersten Lebensjahren" ;
+    cur:recognitionHint "U3-Kapitel im Hauptdokument"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung, Erziehung und Betreuung in den ersten Lebensjahren" ;
+    cur:verified false .
+
+elem:re-DE-NW-0fd11b20834d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Pressemitteilung 23.01.2026"@de,
+        "Plangeneration laut Länderrecherche: Entwurf 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:dt-Bildungsplan-0-10 ;
+    cur:negativeHint "Gleicher Kurzname wie die Fassung 2016. Unterscheidung nur über Jahr und Herausgeber (MKJFGFI)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsgrundsätze NRW" ;
+    cur:recognitionHint "Kurztitel der aktualisierten Fassung"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Bildungsgrundsätze NRW" ;
+    cur:verified false .
+
+elem:re-DE-NW-1534f832f17b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 71-73 (PDF-S. 37-38)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Vorliste nennt Ich-/Sozial-/Sach-/lernmethodische Kompetenz nur für BE. Hier fehlt die lernmethodische als eigene Kompetenz"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unter Selbstkompetenz werden ein positives Selbstkonzept, Selbstständigkeit und Eigeninitiative verstanden" ;
+    cur:recognitionHint "Drei Unterabschnitte des Kapitels Basiskompetenzen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Selbstkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-NW-19d548c240f5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 71-73 (PDF-S. 37-38)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Vorliste nennt Ich-/Sozial-/Sach-/lernmethodische Kompetenz nur für BE. Hier fehlt die lernmethodische als eigene Kompetenz"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unter Selbstkompetenz werden ein positives Selbstkonzept, Selbstständigkeit und Eigeninitiative verstanden" ;
+    cur:recognitionHint "Drei Unterabschnitte des Kapitels Basiskompetenzen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sach- und Methodenkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-NW-204f1453341a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 47"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen,
+        elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Heterogenität ist der Normalfall!" ;
+    cur:recognitionHint "Kapitel in Teil B zu Heterogenität und Inklusion"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Jedes Kind geht seinen Weg – Vielfalt als Herausforderung und Chance" ;
+    cur:verified false .
+
+elem:re-DE-NW-29b4d78b6ec5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 71"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Entwurf 2010: „Starke Kinder – Basiskompetenzen und grundlegende Ziele“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Selbst-, Sozial- sowie Sach- und Methodenkompetenz" ;
+    cur:recognitionHint "Kapitel am Anfang von Teil C vor den Bildungsbereichen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Starke Kinder – Basiskompetenzen als übergreifende Entwicklungsziele" ;
+    cur:verified false .
+
+elem:re-DE-NW-2eb40291df4a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: PDF-S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen,
+        elem:set-kindertagespflege ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Besonderheiten in der Kindertagespflege" ;
+    cur:recognitionHint "Unterabschnitt im Kapitel zu den ersten Lebensjahren"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Besonderheiten in der Kindertagespflege" ;
+    cur:verified false .
+
+elem:re-DE-NW-38f9c35abebd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 54"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kinder brauchen eine „Kultur des Übergangs“" ;
+    cur:recognitionHint "Kapitel in Teil B mit Unterabschnitten Von der Familie / Von der Kindertagespflege / Von der Grundschule"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder brauchen eine „Kultur des Übergangs“" ;
+    cur:verified false .
+
+elem:re-DE-NW-3e6bb3416ebe a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 75 (PDF-S. 39) und je Bereich, z. B. S. 80-81 (PDF-S. 42)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundsatz ;
+    cur:negativeHint "Kein Ziel mit Prüfanspruch. Die Leitidee soll Bildungsziele und Prinzipien ableitbar machen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Leitidee beschreibt zentrale Aspekte eines Bildungsbereichs in allgemeiner Form" ;
+    cur:recognitionHint "Fester Kasten oder Block je Bildungsbereich"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitidee" ;
+    cur:verified false .
+
+elem:re-DE-NW-464d42323167 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 11"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Pädagogische Grundlagen und Ziele" ;
+    cur:recognitionHint "Abschnittstitel in Teil A"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Grundlagen und Ziele" ;
+    cur:verified false .
+
+elem:re-DE-NW-4851144ae53c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 35"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:negativeHint "Entwurf 2010 hat das Kapitel in Teil C „Kinder wahrnehmen – Beobachtung und Dokumentation“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kinder wahrnehmen – Beobachtung und Dokumentation" ;
+    cur:recognitionHint "Kapitel in Teil B"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinder wahrnehmen – Beobachtung und Dokumentation" ;
+    cur:verified false .
+
+elem:re-DE-NW-488bfdefa8c3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 76 (PDF-S. 40) und S. 82-83 (PDF-S. 43)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Die Überschrift lautet Leitfragen. Der Ausdruck Fragen zur Reflexion kommt nicht vor"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Inwieweit bin ich selbst Vorbild für Bewegungsfreude?" ;
+    cur:recognitionHint "Fragenliste je Bereich. Text nennt sie Reflexionsfragen. Teils Ich-Form"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitfragen zur Unterstützung und Gestaltung von Bildungsmöglichkeiten" ;
+    cur:verified false .
+
+elem:re-DE-NW-5daf6a15df6e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 71-73 (PDF-S. 37-38)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Vorliste nennt Ich-/Sozial-/Sach-/lernmethodische Kompetenz nur für BE. Hier fehlt die lernmethodische als eigene Kompetenz"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Unter Selbstkompetenz werden ein positives Selbstkonzept, Selbstständigkeit und Eigeninitiative verstanden" ;
+    cur:recognitionHint "Drei Unterabschnitte des Kapitels Basiskompetenzen"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sozialkompetenz" ;
+    cur:verified false .
+
+elem:re-DE-NW-5e702471abac a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Im Entwurf 2010 ist die Reihenfolge B Bildung gestalten und C Bildung verantworten"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "C. Bildung gestalten" ;
+    cur:recognitionHint "Teile mit Buchstaben und Punkt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "C. Bildung gestalten" ;
+    cur:verified false .
+
+elem:re-DE-NW-647ef9a4e9ec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Das Verständnis von Bildung" ;
+    cur:recognitionHint "Abschnittstitel in Teil A mit Bild vom Kind"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Verständnis von Bildung" ;
+    cur:verified false .
+
+elem:re-DE-NW-88197a6e4485 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: VBE-Stellungnahme S. 4"@de,
+        "Plangeneration laut Länderrecherche: Entwurf 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Nur aus Sekundärquelle bekannt"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Was-ist-zu-tun" ;
+    cur:recognitionHint "Praxislisten im Entwurf 2026 laut VBE"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Was-ist-zu-tun-Listen" ;
+    cur:verified false .
+
+elem:re-DE-NW-aeb6ef9c19cd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 61"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bildung wird im Team gestaltet" ;
+    cur:recognitionHint "Kapitel in Teil B mit Bildungs- und Erziehungspartnerschaft"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung wird im Team gestaltet – Akteure, Partnerschaft und Kooperation" ;
+    cur:verified false .
+
+elem:re-DE-NW-b5ba7aa645c4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Im Entwurf 2010 ist die Reihenfolge B Bildung gestalten und C Bildung verantworten"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "C. Bildung gestalten" ;
+    cur:recognitionHint "Teile mit Buchstaben und Punkt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "B. Bildung verantworten" ;
+    cur:verified false .
+
+elem:re-DE-NW-b7fdb6c57f5d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 75 (PDF-S. 39) und S. 82-83 (PDF-S. 43)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:negativeHint "Im Plan als Impulse zu verstehen, um die eigene Arbeit zu reflektieren"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "eine bewegungsfreundliche und -anregende Umgebung schaffen" ;
+    cur:recognitionHint "Aufzählung von Materialien und Handlungsvorschlägen je Bereich"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Materialien/Settings als Denkanstöße" ;
+    cur:verified false .
+
+elem:re-DE-NW-beee833aa518 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5), S. 75 (PDF-S. 39)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Entwurf 2010: „Aktive Kinder – 10 Bildungsbereiche“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Es lassen sich folgende zehn Bildungsbereiche benennen" ;
+    cur:recognitionHint "Einleitung zu den zehn Bereichen mit Aufbauprinzip a) bis e)"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweise zu den 10 Bildungsbereichen" ;
+    cur:verified false .
+
+elem:re-DE-NW-dd201165beec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 13 (PDF-S. 8) und S. 72 (PDF-S. 38)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Das Wort Fachkräfte allein steht in Teil B zum Beispiel Fachkräfte handeln professionell wenn sie. Kein Kapitel Aufgaben der pädagogischen Fachkräfte"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Fach- und Lehrkräfte respektieren das Kind als eigenständigen Träger von Schutz-, Förder- und Beteiligungsrechten" ;
+    cur:recognitionHint "Dritte Person Fach- und Lehrkräfte statt Pädagogische Fachkräfte. Keine Anrede"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fach- und Lehrkräfte" ;
+    cur:verified false .
+
+elem:re-DE-NW-dd54d6776270 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 14-15 (PDF-S. 9)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bne ;
+    cur:negativeHint "Zugleich Bereichstitel Ökologische Bildung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Nachhaltigkeit […] als ein Grundprinzip globalen Lernens zu verstehen" ;
+    cur:recognitionHint "Randüberschrift in Teil A"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung für nachhaltige Entwicklung – Gestaltungskompetenz entwickeln" ;
+    cur:verified false .
+
+elem:re-DE-NW-de20d69b0e2e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Inhalt (PDF-S. 5)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Im Entwurf 2010 ist die Reihenfolge B Bildung gestalten und C Bildung verantworten"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "C. Bildung gestalten" ;
+    cur:recognitionHint "Teile mit Buchstaben und Punkt"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "A. Bildung im Blick" ;
+    cur:verified false .
+
+elem:re-DE-NW-de87af08c60e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 12-15 (PDF-S. 8)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Querschnitt ;
+    cur:negativeHint "Kein eigenes Kapitel. Querschnitt ist verteilt auf Randüberschriften"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "ziehen sich als Querschnitt durch alle Bildungsbereiche" ;
+    cur:recognitionHint "Der Text sagt Themenbereiche die sich als Querschnitt durch alle Bildungsbereiche ziehen und Leitprinzipien"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitprinzipien" ;
+    cur:verified false .
+
+elem:re-DE-NW-ea6b1cdab8f1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 72-73 (PDF-S. 38)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Das Kapitel sagt, die Beschreibungen seien keine individualisierende Zuschreibung von Lernzielen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "positives Selbstkonzept entwickeln," ;
+    cur:recognitionHint "Liste im Infinitiv unter Selbst-, Sozial- und Sach- und Methodenkompetenz"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierungsziele" ;
+    cur:verified false .
+
+elem:re-DE-NW-ef4c0f564a2e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-NW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: S. 12-13 (PDF-S. 8)"@de,
+        "Plangeneration laut Länderrecherche: 2016 (Auflage 2018)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderrechte,
+        elem:p-partizipation ;
+    cur:negativeHint "Der Plan nennt Leitprinzipien nur im Text. Es gibt keine Kapitelüberschrift Leitprinzipien"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bildungs- und Erziehungsziel, zentrales Leitmotiv und Handlungsprinzip" ;
+    cur:recognitionHint "Randüberschrift in Teil A. Partizipation als Leitmotiv und Handlungsprinzip"@de ;
+    cur:scopeRegion land:DE-NW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teilhabe an Entscheidungsprozessen" ;
+    cur:verified false .
+

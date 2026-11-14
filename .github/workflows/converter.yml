@@ -1,0 +1,104 @@
+# The converter's image (plan M1 3b) where what it is built of or runs changes, on main and in pull
+# requests, or by hand for any branch: built, its models fetched and the service started with it as the
+# README has them (its block, word for word), and Docling's tests run in the image - everywhere else they
+# are skipped. A workflow of its own: each run fetches some 2 GB of packages and 600 MB of models (Hugging
+# Face, GitHub), and ci.yml checks the rest. Actions are pinned by commit (a tag can be moved); the comment
+# names the version.
+name: converter
+
+on:
+  push:
+    branches: [main]
+    paths: &paths
+      - .github/workflows/converter.yml
+      - .dockerignore
+      - backend/app/conversion/**
+      - backend/app/jobs/**
+      - backend/tests/conversion/**
+      - backend/tests/conftest.py
+      - backend/tests/support.py
+      - backend/pyproject.toml
+      - backend/uv.lock
+      - deploy/api.Dockerfile
+      - deploy/requirements-convert.txt
+      - deploy/docker-compose.yml
+      - deploy/docker-compose.converter.yml
+  pull_request:
+    paths: *paths
+  # a test branch is checked by hand: a push alone starts nothing there
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: converter-${{ github.ref }}
+  # a newer push to a pull request replaces its run; a run on main always ends
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  converter:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.7.13"   # the version that wrote uv.lock
+          python-version: "3.13"   # the image's: its tests' pytest is mounted from here
+          enable-cache: true
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      # up builds the API's and the web server's images as well, the latter of the SPA
+      - name: Build the SPA for the web image
+        run: cd frontend && npm ci && npm run build
+      - name: Build the converter and fetch its models
+        run: |
+          python3 deploy/make-secrets.py
+          docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml build converter
+          docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml run --rm models
+          docker image ls curricarta-convert:local --format 'convert {{.Size}}'
+          df -h /
+      # pytest is no part of the image: the development's group of uv.lock, which resolved it with the
+      # image's packages (none differs), its site-packages mounted
+      - name: Install the tests' tools
+        working-directory: backend
+        run: uv sync --frozen --only-group dev
+      # the tests beside the image's code, in the converter's environment: no HOME of their own
+      - name: Docling's tests in the image, as the converter runs it
+        run: >-
+          docker run --rm --network none --read-only --tmpfs /tmp --cap-drop ALL
+          --security-opt no-new-privileges:true
+          -v curricarta_models:/models:ro
+          -v "$PWD/backend/.venv/lib/python3.13/site-packages:/testlibs:ro"
+          -v "$PWD/backend/tests:/srv/backend/tests:ro"
+          -v "$PWD/backend/pyproject.toml:/srv/backend/pyproject.toml:ro"
+          -e PYTHONPATH=/testlibs -e CURRICARTA_REQUIRE_DOCLING=1
+          curricarta-convert:local
+          python -m pytest tests/conversion/test_docling_e2e.py -p no:cacheprovider
+      - name: Start the service with the converter
+        run: |
+          docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml up -d
+          compose="docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml"
+          for i in $(seq 1 60); do
+            if curl -sf --max-time 5 http://127.0.0.1:18080/api/v1/info; then echo; ok=1; break; fi
+            sleep 2
+          done
+          $compose ps -a
+          test "${ok:-0}" = 1
+          # restart: unless-stopped brings back a converter that ended at its start
+          converter="$($compose ps -q converter)"
+          test "$(docker inspect -f '{{.State.Health.Status}} {{.RestartCount}}' "$converter")" = "healthy 0"
+          # the worker names the kinds it takes: Docling installed, its models there
+          $compose logs converter | grep -F "takes ['source.convert_docling']"
+      - name: Logs of the service
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml logs --no-color | tail -200
+      - name: Stop the service
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml down -v

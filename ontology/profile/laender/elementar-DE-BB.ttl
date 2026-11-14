@@ -1,0 +1,629 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-BB-041844aced29,
+        elem:re-DE-BB-060641993518,
+        elem:re-DE-BB-089f4febce6f,
+        elem:re-DE-BB-0c831105e708,
+        elem:re-DE-BB-0f214c1bfb07,
+        elem:re-DE-BB-0f22462565e1,
+        elem:re-DE-BB-116a3502764e,
+        elem:re-DE-BB-15515c09708d,
+        elem:re-DE-BB-1ffb13e43621,
+        elem:re-DE-BB-2d6c07208cc1,
+        elem:re-DE-BB-3267d9b448b8,
+        elem:re-DE-BB-339544a2e7e9,
+        elem:re-DE-BB-3a56c97f5a19,
+        elem:re-DE-BB-43f7129ab450,
+        elem:re-DE-BB-488a74b058b1,
+        elem:re-DE-BB-4fe965b50116,
+        elem:re-DE-BB-5330dfabfd0d,
+        elem:re-DE-BB-53ef6ebb0d01,
+        elem:re-DE-BB-68b15351c334,
+        elem:re-DE-BB-7a6e7753c18a,
+        elem:re-DE-BB-7c6ce4f9fdda,
+        elem:re-DE-BB-7ed89509c943,
+        elem:re-DE-BB-85ca46344139,
+        elem:re-DE-BB-8acfa6c3fa10,
+        elem:re-DE-BB-9194fdd0e002,
+        elem:re-DE-BB-a8a7a7780423,
+        elem:re-DE-BB-caca9c3d35b6,
+        elem:re-DE-BB-d62167bad82d,
+        elem:re-DE-BB-d66fe27e54cd,
+        elem:re-DE-BB-dcd959f9e850,
+        elem:re-DE-BB-e0c00e14bc0c,
+        elem:re-DE-BB-e1b75c815006,
+        elem:re-DE-BB-e5e5360f724d,
+        elem:re-DE-BB-eb085498407c,
+        elem:re-DE-BB-eca3a576a93c,
+        elem:re-DE-BB-efb0f3aa8967,
+        elem:re-DE-BB-f044178f5f9f,
+        elem:re-DE-BB-f36fb8062daa,
+        elem:re-DE-BB-f901b066b189 .
+
+elem:re-DE-BB-041844aced29 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2 (Verzeichnis) und S. 39 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:guided-activity,
+        ctx:offers-projects ;
+    cur:negativeHint "Einleitung S. 5: pädagogische Angebote und Projekte"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.2.2, Überschrift im Text: Pädagogische Angebote"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Angebote gestalten" ;
+    cur:verified false .
+
+elem:re-DE-BB-060641993518 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 59"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Alltagssituation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.3 mit vier Situationen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Organisatorische Situationen" ;
+    cur:verified false .
+
+elem:re-DE-BB-089f4febce6f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 18, 23, 29"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:negativeHint "negative Handlungsanweisungen, keine nummerierten Qualitätsansprüche"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Spielt mit!" ;
+    cur:recognitionHint "Liste mit Verboten im Imperativ (Nicht in Ordnung ist es, wenn ihr …)"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorsicht" ;
+    cur:verified false .
+
+elem:re-DE-BB-0c831105e708 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-bda64918ae14-BB"@de,
+        "Länderrecherche, Beleg E: Plan S. 2 (Verzeichnis) und S. 44 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:circle-time ;
+    cur:negativeHint "im Plan nicht Morgenkreis oder Gesprächskreis"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.2.3, Überschrift im Text: Kinderkreis"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinderkreise moderieren" ;
+    cur:verified false .
+
+elem:re-DE-BB-0f214c1bfb07 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 49"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:group-decision ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.2.4"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Regeln aushandeln" ;
+    cur:verified false .
+
+elem:re-DE-BB-0f22462565e1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 18 (6.1.1) und alle Situationskapitel"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Abschnitt am Ende jeder Alltagssituation mit Zwischenüberschrift je Bildungsbereich"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verknüpfung der Alltagssituation Spielen mit Bildungsbereichen" ;
+    cur:verified false .
+
+elem:re-DE-BB-116a3502764e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 16, 89, 96"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Fachkräfte werden mit ihr angesprochen, nicht mit Pädagogische Fachkräfte"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Um Kinder in ihrer gesunden Entwicklung zu unterstützen, könnt ihr Folgendes tun" ;
+    cur:recognitionHint "Abschnitt in Kap. 6 und 7, Aufzählung im Imperativ Plural"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogisches Handeln" ;
+    cur:verified false .
+
+elem:re-DE-BB-15515c09708d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3 (Verzeichnis) und S. 81 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:social-situations ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.4.3, Überschrift im Text: Widerstand, Protest und Beschwerden"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Widerstand, Protest und Beschwerden von Kindern aufgreifen" ;
+    cur:verified false .
+
+elem:re-DE-BB-1ffb13e43621 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 63"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:arrival-farewell ;
+    cur:negativeHint "Einleitung S. 5 zusätzlich Begrüßung und Verabschiedung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.3.2"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bringen und Abholen" ;
+    cur:verified false .
+
+elem:re-DE-BB-2d6c07208cc1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3, 71"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Alltagssituation ;
+    cur:negativeHint "Einleitung S. 5: pädagogisch herausfordernde soziale Situationen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.4 mit vier Situationen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogisch herausfordernde Situationen" ;
+    cur:verified false .
+
+elem:re-DE-BB-3267d9b448b8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 4"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 1"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einleitung" ;
+    cur:verified false .
+
+elem:re-DE-BB-339544a2e7e9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_box ;
+    cur:recognitionHint "Randmarke der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundverständnis" ;
+    cur:verified false .
+
+elem:re-DE-BB-3a56c97f5a19 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 10"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 4"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsentwicklung und Leitungshandeln" ;
+    cur:verified false .
+
+elem:re-DE-BB-43f7129ab450 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 6, 13"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-literacy,
+        elem:f-sprache ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 2 der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprache, Kommunikation und Schriftkultur" ;
+    cur:verified false .
+
+elem:re-DE-BB-488a74b058b1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 6, 29"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-personal-sozial,
+        elem:f-soziale-beziehungen ;
+    cur:negativeHint "kein Bereich Soziales Leben in 2024"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6 der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Soziales Leben" ;
+    cur:verified false .
+
+elem:re-DE-BB-4fe965b50116 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 20, 26, 103"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Den Bildungsbereich könnt ihr mit folgenden Materialien anreichern" ;
+    cur:recognitionHint "Zwischenüberschrift am Ende jedes Abschnitts mit Material- und Raumlisten"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Partizipative Bildungsumgebung" ;
+    cur:verified false .
+
+elem:re-DE-BB-5330dfabfd0d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 12"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:Zusammenarbeit ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 5"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusammenarbeit mit Familien, Vernetzung im Sozialraum und die Gestaltung der Übergänge" ;
+    cur:verified false .
+
+elem:re-DE-BB-53ef6ebb0d01 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 88, 95, 113"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "beschreibt Lernmöglichkeiten, nicht als verbindlich ausgewiesen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Die Kinder lernen, Gerechtigkeit und Wertschätzung der Natur bei Entscheidungen und Handlungen zu berücksichtigen" ;
+    cur:recognitionHint "Zwischenüberschrift in jedem Bildungsbereich mit Aufzählung Kinder lernen / Die Kinder lernen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Was Kinder lernen können" ;
+    cur:verified false .
+
+elem:re-DE-BB-68b15351c334 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 8, 47, 72, 90"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:negativeHint "nicht gleichzusetzen mit Umsetzungsideen"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Themen der Kinder aufnehmen und erweitern" ;
+    cur:recognitionHint "Kasten, kürzere Beispiele, vor allem in Kap. 3 und 7"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Praxis-Impuls" ;
+    cur:verified false .
+
+elem:re-DE-BB-7a6e7753c18a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 6"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 2, Überschrift im Text: 2. Grundlagen: Bildung im Kindesalter"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildung im Kindesalter" ;
+    cur:verified false .
+
+elem:re-DE-BB-7c6ce4f9fdda a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 35"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Alltagssituation ;
+    cur:negativeHint "Einleitung S. 5: Situationen mit Themen der Kinder im Mittelpunkt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.2 mit sechs Situationen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Situationen, in denen Themen der Kinder im Mittelpunkt stehen" ;
+    cur:verified false .
+
+elem:re-DE-BB-7ed89509c943 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3 (Verzeichnis) und S. 75 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:social-situations ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.4.2, Überschrift im Text: Ausgrenzung und Übergriffe"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ausgrenzung abwenden und Übergriffe deeskalieren" ;
+    cur:verified false .
+
+elem:re-DE-BB-85ca46344139 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 16"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Alltagssituation ;
+    cur:negativeHint "Einleitung S. 5: Situationen, die das Autonomiebedürfnis von Kindern berühren"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.1 mit vier Situationen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zentrale Autonomie-Situationen" ;
+    cur:verified false .
+
+elem:re-DE-BB-8acfa6c3fa10 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 94, 100, 106, 115"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Ende von Bildungsbereichskapiteln"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Weitere Projektideen" ;
+    cur:verified false .
+
+elem:re-DE-BB-9194fdd0e002 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-f47d7c4e2cc1-BB"@de,
+        "Länderrecherche, Beleg E: Plan S. 2, 30"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:body-care ;
+    cur:negativeHint "Einleitung S. 5 nur Hygiene | Wickeln und Toilette im selben Abschnitt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.1.4, Einleitung 6.1 nennt Wickeln/Toilettengang und Hygiene"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bad und Hygiene" ;
+    cur:verified false .
+
+elem:re-DE-BB-a8a7a7780423 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3 (Verzeichnis, Schreibweise Gefühle) und S. 84 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:social-situations ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.4.4, Überschrift im Text: Starke Gefühle: Freude, Verletzung und Traurigkeit"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Freude, Verletzung und Traurigkeit: Mit starken Gefühle von Kindern umgehen" ;
+    cur:verified false .
+
+elem:re-DE-BB-caca9c3d35b6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 7"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 3"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachten und Dokumentieren" ;
+    cur:verified false .
+
+elem:re-DE-BB-d62167bad82d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 18, 23, 28"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:occursIn cv:occ_box ;
+    cur:recognitionHint "Zitate von Kindern mit Vornamen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aussagen von Kindern" ;
+    cur:verified false .
+
+elem:re-DE-BB-d66fe27e54cd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 55"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:excursion,
+        ctx:outdoors ;
+    cur:negativeHint "Einleitung S. 5: Ausflüge und Spaziergänge"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.2.6"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Draußen unterwegs sein" ;
+    cur:verified false .
+
+elem:re-DE-BB-dcd959f9e850 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 9-11"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:recognitionHint "Randmarke je Bildungsbereich der Fassung 2004 (Konzeption | Beobachtung und Dokumentation | Selbstverständnis der Erzieherin/des Erziehers | Material- und Raumausstattung)"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ebenen der Umsetzung" ;
+    cur:verified false .
+
+elem:re-DE-BB-e0c00e14bc0c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 6, 25"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mathematik,
+        elem:f-naturwissenschaft ;
+    cur:negativeHint "2024 getrennt in Mathematik und Natur und Technik"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 5 der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematik und Naturwissenschaft" ;
+    cur:verified false .
+
+elem:re-DE-BB-e1b75c815006 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 8"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Literaturverzeichnis" ;
+    cur:verified false .
+
+elem:re-DE-BB-e5e5360f724d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 6, 21"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-aesthetik,
+        elem:f-bildnerisch,
+        elem:f-tanz-darstellendes-spiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 4 der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Darstellen und Gestalten" ;
+    cur:verified false .
+
+elem:re-DE-BB-eb085498407c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2 (Verzeichnis) und S. 65 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:transition-situations,
+        ctx:transitions-in-day ;
+    cur:negativeHint "nicht der Übergang Kita-Schule (das ist Kap. 5.3)"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.3.3, Überschrift im Text: Raumwechsel und Übergaben"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Raumwechsel und Übergaben gestalten" ;
+    cur:verified false .
+
+elem:re-DE-BB-eca3a576a93c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2 (Verzeichnis) und S. 52 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:group-decision ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.2.5, Überschrift im Text: Planungsprozesse mit Kindern"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mit Kindern planen" ;
+    cur:verified false .
+
+elem:re-DE-BB-efb0f3aa8967 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 3 (Verzeichnis) und S. 72 (Überschrift)"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:conflict ;
+    cur:occursIn cv:occ_toc ;
+    cur:recognitionHint "Kap. 6.4.1, Überschrift im Text: Konflikte und Aushandlungsprozesse"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konflikte und Aushandlungsprozesse begleiten" ;
+    cur:verified false .
+
+elem:re-DE-BB-f044178f5f9f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: 2004-PDF S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Abschlussabschnitt je Bildungsbereich der Fassung 2004"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiele" ;
+    cur:verified false .
+
+elem:re-DE-BB-f36fb8062daa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 2, 59"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:dressing ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.3.1"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Garderobe: Ausziehen, Anziehen, Umziehen" ;
+    cur:verified false .
+
+elem:re-DE-BB-f901b066b189 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Plan S. 16, 21"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Ziel in Essenssituationen in der Kindertagesbetreuung ist, dass die Kinder" ;
+    cur:recognitionHint "Satzmuster Ziel in … ist, dass (die) Kinder … am Anfang von Pädagogisches Handeln"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziel in Spielsituationen in der Kindertagesbetreuung ist, dass Kinder" ;
+    cur:verified false .
+

@@ -1,0 +1,831 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-HB-04e84d7c001a,
+        schul:re-DE-HB-06e99a23a597,
+        schul:re-DE-HB-1c78c8bdc482,
+        schul:re-DE-HB-332249c7b86e,
+        schul:re-DE-HB-3361ecd36310,
+        schul:re-DE-HB-359a2223d11a,
+        schul:re-DE-HB-370882c38b46,
+        schul:re-DE-HB-373033e3f0d0,
+        schul:re-DE-HB-377e65d89b1a,
+        schul:re-DE-HB-3b1ee5244999,
+        schul:re-DE-HB-3c5c0af20767,
+        schul:re-DE-HB-3d745eebeeee,
+        schul:re-DE-HB-42f60e638b11,
+        schul:re-DE-HB-43920ca6299b,
+        schul:re-DE-HB-455954067d88,
+        schul:re-DE-HB-4c515f4f56ab,
+        schul:re-DE-HB-4ce77fdb153a,
+        schul:re-DE-HB-4eeb257781d3,
+        schul:re-DE-HB-537c5fbe1431,
+        schul:re-DE-HB-5d6e33d9ffa9,
+        schul:re-DE-HB-60d569449a15,
+        schul:re-DE-HB-646fe4b4f9da,
+        schul:re-DE-HB-64fbd4ed8cda,
+        schul:re-DE-HB-6cefa31a59b0,
+        schul:re-DE-HB-70df22bee4af,
+        schul:re-DE-HB-760e5b4f6b3d,
+        schul:re-DE-HB-7e3d21b44154,
+        schul:re-DE-HB-850b359fa21e,
+        schul:re-DE-HB-878df530470e,
+        schul:re-DE-HB-88d0eb509102,
+        schul:re-DE-HB-8cf87755a70a,
+        schul:re-DE-HB-9f365dfb8674,
+        schul:re-DE-HB-a14d8eb706cb,
+        schul:re-DE-HB-a83f3ec8acee,
+        schul:re-DE-HB-a92d81298848,
+        schul:re-DE-HB-aa3539f2bdfd,
+        schul:re-DE-HB-aabca7b7711c,
+        schul:re-DE-HB-b3b9f073eff4,
+        schul:re-DE-HB-bea212be7d62,
+        schul:re-DE-HB-c3a788cdb254,
+        schul:re-DE-HB-cab5ee33ba52,
+        schul:re-DE-HB-cb1c997076df,
+        schul:re-DE-HB-d5a8f1eabf12,
+        schul:re-DE-HB-df23a5d16112,
+        schul:re-DE-HB-e9b75f6a21c6,
+        schul:re-DE-HB-eaca0f71d187,
+        schul:re-DE-HB-eae4211fcdf6,
+        schul:re-DE-HB-ec67d352b589,
+        schul:re-DE-HB-ee4071511f59,
+        schul:re-DE-HB-f1834bd8a247,
+        schul:re-DE-HB-f2a592df6688,
+        schul:re-DE-HB-f446edeaba28,
+        schul:re-DE-HB-f6f1bf4f86d4,
+        schul:re-DE-HB-f79567b034f3 .
+
+schul:re-DE-HB-04e84d7c001a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Physik-GyO-2026 S.37 | BP-NaWi-OS-2026 S.60"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Unterrichtsauftrag ;
+    cur:negativeHint "Verweist auf schulinternes Curriculum"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Fachkonferenz legt die inhaltliche Ausgestaltung der Rahmenthemen … fest" ;
+    cur:recognitionHint "Satz Fachkonferenz legt fest"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachkonferenz" ;
+    cur:verified false .
+
+schul:re-DE-HB-06e99a23a597 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Ⓑ (U+24B7); markiert: Kommentarspalte"@de,
+        "Kürzel oder Symbol: Ⓦ (U+24CC); markiert: Kommentarspalte ab Jg 7"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan Mathematik Kommentarspalte" ;
+    cur:verified false .
+
+schul:re-DE-HB-1c78c8bdc482 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-GyO-2026 S.3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan Mathematik GyO" ;
+    cur:verified false .
+
+schul:re-DE-HB-332249c7b86e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030239 | schul:fwu-LP_0030268"@de,
+        "Länderrecherche, Beleg E: BP-Physik-GyO-2026 S.3,12-13"@de,
+        "Plangeneration laut Länderrecherche: Juli 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Werden übergreifend auf alle Kompetenzbereiche bezogen - also nicht Inhaltsbereich - Beispiele Mathematisieren und Vorhersagen | Zufall und Determiniertheit"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.5 Basiskonzepte" ;
+    cur:recognitionHint "Kapitel 2.5 im Rahmenteil Bildungsstandards"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basiskonzepte" ;
+    cur:verified false .
+
+schul:re-DE-HB-3361ecd36310 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Erlass-1-2026 S.1"@de,
+        "Plangeneration laut Länderrecherche: 10.02.2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:negativeHint "Ersetzt Orientierungsrahmen Schulqualität (2007) - kein Fachplan"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Landesrahmen Schulqualität" ;
+    cur:recognitionHint "Betreff des Erlasses"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Landesrahmen Schulqualität" ;
+    cur:verified false .
+
+schul:re-DE-HB-359a2223d11a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.3,37"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Zwei Beurteilungsbereiche Schriftliche Arbeiten und Laufende Unterrichtsarbeit"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "4. Leistungsbeurteilung" ;
+    cur:recognitionHint "Kapitel 4"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsbeurteilung" ;
+    cur:verified false .
+
+schul:re-DE-HB-370882c38b46 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.21-22,40"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Nicht Literaturverweis"@de ;
+    cur:positiveExample "mit Hochzahlen gekennzeichneten verbindlichen Anforderungen werden in dieser Kommentarspalte weiter erläutert" ;
+    cur:recognitionHint "Hochgestellte Ziffer am Ende einer Zeile und Fußnote in der Kommentarspalte"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hochzahl 1 2 3 an der Anforderung" ;
+    cur:verified false .
+
+schul:re-DE-HB-373033e3f0d0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP0-10-Mathe-2025 S.1"@de,
+        "Plangeneration laut Länderrecherche: 2025/26"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Kapitel 1-3 richten sich an Kita und Grundschule - Kapitel 4 Standards nur an Grundschule"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan 0 bis 10 im Land Bremen" ;
+    cur:recognitionHint "Titelseite mit Zusatz Bildungsplan für den Elementar- und Primarbereich"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan 0 bis 10 im Land Bremen" ;
+    cur:verified false .
+
+schul:re-DE-HB-377e65d89b1a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "4 = ausreichend" ;
+    cur:verified false .
+
+schul:re-DE-HB-3b1ee5244999 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.22-23"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:negativeHint "Querschnitt BNE im Kommentar - kein Standard"@de ;
+    cur:positiveExample "BNE-Bezüge: Veränderung von Verhalten durch den Klimawandel" ;
+    cur:recognitionHint "Beginn eines Kommentarblocks"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "BNE-Bezüge:" ;
+    cur:verified false .
+
+schul:re-DE-HB-3c5c0af20767 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Physik-GyO-2026 S.15,21"@de,
+        "Plangeneration laut Länderrecherche: Juli 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Stichpunkte - gefolgt von 1.2 Inhaltsbezogene und prozessbezogene Kompetenzen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.1 Sachinhalte" ;
+    cur:recognitionHint "Abschnitt 1.1 jeder Tabelle"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sachinhalte" ;
+    cur:verified false .
+
+schul:re-DE-HB-3d745eebeeee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.7"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-inquiry ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Erkenntnisgewinnungskompetenz" ;
+    cur:recognitionHint "Kompetenzbereich"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erkenntnisgewinnungskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-HB-42f60e638b11 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.4"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:negativeHint "G-Niveau trägt Erweiterte Berufsbildungsreife - E-Niveau trägt MSA und Zugang (nach GuP-Plan S.4 aus 2010)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Erweiterte Berufsbildungsreife | Mittlerer Schulabschluss | Zugang zur Gymnasialen Oberstufe (Abitur nach 9 Jahren)" ;
+    cur:recognitionHint "Aufzählung der Abschlüsse in der Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-HB-43920ca6299b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-GuP-OS-2010 S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gesellschaft und Politik Oberschule 2010" ;
+    cur:verified false .
+
+schul:re-DE-HB-455954067d88 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.3,37"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "Zwei Beurteilungsbereiche Schriftliche Arbeiten und Laufende Unterrichtsarbeit"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "4. Leistungsbeurteilung" ;
+    cur:recognitionHint "Kapitel 4"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsbewertung" ;
+    cur:verified false .
+
+schul:re-DE-HB-4c515f4f56ab a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-in-fachbegriffe"@de,
+        "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.21"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "Kein Präfix Fachbegriffe: wie im Vorlisten-Muster"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Unterstrichene Begriffe kennzeichnen verpflichtende Fachbegriffe" ;
+    cur:recognitionHint "Formatmarker Unterstreichung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterstrichene Begriffe" ;
+    cur:verified false .
+
+schul:re-DE-HB-4ce77fdb153a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.4"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Schulintern ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Grundlage für die Entwicklung schulinterner Curricula" ;
+    cur:recognitionHint "Verweis"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "schulinternes Curriculum" ;
+    cur:verified false .
+
+schul:re-DE-HB-4eeb257781d3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP0-10-Sach-2025 S.3,6-11,20"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Fünf Perspektiven: sozialwissenschaftlich | naturwissenschaftlich | geografisch | historisch | technisch"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.1 Sozialwissenschaftliche Perspektive" ;
+    cur:recognitionHint "Kapitel 3.1-3.5 im Sachunterricht"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Perspektive" ;
+    cur:verified false .
+
+schul:re-DE-HB-537c5fbe1431 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "5 = mangelhaft" ;
+    cur:verified false .
+
+schul:re-DE-HB-5d6e33d9ffa9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: QM-Digital-2026 S.5,15-17"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: Kompetenzbereich 1 | 2 | 3; markiert: Übersichtstabelle des Moduls - Nummern 4-6 in der Übersicht nicht gesichtet (Schützen und sicheres Agieren | Problemlösen und Handeln | Analysieren und Reflektieren)"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul Bildung in der digitalen Welt Kompetenzbereiche" ;
+    cur:verified false .
+
+schul:re-DE-HB-60d569449a15 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.22"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel | Fußnote digitale Kompetenz:; markiert: Fußnote in der Kommentarspalte"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul Bildung in der digitalen Welt" ;
+    cur:verified false .
+
+schul:re-DE-HB-646fe4b4f9da a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.4"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:negativeHint "G-Niveau trägt Erweiterte Berufsbildungsreife - E-Niveau trägt MSA und Zugang (nach GuP-Plan S.4 aus 2010)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Erweiterte Berufsbildungsreife | Mittlerer Schulabschluss | Zugang zur Gymnasialen Oberstufe (Abitur nach 9 Jahren)" ;
+    cur:recognitionHint "Aufzählung der Abschlüsse in der Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erweiterte Berufsbildungsreife" ;
+    cur:verified false .
+
+schul:re-DE-HB-64fbd4ed8cda a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP0-10-Mathe-2025 S.19-21 | BP0-10-Sach-2025 S.20"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "X heißt breite Gruppe der Altersgruppe - fehlendes X nicht verboten"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Aktivitäten/Lerngelegenheiten und Inhalte" ;
+    cur:recognitionHint "Spalten Kr Ki 1/2 3/4 mit X"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aktivitäten/Lerngelegenheiten und Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-HB-6cefa31a59b0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP0-10-Mathe-2025 S.3,5"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Bildungsbeitrag ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.1 Beitrag zur Bildung" ;
+    cur:recognitionHint "Unterkapitel 1.1 im Bildungsplan 0-10"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beitrag zur Bildung" ;
+    cur:verified false .
+
+schul:re-DE-HB-70df22bee4af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Deutsch Oberschule S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einfache Berufsbildungsreife (EinfBBR)" ;
+    cur:verified false .
+
+schul:re-DE-HB-760e5b4f6b3d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Deutsch Oberschule S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss (MSA)" ;
+    cur:verified false .
+
+schul:re-DE-HB-7e3d21b44154 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "6 = ungenügend" ;
+    cur:verified false .
+
+schul:re-DE-HB-850b359fa21e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.22"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:positiveExample "digitale Kompetenz: Protokollierung, graphische Auswertung, tabellarische Darstellung" ;
+    cur:recognitionHint "Fußnotentext"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "digitale Kompetenz:" ;
+    cur:verified false .
+
+schul:re-DE-HB-878df530470e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24 | Bildungsplan Deutsch Oberschule S. 5"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erweiterte Berufsbildungsreife (ErwBBR)" ;
+    cur:verified false .
+
+schul:re-DE-HB-88d0eb509102 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Fließtext vor den Tabellen"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan Mathematik Gymnasium" ;
+    cur:verified false .
+
+schul:re-DE-HB-8cf87755a70a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-GuP-OS-2010 S.5,7,11"@de,
+        "Plangeneration laut Länderrecherche: 2010"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich,
+        schul:Kompetenzbereich ;
+    cur:negativeHint "Dimension gibt die Perspektive der Behandlung an - nicht Fach"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Historische Dimension | Geografische Dimension | Gesellschaftliche Dimension" ;
+    cur:recognitionHint "Drei Dimensionen des Lernbereichs"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Dimension" ;
+    cur:verified false .
+
+schul:re-DE-HB-9f365dfb8674 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: QM-Digital-2026 S.15-17"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Kompetenzbereich ;
+    cur:negativeHint "Gleiche Bezeichnung wie in Fachplänen aber hier Querschnittskompetenz"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kompetenzbereich 1 Suchen, Verarbeiten und Aufbewahren" ;
+    cur:recognitionHint "Nummerierte Kompetenzbereiche 1-6 nach KMK-Strategie"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzbereich 1" ;
+    cur:verified false .
+
+schul:re-DE-HB-a14d8eb706cb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.7"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-evaluation ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Bewertungskompetenz" ;
+    cur:recognitionHint "Kompetenzbereich"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bewertungskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-HB-a83f3ec8acee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.18,28"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        schul:Hinweis ;
+    cur:negativeHint "Beispiele - mit Zusatz BNE wenn BNE gefördert wird - Beispiel Ⓑ Zins und Abzahlung von Darlehen (BNE)"@de ;
+    cur:positiveExample "Sofern sich für bestimmte Kompetenzen konkrete Beispiele besonders eignen … unter Ⓑ aufgeführt" ;
+    cur:recognitionHint "Zeichen im Kommentar"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ⓑ (U+24B7)" ;
+    cur:verified false .
+
+schul:re-DE-HB-a92d81298848 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Physik-GyO-2026 S.3,14"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kasten vor 3.1 und Kapitel 2.6 Bildung in der digitalen Welt"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan Physik GyO" ;
+    cur:verified false .
+
+schul:re-DE-HB-aa3539f2bdfd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.18-19"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis,
+        schul:Verweis ;
+    cur:negativeHint "Buchstabe D im Kreis"@de ;
+    cur:positiveExample "Didaktische Hinweise zu bestimmten Kompetenzen sowie Querverweise auf andere Kompetenzen, auch die des Bildungsplans 0–10, sind in der Kommentarspalte unter Ⓓ aufgeführt" ;
+    cur:recognitionHint "Zeichen im Kommentar"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ⓓ (U+24B9)" ;
+    cur:verified false .
+
+schul:re-DE-HB-aabca7b7711c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.22-23"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Experiment,
+        schul:Hinweis ;
+    cur:negativeHint "Nur Anregung"@de ;
+    cur:positiveExample "Mögliche Fachpraxis: Wärmeisolation mit unterschiedlichen Materialien" ;
+    cur:recognitionHint "Beginn eines Kommentarblocks mit Aufzählung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mögliche Fachpraxis:" ;
+    cur:verified false .
+
+schul:re-DE-HB-b3b9f073eff4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.4,22-23"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE ;
+    cur:recognitionHint "Kürzel oder Symbol: BNE-Bezüge:; markiert: Vorbemerkung - Kommentarspalte Block BNE-Bezüge:"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul Bildung für nachhaltige Entwicklung (BNE)" ;
+    cur:verified false .
+
+schul:re-DE-HB-bea212be7d62 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-rt-bildungsauftrag"@de,
+        "Länderrecherche, Beleg E: BP-Deutsch-OS-2026 S.3,5 | BP-NaWi-OS-2026 S.12"@de,
+        "Plangeneration laut Länderrecherche: 2010-2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Bildungsbeitrag,
+        schul:Rahmenteil ;
+    cur:negativeHint "Überschrift lautet nur Aufgaben und Ziele (ohne des Faches) - Aussagen darin sind Bildungsbeiträge (developmentGoal)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1. Aufgaben und Ziele" ;
+    cur:recognitionHint "Kapitel 1 numeriert"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgaben und Ziele" ;
+    cur:verified false .
+
+schul:re-DE-HB-c3a788cdb254 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030236"@de,
+        "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.3,6"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Kompetenzbereich ;
+    cur:negativeHint "Entspricht Vorlisten-Begriff Inhaltsbezogene Anforderung (nicht gefunden) - dort heißt es Kompetenzen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.2 Inhaltsbezogene Kompetenzen" ;
+    cur:recognitionHint "Gegenüber prozessbezogene Kompetenzen"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Inhaltsbezogene Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-HB-cab5ee33ba52 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.4 | Erlass-1-2026 S.1"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Vorbemerkung - Modul laut Erlass 1/2026 in Entwicklung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul Politische Bildung" ;
+    cur:verified false .
+
+schul:re-DE-HB-cb1c997076df a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.3-4"@de,
+        "Plangeneration laut Länderrecherche: 2025/2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verzeichnis ;
+    cur:negativeHint "Enthält Geltungsbereich (BremSchulG) und Hinweis auf Qualitätsmodule - keine Kompetenzaussagen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Vorbemerkung" ;
+    cur:recognitionHint "erstes Kapitel ohne Nummer im Inhaltsverzeichnis"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorbemerkung" ;
+    cur:verified false .
+
+schul:re-DE-HB-d5a8f1eabf12 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.4,21"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Vorbemerkung und Einleitung Kapitel Standards - Fließtext"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul Sprachbildung" ;
+    cur:verified false .
+
+schul:re-DE-HB-df23a5d16112 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2 = gut" ;
+    cur:verified false .
+
+schul:re-DE-HB-e9b75f6a21c6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bildungsplan Deutsch Oberschule 5-10 Bremen (Stand 08/2026) Einleitung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-G ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Niveau mit grundlegenden Anforderungen (G-Niveau)" ;
+    cur:verified false .
+
+schul:re-DE-HB-eaca0f71d187 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3 = befriedigend" ;
+    cur:verified false .
+
+schul:re-DE-HB-eae4211fcdf6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-GuP-OS-2010 S.4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Vorbemerkung GuP 2010"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan Medienbildung 2012" ;
+    cur:verified false .
+
+schul:re-DE-HB-ec67d352b589 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mitt-192-2025 S.1"@de,
+        "Plangeneration laut Länderrecherche: 2025/26"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der Bildungsplan 0-10 Jahre ist erlassen" ;
+    cur:recognitionHint "Betreffzeile der Mitteilung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan 0-10 Jahre" ;
+    cur:verified false .
+
+schul:re-DE-HB-ee4071511f59 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP0-10-Mathe-2025 S.4"@de,
+        "Plangeneration laut Länderrecherche: 2018 bzw. 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Rahmendokument ;
+    cur:negativeHint "Nicht mit Bildungsplan zu verwechseln - Rahmen für alle fünf Fachbereiche"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Pädagogischen Leitideen (2018)" ;
+    cur:recognitionHint "Verweis in der Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Leitideen" ;
+    cur:verified false .
+
+schul:re-DE-HB-f1834bd8a247 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-Mathe-Gy-2026 S.18,28"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld,
+        schul:Hinweis ;
+    cur:negativeHint "Digitale Werkzeuge - Beispiel Ⓦ Tabellenkalkulation, Taschenrechner"@de ;
+    cur:positiveExample "W steht für Werkzeug" ;
+    cur:recognitionHint "Zeichen im Kommentar"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ⓦ (U+24CC)" ;
+    cur:verified false .
+
+schul:re-DE-HB-f2a592df6688 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Brem.GBl. 2013 Nr. 57 S. 373 f. Bewertungsmaßstab mit KMK-Definition je Stufe. Zwischennoten und Zusätze nicht zulässig (keine Tendenzen). Noten sind im Abschlusszeugnis auszuschreiben"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1 = sehr gut" ;
+    cur:verified false .
+
+schul:re-DE-HB-f446edeaba28 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: QM-Digital-2026 S.1 | Erlass-1-2026 S.1"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Querschnittsrahmen ;
+    cur:negativeHint "Modul des Landesrahmens - Querschnittsthema (Sprachbildung | Kulturelle Bildung | Bildung in der digitalen Welt | BNE in Pilotierung | Politische Bildung in Entwicklung)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Qualitätsmodul Bildung in der digitalen Welt" ;
+    cur:recognitionHint "Titel und Erlasstext"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmodul" ;
+    cur:verified false .
+
+schul:re-DE-HB-f6f1bf4f86d4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP-NaWi-OS-2026 S.7"@de,
+        "Plangeneration laut Länderrecherche: 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:nw-communication ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kommunikationskompetenz" ;
+    cur:recognitionHint "Kompetenzbereich"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikationskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-HB-f79567b034f3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Bildungsplan Deutsch Oberschule 5-10 Bremen (Stand 08/2026) Einleitung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-E ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Niveau mit erweiterten Anforderungen (E-Niveau)" ;
+    cur:verified false .
+

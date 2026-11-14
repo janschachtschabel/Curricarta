@@ -1,0 +1,301 @@
+"""The conversions of register files and their blocks (migration 0011; plan M1, 3.5).
+
+A conversion is asked for in the caller's transaction, under a lock on its file and engine
+(lock_conversion): the caller reads what is there (conversion_for), enqueues the job and starts
+the conversion with it (start_conversion) - a new one, or a failed one asked again under its
+name; one done stays done. The job records the outcome: the blocks, Markdown and pages in one
+transaction, booked once (record_conversion), or the reason (record_failure) - only while the
+conversion waits for that very job. A job that tries again after its result is in, or one whose
+conversion was asked again meanwhile (its lease lost, it counted as failed, but it ran on), writes
+nothing. A conversion still pending whose job ended without it - failed, cancelled - shows as
+failed with the job's code and end; a cancelled one as cancelled, whatever an attempt before ended
+with.
+"""
+
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Any, Literal
+from uuid import UUID
+
+import psycopg
+from psycopg.rows import dict_row
+from psycopg.types.json import Jsonb
+
+from app.conversion.base import Block, Cell, Conversion
+
+ConversionStatus = Literal["pending", "done", "failed"]
+# Why a conversion failed: a refusal of the file (app/conversion/convert.py) or what ended the job
+FailureCode = Literal[
+    "unreadable",
+    "too_many_pages",
+    "too_dense",
+    "needs_ocr",
+    "empty",
+    "timed_out",
+    "died",
+    "crashed",
+    "not_pdf",
+    "file_gone",
+    "no_pages",  # the asker has fewer pages left of an engine that costs than the file holds
+    "too_many_ocr_pages",  # more pages to read by OCR than a conversion takes (MAX_OCR_PAGES)
+]
+
+_STATE = """
+    SELECT c.id, c.source_file_id, c.engine, c.engine_version, c.status, c.error_code, c.account_id,
+        c.job_id, j.status AS job_status, j.error ->> 'code' AS job_error, j.finished_at AS job_finished_at,
+        j.lane AS job_lane,
+        c.pages, c.printed_pages, c.findings, c.created_at, c.finished_at
+    FROM conversion c LEFT JOIN job j ON j.id = c.job_id
+    WHERE c.source_file_id = %s AND c.engine = %s
+"""
+_START = """
+    INSERT INTO conversion (id, source_file_id, engine, account_id, job_id)
+    VALUES (%(id)s, %(file)s, %(engine)s, %(account)s, %(job)s)
+    ON CONFLICT (source_file_id, engine) DO UPDATE SET status = 'pending', error_code = NULL,
+        finished_at = NULL, account_id = EXCLUDED.account_id, job_id = EXCLUDED.job_id
+    WHERE conversion.status <> 'done'
+"""
+_BLOCK = """
+    INSERT INTO document_block (conversion_id, block_id, page, last_page, seq, kind, text, x0, top, x1,
+        bottom, font_size, bold, italic, cells)
+    VALUES (%(conversion)s, %(id)s, %(page)s, %(last_page)s, %(seq)s, %(kind)s, %(text)s, %(x0)s,
+        %(top)s, %(x1)s, %(bottom)s, %(font_size)s, %(bold)s, %(italic)s, %(cells)s)
+"""
+# First in its transaction: the row stays locked until the blocks are in
+_DONE = """
+    UPDATE conversion SET status = 'done', error_code = NULL, engine_version = %(version)s,
+        pages = %(pages)s, printed_pages = %(printed)s, findings = %(findings)s, markdown = %(markdown)s,
+        finished_at = now()
+    WHERE id = %(id)s AND job_id = %(job)s AND status = 'pending'
+"""
+_BOOK = """
+    INSERT INTO conversion_usage (conversion_id, account_id, engine, pages, billable)
+    SELECT id, account_id, engine, %(pages)s, %(billable)s FROM conversion WHERE id = %(id)s
+    ON CONFLICT (conversion_id) DO NOTHING
+"""
+_BLOCKS = """
+    SELECT block_id, page, kind, text, x0, top, x1, bottom, font_size, bold, italic, cells
+    FROM document_block WHERE conversion_id = %s AND page = %s ORDER BY seq
+"""
+_ALL_BLOCKS = """
+    SELECT block_id, page, kind, text, x0, top, x1, bottom, font_size, bold, italic, cells
+    FROM document_block WHERE conversion_id = %s ORDER BY seq
+"""
+# A table joined over a page break is one block, on its first page; a later page holds its cells
+_RUNNING_ON = """
+    SELECT block_id, page,
+        jsonb_path_query_array(cells, '$[*] ? (@.page == $page)', jsonb_build_object('page', %(page)s::int))
+            AS cells
+    FROM document_block
+    WHERE conversion_id = %(conversion)s AND kind = 'table' AND last_page > page
+        AND page < %(page)s AND last_page >= %(page)s
+    ORDER BY seq
+"""
+
+
+@dataclass(frozen=True)
+class ConversionState:
+    id: UUID
+    source_file_id: UUID
+    engine: str
+    engine_version: str | None
+    status: ConversionStatus
+    error_code: str | None  # a FailureCode, or the code of the job that ended without it
+    account_id: UUID | None
+    job_id: UUID | None
+    job_status: str | None
+    job_lane: str | None  # who started the job: who may follow it (app/api/jobs.py)
+    pages: int | None
+    printed_pages: list[str | None] | None
+    findings: list[dict[str, Any]]
+    created_at: datetime
+    finished_at: datetime | None
+
+
+async def lock_conversion(connection: psycopg.AsyncConnection, source_file_id: UUID, engine: str) -> None:
+    """Hold off another asking for the same conversion until the transaction ends."""
+    await connection.execute(
+        "SELECT pg_advisory_xact_lock(hashtextextended(%s, 0))", (f"conversion:{source_file_id}:{engine}",)
+    )
+
+
+async def conversion_for(
+    connection: psycopg.AsyncConnection, source_file_id: UUID, engine: str
+) -> ConversionState | None:
+    cursor = connection.cursor(row_factory=dict_row)
+    await cursor.execute(_STATE, (source_file_id, engine))
+    row = await cursor.fetchone()
+    if row is None:
+        return None
+    job_status, job_error, job_finished_at = (
+        row.pop("job_status"),
+        row.pop("job_error"),
+        row.pop("job_finished_at"),
+    )
+    if row["status"] == "pending" and job_status in ("failed", "cancelled"):
+        row["status"], row["finished_at"] = "failed", job_finished_at
+        row["error_code"] = job_error if job_status == "failed" and job_error else job_status
+    return ConversionState(**row, job_status=job_status)
+
+
+async def start_conversion(
+    connection: psycopg.AsyncConnection,
+    conversion_id: UUID,
+    *,
+    source_file_id: UUID,
+    engine: str,
+    account_id: UUID | None,
+    job_id: UUID,
+) -> None:
+    """The conversion pending with ``job_id``: new under ``conversion_id``, or asked again.
+
+    One done stays done (_START): the caller asks again only one it read as failed, under the
+    lock; an old job that ran on and wrote it done meanwhile leaves the new job nothing to write
+    (record_conversion), which ends it without a word on the conversion.
+    """
+    await connection.execute(
+        "INSERT INTO entity (id, kind) VALUES (%s, 'conversion') ON CONFLICT DO NOTHING", (conversion_id,)
+    )
+    await connection.execute(
+        _START,
+        {"id": conversion_id, "file": source_file_id, "engine": engine, "account": account_id, "job": job_id},
+    )
+
+
+async def conversion_target(
+    connection: psycopg.AsyncConnection, conversion_id: UUID
+) -> tuple[str, str, UUID | None] | None:
+    """The store's key of the file to convert, the engine, and the account its pages are booked to."""
+    cursor = await connection.execute(
+        "SELECT f.storage_key, c.engine, c.account_id FROM conversion c"
+        " JOIN source_file f ON f.id = c.source_file_id WHERE c.id = %s",
+        (conversion_id,),
+    )
+    found = await cursor.fetchone()
+    return None if found is None else (found[0], found[1], found[2])
+
+
+async def record_conversion(
+    connection: psycopg.AsyncConnection,
+    conversion_id: UUID,
+    job_id: UUID,
+    conversion: Conversion,
+    markdown: str,
+    *,
+    billable: bool,
+) -> bool:
+    """Whether the conversion waited for ``job_id`` and is now done with these blocks."""
+    async with connection.transaction():
+        cursor = await connection.execute(
+            _DONE,
+            {
+                "id": conversion_id,
+                "job": job_id,
+                "version": conversion.engine_version,
+                "pages": conversion.pages,
+                "printed": Jsonb(list(conversion.printed_pages)),
+                "findings": Jsonb([finding.model_dump() for finding in conversion.findings]),
+                "markdown": markdown,
+            },
+        )
+        if cursor.rowcount == 0:
+            return False
+        await connection.execute("DELETE FROM document_block WHERE conversion_id = %s", (conversion_id,))
+        async with connection.cursor() as blocks:
+            await blocks.executemany(
+                _BLOCK,
+                [_block_row(conversion_id, seq, block) for seq, block in enumerate(conversion.blocks, 1)],
+            )
+        await connection.execute(
+            _BOOK, {"id": conversion_id, "pages": conversion.pages, "billable": billable}
+        )
+    return True
+
+
+async def record_failure(
+    connection: psycopg.AsyncConnection, conversion_id: UUID, job_id: UUID, code: FailureCode
+) -> bool:
+    """Whether the conversion waited for ``job_id`` and now failed with ``code``."""
+    cursor = await connection.execute(
+        "UPDATE conversion SET status = 'failed', error_code = %s, finished_at = now()"
+        " WHERE id = %s AND job_id = %s AND status = 'pending'",
+        (code, conversion_id, job_id),
+    )
+    return cursor.rowcount > 0
+
+
+async def blocks_on_page(connection: psycopg.AsyncConnection, conversion_id: UUID, page: int) -> list[Block]:
+    cursor = connection.cursor(row_factory=dict_row)
+    await cursor.execute(_BLOCKS, (conversion_id, page))
+    return [_block(row) for row in await cursor.fetchall()]
+
+
+async def all_blocks(connection: psycopg.AsyncConnection, conversion_id: UUID) -> list[Block]:
+    """Every block of the conversion in the order it is read (``seq``), headers and footers too."""
+    cursor = connection.cursor(row_factory=dict_row)
+    await cursor.execute(_ALL_BLOCKS, (conversion_id,))
+    return [_block(row) for row in await cursor.fetchall()]
+
+
+async def printed_pages(connection: psycopg.AsyncConnection, conversion_id: UUID) -> list[str | None]:
+    """The page each physical page prints, as the conversion read it (None where it prints none)."""
+    cursor = await connection.execute("SELECT printed_pages FROM conversion WHERE id = %s", (conversion_id,))
+    found = await cursor.fetchone()
+    return [] if found is None or found[0] is None else list(found[0])
+
+
+def _block(row: dict[str, Any]) -> Block:
+    return Block(
+        id=row["block_id"],
+        page=row["page"],
+        kind=row["kind"],
+        text=row["text"],
+        bbox=None if row["x0"] is None else (row["x0"], row["top"], row["x1"], row["bottom"]),
+        font_size=row["font_size"],
+        bold=row["bold"],
+        italic=row["italic"],
+        cells=tuple(Cell.model_validate(cell) for cell in row["cells"] or ()),
+    )
+
+
+@dataclass(frozen=True)
+class RunningOn:
+    """A table begun on an earlier page, with its cells on this one."""
+
+    block_id: str
+    page: int  # where it begins
+    cells: tuple[Cell, ...]
+
+
+async def tables_running_onto(
+    connection: psycopg.AsyncConnection, conversion_id: UUID, page: int
+) -> list[RunningOn]:
+    cursor = connection.cursor(row_factory=dict_row)
+    await cursor.execute(_RUNNING_ON, {"conversion": conversion_id, "page": page})
+    # a table may span a page without a cell on it: one that held only its repeated header row
+    return [
+        RunningOn(row["block_id"], row["page"], tuple(Cell.model_validate(cell) for cell in row["cells"]))
+        for row in await cursor.fetchall()
+        if row["cells"]
+    ]
+
+
+def _block_row(conversion_id: UUID, seq: int, block: Block) -> dict[str, Any]:
+    x0, top, x1, bottom = (None, None, None, None) if block.bbox is None else block.bbox
+    return {
+        "conversion": conversion_id,
+        "id": block.id,
+        "page": block.page,
+        "last_page": max([block.page, *(cell.page for cell in block.cells)]),
+        "seq": seq,
+        "kind": block.kind,
+        "text": block.text,
+        "x0": x0,
+        "top": top,
+        "x1": x1,
+        "bottom": bottom,
+        "font_size": block.font_size,
+        "bold": block.bold,
+        "italic": block.italic,
+        "cells": Jsonb([cell.model_dump() for cell in block.cells]) if block.kind == "table" else None,
+    }

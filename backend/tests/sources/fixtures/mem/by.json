@@ -1,0 +1,89 @@
+{
+ "closure": [
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0009",
+   "grades": "",
+   "label": "ordnen für ihre Anordnung nach Ergebnis und, das benennen von selbstständig Abschnitt (die) = a‧x2 + passende + darstellen, oder) = vergleichen – xS)2 + in einfache. planen) = über – x1)‧(x – x2)) beschreiben mit eine zeigen Thema sachgerecht prüfen Grundlage, weitere zu. Zusammenhang. nutzen an Beobachtung auswerten sowie.",
+   "n": "https://example.org/mem/by/t0000",
+   "position": "3",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0008",
+   "grades": "",
+   "label": "zu Verfahren (nutzen Merkmal eigene Tabelle, Inhalt ordnen Antwort, Auswahl, Skizze nach schrittweise Frage) das benennen.",
+   "n": "https://example.org/mem/by/t0001",
+   "position": "3",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0008",
+   "grades": "",
+   "label": "beschreiben mit Regel, Wirkung, Beobachtung sachgerecht Begriff der weitere, zu, gemeinsam nutzen an eigene Vorgang sowie Aufgabe für Ordnung sammeln Reihe. Verfahren und Merkmal, benennen von selbstständig Methode die, passende darstellen Thema.",
+   "n": "https://example.org/mem/by/t0002",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0008",
+   "grades": "",
+   "label": "darstellen oder vergleichen Abschnitt einfache Einheit über beschreiben Material: Merkmal zeigen bei, sachgerecht, prüfen der weitere Skizze.",
+   "n": "https://example.org/mem/by/t0003",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0009",
+   "grades": "",
+   "label": "vergleichen in Vorgang planen Aufgabe, beschreiben Ordnung eine zeigen Verfahren sachgerecht + prüfen der weitere zu – x0) + y0 gemeinsam nutzen. Auswahl eigene auswerten sowie ordnen Grundlage ihre Beispiel nach schrittweise Wirkung.",
+   "n": "https://example.org/mem/by/t0004",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0009",
+   "grades": "",
+   "label": "das benennen Skizze selbstständig Darstellung die Grundlage, darstellen Beispiel vergleichen Regel einfache Beobachtung über beschreiben Schritt, eine zeigen bei Ergebnis prüfen- der. weitere zu gemeinsam nutzen. Ordnung eigene auswerten. sowie ordnen für ihre Tabelle nach schrittweise und.",
+   "n": "https://example.org/mem/by/t0005",
+   "position": "4",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006",
+   "grades": "https://w3id.org/lehrplan/ontology/LP_2000010",
+   "label": "Inhalt Methode",
+   "n": "https://example.org/mem/by/t0007",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0001015|https://w3id.org/lehrplan/ontology/LP_0002043|https://w3id.org/lehrplan/ontology/LP_0002044"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007",
+   "grades": "",
+   "label": "Beobachtung",
+   "n": "https://example.org/mem/by/t0008",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002046"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007",
+   "grades": "",
+   "label": "Ordnung an eigene Verfahren",
+   "n": "https://example.org/mem/by/t0009",
+   "position": "2",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002046"
+  },
+  {
+   "ancestors": "https://example.org/mem/by/t0006|https://example.org/mem/by/t0007|https://example.org/mem/by/t0009",
+   "grades": "",
+   "label": "eine zeigen Beispiel sachgerecht prüfen der Beobachtung zu Begriff, nutzen. Form. Anordnung, Angabe, Ergebnis ordnen Gruppe, ihre sammeln Aufgabe: schrittweise, und das benennen Verfahren. Material erklären die passende darstellen Methode vergleichen Auswahl einfache planen (Darstellung, Frage, Grundlage, Lösung, Beispiel, Zusammenhang, Regel, Wirkung) der weitere zu Schritt nutzen an Angabe auswerten.",
+   "n": "https://example.org/mem/by/t0010",
+   "position": "1",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000434|https://w3id.org/lehrplan/ontology/LP_0002049"
+  }
+ ],
+ "endpoint": "https://sparql.mem.edufeed.org/sparql",
+ "graph": "https://w3id.org/lehrplan/by",
+ "plan": "https://example.org/mem/by/t0006",
+ "read_at": "2026-11-09",
+ "references": [],
+ "synthetic": true
+}

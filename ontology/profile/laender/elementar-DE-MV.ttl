@@ -1,0 +1,466 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-MV-043b92ae42e3,
+        elem:re-DE-MV-09bf3fa788e5,
+        elem:re-DE-MV-12bc0a45caab,
+        elem:re-DE-MV-4541a4506f58,
+        elem:re-DE-MV-45c2ead7538f,
+        elem:re-DE-MV-4a11d7e554ec,
+        elem:re-DE-MV-547981a3fc26,
+        elem:re-DE-MV-5da6ef17b422,
+        elem:re-DE-MV-660c1a4ced21,
+        elem:re-DE-MV-6d5ada3beb06,
+        elem:re-DE-MV-74520248d2ec,
+        elem:re-DE-MV-7922d17f9424,
+        elem:re-DE-MV-7f5115b7446c,
+        elem:re-DE-MV-871c3e6cf1af,
+        elem:re-DE-MV-90a1d33f852f,
+        elem:re-DE-MV-995d0d92bc14,
+        elem:re-DE-MV-a4139574c03a,
+        elem:re-DE-MV-b573061cee7e,
+        elem:re-DE-MV-b85c4fd72ded,
+        elem:re-DE-MV-b8ed7cf2f143,
+        elem:re-DE-MV-b926ce410332,
+        elem:re-DE-MV-c785f6974545,
+        elem:re-DE-MV-d8a83c318dec,
+        elem:re-DE-MV-eac850bae883,
+        elem:re-DE-MV-f80006366aa0,
+        elem:re-DE-MV-fea756109393 .
+
+elem:re-DE-MV-043b92ae42e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 81 und 122"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Kompetenzbeschreibung ;
+    cur:negativeHint "Adressat ist das Kind. Die Aussagen sind Infinitiv-Teile (Das Kind kann + Infinitiv)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Das Kind kann sich nonverbal ausdrücken" ;
+    cur:recognitionHint "Satzanfang mit Aufzählungspunkten. Dazu Varianten Die Kinder können (PDF-S. 122)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Das Kind kann" ;
+    cur:verified false .
+
+elem:re-DE-MV-09bf3fa788e5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 85 und 91"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls,
+        elem:Inhalt ;
+    cur:negativeHint "Variante Projektvorschläge in Bereich 4 (PDF-S. 171)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Rollenspiel: Personen, Situationen, Probleme aus dem Alltag im Spiel vergegenwärtigen" ;
+    cur:recognitionHint "Aufzählungen nach Themen (Rollenspiel, Regelspiele, Reime und Gedichte)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Exemplarische Inhalte und Gestaltungsvorschläge" ;
+    cur:verified false .
+
+elem:re-DE-MV-12bc0a45caab a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 368 und 328 und 352 und 381"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Keine nummerierten Qualitätsansprüche wie QA1"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "6. Qualitätskriterien für die Arbeit im Hort" ;
+    cur:recognitionHint "Letzter Abschnitt der Kapitel 4 bis 7 mit Aufzählung ohne QA-Nummern"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätskriterien" ;
+    cur:verified false .
+
+elem:re-DE-MV-4541a4506f58 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 66 (Kap. 2 S. 4)"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo kd:ec-personal,
+        kd:ec-social,
+        kd:ec-subject,
+        kd:four-method ;
+    cur:negativeHint "Fließtext und keine Überschrift. Kein eigener Basiskompetenzen-Abschnitt"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Grundlage für das kompetente Handeln ist der Erwerb entwicklungsadäquater Sozial-, Personal-, Sach- und Methodenkompetenzen." ;
+    cur:recognitionHint "Grundlage sind Sozial-, Personal-, Sach- und Methodenkompetenzen"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handlungskompetenz" ;
+    cur:verified false .
+
+elem:re-DE-MV-45c2ead7538f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 125"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-mathematik ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3.1 Teilbereich Mathematische Grunderfahrungen" ;
+    cur:recognitionHint "Teilbereich 3.3.1"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-MV-4a11d7e554ec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 153"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-technik ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3.4 Teilbereich Technische Grunderfahrungen" ;
+    cur:recognitionHint "Teilbereich 3.3.4"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Technische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-MV-547981a3fc26 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-c41971aa1aaf"@de,
+        "Länderrecherche, Beleg E: BK25 PDF-S. 81"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Reflexionsfrage ;
+    cur:negativeHint "Fragen sind an das Kind gestellt und nicht an Fachkräfte. Kein Reflexionsfragen-Kasten für Fachkräfte"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Was kann ich mit meiner Sprache bewirken? (Die Kinder können sich verständigen …)" ;
+    cur:recognitionHint "Fragen in Ich-Form des Kindes mit erwarteter Kindantwort in Klammern. Varianten: Fragen und Anregungen zum Verständnis und zur Reflexion (PDF-S. 228) und Fragen und Anregung zur Reflektion und zum Verständnis (PDF-S. 169)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fragen und Anregungen zur Reflexion und zum Verständnis" ;
+    cur:verified false .
+
+elem:re-DE-MV-5da6ef17b422 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 273"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo elem:Teilbereich ;
+    cur:negativeHint "Handlungsfeld meint hier Themenfelder des Bereichs 7 und nicht die Aufgaben der Fachkräfte (elem:Handlungsfeld)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "7.4 Handlungsfelder nachhaltiger Entwicklung (Auswahl)" ;
+    cur:recognitionHint "Abschnitt 7.4 mit Konsum, Ernährung, Biologische Vielfalt, Klima und weiteren"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Handlungsfelder nachhaltiger Entwicklung (Auswahl)" ;
+    cur:verified false .
+
+elem:re-DE-MV-660c1a4ced21 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 61"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:negativeHint "Bündelt die sieben Bereiche. Entspricht dem Sammelabschnitt und nicht dem einzelnen Bereich"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_titlePage,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel-2-Titel in Großbuchstaben BILDUNGS- UND ERZIEHUNGSBEREICHE"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsbereiche" ;
+    cur:verified false .
+
+elem:re-DE-MV-6d5ada3beb06 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-f551d51384fe"@de,
+        "Länderrecherche, Beleg E: BK25 PDF-S. 81"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Inhalt ;
+    cur:negativeHint "Themenstichworte (Inhalt). Kein Teilbereich mit eigenen Zielen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Ich und meine Familie | Mein Geburtstag | Gegenstände/Spielzeug | Mein Lieblingstier" ;
+    cur:recognitionHint "Stichwortliste vor den Kompetenzen eines Erfahrungsfelds"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schwerpunkte" ;
+    cur:verified false .
+
+elem:re-DE-MV-74520248d2ec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 79 und 123"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Sammelabschnitt ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "1.3 Erfahrungsfelder" ;
+    cur:recognitionHint "Abschnitt x.3 mit den x.3.y-Unterabschnitten"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erfahrungsfelder" ;
+    cur:verified false .
+
+elem:re-DE-MV-7922d17f9424 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 70"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet,
+        elem:p-inklusion ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2. Umgang mit Diversität - Inklusion" ;
+    cur:recognitionHint "Leitgedanke 2 im Kapitel 2"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Umgang mit Diversität - Inklusion" ;
+    cur:verified false .
+
+elem:re-DE-MV-7f5115b7446c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 331"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-krippe ;
+    cur:negativeHint "Kein Wort U3 im Titel. Kein eigener Bildungsbereich-Katalog"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_titlePage ;
+    cur:positiveExample "Kapitel 5 FÖRDERUNG VON KINDERN UNTER DREI JAHREN" ;
+    cur:recognitionHint "Kapitel 5"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Förderung von Kindern unter drei Jahren" ;
+    cur:verified false .
+
+elem:re-DE-MV-871c3e6cf1af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 61 und 63"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Leitgedanken zu den Bildungs- und Erziehungsbereichen" ;
+    cur:recognitionHint "Einführung zu Kapitel 2 mit Abschnitten 1.1 Bildungsverständnis bis 1.5 und Querschnittsabschnitten 2 bis 5"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitgedanken zu den Bildungs- und Erziehungsbereichen" ;
+    cur:verified false .
+
+elem:re-DE-MV-90a1d33f852f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 359"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:set-hort ;
+    cur:negativeHint "Konzeption hier = Kapitel des Plans und kein Einrichtungskonzept"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_titlePage ;
+    cur:positiveExample "Kapitel 6 KONZEPTION ZUR ARBEIT IM HORT" ;
+    cur:recognitionHint "Kapitel 6"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konzeption zur Arbeit im Hort" ;
+    cur:verified false .
+
+elem:re-DE-MV-995d0d92bc14 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 73"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "4. Partizipation und Demokratiebildung" ;
+    cur:recognitionHint "Leitgedanke 4"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Partizipation und Demokratiebildung" ;
+    cur:verified false .
+
+elem:re-DE-MV-a4139574c03a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-ff3e263ac916-MV"@de,
+        "Länderrecherche, Beleg E: BK25 PDF-S. 7 und 421"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan-0-10 ;
+    cur:negativeHint "Kein Grundschul-Curriculum enthalten. Grundschule nur als Kooperations- und Übergangsthema. Herausgeber ist das Ministerium (nicht eine Kita)=kein Einrichtungskonzept"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_titlePage ;
+    cur:positiveExample "Bildungskonzeption für 0- bis 10-jährige Kinder in Mecklenburg-Vorpommern" ;
+    cur:recognitionHint "Titel steht in der Kopfzeile jeder Seite und im Impressum. Das PDF hat kein eigenes Titelblatt (erste Seite ist das Vorwort)"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungskonzeption für 0- bis 10-jährige Kinder in Mecklenburg-Vorpommern" ;
+    cur:verified false .
+
+elem:re-DE-MV-b573061cee7e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 72"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-geschlechtersensibel ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3. Gender" ;
+    cur:recognitionHint "Leitgedanke 3"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gender" ;
+    cur:verified false .
+
+elem:re-DE-MV-b85c4fd72ded a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 138"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-informatik ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3.2 Teilbereich Informatische Grunderfahrungen" ;
+    cur:recognitionHint "Teilbereich 3.3.2. In BK21 nicht vorhanden"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Informatische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-MV-b8ed7cf2f143 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 78 und 94"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Bildungsziel,
+        elem:Kompetenzbeschreibung ;
+    cur:negativeHint "Als Standard werden die jeweils zu erwerbenden Kompetenzen beschrieben (Kap. 2 S. 4). Gelten als verbindlich und beschreiben den Stand am Ende der Kindergarten-Zeit. Kein Prüfmaßstab im Sinn von Entwicklungsindikatoren"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.2 Standards (Ziele)" ;
+    cur:recognitionHint "Abschnitt x.2 in jedem Bereich. In Bereich 3 nur Standards"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Standards (Ziele)" ;
+    cur:verified false .
+
+elem:re-DE-MV-b926ce410332 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK21 PDF-S. 123"@de,
+        "Plangeneration laut Länderrecherche: Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-raum-form ;
+    cur:negativeHint "Ersetzt in BK25 durch die vier Teilbereiche. Weitere BK21-Felder 3.3.2 Mengen | 3.3.3 Zahlen (f-zahlen-operationen) | 3.3.4 Größen und Messen (f-groessen-messen) | 3.3.5 Gesetzmäßigkeiten, Mustern und Strukturen (f-muster-strukturen) | 3.3.6 Welterkundung"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3.1 Geometrische Erfahrungen" ;
+    cur:recognitionHint "Erfahrungsfeld 3.3.1 der Vorgängerfassung"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Geometrische Erfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-MV-c785f6974545 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 144"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-naturwissenschaft ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3.3 Teilbereich Naturwissenschaftliche Grunderfahrungen" ;
+    cur:recognitionHint "Teilbereich 3.3.3"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Naturwissenschaftliche Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-MV-d8a83c318dec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 65 und 68"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:p-ko-konstruktion ;
+    cur:negativeHint "kein eigener Abschnitt"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "ko-konstruktiv gestaltet" ;
+    cur:recognitionHint "Wort im Fließtext von Abschnitt 1.1 und 1.4"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ko-konstruktiv" ;
+    cur:verified false .
+
+elem:re-DE-MV-eac850bae883 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-5fd77f8bddea-MV"@de,
+        "Länderrecherche, Beleg E: BK25 PDF-S. 61 und 117 (Kap. 2 S. 55)"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020 (dort vor Überarbeitung)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mint ;
+    cur:negativeHint "Vorliste hatte Titel sinngemäß. Wörtlich schwankt Grunderfahrung gegen Grunderfahrungen. In der Leitgedanken-Aufzählung PDF-S. 63 steht Elementares, mathematisches Denken mit Komma"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "3. Elementares mathematisches Denken, Welterkundung sowie technische und naturwissenschaftliche Grunderfahrung" ;
+    cur:recognitionHint "Bereich 3. Singular Grunderfahrung in Inhaltsverzeichnis und Kapitelüberschrift. Plural Grunderfahrungen im Vorwort und KiföG-Katalog"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Elementares mathematisches Denken, Welterkundung sowie technische und naturwissenschaftliche Grunderfahrung" ;
+    cur:verified false .
+
+elem:re-DE-MV-f80006366aa0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 227"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Teilbereich,
+        elem:f-koerperwahrnehmung-sexualitaet ;
+    cur:negativeHint "Weitere Erfahrungsfelder in Bereich 6: 6.3.2 Bewegung (f-bewegung) und 6.3.3 Gesundheit und Prävention (f-gesundheit-ernaehrung | f-praevention-sicherheit)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "6.3.1 Körperliche und psychosexuelle Entwicklung" ;
+    cur:recognitionHint "Erfahrungsfeld 6.3.1"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Körperliche und psychosexuelle Entwicklung" ;
+    cur:verified false .
+
+elem:re-DE-MV-fea756109393 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-MV.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BK25 PDF-S. 3. BK21 PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: Stand Januar 2025 und Stand November 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:negativeHint "Titel ohne Inhalt"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Qualitätsmanagement/Evaluation" ;
+    cur:recognitionHint "Nur Titel in der Kapitelübersicht (Nr. 8). Kein Kapiteltext. Laut BK21 in Planung"@de ;
+    cur:scopeRegion land:DE-MV ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualitätsmanagement/Evaluation" ;
+    cur:verified false .
+

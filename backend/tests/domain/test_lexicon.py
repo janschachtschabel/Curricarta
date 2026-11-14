@@ -1,0 +1,284 @@
+"""A document's active profile: the cues that hold for it, the more specific before the general
+(konzept §12.2, §12.4, plan M1 4.8), and patterns searched with a time limit."""
+
+from pathlib import Path
+from typing import Any
+
+import pytest
+
+from app.domain.lexicon import Cue, PatternTimeout, active_cues, pattern_matches, pattern_starts
+from app.vocab.loader import read_vocabulary
+
+ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
+REGION = "https://w3id.org/wlo/curriculum/region/"
+NW = frozenset({REGION + "DE-NW"})
+GERMANY = frozenset({REGION + "DE"})  # the region North Rhine-Westphalia lies in
+TYPED = frozenset({"dt-Lehrplan"})
+GENERATION = frozenset({"BP2016"})
+CUE = "https://w3id.org/wlo/curriculum/vocab#role_cue"
+PREF = "https://w3id.org/wlo/curriculum/vocab#role_pref"
+NEGATIVE = "https://w3id.org/wlo/curriculum/vocab#role_negative"
+HOMONYM = "https://w3id.org/wlo/curriculum/vocab#role_homonym"
+TERM = "https://w3id.org/wlo/curriculum/vocab#ck_term"
+HEADING = "https://w3id.org/wlo/curriculum/vocab#ck_headingPattern"
+LAYOUT = "https://w3id.org/wlo/curriculum/vocab#ck_layout"
+BOLD = "https://w3id.org/wlo/curriculum/vocab#mark_bold"
+ITALIC = "https://w3id.org/wlo/curriculum/vocab#mark_italic"
+
+
+def cue(name: str, *, form: str | None = "Kernlehrplan", target: str = "dt-Lehrplan", **changes: Any) -> Cue:
+    values: dict[str, Any] = {
+        "iri": f"https://example.org/cue/{name}",
+        "role": CUE,
+        "kind": TERM,
+        "maps_to": (target,),
+        "surface_form": form,
+    } | changes
+    return Cue(**values)
+
+
+def active(
+    cues: list[Cue],
+    regions: frozenset[str] = NW,
+    document_type: str | None = None,
+    plan: str | None = None,
+    wider: frozenset[str] = GERMANY,
+) -> dict[str, bool]:
+    return {
+        found.cue.iri.rsplit("/", 1)[-1]: found.tie
+        for found in active_cues(cues, regions, document_type, plan, wider_regions=wider)
+    }
+
+
+def test_a_cue_without_a_scope_holds_everywhere_and_a_scoped_one_where_its_scope_does() -> None:
+    cues = [
+        cue("everywhere", form="Lehrplan"),
+        cue("nw", form="Kernlehrplan", scope_regions=frozenset({REGION + "DE-NW"})),
+        cue("by", form="LehrplanPLUS", scope_regions=frozenset({REGION + "DE-BY"})),
+        cue("germany", form="Bildungsstandards", scope_regions=frozenset({REGION + "DE"})),
+        cue("typed", form="Fachlehrplan", scope_document_types=frozenset({"dt-Lehrplan"})),
+        cue("generation", form="Bildungsplan", plan_generations=frozenset({"BP2016"})),
+    ]
+
+    assert set(active(cues, document_type="dt-Lehrplan", plan="BP2016")) == {
+        "everywhere",
+        "nw",
+        "germany",
+        "typed",
+        "generation",
+    }
+    assert set(active(cues, document_type="dt-Rahmenplan", plan="BP2004")) == {"everywhere", "nw", "germany"}
+    none = frozenset[str]()
+    assert set(active(cues, regions=none, document_type="dt-Rahmenplan", plan="BP2004", wider=none)) == {
+        "everywhere"
+    }
+
+
+def test_a_cue_of_several_countries_holds_in_each_of_them() -> None:
+    both = [cue("both", scope_regions=frozenset({REGION + "DE-BY", REGION + "DE-NW"}))]
+
+    assert active(both) == {"both": False}
+    assert active(both, regions=frozenset({REGION + "DE-BY"})) == {"both": False}
+    assert active(both, regions=frozenset({REGION + "DE-HH"})) == {}
+
+
+@pytest.mark.parametrize(
+    ("first", "second"),
+    [
+        (
+            {"scope_regions": GERMANY, "strength": 0.9, "verified": True},
+            {"scope_regions": NW, "strength": 0.6},
+        ),
+        ({"strength": 0.9, "verified": True}, {"scope_regions": GERMANY, "strength": 0.6}),
+    ],
+    ids=["own-before-wider", "wider-before-none"],
+)
+def test_a_cue_of_the_document_s_own_region_ranks_before_one_of_a_region_it_lies_in_and_that_before_none(
+    first: dict[str, Any], second: dict[str, Any]
+) -> None:
+    cues = [cue("first", target="dt-Lehrplan", **first), cue("second", target="dt-Rahmenplan", **second)]
+
+    assert active(cues) == {"second": False}
+
+
+def test_a_cue_of_a_document_type_or_plan_generation_holds_where_the_document_s_is_unknown() -> None:
+    # X1 is to tell the plan generation by such cues (Bavaria's "LehrplanPLUS"): none can carry
+    # one before, and a document's type may stay unknown
+    cues = [
+        cue("typed", form="Fachlehrplan", scope_document_types=frozenset({"dt-Lehrplan"})),
+        cue("generation", form="LehrplanPLUS", plan_generations=frozenset({"LehrplanPLUS"})),
+    ]
+
+    assert active(cues) == {"typed": False, "generation": False}
+
+
+@pytest.mark.parametrize(
+    ("plan", "winner"),
+    [(None, "unscoped"), ("BP2016", "generation")],
+    ids=["unknown-no-bonus", "known-and-matching-ranks"],
+)
+def test_a_scope_ranks_a_cue_only_where_it_matches_the_document_s(plan: str | None, winner: str) -> None:
+    cues = [
+        cue("unscoped", target="dt-Lehrplan", strength=0.8),
+        cue("generation", target="dt-Rahmenplan", strength=0.6, plan_generations=frozenset({"BP2016"})),
+    ]
+
+    assert active(cues, plan=plan) == {winner: False}
+
+
+@pytest.mark.parametrize(
+    ("first", "second", "winner"),
+    [
+        (
+            {"strength": 0.9, "verified": True},
+            {"strength": 0.6, "scope_regions": frozenset({REGION + "DE-NW"})},
+            "second",
+        ),  # the more specific, however weak
+        (
+            {"strength": 0.9, "scope_regions": frozenset({REGION + "DE-NW"})},
+            {"strength": 0.6, "verified": True, "scope_regions": frozenset({REGION + "DE-NW"})},
+            "second",
+        ),  # checked before unchecked
+        ({"strength": 0.6}, {"strength": 0.8}, "second"),  # then the stronger
+        ({"strength": None}, {"strength": 0.1}, "second"),  # no strength is none
+    ],
+    ids=["specific", "verified", "strength", "no-strength"],
+)
+def test_of_cues_on_one_word_for_other_targets_the_first_by_rank_holds(
+    first: dict[str, Any], second: dict[str, Any], winner: str
+) -> None:
+    cues = [cue("first", target="dt-Lehrplan", **first), cue("second", target="dt-Rahmenplan", **second)]
+
+    assert active(cues) == {winner: False}
+
+
+@pytest.mark.parametrize(
+    ("loser", "winner"),
+    [
+        ({"scope_regions": GERMANY, "scope_document_types": TYPED}, {"scope_regions": NW}),
+        ({"verified": True, "strength": 0.9}, {"plan_generations": GENERATION}),
+        ({"strength": 0.9}, {"strength": 0.6, "scope_document_types": TYPED}),
+    ],
+    ids=["region-before-scopes", "scopes-before-checked", "document-type-before-strength"],
+)
+def test_the_parts_of_a_rank_count_in_their_order(loser: dict[str, Any], winner: dict[str, Any]) -> None:
+    # region, then the scopes that match the document's known ones, then checked, then strength
+    cues = [cue("loser", target="dt-Lehrplan", **loser), cue("winner", target="dt-Rahmenplan", **winner)]
+
+    assert active(cues, document_type="dt-Lehrplan", plan="BP2016") == {"winner": False}
+
+
+def test_cues_on_one_word_that_rank_alike_both_hold_as_a_tie_for_another_target() -> None:
+    cues = [
+        cue("lehrplan", target="dt-Lehrplan", strength=0.8),
+        cue("rahmenplan", form="KERNLEHRPLAN", target="dt-Rahmenplan", strength=0.8),
+        cue("again", target="dt-Lehrplan", strength=0.8, form="Lehrplan"),
+        cue("same", target="dt-Lehrplan", strength=0.8, form="Lehrplan"),
+    ]
+
+    assert active(cues) == {"lehrplan": True, "rahmenplan": True, "again": False, "same": False}
+
+
+def test_a_negative_cue_holds_beside_a_stronger_one_on_its_word() -> None:
+    cues = [cue("plan", strength=0.95), cue("not", role=NEGATIVE, strength=0.5, target="dt-Rahmenplan")]
+
+    assert active(cues) == {"plan": False, "not": False}
+
+
+def test_a_negative_cue_and_a_homonym_hold_where_their_scope_does_alone() -> None:
+    # Bavaria's and Thuringia's "Lernbereich" warns a document of Bavaria, not one of North Rhine-Westphalia
+    cues = [
+        cue("not", role=NEGATIVE, target="dt-Rahmenplan", scope_document_types=TYPED),
+        cue("homonym", role=HOMONYM, form="Lernbereich", scope_regions=frozenset({REGION + "DE-BY"})),
+    ]
+
+    assert active(cues, document_type="dt-Rahmenplan") == {}
+    assert active(cues, regions=frozenset({REGION + "DE-BY"}), document_type="dt-Lehrplan") == {
+        "not": False,
+        "homonym": False,
+    }
+
+
+def test_a_homonym_holds_with_its_other_target() -> None:
+    homonym = cue("homonym", also_maps_to=("dt-Rahmenplan",))
+
+    [found] = active_cues([homonym], NW, None, None)
+
+    assert found.cue.also_maps_to == ("dt-Rahmenplan",)
+
+
+def test_a_homonym_holds_beside_a_stronger_cue_on_its_word() -> None:
+    # "Verwendbarkeit des Moduls": a checked homonym beside a stronger preferred term
+    cues = [
+        cue("pref", role=PREF, strength=0.9, verified=True, target="cur:Placement"),
+        cue("homonym", role=HOMONYM, strength=0.5, also_maps_to=("dt-Rahmenplan",)),
+        cue("weaker", role=PREF, strength=0.3, target="dt-Rahmenplan"),
+    ]
+
+    assert active(cues) == {"pref": False, "homonym": False}
+
+
+def test_cues_of_a_pattern_and_a_word_alike_do_not_compete() -> None:
+    cues = [
+        cue("word", form="Lernfeld", strength=0.9),
+        cue("pattern", form=None, pattern="Lernfeld", strength=0.5),
+    ]
+
+    assert active(cues) == {"word": False, "pattern": False}
+
+
+def test_cues_on_one_word_of_two_kinds_do_not_compete() -> None:
+    cues = [cue("term", strength=0.9), cue("heading", kind=HEADING, strength=0.5, target="dt-Rahmenplan")]
+
+    assert active(cues) == {"term": False, "heading": False}
+
+
+def test_cues_on_one_layout_signal_compete_and_on_another_do_not() -> None:
+    layout: dict[str, Any] = {"form": None, "kind": LAYOUT}
+    cues = [
+        cue("bold", layout_signal=BOLD, strength=0.9, **layout),
+        cue("weaker", layout_signal=BOLD, strength=0.5, target="dt-Rahmenplan", **layout),
+        cue("italic", layout_signal=ITALIC, strength=0.5, target="dt-Rahmenplan", **layout),
+    ]
+
+    assert active(cues) == {"bold": False, "italic": False}
+
+
+def test_a_pattern_is_searched_in_a_text() -> None:
+    assert pattern_matches(r"^Lernfeld\s+[0-9]+", "Lernfeld 5: Kunden beraten")
+    assert not pattern_matches(r"^Lernfeld\s+[0-9]+", "Das Lernfeld 5")
+
+
+def test_a_pattern_is_matched_at_a_text_s_start_as_the_research_s_importer_matches() -> None:
+    # re.match: anchored at the start, not at the end; a pattern without ^ alike
+    assert pattern_starts("Umsetzungshilfen", "Umsetzungshilfen 1")
+    assert not pattern_starts("Umsetzungshilfen", "Hinweise und Umsetzungshilfen 1")
+    assert pattern_starts(r"^Lernfeld\s+[0-9]+", "Lernfeld 1")
+    with pytest.raises(PatternTimeout):
+        pattern_starts(r"(x+x+)+y", "x" * 1000, timeout=0.01)
+
+
+def test_a_pattern_that_takes_too_long_is_stopped() -> None:
+    # regex optimises the classic ones away; this one takes it more than 5 s on 1000 signs
+    with pytest.raises(PatternTimeout):
+        pattern_matches(r"(x+x+)+y", "x" * 1000, timeout=0.01)
+
+
+def test_the_lexicon_s_patterns_find_their_positive_examples_and_none_of_their_negative_ones() -> None:
+    cues = [found for found in read_vocabulary(ONTOLOGY).cues.values() if found.pattern is not None]
+
+    misses = [
+        (found.iri, example)
+        for found in cues
+        for example in found.positive_examples
+        if found.pattern is not None and not pattern_matches(found.pattern, example)
+    ]
+    hits = [
+        (found.iri, example)
+        for found in cues
+        for example in found.negative_examples
+        if found.pattern is not None and pattern_matches(found.pattern, example)
+    ]
+
+    assert len(cues) == 89  # 88 own, 1 heading pattern from the research (plan M1 10a)
+    assert (misses, hits) == ([], [])

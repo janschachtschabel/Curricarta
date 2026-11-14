@@ -1,0 +1,579 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix ctx: <https://w3id.org/wlo/curriculum/context/> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-HH-16b5487c283e,
+        elem:re-DE-HH-17849462ce9a,
+        elem:re-DE-HH-1a11cd557882,
+        elem:re-DE-HH-205ab83dfec7,
+        elem:re-DE-HH-23a2ca11b5be,
+        elem:re-DE-HH-29740813b110,
+        elem:re-DE-HH-2de936a79840,
+        elem:re-DE-HH-3aac379b65ec,
+        elem:re-DE-HH-3f90707c6c15,
+        elem:re-DE-HH-3fc5bc928a05,
+        elem:re-DE-HH-40ac9aeec3e5,
+        elem:re-DE-HH-417923c5ae12,
+        elem:re-DE-HH-44412358c53f,
+        elem:re-DE-HH-51bd26ae2cdf,
+        elem:re-DE-HH-5f88ffc8bc2b,
+        elem:re-DE-HH-6065afef75ee,
+        elem:re-DE-HH-67aec6243cb5,
+        elem:re-DE-HH-72a1300b02c4,
+        elem:re-DE-HH-73db5f6ea85a,
+        elem:re-DE-HH-761195098b0c,
+        elem:re-DE-HH-788cf8fef521,
+        elem:re-DE-HH-87a40e2c1524,
+        elem:re-DE-HH-901121e03add,
+        elem:re-DE-HH-95fd89432a49,
+        elem:re-DE-HH-a3e042adf64a,
+        elem:re-DE-HH-a74d28d45fd4,
+        elem:re-DE-HH-b3e6890816a2,
+        elem:re-DE-HH-b66e1b9bf00a,
+        elem:re-DE-HH-cd3cd11d46da,
+        elem:re-DE-HH-d1b1f26d2080,
+        elem:re-DE-HH-e44b2ceb6f96,
+        elem:re-DE-HH-f4b4fd1154e0,
+        elem:re-DE-HH-fe0ce2f2e834 .
+
+elem:re-DE-HH-16b5487c283e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 29"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Bildungsziel ;
+    cur:negativeHint "Ausdrücklich keine Lernziele für alle Kinder zu einem Zeitpunkt"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Als Richtungsziele leiten sie vielmehr das pädagogische Handeln" ;
+    cur:recognitionHint "Selbstbezeichnung der Kompetenzen in Kapitel 3"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Richtungsziele" ;
+    cur:verified false .
+
+elem:re-DE-HH-17849462ce9a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 84-89"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt 5.2"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Den Alltag in der Kita mit Kindern gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HH-1a11cd557882 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5 und S. 127"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Qualitaet ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel 8"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kita als Lernende Organisation" ;
+    cur:verified false .
+
+elem:re-DE-HH-205ab83dfec7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 71"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-natur-oekologie,
+        elem:f-technik,
+        elem:f-umwelt-bne ;
+    cur:negativeHint "Im Teiltitel 4.7.1 Schreibung Natur | Umwelt und Technik mit Komma – Gemeinsamer Rahmen: Umweltbildung und BNE"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Phänomene in der Natur und technische Zusammenhänge entdecken und erforschen (Leitsatz)" ;
+    cur:recognitionHint "Kopfzeile BILDUNGSBEREICH – Nummer 4.7 – Gedankenstriche mit geschützten Leerzeichen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Natur – Umwelt – Technik" ;
+    cur:verified false .
+
+elem:re-DE-HH-23a2ca11b5be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 56"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-aesthetik,
+        elem:f-bildnerisch,
+        elem:f-musik,
+        elem:f-tanz-darstellendes-spiel ;
+    cur:negativeHint "Bildnerisches Gestalten und Musik waren 2005 eigene Bereiche"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Sinnliche Wahrnehmung als Erkenntnisweg (Leitsatz gekürzt)" ;
+    cur:recognitionHint "Kopfzeile BILDUNGSBEREICH – Nummer 4.4 – Teilbereiche als Abschnitte 4.4.4 bis 4.4.6"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ästhetische Bildung: Bildnerisches Gestalten, Musik, Theaterspiel" ;
+    cur:verified false .
+
+elem:re-DE-HH-29740813b110 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:negativeHint "Gemeinsamer Rahmen der Länder steht nur im Literaturverzeichnis (S. 144) und nicht im Text"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Anhang"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Impressum" ;
+    cur:verified false .
+
+elem:re-DE-HH-2de936a79840 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 6 und S. 29"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Kompetenzbereich bezeichnet hier keine Weltausschnitte – anders als Bildungsbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Jedes Kind entwickelt im Zusammenspiel der vier Kompetenzbereiche in seinem eigenen Tempo ein individuelles Kompetenzprofil" ;
+    cur:recognitionHint "Vier Kompetenzbereiche Ich- soziale Sach- lernmethodische"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzbereiche" ;
+    cur:verified false .
+
+elem:re-DE-HH-3aac379b65ec a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5 und S. 110"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo ctx:settling-in,
+        elem:Uebergang ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt 6.2"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Eingewöhnung in die Kindertageseinrichtung" ;
+    cur:verified false .
+
+elem:re-DE-HH-3f90707c6c15 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5 und S. 106"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel 6"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergänge gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HH-3fc5bc928a05 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 48"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-literacy,
+        elem:f-mehrsprachigkeit,
+        elem:f-sprache ;
+    cur:negativeHint "Medien stehen nicht mehr hier – eigener Bereich 4.5"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Sich miteinander verständigen, mit Sprache(n) etwas bewirken können (Leitsatz)" ;
+    cur:recognitionHint "Kopfzeile BILDUNGSBEREICH – Nummer 4.3"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kommunikation, Sprachen, Schriftkultur" ;
+    cur:verified false .
+
+elem:re-DE-HH-40ac9aeec3e5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5 und S. 119"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:negativeHint "Eltern umfasst alle Bezugspersonen (Fußnote 40)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel 7"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungspartnerschaft mit Eltern und Familien" ;
+    cur:verified false .
+
+elem:re-DE-HH-417923c5ae12 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Diplomarbeit HAW 2008 S. 13-14"@de,
+        "Plangeneration laut Länderrecherche: 2005 (2012 laut Flyer gleichlautend)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-personal-sozial ;
+    cur:negativeHint "Ersetzt durch Soziokulturelles Leben"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Bildungsbereich 2 der Vorgängerfassung"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Soziale und kulturelle Umwelt" ;
+    cur:verified false .
+
+elem:re-DE-HH-44412358c53f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 83"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Impuls,
+        elem:Praxisbeispiel ;
+    cur:negativeHint "Nicht mit Erkundungsfragen in Kap. 4 verwechseln"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Als Team oder Kleinteam einer Forschungsfrage nachgehen" ;
+    cur:recognitionHint "Letzter Abschnitt jedes Aufgabenbereichs (5.1.4 5.2.3 5.3.3 5.4.3 5.5.3) – Aufzählungspunkte mit Beispiel und Erläuterung"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "PRAXISIMPULSE" ;
+    cur:verified false .
+
+elem:re-DE-HH-51bd26ae2cdf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 27"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Titel klingt nach Zielkatalog – enthält jedoch Kompetenzbereiche und Richtungsziele"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel 3 mit Untertitel Kompetenzentwicklung anerkennen und anregen"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ziele pädagogischen Handelns" ;
+    cur:verified false .
+
+elem:re-DE-HH-5f88ffc8bc2b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 3-7"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vorlauf"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Einleitung" ;
+    cur:verified false .
+
+elem:re-DE-HH-6065afef75ee a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Diplomarbeit HAW 2008 S. 13 und S. 17"@de,
+        "Plangeneration laut Länderrecherche: 2005"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mathematik ;
+    cur:negativeHint "Kita-Flyer nennt Mathematik – Wortlaut 2012 nicht am Original geprüft"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Bildungsbereich 6 laut Diplomarbeit zu HBE 2005"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Mathematische Grunderfahrungen" ;
+    cur:verified false .
+
+elem:re-DE-HH-67aec6243cb5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:negativeHint "Gemeinsamer Rahmen der Länder steht nur im Literaturverzeichnis (S. 144) und nicht im Text"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Anhang"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Literaturverzeichnis" ;
+    cur:verified false .
+
+elem:re-DE-HH-72a1300b02c4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 37"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:negativeHint "Keine Überschrift und kein Kasten – Erkennung nur über Vornamen"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die pädagogische Fachkraft Zoya findet es wichtig, dass Kinder sich in der Kita nach ihren Bedürfnissen ausruhen können" ;
+    cur:recognitionHint "Erzählabsatz ohne Überschrift mit Vornamen im Fließtext der Abschnitte"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erzählvignette mit Vorname der Fachkraft" ;
+    cur:verified false .
+
+elem:re-DE-HH-73db5f6ea85a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 83"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:negativeHint "Beispiel enthält Namen und Erzählform – Erläuterung ist allgemeine Begründung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Beispiel: Max hat in 6 Wochen seinen 3. Geburtstag." ;
+    cur:recognitionHint "Marker zu Beginn eines Absatzes in Praxisimpulsen und Kap. 7"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erläuterung:" ;
+    cur:verified false .
+
+elem:re-DE-HH-761195098b0c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 79-83"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation,
+        elem:Handlungsfeld ;
+    cur:negativeHint "Beobachtungsverfahren nur beispielhaft genannt (Bildungs- und Lerngeschichten Fußnote 37)"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Pädagogische Fachkräfte dokumentieren fortlaufend die Entwicklung jedes einzelnen Kindes" ;
+    cur:recognitionHint "Abschnitt 5.1"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Dialogisch beobachten, erkunden und dokumentieren" ;
+    cur:verified false .
+
+elem:re-DE-HH-788cf8fef521 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 5"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Verzeichnis ;
+    cur:negativeHint "Gemeinsamer Rahmen der Länder steht nur im Literaturverzeichnis (S. 144) und nicht im Text"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Anhang"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Glossar" ;
+    cur:verified false .
+
+elem:re-DE-HH-87a40e2c1524 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 83"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Praxisbeispiel ;
+    cur:negativeHint "Beispiel enthält Namen und Erzählform – Erläuterung ist allgemeine Begründung"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Beispiel: Max hat in 6 Wochen seinen 3. Geburtstag." ;
+    cur:recognitionHint "Marker zu Beginn eines Absatzes in Praxisimpulsen und Kap. 7"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiel:" ;
+    cur:verified false .
+
+elem:re-DE-HH-901121e03add a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 8-9"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:p-kinderschutz ;
+    cur:negativeHint "Kein eigenes Leitmotiv – im engeren Sinne in Bildungsbereichen Körper | Bewegung und Gesundheit und Digitale Medienbildung sowie Kap. 7 und 8 aufgegriffen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kinderschutz ist ein gesamtgesellschaftlicher Auftrag" ;
+    cur:recognitionHint "Unterüberschrift im Leitmotiv Kinderrechte"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kinderschutz" ;
+    cur:verified false .
+
+elem:re-DE-HH-95fd89432a49 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 101-105"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt 5.5"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungsreiche Räume gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HH-a3e042adf64a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 3 und Landesrahmenvertrag Textversion S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2005 | 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan ;
+    cur:negativeHint "Titel enthält Tageseinrichtungen statt Kitas – daran von HHBL 2024 unterscheidbar"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Volltitel der Vorgängerfassung"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hamburger Bildungsempfehlungen für die Bildung und Erziehung von Kindern in Tageseinrichtungen" ;
+    cur:verified false .
+
+elem:re-DE-HH-a74d28d45fd4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 62"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-digitale-technologien,
+        elem:f-medien ;
+    cur:negativeHint "Abschnitt 4.5.4 nennt Medienbildung einen neuen Bildungsbereich"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Digitale Medien aktiv und produktiv nutzen, Informationen kritisch hinterfragen (Leitsatz)" ;
+    cur:recognitionHint "Kopfzeile BILDUNGSBEREICH – Nummer 4.5"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Digitale Medienbildung" ;
+    cur:verified false .
+
+elem:re-DE-HH-b3e6890816a2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 90-95"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt 5.3"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregende Bedingungen für Spiele der Kinder gestalten und Konflikte begleiten" ;
+    cur:verified false .
+
+elem:re-DE-HH-b66e1b9bf00a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 3-7"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Einleitung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Vorlauf"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vorwort" ;
+    cur:verified false .
+
+elem:re-DE-HH-cd3cd11d46da a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 12-20"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:positiveExample "Bildung ist konsequent inklusiv" ;
+    cur:recognitionHint "Kapitel 1 mit sieben Aussagen Bildung ist …"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zum Bildungsverständnis" ;
+    cur:verified false .
+
+elem:re-DE-HH-d1b1f26d2080 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 96-100"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "Gleichlautend mit 1.2 Bildung ist entdeckendes und forschendes Lernen"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Abschnitt 5.4"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Entdeckendes und forschendes Lernen mit Kindern" ;
+    cur:verified false .
+
+elem:re-DE-HH-e44b2ceb6f96 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-abb1a65ac887-HH"@de,
+        "Länderrecherche, Beleg E: HHBL-PDF S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bne ;
+    cur:negativeHint "Kein eigener Bildungsbereich – vertieft im Bildungsbereich Natur – Umwelt – Technik und in 1.6"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Das Leitmotiv BNE durchzieht die Hamburger Bildungsleitlinien" ;
+    cur:recognitionHint "Großbuchstaben-Überschrift im Kapitel Leitmotive – Wortlaut mit eine"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "BILDUNG FÜR EINE NACHHALTIGE ENTWICKLUNG (BNE)" ;
+    cur:verified false .
+
+elem:re-DE-HH-f4b4fd1154e0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HHBL-PDF S. 4 und S. 6 und S. 22"@de,
+        "Plangeneration laut Länderrecherche: 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kapitel 2 zur Planung und Reflexion"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogisch mit Kindern arbeiten" ;
+    cur:verified false .
+
+elem:re-DE-HH-fe0ce2f2e834 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HH.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Diplomarbeit HAW 2008 S. 11-13 und Flyer Kita Verheißung S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2005 | 2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:negativeHint "In HHBL 2024 abgelöst durch Aufgaben der pädagogischen Fachkräfte"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kapitel der Vorgängerfassungen mit Qualitätskriterien je Aufgabe"@de ;
+    cur:scopeRegion land:DE-HH ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Pädagogisch-methodische Aufgaben" ;
+    cur:verified false .
+

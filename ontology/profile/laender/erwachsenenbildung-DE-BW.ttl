@@ -1,0 +1,41 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix eb: <https://w3id.org/wlo/curriculum/profile/adult-education#> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+eb:Terminology cur:hasCue eb:re-DE-BW-04759557179f,
+        eb:re-DE-BW-4e0484b95dd6 .
+
+eb:re-DE-BW-04759557179f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Bildungsserver BW | RP Stuttgart Seite Weiterbildungseinrichtung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo eb:dt-D12 ;
+    cur:negativeHint "Nicht zu verwechseln mit dem Bildungszeitgesetz."@de ;
+    cur:positiveExample "Anerkannte Träger der Weiterbildung i. S. v. § 2, 5 WBiFöG" ;
+    cur:recognitionHint "Weiterbildungsförderung für anerkannte Träger einschließlich Volkshochschulen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Gesetz zur Förderung der Weiterbildung und des Bibliothekswesens" ;
+    cur:verified false .
+
+eb:re-DE-BW-4e0484b95dd6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/05A-eb-laender.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: § 9 BzG BW | Bestätigungsschreiben vhs Karlsruhe (Bild-PDF nur über Suchtreffer)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo eb:rc-bildungsfreistellung ;
+    cur:negativeHint "Keine Veranstaltungsanerkennung. Gütesiegel erforderlich."@de ;
+    cur:positiveExample "anerkannte Bildungseinrichtung nach dem Bildungszeitgesetz Baden-Württemberg" ;
+    cur:recognitionHint "Träger führt die Anerkennung nach dem Gesetz selbst"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "anerkannte Bildungseinrichtung" ;
+    cur:verified false .
+

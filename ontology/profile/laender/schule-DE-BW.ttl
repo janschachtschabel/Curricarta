@@ -1,0 +1,450 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-BW-19b2703ceeef,
+        schul:re-DE-BW-1be4c0a96914,
+        schul:re-DE-BW-22775fa4bad9,
+        schul:re-DE-BW-23c95dbc549f,
+        schul:re-DE-BW-3177a2308a5d,
+        schul:re-DE-BW-36b675ade1ff,
+        schul:re-DE-BW-3b4f21c26a76,
+        schul:re-DE-BW-3b6136869623,
+        schul:re-DE-BW-3e8baecec5ef,
+        schul:re-DE-BW-45a5a3c867ac,
+        schul:re-DE-BW-4b979eb48f84,
+        schul:re-DE-BW-4fbf740a82e3,
+        schul:re-DE-BW-5b43f1d95e02,
+        schul:re-DE-BW-81df823c0f01,
+        schul:re-DE-BW-8c5b5ad659e3,
+        schul:re-DE-BW-91b4cde21443,
+        schul:re-DE-BW-940137751095,
+        schul:re-DE-BW-94065334abb6,
+        schul:re-DE-BW-ac3017cc1dc3,
+        schul:re-DE-BW-b7743c17b52b,
+        schul:re-DE-BW-b86c82b961f6,
+        schul:re-DE-BW-c5e2cc92f496,
+        schul:re-DE-BW-c7daa62a1871,
+        schul:re-DE-BW-d276d61ba04a,
+        schul:re-DE-BW-e20b5b4afb55,
+        schul:re-DE-BW-e8cd275f4eda,
+        schul:re-DE-BW-ea699213c41c,
+        schul:re-DE-BW-fa5865c464b0,
+        schul:re-DE-BW-fc4e100883ca,
+        schul:re-DE-BW-fe02ce0b40af .
+
+schul:re-DE-BW-19b2703ceeef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q3 S.48 | Q11 PDF-S.2 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: BMB; markiert: Fächerkürzel im Anhang (Fach Klasse 5)"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basiskurs Medienbildung" ;
+    cur:verified false .
+
+schul:re-DE-BW-1be4c0a96914 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030176"@de,
+        "Länderrecherche, Beleg E: Q3 S.46"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Wortlaut „desselben Fachplans“ (nicht „Fachs“)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Verweis auf andere Standards für inhaltsbezogene Kompetenzen desselben Fachplans" ;
+    cur:recognitionHint "Legendezeile"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verweis auf andere Standards für inhaltsbezogene Kompetenzen desselben Fachplans" ;
+    cur:verified false .
+
+schul:re-DE-BW-22775fa4bad9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030114"@de,
+        "Länderrecherche, Beleg E: Q1 Gliederung"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Nur Plural als Überschrift gesehen. Nicht Aussageart Experiment/Versuch"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.1.6 Experimente" ;
+    cur:recognitionHint "Gliederungsebene 3.1.6 beziehungsweise 3.2.6 gleichrangig mit den Bereichen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Experimente" ;
+    cur:verified false .
+
+schul:re-DE-BW-23c95dbc549f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "Kürzel oder Symbol: keine (kein Marker im Fachplan gesehen); markiert: Eigenes Dokument. Link auf der Seite Leitperspektiven"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitfaden Demokratiebildung (LFDB)" ;
+    cur:verified false .
+
+schul:re-DE-BW-3177a2308a5d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "sehr gut (1)" ;
+    cur:verified false .
+
+schul:re-DE-BW-36b675ade1ff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ungenügend (6)" ;
+    cur:verified false .
+
+schul:re-DE-BW-3b4f21c26a76 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q2 Gliederung"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Erster Bereich in jedem Doppeljahrgang. Physikspezifisch"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.2.1 Denk- und Arbeitsweisen der Physik" ;
+    cur:recognitionHint "Nummer 3.x.1 in jedem Physik-Abschnitt"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Denk- und Arbeitsweisen der Physik" ;
+    cur:verified false .
+
+schul:re-DE-BW-3b6136869623 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Kultusministerium BW Lernentwicklungsbericht Gemeinschaftsschule | KM-BW Gemeinschaftsschule Broschüre 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bw-E ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "E (erweitertes Niveau)" ;
+    cur:verified false .
+
+schul:re-DE-BW-3e8baecec5ef a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q9/G"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhaltsbereich ;
+    cur:negativeHint "Geschichtsspezifisch"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.1.0 Orientierung in der Zeit" ;
+    cur:recognitionHint "Bereich 3.x.0 in jedem Abschnitt"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Orientierung in der Zeit" ;
+    cur:verified false .
+
+schul:re-DE-BW-45a5a3c867ac a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Werkrealschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-BW-4b979eb48f84 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q3 PDF-S.2"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Gilt schulartübergreifend und niveaudifferenzierend. Nicht ein Plan je Schulart"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "LPH 2/2016 Gemeinsamer Bildungsplan der Sekundarstufe I. Reihe S Nr. 1" ;
+    cur:recognitionHint "Reihe S"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gemeinsamer Bildungsplan der Sekundarstufe I" ;
+    cur:verified false .
+
+schul:re-DE-BW-4fbf740a82e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "mangelhaft (5)" ;
+    cur:verified false .
+
+schul:re-DE-BW-5b43f1d95e02 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q3 S.4 und S.47 | Q1/IK/3-4/01_01"@de,
+        "Länderrecherche, Beleg E: Q3 S.47"@de,
+        "Länderrecherche, Beleg E: Q3 S.47 | Q1/IK/3-4/01_01"@de,
+        "Länderrecherche, Beleg E: Q3 S.47 | Q6"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:ConsumerEducation,
+        qz:DigitalWorld,
+        qz:Diversity,
+        qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: BNE; markiert: Leitgedanken „Beitrag des Faches zu den Leitperspektiven“ | Verweiszeile unter der Teilkompetenz (Symbol plus Kürzel plus Themenbereich)| Web-Code BNE_07"@de,
+        "Kürzel oder Symbol: BO; markiert: wie BNE"@de,
+        "Kürzel oder Symbol: BTV; markiert: wie BNE"@de,
+        "Kürzel oder Symbol: MB; markiert: wie BNE"@de,
+        "Kürzel oder Symbol: PG; markiert: wie BNE. Web-Code PG_02"@de,
+        "Kürzel oder Symbol: VB; markiert: wie BNE"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leitperspektiven im Bildungsplan 2016" ;
+    cur:verified false .
+
+schul:re-DE-BW-81df823c0f01 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-BW-8c5b5ad659e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q7 S.2"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: keine; markiert: Eigenes Fach. Inkraftsetzung 01.08.2027 geplant"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Informatik und Medienbildung" ;
+    cur:verified false .
+
+schul:re-DE-BW-91b4cde21443 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Realschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-BW-940137751095 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q3 S.50"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Fachbegriff ;
+    cur:negativeHint "In modernen Fremdsprachenplänen kursiv für fremdsprachliche Ausdrücke (Q5 5.4)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Fachbegriffe die kursiv geschrieben sind sind im Unterricht verbindlich" ;
+    cur:recognitionHint "Kursiv gesetzte Fachbegriffe sind im Unterricht verbindlich. Nicht kursive nur für die Lehrkraft"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "kursiv" ;
+    cur:verified false .
+
+schul:re-DE-BW-94065334abb6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Basisfach" ;
+    cur:verified false .
+
+schul:re-DE-BW-ac3017cc1dc3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Q12 Folie 2 (S)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: U+F0E8 (Wingdings-Pfeil im Textlayer); markiert: Folie „Leitperspektiven“ des Fachs Latein"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "Allgemeine Leitperspektiven (Ziele laut Fortbildungsfolie)" ;
+    cur:verified false .
+
+schul:re-DE-BW-b7743c17b52b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "gut (2)" ;
+    cur:verified false .
+
+schul:re-DE-BW-b86c82b961f6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q3 PDF-S.2"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_alt ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der vorliegende Fachplan Mathematik ist als Heft Nr. 17 (Pflichtbereich) Bestandteil des Bildungsplans des Gymnasiums" ;
+    cur:recognitionHint "„Der vorliegende Fachplan Mathematik ist als Heft Nr. 17 (Pflichtbereich) Bestandteil des Bildungsplans des Gymnasiums“"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachplan" ;
+    cur:verified false .
+
+schul:re-DE-BW-c5e2cc92f496 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-vw-bw-pifl"@de,
+        "Länderrecherche, Beleg E: Q3 S.16 und S.46"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Die Buchstaben P I F L der Vorliste kommen nicht vor. Web zeigt Codes wie „BP2016BW_ALLG_GYM_PH_PK_02_01“"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "(a) 2.1 Argumentieren und Beweisen 1, 2 (b) 3.1.4 Leitidee Funktionaler Zusammenhang (1), (2) (c) BNT 3.1.1 Denk- und Arbeitsweisen der Naturwissenschaften und der Technik (d) MB Produktion und Präsentation" ;
+    cur:recognitionHint "Vier Symbole als Grafik ohne Textlayer-Zeichen (führendes U+0020). Dahinter Text: (a) Nummer plus Titel plus Ziffern (b) Nummer plus Leitidee plus (n) (c) Fächerkürzel plus Nummer plus Titel (d) Leitperspektiven-Kürzel plus Themenbereich"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verweis (Symbol plus Text)" ;
+    cur:verified false .
+
+schul:re-DE-BW-c7daa62a1871 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Kultusministerium BW Lernentwicklungsbericht Gemeinschaftsschule | KM-BW Gemeinschaftsschule Broschüre 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bw-M ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "M (mittleres Niveau)" ;
+    cur:verified false .
+
+schul:re-DE-BW-d276d61ba04a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q9/M | Q9/D | Q2"@de,
+        "Plangeneration laut Länderrecherche: BP2016 Webfassung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "Physik zusätzlich Basisfach mit Schwerpunkt Quantenphysik beziehungsweise Astrophysik"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.4 Klassen 11/12 (Leistungsfach)" ;
+    cur:recognitionHint "Klammerzusatz am Abschnitt „Klassen 11/12“"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basisfach" ;
+    cur:verified false .
+
+schul:re-DE-BW-e20b5b4afb55 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002059"@de,
+        "Länderrecherche, Beleg E: Q3 S.1 und S.16"@de,
+        "Plangeneration laut Länderrecherche: BP2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:sk-content ;
+    cur:negativeHint "Hauptabschnitt und kein Inhaltsbereich. Inhaltsbereiche sind die Leitideen beziehungsweise Bereiche darunter"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3. Standards für inhaltsbezogene Kompetenzen > 3.1 Klassen 5/6" ;
+    cur:recognitionHint "Hauptabschnitt 3 mit Unterabschnitten nach Doppeljahrgängen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Standards für inhaltsbezogene Kompetenzen" ;
+    cur:verified false .
+
+schul:re-DE-BW-e8cd275f4eda a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg S: Kultusministerium BW Lernentwicklungsbericht Gemeinschaftsschule | KM-BW Gemeinschaftsschule Broschüre 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bw-G ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.6 ;
+    cur:surfaceForm "G (grundlegendes Niveau)" ;
+    cur:verified false .
+
+schul:re-DE-BW-ea699213c41c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Q9/M | Q9/D | Q2"@de,
+        "Plangeneration laut Länderrecherche: BP2016 Webfassung"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:negativeHint "Physik zusätzlich Basisfach mit Schwerpunkt Quantenphysik beziehungsweise Astrophysik"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.4 Klassen 11/12 (Leistungsfach)" ;
+    cur:recognitionHint "Klammerzusatz am Abschnitt „Klassen 11/12“"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungsfach" ;
+    cur:verified false .
+
+schul:re-DE-BW-fa5865c464b0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "ausreichend (4)" ;
+    cur:verified false .
+
+schul:re-DE-BW-fc4e100883ca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Leistungsfach" ;
+    cur:verified false .
+
+schul:re-DE-BW-fe02ce0b40af a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07A-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: NVO § 5 Abs. 1 Text lexaris.de und lehrerfortbildung-bw.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "befriedigend (3)" ;
+    cur:verified false .
+

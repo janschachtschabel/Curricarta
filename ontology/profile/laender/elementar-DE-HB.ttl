@@ -1,0 +1,571 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix elem: <https://w3id.org/wlo/curriculum/profile/early-childhood#> .
+@prefix kd: <https://w3id.org/wlo/curriculum/dimension/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+elem:Terminology cur:hasCue elem:re-DE-HB-08c72853d619,
+        elem:re-DE-HB-0b1082e4a749,
+        elem:re-DE-HB-0b3093112e5a,
+        elem:re-DE-HB-0ea5abd0cf3c,
+        elem:re-DE-HB-122230ceb384,
+        elem:re-DE-HB-1a242688135c,
+        elem:re-DE-HB-23c5dd661b41,
+        elem:re-DE-HB-24afb15596a7,
+        elem:re-DE-HB-28a673b6843a,
+        elem:re-DE-HB-3122de1bcf8f,
+        elem:re-DE-HB-45fb4d757fc3,
+        elem:re-DE-HB-464b219a67a4,
+        elem:re-DE-HB-473b15fff1fc,
+        elem:re-DE-HB-4ca9d38d8ccc,
+        elem:re-DE-HB-4d1e8ece5006,
+        elem:re-DE-HB-52b87a3ca727,
+        elem:re-DE-HB-63aa08ce6f7e,
+        elem:re-DE-HB-644009d690c8,
+        elem:re-DE-HB-6557d920b339,
+        elem:re-DE-HB-6c38057d2681,
+        elem:re-DE-HB-9847ca958641,
+        elem:re-DE-HB-98b863727b26,
+        elem:re-DE-HB-9c48e46540e3,
+        elem:re-DE-HB-ac2999d73f29,
+        elem:re-DE-HB-ba1f5c3dc6df,
+        elem:re-DE-HB-bb7dce16ca3a,
+        elem:re-DE-HB-c5cef7e47887,
+        elem:re-DE-HB-d208f47673d6,
+        elem:re-DE-HB-df07a9734c44,
+        elem:re-DE-HB-dfcd8f7bdbf7,
+        elem:re-DE-HB-e1fe8a6fc420,
+        elem:re-DE-HB-e771461f21d0,
+        elem:re-DE-HB-ef75c29223c9,
+        elem:re-DE-HB-f1f8d03ef6aa,
+        elem:re-DE-HB-f8249138287d .
+
+elem:re-DE-HB-08c72853d619 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 7"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 9"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Institutionelle Übergänge gestalten und begleiten" ;
+    cur:verified false .
+
+elem:re-DE-HB-0b1082e4a749 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 7"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-zusammenarbeit-familie ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 8"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungspartnerschaften mit Eltern gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HB-0b3093112e5a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 37"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang,
+        elem:p-uebergaenge ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.9"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Übergänge schaffen" ;
+    cur:verified false .
+
+elem:re-DE-HB-0ea5abd0cf3c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 12-15"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundsatz ;
+    cur:negativeHint "Nicht dasselbe wie Pädagogische Grundprinzipien des Gemeinsamen Rahmens"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 2.2 mit fachspezifischen Prinzipien (Sprache: Handlungsorientierung und Eigenaktivität | Lernen in bedeutsamen Kontexten und im sozialen Austausch | Über Sprache sprechen - Wirkung und Funktion von Sprache reflektieren | Sprachbewusstheit und Mehrsprachigkeit)"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Gestaltungsprinzipien" ;
+    cur:verified false .
+
+elem:re-DE-HB-122230ceb384 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sport S. 3-4 (Deckblatt nur per Suchtreffer)"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-bewegung,
+        elem:f-koerper ;
+    cur:negativeHint "Name auch „Bewegung und Sport“"@de ;
+    cur:occursIn cv:occ_titlePage,
+        cv:occ_toc ;
+    cur:recognitionHint "Inhaltsverzeichnis „Bildungsbereich Bewegung und Sport“"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bewegung / Sport" ;
+    cur:verified false .
+
+elem:re-DE-HB-1a242688135c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 3, 6-7"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-sprechen-zuhoeren ;
+    cur:negativeHint "„Kompetenzbereich“ ist hier Teilbereich eines Faches"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.1 und 4.1 (prozessbezogener Kompetenzbereich)"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprechen und Zuhören" ;
+    cur:verified false .
+
+elem:re-DE-HB-23c5dd661b41 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 3"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-bindung-beziehung ;
+    cur:negativeHint "Handlungsfeld, kein Bildungsbereich"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 1"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beziehung und Zugehörigkeit gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HB-24afb15596a7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 12"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Kein verbindlicher Kanon von Kompetenzen (Text 4.3)"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 4.3, Personale und Soziale Kompetenzen"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kernkompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HB-28a673b6843a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 11"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-learning ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernmethodische Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HB-3122de1bcf8f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 14 und weitere"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Aufgabenabschnitt je Bildungsbereich"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterstützung der Selbstbildung" ;
+    cur:verified false .
+
+elem:re-DE-HB-45fb4d757fc3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 3"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-groessen-messen ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.2"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Größen und Messen" ;
+    cur:verified false .
+
+elem:re-DE-HB-464b219a67a4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu elem:lex-cfa2bdd1a5c8-HB"@de,
+        "Länderrecherche, Beleg E: BP Sprache S. 1, Erlass 3/2025 S. 1"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:dt-Bildungsplan-0-10 ;
+    cur:negativeHint "Hier erscheinen Pläne bereichsweise als fünf Dokumente, jedes mit Kita- und Grundschulteil"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan für den Elementar- und Primarbereich" ;
+    cur:recognitionHint "Deckblatt jedes Fachplans, Erlass sagt „Bildungsplan 0-10 Jahre“"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan 0 bis 10 im Land Bremen" ;
+    cur:verified false .
+
+elem:re-DE-HB-473b15fff1fc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 19"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Inhalt ;
+    cur:negativeHint "Keine „Das Kind…“-Sätze - Aktivitäten ohne Subjekt"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "akustische Signale beachten (z. B. Klangschale als Signal für Ruhe)" ;
+    cur:recognitionHint "Infinitiv-Aufzählung mit „X“ je Altersspalte"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aktivitäten/Lerngelegenheiten und Inhalte" ;
+    cur:verified false .
+
+elem:re-DE-HB-4ca9d38d8ccc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 31"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Handlungsfeld ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6 mit 6.1 bis 6.9"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Arbeit der Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-HB-4d1e8ece5006 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Ästhetische Bildung S. 1, Erlass S. 1"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-aesthetik ;
+    cur:negativeHint "Titelvariante Reihenfolge Musik/Kunst"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Erlass nennt „Ästhetische Bildung/Kunst, Musik, Darstellendes Spiel“" ;
+    cur:recognitionHint "Deckblatt"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Ästhetische Bildung / Musik, Kunst und Darstellendes Spiel" ;
+    cur:verified false .
+
+elem:re-DE-HB-52b87a3ca727 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 43"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Kompetenzbeschreibung ;
+    cur:negativeHint "Nur Grundschule und verbindlich - nicht dasselbe wie Erwartungsniveaus lvl:att-*"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "verfolgen Gespräche und Hörtexte, hören sinnverstehend zu und fragen gezielt nach" ;
+    cur:recognitionHint "Kap. 4, Tabelle Jg. 2 und Jg. 4, Zeilenanfang „Die Schüler:innen…“"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Standards" ;
+    cur:verified false .
+
+elem:re-DE-HB-63aa08ce6f7e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 4"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-kinderrechte,
+        elem:p-kinderschutz ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 3"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kindeswohl sichern, Kinderrechte stärken und schützen" ;
+    cur:verified false .
+
+elem:re-DE-HB-644009d690c8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 3"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-zahlen-operationen ;
+    cur:negativeHint "Leitidee"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.1"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Menge, Zahl und Operation" ;
+    cur:verified false .
+
+elem:re-DE-HB-6557d920b339 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 37"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Zusammenarbeit,
+        elem:p-zusammenarbeit-familie ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 6.8"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zusammenarbeit mit Eltern" ;
+    cur:verified false .
+
+elem:re-DE-HB-6c38057d2681 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 3"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-raum-form ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.3"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Raum und Form" ;
+    cur:verified false .
+
+elem:re-DE-HB-9847ca958641 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 12"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Aufgabe der pädagogischen Fachkräfte und Lehrkräfte ist es, Lernumgebungen von Anfang an … zu gestalten" ;
+    cur:recognitionHint "Aufgaben im Fließtext statt in Kasten"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Aufgabe der pädagogischen Fachkräfte und Lehrkräfte ist es" ;
+    cur:verified false .
+
+elem:re-DE-HB-98b863727b26 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 11"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-motivation ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Motivationale Einstellungen" ;
+    cur:verified false .
+
+elem:re-DE-HB-9c48e46540e3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 1"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-sprache ;
+    cur:negativeHint "Bereich in der Kita, Fach in der Grundschule - Doppelname mit Schrägstrich"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan für den Elementar- und Primarbereich" ;
+    cur:recognitionHint "Deckblatt"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprachliche Bildung / Deutsch" ;
+    cur:verified false .
+
+elem:re-DE-HB-ac2999d73f29 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 12"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Uebergang ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 2.1"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anschlussfähiges sprachliches Lernen gestalten" ;
+    cur:verified false .
+
+elem:re-DE-HB-ba1f5c3dc6df a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 2-3"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Grundlagen ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Handlungsfelder 1-12"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Pädagogische Leitideen" ;
+    cur:verified false .
+
+elem:re-DE-HB-bb7dce16ca3a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 5"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-diversitaet ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 4"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Soziale und kulturelle Identität stärken" ;
+    cur:verified false .
+
+elem:re-DE-HB-c5cef7e47887 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 11"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:Basiskompetenzen ;
+    cur:negativeHint "Aus dem Hamburger IfBQ übernommen"@de ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_tableHeader ;
+    cur:recognitionHint "Tabelle mit vier Bereichen"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Überfachliche Kompetenzen" ;
+    cur:verified false .
+
+elem:re-DE-HB-d208f47673d6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 2-3"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-mathematik ;
+    cur:negativeHint "Doppelname Bereich/Fach"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:recognitionHint "Deckblatt"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mathematische Bildung / Mathematik" ;
+    cur:verified false .
+
+elem:re-DE-HB-df07a9734c44 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 4"@de,
+        "Plangeneration laut Länderrecherche: Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:p-partizipation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Handlungsfeld 2"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Persönlichkeit fördern und eine Partizipationskultur aufbauen" ;
+    cur:verified false .
+
+elem:re-DE-HB-dfcd8f7bdbf7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 3"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-daten-zufall ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.4"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Daten und Zufall" ;
+    cur:verified false .
+
+elem:re-DE-HB-e1fe8a6fc420 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 3, 9"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:f-sprachbetrachtung ;
+    cur:occursIn cv:occ_heading,
+        cv:occ_toc ;
+    cur:recognitionHint "Kap. 3.5 und 4.5"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Sprache und Sprachgebrauch untersuchen" ;
+    cur:verified false .
+
+elem:re-DE-HB-e771461f21d0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Leitideen Kurzfassung S. 4 | Rahmenplan 2012 gedr. S. 29"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004 | Leitideen 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:FachkraftAufgabe ;
+    cur:negativeHint "Dritte Person, keine Anrede"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Pädagogischen Fachkräfte begegnen den Kindern und ihren Bezugspersonen empathisch und vertrauensvoll" ;
+    cur:recognitionHint "Aufzählungen unter „Unterstützung der Selbstbildung“ im Rahmenplan, Absätze in den Leitideen"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Pädagogischen Fachkräfte" ;
+    cur:verified false .
+
+elem:re-DE-HB-ef75c29223c9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Rahmenplan 2012 gedr. S. 12"@de,
+        "Plangeneration laut Länderrecherche: Rahmenplan 2004"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo kd:ec-learning ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 4.4"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernen des Lernens" ;
+    cur:verified false .
+
+elem:re-DE-HB-f1f8d03ef6aa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Sprache S. 15-17"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo elem:BeobachtungDokumentation ;
+    cur:occursIn cv:occ_heading ;
+    cur:recognitionHint "Kap. 2.3"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beobachten, dokumentieren, rückmelden und beurteilen" ;
+    cur:verified false .
+
+elem:re-DE-HB-f8249138287d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/02-elementar-DE-HB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BP Mathematik S. 7"@de,
+        "Plangeneration laut Länderrecherche: BP 0-10 (2025)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo elem:f-muster-strukturen ;
+    cur:negativeHint "Leitidee ohne Kap.-3-Abschnitt"@de ;
+    cur:occursIn cv:occ_body,
+        cv:occ_box ;
+    cur:recognitionHint "nur in Abbildung 2 (Leitideen) erkennbar, kein eigener Abschnitt in Kap. 3"@de ;
+    cur:scopeRegion land:DE-HB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Muster, Strukturen und funktionaler Zusammenhang" ;
+    cur:verified false .
+

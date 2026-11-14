@@ -1,0 +1,137 @@
+<script setup lang="ts">
+/**
+ * The editor of a row of a document's tree (plan M1 9.8, Paket 9c2 K4-K7): its form (RowForm) and how a save
+ * went (rowSave.ts) - saved, nothing to save, a change met another (ConflictPanel, the keyboard taken there),
+ * a field's problem (the keyboard to the field), a failure above the form. Where the tree closed meanwhile it
+ * says why and keeps the draft to copy, with no form left to save it - so too where the tree, read anew,
+ * closed under the draft (`closedBy`). It tells the view whether a draft is open (the leave guard; none once
+ * it is gone) and when a save changed the tree, closed it or found the row gone. A statement's anchors stand
+ * in its form (AnchorDraftList, Paket 9c2b L3); one chosen in the source comes by `addAnchor`, while the form
+ * is there to save it.
+ */
+import { computed, nextTick, onBeforeUnmount, ref, toRef, watch } from "vue";
+
+import { ANCHORS, heldAnchors, type AnchorTaking } from "@/anchorDraft";
+import type { Form } from "@/api";
+import AnchorDraftList from "@/components/AnchorDraftList.vue";
+import AppIcon from "@/components/AppIcon.vue";
+import ClosedDraft from "@/components/ClosedDraft.vue";
+import ConflictPanel from "@/components/ConflictPanel.vue";
+import NoticeText from "@/components/NoticeText.vue";
+import RowForm from "@/components/RowForm.vue";
+import type { Row } from "@/documentTree";
+import { t } from "@/i18n/de";
+import { sayAnew } from "@/liveRegion";
+import { useRowSave, type SaveOutcome } from "@/rowSave";
+
+const props = defineProps<{
+  row: Row;
+  form: Form;
+  /** Why the tree, read anew, closed while a draft was open; none while it is open. */
+  closedBy?: string | null;
+  /**
+   * A change saved. A prop, not an event: a save that lands after another row was chosen - this editor
+   * unmounted meanwhile, its events no longer heard - still has the tree read anew.
+   */
+  onSaved?: () => void;
+}>();
+const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boolean] }>();
+
+const editing = useRowSave(toRef(props, "row"), toRef(props, "form"));
+const { fields, draft, saving, errors, problem, conflict, closed, changes, dirty } = editing;
+const status = ref("");
+const formRef = ref<InstanceType<typeof RowForm> | null>(null);
+const panel = ref<InstanceType<typeof ConflictPanel> | null>(null);
+const closedNotice = ref<InstanceType<typeof ClosedDraft> | null>(null);
+const anchorList = ref<InstanceType<typeof AnchorDraftList> | null>(null);
+// the tree closed: on this save, or under the draft as it was read anew
+const shut = computed(() => closed.value ?? props.closedBy ?? null);
+
+// a statement's anchors as its draft holds them; a node's draft holds none
+const anchors = computed(() => heldAnchors(draft.value));
+
+watch(dirty, (open) => emit("dirty", open), { immediate: true });
+
+/** Take an anchor chosen in the source into the draft - not once the tree closed on it, kept to copy. */
+function addAnchor(code: string): AnchorTaking {
+  if (shut.value) return "refused";
+  return editing.addAnchor(code) ? "taken" : "held";
+}
+
+defineExpose({ addAnchor });
+// gone with its row, its document or its tree: no draft left to ask about
+onBeforeUnmount(() => emit("dirty", false));
+
+async function submit(): Promise<void> {
+  const outcome = await editing.save();
+  await nextTick();
+  // said anew after each click, so that the same words are read again
+  const said: Partial<Record<SaveOutcome, string>> = {
+    saved: t("documents.tree.form.saved"),
+    unchanged: t("documents.tree.form.unchanged"),
+    undecided: t("documents.tree.conflict.undecided"),
+  };
+  const words = said[outcome];
+  status.value = words ? sayAnew(status.value, words) : "";
+  if (outcome === "saved") props.onSaved?.();
+  else if (outcome === "conflict" || outcome === "undecided") panel.value?.focus();
+  else if (outcome === "invalid") {
+    const first = Object.keys(errors.value)[0];
+    if (first === ANCHORS) anchorList.value?.focus();
+    else if (first) formRef.value?.focusField(first);
+  } else if (outcome === "closed" && closed.value) {
+    closedNotice.value?.focus();
+    emit("closed", closed.value);
+  } else if (outcome === "gone") emit("gone");
+}
+</script>
+
+<template>
+  <div class="row-editor">
+    <ClosedDraft
+      v-if="shut"
+      ref="closedNotice"
+      class="row-editor__closed"
+      :code="shut"
+      :fields="fields"
+      :changes="changes"
+    />
+    <template v-else>
+      <p v-if="problem" class="field__error row-editor__problem" role="alert">
+        <AppIcon name="warning" /> <NoticeText :notice="problem" />
+      </p>
+      <ConflictPanel
+        v-if="conflict"
+        ref="panel"
+        :fields="fields"
+        :clashes="conflict.clashes"
+        :taken="conflict.taken"
+        :stored="conflict.stored"
+        @keep="editing.keep"
+        @take="editing.take"
+      />
+      <RowForm ref="formRef" v-model="draft" :fields="fields" :errors="errors" :saving="saving" @submit="submit">
+        <AnchorDraftList
+          v-if="anchors"
+          ref="anchorList"
+          :codes="anchors"
+          :error="errors[ANCHORS] ?? null"
+          @remove="editing.removeAnchor"
+        />
+      </RowForm>
+    </template>
+    <!-- always in the page, so the first word is read out -->
+    <p class="row-editor__status" role="status">{{ status }}</p>
+  </div>
+</template>
+
+<style scoped>
+.row-editor {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.row-editor__status {
+  margin: 0;
+}
+</style>

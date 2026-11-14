@@ -1,0 +1,261 @@
+"""The ledger of the model's work (plan M1 5.5, Festlegungen "Kosten"; tables in migration 0016).
+
+Before a request is sent, ``reserve`` holds its tokens - its input as counted, its output up to
+the cap - from its account's budget, in one transaction under the lock of the account's quota
+row: requests side by side wait for each other, and each sums what the others booked and hold
+once they are done. What is left is the limit less both, summed anew each time, so there is no
+counter to drift from the rows. The tokens are charged weighed by their price (``Weights``,
+migration 0029): a reservation holds its input whole and its output weighed, and keeps the
+weights its booking charges by. ``book`` puts what the answer reports in the reservation's place;
+``book_abandoned`` books a job's open reservations as spent, estimated, since the provider may
+have charged for what was sent. Either takes a reservation once, whichever comes first.
+
+simplify: the sums read all of an account's rows for each request (one row a request, found by
+an index); a running total kept beside them would serve, should accounts come to hold millions.
+"""
+
+from dataclasses import dataclass, field
+from uuid import UUID
+
+import psycopg
+from psycopg.pq import TransactionStatus
+
+from app.core.metrics import observe_reservations
+from app.llm.metering import BudgetExhausted, Spent, Weights
+
+_READ_COMMITTED = "SELECT read_committed_alone('a reservation')"
+# No row is a limit of nothing; a row's NULL, no limit
+_LIMIT = "SELECT token_limit FROM quota WHERE account_id = %s FOR UPDATE"
+_TAKEN = """
+    SELECT (SELECT coalesce(sum(charged_tokens), 0) FROM llm_usage WHERE account_id = %(account)s)
+        + (SELECT coalesce(sum(charged_tokens), 0) FROM usage_reservation WHERE account_id = %(account)s)
+"""
+_HOLD = """
+    INSERT INTO usage_reservation (account_id, job_id, run_id, purpose, model, input_tokens, output_tokens,
+        cached_input_weight, output_weight)
+    VALUES (%(account)s, %(job)s, %(run)s, %(purpose)s, %(model)s, %(input)s, %(output)s, %(cached_weight)s,
+        %(output_weight)s)
+    RETURNING id
+"""
+# One statement: the reservation goes and its cost comes together, or neither; a request never
+# sent costs nothing and leaves no row
+_BOOK = """
+    WITH taken AS (
+        DELETE FROM usage_reservation WHERE id = %(id)s
+        RETURNING account_id, job_id, run_id, purpose, model, cached_input_weight, output_weight
+    ), booked AS (
+        INSERT INTO llm_usage (account_id, job_id, run_id, purpose, model, input_tokens, cached_input_tokens,
+            output_tokens, requests, unanswered_requests, estimated, cached_input_weight, output_weight)
+        SELECT account_id, job_id, run_id, purpose, model, %(input)s, %(cached)s, %(output)s, %(requests)s,
+            %(unanswered)s, %(estimated)s, cached_input_weight, output_weight
+        FROM taken WHERE %(spent)s
+    )
+    SELECT count(*) FROM taken
+"""
+# Held, a request may have been sent: it counts as one nobody answered
+_BOOK_ABANDONED = """
+    WITH taken AS (
+        DELETE FROM usage_reservation WHERE job_id = %s
+        RETURNING account_id, job_id, run_id, purpose, model, input_tokens, output_tokens,
+            cached_input_weight, output_weight
+    )
+    INSERT INTO llm_usage (account_id, job_id, run_id, purpose, model, input_tokens, cached_input_tokens,
+        output_tokens, requests, unanswered_requests, estimated, cached_input_weight, output_weight)
+    SELECT account_id, job_id, run_id, purpose, model, input_tokens, 0, output_tokens, 0, 1, true,
+        cached_input_weight, output_weight
+    FROM taken
+"""
+# The same for every job no attempt runs of: handed back after its lease ran out, or ended
+_BOOK_LEFT_BEHIND = """
+    WITH taken AS (
+        DELETE FROM usage_reservation r USING job j WHERE j.id = r.job_id AND j.status <> 'running'
+        RETURNING r.account_id, r.job_id, r.run_id, r.purpose, r.model, r.input_tokens, r.output_tokens,
+            r.cached_input_weight, r.output_weight
+    )
+    INSERT INTO llm_usage (account_id, job_id, run_id, purpose, model, input_tokens, cached_input_tokens,
+        output_tokens, requests, unanswered_requests, estimated, cached_input_weight, output_weight)
+    SELECT account_id, job_id, run_id, purpose, model, input_tokens, 0, output_tokens, 0, 1, true,
+        cached_input_weight, output_weight
+    FROM taken
+"""
+_LIMITS = "SELECT token_limit, page_limit FROM quota WHERE account_id = %s"
+_SET_LIMITS = """
+    INSERT INTO quota (account_id, token_limit, page_limit) VALUES (%(account)s, %(tokens)s, %(pages)s)
+    ON CONFLICT (account_id)
+    DO UPDATE SET token_limit = excluded.token_limit, page_limit = excluded.page_limit
+"""
+_COUNTS = """
+    SELECT spent.tokens, spent.estimated, held.tokens, pages.billable
+    FROM (
+        SELECT coalesce(sum(charged_tokens), 0)::bigint AS tokens,
+            coalesce(sum(charged_tokens) FILTER (WHERE estimated), 0)::bigint AS estimated
+        FROM llm_usage WHERE account_id = %(account)s
+    ) AS spent, (
+        SELECT coalesce(sum(charged_tokens), 0)::bigint AS tokens
+        FROM usage_reservation WHERE account_id = %(account)s
+    ) AS held, (
+        SELECT coalesce(sum(pages) FILTER (WHERE billable), 0)::bigint AS billable
+        FROM conversion_usage WHERE account_id = %(account)s
+    ) AS pages
+"""
+
+
+@dataclass(frozen=True)
+class Charge:
+    """Whom a request is charged to and what for: the account, the job that asks, its purpose
+    (the stage, ``x4``) and the model; the run, where a stage of the pipeline asks; the weights its
+    tokens are charged by (app/llm/client.py cost_weights), named always: none is taken for granted."""
+
+    account_id: UUID
+    job_id: UUID
+    purpose: str
+    model: str
+    run_id: UUID | None = None
+    weights: Weights = field(kw_only=True)
+
+
+@dataclass(frozen=True)
+class Reservation:
+    id: int
+
+
+@dataclass(frozen=True)
+class Usage:
+    """An account's limits (None: no limit) and what it spent - of the tokens, ``tokens_estimated``
+    booked as held for requests nobody answered - and holds for requests not yet answered; tokens
+    as they are charged, weighed by their price."""
+
+    token_limit: int | None
+    tokens_spent: int
+    tokens_held: int
+    tokens_estimated: int
+    page_limit: int | None
+    pages_spent: int  # of engines that cost
+
+    @property
+    def tokens_left(self) -> int | None:
+        """None for no limit; never below nothing, though an answer may cost more than was held."""
+        if self.token_limit is None:
+            return None
+        return max(0, self.token_limit - self.tokens_spent - self.tokens_held)
+
+    @property
+    def pages_left(self) -> int | None:
+        """None for no limit; never below nothing, though a conversion may book more than was left."""
+        if self.page_limit is None:
+            return None
+        return max(0, self.page_limit - self.pages_spent)
+
+
+async def reserve(
+    connection: psycopg.AsyncConnection, charge: Charge, input_tokens: int, output_tokens: int
+) -> Reservation:
+    """Hold ``input_tokens`` and ``output_tokens`` for a request of ``charge``, its output weighed
+    by the charge's weights; BudgetExhausted where what is left of the account's budget does not
+    hold both. In a transaction of its own, under read committed alone: repeatable read would sum
+    what was there when it began."""
+    _alone(connection, "a reservation")
+    async with connection.transaction():
+        await connection.execute(_READ_COMMITTED)
+        cursor = await connection.execute(_LIMIT, (charge.account_id,))
+        row = await cursor.fetchone()
+        limit = 0 if row is None else row[0]
+        if limit is not None:
+            cursor = await connection.execute(_TAKEN, {"account": charge.account_id})
+            taken = await cursor.fetchone()
+            assert taken is not None  # noqa: S101 - an aggregate always has its row
+            left = limit - int(taken[0])
+            asked = charge.weights.held(input_tokens, output_tokens)
+            if asked > left:
+                observe_reservations("refused")
+                raise BudgetExhausted(f"{asked} tokens asked, {max(0, left)} left")
+        cursor = await connection.execute(
+            _HOLD,
+            {
+                "account": charge.account_id,
+                "job": charge.job_id,
+                "run": charge.run_id,
+                "purpose": charge.purpose,
+                "model": charge.model,
+                "input": input_tokens,
+                "output": output_tokens,
+                "cached_weight": charge.weights.cached_input,
+                "output_weight": charge.weights.output,
+            },
+        )
+        held = await cursor.fetchone()
+    assert held is not None  # noqa: S101 - an INSERT … RETURNING returns its row
+    observe_reservations("held")
+    return Reservation(int(held[0]))
+
+
+async def book(connection: psycopg.AsyncConnection, reservation: Reservation, spent: Spent) -> bool:
+    """Book ``spent`` in the reservation's place, in a transaction of its own; False where it was
+    booked already (by ``book_abandoned``, for a job given up on), and nothing is booked again."""
+    _alone(connection, "a booking")
+    async with connection.transaction():
+        cursor = await connection.execute(
+            _BOOK,
+            {
+                "id": reservation.id,
+                "input": spent.input_tokens,
+                "cached": spent.cached_input_tokens,
+                "output": spent.output_tokens,
+                "requests": spent.requests,
+                "unanswered": spent.unanswered_requests,
+                "estimated": spent.estimated,
+                "spent": spent != Spent(),
+            },
+        )
+        row = await cursor.fetchone()
+    assert row is not None  # noqa: S101 - an aggregate always has its row
+    # counted once committed: a booking whose commit failed is asked again, and counts then
+    observe_reservations("booked" if row[0] else "late")
+    return bool(row[0])
+
+
+async def book_abandoned(connection: psycopg.AsyncConnection, job_id: UUID) -> int:
+    """Book the job's open reservations as spent and estimated, each a request nobody answered;
+    how many it took. In the caller's transaction: the one that ends the job, under its lease,
+    so that it takes no reservation of the job's next attempt. The caller counts them once that
+    commits (``observe_reservations``): a rollback takes the booking along."""
+    cursor = await connection.execute(_BOOK_ABANDONED, (job_id,))
+    return cursor.rowcount
+
+
+async def book_left_behind(connection: psycopg.AsyncConnection) -> int:
+    """Book the open reservations of every job that is not running as book_abandoned does; how many
+    it took. A job's end books its own (app/jobs/outcome.py); this takes what an attempt left when
+    its worker died or lost its lease - the job handed back, or ended without another attempt. A
+    job running holds its attempt's: those stay. A worker that lost its lease and answers later
+    finds its reservation booked (``book``, late). The caller counts them once its transaction
+    commits, as for book_abandoned."""
+    cursor = await connection.execute(_BOOK_LEFT_BEHIND)
+    return cursor.rowcount
+
+
+def _alone(connection: psycopg.AsyncConnection, what: str) -> None:
+    """ValueError for a connection inside a transaction: held to the caller's commit, the quota's
+    lock would stop the account's every other request, and a rollback after the request went out
+    would take what was held or booked for it along."""
+    if connection.info.transaction_status != TransactionStatus.IDLE:
+        raise ValueError(f"{what} is a transaction of its own, on a connection in none")
+
+
+async def set_quota(
+    connection: psycopg.AsyncConnection, account_id: UUID, *, token_limit: int | None, page_limit: int | None
+) -> None:
+    """Set the account's limits (None: no limit) in place of any before; the account exists."""
+    await connection.execute(_SET_LIMITS, {"account": account_id, "tokens": token_limit, "pages": page_limit})
+
+
+async def usage_of(connection: psycopg.AsyncConnection, account_id: UUID) -> Usage:
+    """What the account may spend, spent and holds; without a quota row its limits are nothing."""
+    cursor = await connection.execute(_LIMITS, (account_id,))
+    limits = await cursor.fetchone()
+    token_limit, page_limit = (0, 0) if limits is None else limits
+    cursor = await connection.execute(_COUNTS, {"account": account_id})
+    counts = await cursor.fetchone()
+    assert counts is not None  # noqa: S101 - aggregates always have their row
+    spent, estimated, held, pages = counts
+    return Usage(token_limit, spent, held, estimated, page_limit, pages)

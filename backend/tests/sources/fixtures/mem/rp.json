@@ -1,0 +1,80 @@
+{
+ "closure": [
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Wirkung Beobachtung Folge nutzen an Form auswerten Angabe ordnen für Gruppe sammeln nach...",
+   "grades": "",
+   "label": "Vorgang Muster",
+   "n": "https://example.org/mem/rp/t0001",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Abschnitt Ordnung Einheit bei sachgerecht prüfen Merkmal weitere zu Inhalt. Methode Antwort eigene auswerten sowie...",
+   "grades": "",
+   "label": "Antwort",
+   "n": "https://example.org/mem/rp/t0002",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Thema Darstellung Frage einfache planen über Zusammenhang mit eine Beobachtung. Folge sachgerecht Schritt (Form...",
+   "grades": "",
+   "label": "Begriff",
+   "n": "https://example.org/mem/rp/t0003",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Anordnung Angabe selbstständig Bereich die Vorgang darstellen Aufgabe vergleichen in Einheit planen. Verfahren beschreiben Merkmal...",
+   "grades": "",
+   "label": "Reihe",
+   "n": "https://example.org/mem/rp/t0004",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Merkmal Übersicht sammeln nach schrittweise Antwort das Skizze \"Thema\" selbstständig Frage die...",
+   "grades": "",
+   "label": "Grundlage",
+   "n": "https://example.org/mem/rp/t0005",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Zusammenhang Regel an Beobachtung auswerten Begriff ordnen für ihre sammeln Ergebnis schrittweise. Gruppe...",
+   "grades": "",
+   "label": "Bereich",
+   "n": "https://example.org/mem/rp/t0006",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "description": "Muster Aufgabe Abschnitt prüfen Einheit weitere zu gemeinsam nutzen an Tabelle auswerten sowie Antwort. Auswahl...",
+   "grades": "",
+   "label": "Inhalt",
+   "n": "https://example.org/mem/rp/t0007",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0000",
+   "grades": "",
+   "label": "ihre Folge",
+   "n": "https://example.org/mem/rp/t0008",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000349|https://w3id.org/lehrplan/ontology/LP_0000431"
+  },
+  {
+   "ancestors": "https://example.org/mem/rp/t0001|https://example.org/mem/rp/t0000",
+   "grades": "",
+   "label": "Beispiel mit Regel zeigen bei!",
+   "n": "https://example.org/mem/rp/t0009",
+   "types": "https://w3id.org/lehrplan/ontology/LP_0000261|https://w3id.org/lehrplan/ontology/LP_0000263|https://w3id.org/lehrplan/ontology/LP_0000342|https://w3id.org/lehrplan/ontology/LP_0000432"
+  }
+ ],
+ "endpoint": "https://sparql.mem.edufeed.org/sparql",
+ "graph": "https://w3id.org/lehrplan/rp",
+ "plan": "https://example.org/mem/rp/t0000",
+ "read_at": "2026-11-09",
+ "references": [],
+ "synthetic": true
+}

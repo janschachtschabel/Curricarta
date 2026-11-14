@@ -1,0 +1,445 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix beruf: <https://w3id.org/wlo/curriculum/profile/vocational#> .
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+beruf:Terminology cur:hasCue beruf:re-DE-BW-189af7cc1cbf,
+        beruf:re-DE-BW-2bb9014c69db,
+        beruf:re-DE-BW-2c2bbe1dc067,
+        beruf:re-DE-BW-4d4cab69308e,
+        beruf:re-DE-BW-5a950ba45222,
+        beruf:re-DE-BW-5fad1fe5d1a7,
+        beruf:re-DE-BW-6140b4b7c699,
+        beruf:re-DE-BW-6182bdb84854,
+        beruf:re-DE-BW-6f8f35caa2b6,
+        beruf:re-DE-BW-78a8f7685caa,
+        beruf:re-DE-BW-8099b5e15ee4,
+        beruf:re-DE-BW-8e8f900f5dc7,
+        beruf:re-DE-BW-9382a38a5897,
+        beruf:re-DE-BW-a1d2c8dd8bd8,
+        beruf:re-DE-BW-a33c2ef3293b,
+        beruf:re-DE-BW-a3d13e4f1ef9,
+        beruf:re-DE-BW-a64241c8dfea,
+        beruf:re-DE-BW-b38732bb291c,
+        beruf:re-DE-BW-b5c8e5721b2f,
+        beruf:re-DE-BW-b8e0a8efeeca,
+        beruf:re-DE-BW-cb5cd1b9e6cc,
+        beruf:re-DE-BW-e2ad694dd8f3,
+        beruf:re-DE-BW-eb79218ef434,
+        beruf:re-DE-BW-f1572cf9880d,
+        beruf:re-DE-BW-fbe5b159763a .
+
+beruf:re-DE-BW-189af7cc1cbf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 1 | SHK PDF-S. 1 | Hochbau PDF-S. 1 | Wirtschaftskompetenz PDF-S. 1"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan bis etwa 2019 und Bildungsplan ab 2016 für Allgemeine Fächer und ab 2023 für Berufe"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Titelwechsel Lehrplan zu Bildungsplan - Inhalt bleibt KMK-Rahmenlehrplan"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan für die Berufsschule Berufsausbildung in Hochbauberufen" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsplan für die Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-2bb9014c69db a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 2 | SHK PDF-S. 2 | Hochbau PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Titel von Teil II wechselt: Bildungsauftrag der Berufsschule (2018) und Bildungs- und Erziehungsauftrag (2023) - Wirtschaftskompetenz 2026 nennt Erziehungs- und Bildungsauftrag der Berufsschule"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil II Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:recognitionHint "römische Teile I bis IV vor Teil V"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil II Bildungsauftrag der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-2c2bbe1dc067 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 2 | SHK PDF-S. 2 | Hochbau PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Titel von Teil II wechselt: Bildungsauftrag der Berufsschule (2018) und Bildungs- und Erziehungsauftrag (2023) - Wirtschaftskompetenz 2026 nennt Erziehungs- und Bildungsauftrag der Berufsschule"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil II Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:recognitionHint "römische Teile I bis IV vor Teil V"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil I Vorbemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-BW-4d4cab69308e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 3 | SHK PDF-S. 3 | Hochbau PDF-S. 3 (Bildungsplan)"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Rahmenlehrplan ;
+    cur:negativeHint "Kein Erlass - Formel steht im Plan selbst"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der vorliegende Lehrplan entspricht dem Rahmenlehrplan für den berufsbezogenen Unterricht der Berufsschule" ;
+    cur:recognitionHint "Übernahmeformel in Teil I Vorbemerkungen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der vorliegende Lehrplan entspricht dem Rahmenlehrplan für den berufsbezogenen Unterricht der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-5a950ba45222 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 9"@de,
+        "Plangeneration laut Länderrecherche: bis 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Zielformulierung ;
+    cur:negativeHint "In SHK 2016 und Hochbau 2023 fehlt die Marke - der erste Satz ist dort Kernkompetenz. Gymnasium nennt Zielformulierungen als Bestandteil der BPE (S. 8). Fachschule benennt sie nicht"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Zielformulierung: Die Schülerinnen und Schüler erkennen ihren Beruf als kundenorientierten Dienstleistungsberuf" ;
+    cur:recognitionHint "Marke am Absatzanfang unter der Lernfeld-Kopfzeile"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zielformulierung:" ;
+    cur:verified false .
+
+beruf:re-DE-BW-5fad1fe5d1a7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-inh-1"@de,
+        "Länderrecherche, Beleg E: Gemeinschaftskunde PDF-S. 12 | Wirtschaftskompetenz PDF-S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2016 und 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Inhalt ;
+    cur:negativeHint "Im Gymnasium sind die übergeordneten Ziele der BPE kursiv gesetzt und nicht die Inhalte (BG VBWL S. 8)"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Mindestinhalte kursiv in Klammern" ;
+    cur:recognitionHint "Klammerangabe im Kompetenztext"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mindestinhalte kursiv in Klammern" ;
+    cur:verified false .
+
+beruf:re-DE-BW-6140b4b7c699 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-fs-1"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 7 | SHK PDF-S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Plurilingual ;
+    cur:negativeHint "Formel der Vorliste mit Stundenangabe erweitert"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Fremdsprachliche Fachbegriffe sind mit 40 Stunden in die Lernfelder integriert" ;
+    cur:recognitionHint "Satz in Teil IV mit Stundenzahl"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fremdsprachliche Fachbegriffe sind mit 40 Stunden in die Lernfelder integriert" ;
+    cur:verified false .
+
+beruf:re-DE-BW-6182bdb84854 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-rlp-1"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 7 | SHK PDF-S. 7 | Hochbau PDF-S. 7"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Rahmenlehrplan ;
+    cur:negativeHint "steht nicht auf der Titelseite - Titel nennt Lehrplan oder Bildungsplan"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Der vorliegende Rahmenlehrplan für die Berufsausbildung zum Berufskraftfahrer/zur Berufskraftfahrerin" ;
+    cur:recognitionHint "Satz in Teil IV Berufsbezogene Vorbemerkungen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der vorliegende Rahmenlehrplan für die Berufsausbildung zum" ;
+    cur:verified false .
+
+beruf:re-DE-BW-6f8f35caa2b6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lf-1"@de,
+        "Länderrecherche, Beleg E: Fachschule BEF II PDF-S. 4-5 | 1BKSP Berufliches Handeln fundieren PDF-S. 3"@de,
+        "Plangeneration laut Länderrecherche: Plan 2009/2010 (1BKSP) und 2020/21 (4-jährig)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Lernfeld ;
+    cur:negativeHint "Lernfelder sind hier Teil eines Handlungsfelds und laufend über die Schuljahre nummeriert"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "1 Kreative Lern- und Bildungsprozesse planen, eröffnen und begleiten 30" ;
+    cur:recognitionHint "Spaltenkopf Lernfelder und Zeile aus Nummer Titel Zeitrichtwert ohne Präfix Lernfeld"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lernfeld (nur Nummer und Titel)" ;
+    cur:verified false .
+
+beruf:re-DE-BW-78a8f7685caa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Hochbau PDF-S. 4 | Wirtschaftskompetenz PDF-S. 5 | Fachschule Auftrag PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2023 bis 2026 und 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Bildungsauftrag ;
+    cur:negativeHint "In BW je Bildungsgang eigener besonderer Auftrag (BG und Fachschule) - für Berufsschule gemeinsamer Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der besondere Erziehungs- und Bildungsauftrag der Fachschule für Sozialpädagogik (praxisintegriert) in Teilzeitform" ;
+    cur:recognitionHint "Abschnitt vor den fachlichen Teilen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erziehungs- und Bildungsauftrag der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-8099b5e15ee4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Portal Berufsschule | 2BFS | Fachschule Auftrag PDF-S. 3 (Fach Religionslehre und Religionspädagogik) | BG"@de,
+        "Plangeneration laut Länderrecherche: 2020 bis 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Berufsbezogener Unterricht der Berufsschule heißt nicht Fach sondern Lernfeld - Wirtschaftskompetenz ist ein Fach das als Kompetenzbereich gegliedert ist"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Allgemeine Fächer" ;
+    cur:recognitionHint "Portalgruppen Allgemeine Fächer und Berufsbezogene Fächer sowie Fachpläne"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fächer" ;
+    cur:verified false .
+
+beruf:re-DE-BW-8e8f900f5dc7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Hochbau PDF-S. 4 | Wirtschaftskompetenz PDF-S. 5 | Fachschule Auftrag PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2023 bis 2026 und 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Bildungsauftrag ;
+    cur:negativeHint "In BW je Bildungsgang eigener besonderer Auftrag (BG und Fachschule) - für Berufsschule gemeinsamer Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der besondere Erziehungs- und Bildungsauftrag der Fachschule für Sozialpädagogik (praxisintegriert) in Teilzeitform" ;
+    cur:recognitionHint "Abschnitt vor den fachlichen Teilen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Der besondere Erziehungs- und Bildungsauftrag der Fachschule für Sozialpädagogik" ;
+    cur:verified false .
+
+beruf:re-DE-BW-9382a38a5897 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-rlp-2"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 1 | SHK PDF-S. 1 | Hochbau PDF-S. 1"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:dt-Rahmenlehrplan ;
+    cur:negativeHint "Kurzform KMK-Beschluss vom nicht Beschluss der (Kultusministerkonferenz) vom"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "KMK-Beschluss vom 29.01.2016" ;
+    cur:recognitionHint "Titelseite unter Berufsbezeichnung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "KMK-Beschluss vom" ;
+    cur:verified false .
+
+beruf:re-DE-BW-a1d2c8dd8bd8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gemeinschaftskunde PDF-S. 12-13"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Module liegen unter Leitthemen je Schuljahr (z. B. Junge Menschen in Beruf, Familie und Gesellschaft: Zusammenleben gestalten) und sind durchlaufend 1 bis 9 nummeriert"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "1 Auszubildende und ihre Lebenswelt" ;
+    cur:recognitionHint "Spaltenkopf Module und Zeile mit Nummer und Titel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Modul" ;
+    cur:verified false .
+
+beruf:re-DE-BW-a33c2ef3293b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Portal Berufsschule | 2BFS | Fachschule Auftrag PDF-S. 3 (Fach Religionslehre und Religionspädagogik) | BG"@de,
+        "Plangeneration laut Länderrecherche: 2020 bis 2026"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Fach ;
+    cur:negativeHint "Berufsbezogener Unterricht der Berufsschule heißt nicht Fach sondern Lernfeld - Wirtschaftskompetenz ist ein Fach das als Kompetenzbereich gegliedert ist"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Allgemeine Fächer" ;
+    cur:recognitionHint "Portalgruppen Allgemeine Fächer und Berufsbezogene Fächer sowie Fachpläne"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fach" ;
+    cur:verified false .
+
+beruf:re-DE-BW-a3d13e4f1ef9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Gemeinschaftskunde PDF-S. 12-13"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:Modul ;
+    cur:negativeHint "Module liegen unter Leitthemen je Schuljahr (z. B. Junge Menschen in Beruf, Familie und Gesellschaft: Zusammenleben gestalten) und sind durchlaufend 1 bis 9 nummeriert"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "1 Auszubildende und ihre Lebenswelt" ;
+    cur:recognitionHint "Spaltenkopf Module und Zeile mit Nummer und Titel"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Module" ;
+    cur:verified false .
+
+beruf:re-DE-BW-a64241c8dfea a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 1 | SHK PDF-S. 1 | Hochbau PDF-S. 1 | Wirtschaftskompetenz PDF-S. 1"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan bis etwa 2019 und Bildungsplan ab 2016 für Allgemeine Fächer und ab 2023 für Berufe"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:dt-Landeslehrplan ;
+    cur:negativeHint "Titelwechsel Lehrplan zu Bildungsplan - Inhalt bleibt KMK-Rahmenlehrplan"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsplan für die Berufsschule Berufsausbildung in Hochbauberufen" ;
+    cur:recognitionHint "Titelseite"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Lehrplan für die Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-b38732bb291c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lb-1"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 3 | SHK PDF-S. 3 | Hochbau PDF-S. 3 | 2BFS Elektrotechnik PDF-S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Landespläne für den berufsübergreifenden Lernbereich sind die Allgemeinen Fächer - Vorliste nannte fachrichtungsübergreifender Lernbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Lehrpläne der Länder für den berufsübergreifenden Lernbereich" ;
+    cur:recognitionHint "Formel in Teil I bzw. Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "berufsübergreifender Lernbereich" ;
+    cur:verified false .
+
+beruf:re-DE-BW-b5c8e5721b2f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 2 | SHK PDF-S. 2 | Hochbau PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Titel von Teil II wechselt: Bildungsauftrag der Berufsschule (2018) und Bildungs- und Erziehungsauftrag (2023) - Wirtschaftskompetenz 2026 nennt Erziehungs- und Bildungsauftrag der Berufsschule"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil II Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:recognitionHint "römische Teile I bis IV vor Teil V"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil III Didaktische Grundsätze" ;
+    cur:verified false .
+
+beruf:re-DE-BW-b8e0a8efeeca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Hochbau PDF-S. 4 | Wirtschaftskompetenz PDF-S. 5 | Fachschule Auftrag PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2023 bis 2026 und 2020"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Bildungsauftrag ;
+    cur:negativeHint "In BW je Bildungsgang eigener besonderer Auftrag (BG und Fachschule) - für Berufsschule gemeinsamer Text"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Der besondere Erziehungs- und Bildungsauftrag der Fachschule für Sozialpädagogik (praxisintegriert) in Teilzeitform" ;
+    cur:recognitionHint "Abschnitt vor den fachlichen Teilen"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:verified false .
+
+beruf:re-DE-BW-cb5cd1b9e6cc a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: BG VBWL PDF-S. 8 | Übungsfirma PDF-S. 3"@de,
+        "Plangeneration laut Länderrecherche: 2021 und 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Beispiele didaktische Hinweise und Querverweise"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Inhalte der Hinweisspalte sind unverbindliche Ergänzungen zur Inhaltsspalte" ;
+    cur:recognitionHint "Spalte neben der Inhaltsspalte"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hinweisspalte" ;
+    cur:verified false .
+
+beruf:re-DE-BW-e2ad694dd8f3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-fs-1"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 7 | SHK PDF-S. 8"@de,
+        "Plangeneration laut Länderrecherche: 2016 bis 2018"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Plurilingual ;
+    cur:negativeHint "Formel der Vorliste mit Stundenangabe erweitert"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Fremdsprachliche Fachbegriffe sind mit 40 Stunden in die Lernfelder integriert" ;
+    cur:recognitionHint "Satz in Teil IV mit Stundenzahl"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die fremdsprachlichen Inhalte sind mit 40 Stunden in die Lernfelder integriert" ;
+    cur:verified false .
+
+beruf:re-DE-BW-eb79218ef434 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 2 | SHK PDF-S. 2 | Hochbau PDF-S. 2"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo beruf:RLP-Rahmenteil ;
+    cur:negativeHint "Titel von Teil II wechselt: Bildungsauftrag der Berufsschule (2018) und Bildungs- und Erziehungsauftrag (2023) - Wirtschaftskompetenz 2026 nennt Erziehungs- und Bildungsauftrag der Berufsschule"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil II Bildungs- und Erziehungsauftrag der Berufsschule" ;
+    cur:recognitionHint "römische Teile I bis IV vor Teil V"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil IV Berufsbezogene Vorbemerkungen" ;
+    cur:verified false .
+
+beruf:re-DE-BW-f1572cf9880d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu beruf:c-lb-1"@de,
+        "Länderrecherche, Beleg E: Berufskraftfahrer PDF-S. 3 | SHK PDF-S. 3 | Hochbau PDF-S. 3 | 2BFS Elektrotechnik PDF-S. 6"@de,
+        "Plangeneration laut Länderrecherche: 2000 bis 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Lernbereich ;
+    cur:negativeHint "Landespläne für den berufsübergreifenden Lernbereich sind die Allgemeinen Fächer - Vorliste nannte fachrichtungsübergreifender Lernbereich"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Lehrpläne der Länder für den berufsübergreifenden Lernbereich" ;
+    cur:recognitionHint "Formel in Teil I bzw. Vorbemerkung"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "berufsbezogener Lernbereich" ;
+    cur:verified false .
+
+beruf:re-DE-BW-fbe5b159763a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/03B-beruf-DE-BW.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: SHK PDF-S. 25"@de,
+        "Plangeneration laut Länderrecherche: 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo beruf:Hinweis ;
+    cur:negativeHint "Funktion der Randmarkierungen nicht ausgewertet - nur in diesem Plan gesehen"@de ;
+    cur:occursIn cv:occ_toc ;
+    cur:positiveExample "Teil VI Lesehinweise" ;
+    cur:recognitionHint "Teil nach den Lernfeldern mit Beispiel-Lernfeld 8"@de ;
+    cur:scopeRegion land:DE-BW ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil VI Lesehinweise" ;
+    cur:verified false .
+

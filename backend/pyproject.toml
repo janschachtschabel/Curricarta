@@ -1,0 +1,154 @@
+[project]
+name = "curricarta"
+version = "0.1.0"
+description = "Curricula nach Curriculum-Kern 1.0 erfassen, andocken und vernetzen"
+requires-python = "==3.13.*"
+# Floors are the versions the code was tested with: request_log uses
+# fastapi.routing.iter_route_contexts, new in the 0.14x line
+dependencies = [
+    "fastapi>=0.143",
+    "starlette>=1.7",
+    "uvicorn>=0.54",
+    "pydantic>=2.13",
+    "pydantic-settings>=2.15",
+    "psycopg[binary,pool]>=3.3",
+    "prometheus-client>=0.26",
+    "rdflib>=7.6",
+    # the language model, OpenAI-compatible; the same versions the old app runs (pydantic-ai 2.42
+    # does not know gpt-6-luna, app/llm/client.py describes it as measured)
+    "openai>=3.25",
+    "pydantic-ai-slim[openai]>=2.42",
+    # the HTTP client app/llm/client.py hands the SDK, and the one starlette's TestClient takes
+    # (with plain httpx it warns that support ends)
+    "httpx2>=2.13",
+    # the object store in a cluster: any S3-compatible service, MinIO in Compose
+    "boto3>=1.43",
+    # multipart forms: the upload of a source (starlette's request.form)
+    "python-multipart>=0.0.32",
+    # the conversion of a PDF into blocks (X0) and its text layer: the versions the old app runs
+    "pdfplumber>=0.11.10",
+    "pdfminer-six>=20260107",
+    "pypdfium2>=5.13",
+    # the lexicon's patterns: the syntax of Python's re, with a time limit on each search (ReDoS)
+    "regex>=2026.9.10",
+    # counting a request's tokens before it is sent, with o200k_base (app/llm/budget.py); the
+    # version pydantic-ai brought along
+    "tiktoken>=0.14",
+    # X5's SHACL gate: each document against the Kern's shapes, in a child process (plan M1 8.4)
+    "pyshacl>=0.40",
+    # an HTML page's tree as a browser builds it, before Docling reads it (app/conversion/html_tree.py):
+    # html5lib's tree construction, kept by rdflib's authors, which rdflib brings along already
+    "html5rdf>=1.2.1",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1",
+    "pytest-cov>=7.1",
+    "ruff>=0.16",
+    "mypy>=2.3",
+    # the deployment tests read deploy/docker-compose.yml
+    "pyyaml>=6.0.3",
+]
+# Docling and its stack on the CPU, for the converter's image alone (plan M1 3b): the API's image and
+# the development's environment never carry them. The versions the old app measured its tables with.
+convert = [
+    "docling==2.117.0",
+    "docling-core==2.95.0",
+    "docling-ibm-models==3.15.0",
+    "docling-parse==7.18.0",
+    "easyocr==1.7.2",
+    # the layout and table models' runtime, as the old app ran them (a stale index gave 5.8);
+    # docling-ibm-models caps it at 5.8 on macOS alone
+    "transformers==5.17.0; sys_platform != 'darwin'",
+    "torch==2.14.0",
+    "torchvision==0.29.0",
+]
+
+[tool.uv]
+# The app runs from its source tree (image copies app/); no wheel is built.
+package = false
+# simplify: pinned to the versions the development machine had in its cache when the
+# project started without network access; lift when dependencies are updated online.
+constraint-dependencies = [
+    "psycopg==3.3.5",
+    "psycopg-binary==3.3.5",
+    "psycopg-pool==3.3.1",
+    "mypy==2.3.1",
+]
+
+# torch and torchvision without CUDA: PyPI's builds would pull in some 3 GB of NVIDIA libraries
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[tool.pytest.ini_options]
+# the ontology's tools too: the lexicon tests import them as the tools import each other (plan M1 10a)
+pythonpath = [".", "../ontology/werkzeuge"]
+testpaths = ["tests"]
+markers = [
+    "pg: needs the PostgreSQL test container (CURRICARTA_TEST_DATABASE_URL)",
+    "s3: needs the S3 test container (CURRICARTA_TEST_S3_URL)",
+]
+addopts = "-ra --strict-markers --import-mode=importlib"
+
+[tool.coverage.run]
+# the bootstrap, the vocabulary load, the migration and the worker run as processes of their own
+# in their tests; coverage follows them there
+patch = ["subprocess"]
+
+[tool.coverage.report]
+# 96 % measured on Windows at the end of M0 (the old app holds 96); one point for the branches of
+# the other platform, which CI runs on Linux
+fail_under = 95
+
+[tool.ruff]
+line-length = 110
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101"]
+
+[tool.mypy]
+python_version = "3.13"
+strict = true
+# the tests too: a helper they share is typed like the code it serves
+files = ["app", "tests"]
+# the ontology's tools the lexicon tests import, checked as strictly as the code
+mypy_path = "../ontology/werkzeuge"
+explicit_package_bases = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+# pypdfium2 ships no types; the text layer of a PDF (app/conversion/text_layer.py) reads it
+module = ["pypdfium2", "pypdfium2.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# Docling lives in the converter's image alone (dependency group convert); its engine and the fetch
+# of its models import it when they run there
+module = ["docling", "docling.*", "docling_core", "docling_core.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# html5rdf ships no types; an HTML page's tree (app/conversion/html_tree.py) is built by it
+module = ["html5rdf", "html5rdf.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# regex ships no types (types-regex would be one more download); the lexicon's patterns use it
+module = ["regex"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# tiktoken_ext ships no types; a test reads its definition of o200k_base to compare the app's with
+module = ["tiktoken_ext", "tiktoken_ext.*"]
+ignore_missing_imports = true

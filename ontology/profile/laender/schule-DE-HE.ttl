@@ -1,0 +1,501 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-HE-053ccc6fd4e7,
+        schul:re-DE-HE-085f4f922d0c,
+        schul:re-DE-HE-13fbe2f0a86c,
+        schul:re-DE-HE-3ea138db4cc0,
+        schul:re-DE-HE-457d1d2e98f0,
+        schul:re-DE-HE-479e7a92ba11,
+        schul:re-DE-HE-482da65c5c0b,
+        schul:re-DE-HE-491b3ac736d6,
+        schul:re-DE-HE-4f47ed5d68d5,
+        schul:re-DE-HE-598cf779b955,
+        schul:re-DE-HE-5a032351e35f,
+        schul:re-DE-HE-637335118888,
+        schul:re-DE-HE-6789247f6422,
+        schul:re-DE-HE-67fbd148d5db,
+        schul:re-DE-HE-6c72aadeccd4,
+        schul:re-DE-HE-7daeb1c1020c,
+        schul:re-DE-HE-7dc328d232d5,
+        schul:re-DE-HE-888a204e96e4,
+        schul:re-DE-HE-8a82152aa05e,
+        schul:re-DE-HE-907ff00a25ac,
+        schul:re-DE-HE-93a2a1eb4652,
+        schul:re-DE-HE-9d2d06c0668f,
+        schul:re-DE-HE-9fdcc5183a18,
+        schul:re-DE-HE-a5df46bb1c24,
+        schul:re-DE-HE-af89b8a890f9,
+        schul:re-DE-HE-b133ef7348fa,
+        schul:re-DE-HE-b34388c0b0be,
+        schul:re-DE-HE-b75899612772,
+        schul:re-DE-HE-bbc2fc98aeab,
+        schul:re-DE-HE-da1caf2203ca,
+        schul:re-DE-HE-eb3b9f9d9b24,
+        schul:re-DE-HE-fde818878a07 .
+
+schul:re-DE-HE-053ccc6fd4e7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.9 und 14"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:Democracy,
+        qz:DigitalWorld ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Abschnitt 1.3 und Verweis in 2.3 („drei herausgehobenen überfachlichen Dimensionen“)"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Überfachliche Kompetenzen (Kerncurriculum Oberstufe Ausgabe 2016) - drei herausgehobene Dimensionen" ;
+    cur:verified false .
+
+schul:re-DE-HE-085f4f922d0c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-2 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "2. gut (12/11/10)" ;
+    cur:verified false .
+
+schul:re-DE-HE-13fbe2f0a86c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Lehrplan Mathematik Gym S.11-12"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2002 (Fassung 2016 ergänzt)"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Querverweise stehen unter dem Sachgebiet und nicht in einer Randspalte - gemeinsam mit Aufgabengebieten - Zahlen darunter sind Seitenzahlen"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Querverweise: Berücksichtigung von Aufgabengebieten (§6 Abs. 4 HSchG):" ;
+    cur:recognitionHint "Beschriftung am Ende des Sachgebiets"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Querverweise: Berücksichtigung von Aufgabengebieten (§6 Abs. 4 HSchG)" ;
+    cur:verified false .
+
+schul:re-DE-HE-3ea138db4cc0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Lehrplan Mathematik Gym S.12"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2002"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Nur im Lehrplan 2002"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Arbeitsmethoden der Schülerinnen und Schüler/Hinweise und Erläuterungen:" ;
+    cur:recognitionHint "Beschriftung unter dem Sachgebiet"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Arbeitsmethoden der Schülerinnen und Schüler/Hinweise und Erläuterungen" ;
+    cur:verified false .
+
+schul:re-DE-HE-457d1d2e98f0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Lehrplan Mathematik Gym S.10-11"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2002"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhalt ;
+    cur:negativeHint "Gegenbegriff „fakultative Unterrichtsinhalte“ - nicht im Kerncurriculum"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Verbindliche Unterrichtsinhalte/Aufgaben:" ;
+    cur:recognitionHint "Beschriftung im Sachgebiet"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Verbindliche Unterrichtsinhalte/Aufgaben" ;
+    cur:verified false .
+
+schul:re-DE-HE-479e7a92ba11 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik Gym S.3 - KCGO Physik 2016 S.3"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011 und 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Bildungsbeitrag,
+        schul:Rahmenteil ;
+    cur:negativeHint "Bildungsbeitrag ohne Prüfanspruch - die Standards stehen erst in Kapitel 6 bzw. 3.2"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Kapitel 3 „Kompetenzorientierung und Beitrag des Faches zur Bildung“" ;
+    cur:recognitionHint "Kapitel 3 (Sek I) - Oberstufe: 2.1 „Beitrag des Faches zur Bildung“ und 2.2 „Kompetenzmodell“"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kompetenzorientierung und Beitrag des Faches zur Bildung" ;
+    cur:verified false .
+
+schul:re-DE-HE-482da65c5c0b a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Qualifizierender Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-HE-491b3ac736d6 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.1 und 2024 S.1"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2016 und Ausgabe 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Sek-I-Kerncurricula tragen den Untertitel „Bildungsstandards und Inhaltsfelder“ - die Oberstufe nicht"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Kopfzeile „Kerncurriculum Physik gymnasiale Oberstufe“" ;
+    cur:recognitionHint "Titelseite „Hessisches Kultusministerium / Kerncurriculum / gymnasiale Oberstufe / PHYSIK“ - 2024 mit Zusatz „Ausgabe 2024“"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kerncurriculum gymnasiale Oberstufe" ;
+    cur:verified false .
+
+schul:re-DE-HE-4f47ed5d68d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht S.8-10"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy,
+        qz:DigitalWorld,
+        qz:Intercultural,
+        qz:LanguageEducation ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Kapitel 2 (Teil A) und nicht im Fachplan markiert"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Überfachliche Kompetenzen (Kerncurriculum Primarstufe und Sek I)" ;
+    cur:verified false .
+
+schul:re-DE-HE-598cf779b955 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik Gym S.5 - KCGO Physik 2016 S.12"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011 und 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Regelstandard ;
+    cur:negativeHint "Abschlussbezogene Regelstandards - nicht Mindest- oder Optimalstandards"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Bildungsstandards sind als Regelstandards formuliert" ;
+    cur:recognitionHint "Formulierung zum Anspruchsniveau"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Regelstandards" ;
+    cur:verified false .
+
+schul:re-DE-HE-5a032351e35f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.3"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2016 und 2024"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Zusätzlich je Fach ein Leitfaden / Begleitmaterialien (Handreichung)  - nicht Teil des Kerncurriculums"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "Hinweis: Anregungen zur Umsetzung des Kerncurriculums im Unterricht sowie weitere Materialien abrufbar im Internet" ;
+    cur:recognitionHint "Hinweiskasten im Inhaltsverzeichnis"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anregungen zur Umsetzung / www.kerncurriculum.hessen.de" ;
+    cur:verified false .
+
+schul:re-DE-HE-637335118888 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG S.19"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:ConsumerEducation,
+        qz:Democracy,
+        qz:DigitalWorld,
+        qz:Health ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: nicht im Fachplan markiert"@de,
+        "Kürzel oder Symbol: kein Kürzel; markiert: nicht im Fachplan markiert (nur Querverweis im Lehrplan 2002)"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "HSchG § 6 Abs. 4 Aufgabengebiete" ;
+    cur:verified false .
+
+schul:re-DE-HE-6789247f6422 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Lehrplan Mathematik Gym S.18 (gedruckt)  - pdf-Seite 19"@de,
+        "Plangeneration laut Länderrecherche: Lehrplan 2002"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Zeitrichtwert pro Sachgebiet - im Kerncurriculum 2011 nicht vorhanden"@de ;
+    cur:occursIn cv:occ_box ;
+    cur:positiveExample "7.1 Größen / Funktionen Std.: 36" ;
+    cur:recognitionHint "Zeile unter der Sachgebiet-Überschrift"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Std." ;
+    cur:verified false .
+
+schul:re-DE-HE-67fbd148d5db a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-4 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "4. ausreichend (6/5/4)" ;
+    cur:verified false .
+
+schul:re-DE-HE-6c72aadeccd4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik Gym S.5-6"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:negativeHint "In der Oberstufe entspricht Kapitel 1.2 „Strukturelemente des Kerncurriculums“"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Es beschränkt sich aber darauf, die angestrebten Ergebnisse des Lernens in Form von Könnenserwartungen (Bildungsstandards) darzustellen" ;
+    cur:recognitionHint "Kapitel 1 mit Unterabschnitten „Konzeptionelle Grundlagen“ „Struktur und Gliederung“ „Zum Umgang mit dem neuen Kerncurriculum für Hessen“"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Konzept – Struktur – Perspektiven" ;
+    cur:verified false .
+
+schul:re-DE-HE-7daeb1c1020c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik Gym S.44 - Deutsch HS S.55"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:negativeHint "Kürzel ÜSekII ist hessisch - gemeint ist die Kompetenzerwartung für die Aufnahme in die gymnasiale Oberstufe"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Bildungsstandards Hauptschulabschluss (HSA) | Bildungsstandards Mittlerer Schulabschluss (MSA) | Lernzeitbezogene Kompetenzerwartungen am Ende der Jahrgangsstufe 9/10 (ÜSekII)" ;
+    cur:recognitionHint "Drei Spaltenköpfe in Kapitel 8.2 „Bildungsstandards nach Bildungsgängen“"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mittlerer Schulabschluss (MSA)" ;
+    cur:verified false .
+
+schul:re-DE-HE-7dc328d232d5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Sachunterricht S.1 - VOKCGM S.1"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Lehrplan ;
+    cur:negativeHint "Zugleich Bezeichnung der beiden Kernbestandteile eines Kerncurriculums (HSchG § 4 Abs. 1)"@de ;
+    cur:occursIn cv:occ_titlePage ;
+    cur:positiveExample "Bildungsstandards und Inhaltsfelder – Das neue Kerncurriculum für Hessen" ;
+    cur:recognitionHint "Obertitel auf den Titelseiten der Primarstufen- und Sek-I-Kerncurricula und Klammerzusatz in der VOKCGM"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bildungsstandards und Inhaltsfelder" ;
+    cur:verified false .
+
+schul:re-DE-HE-888a204e96e4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Leistungskurs" ;
+    cur:verified false .
+
+schul:re-DE-HE-8a82152aa05e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Physik Gym S.44 - Deutsch HS S.55"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:negativeHint "Kürzel ÜSekII ist hessisch - gemeint ist die Kompetenzerwartung für die Aufnahme in die gymnasiale Oberstufe"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Bildungsstandards Hauptschulabschluss (HSA) | Bildungsstandards Mittlerer Schulabschluss (MSA) | Lernzeitbezogene Kompetenzerwartungen am Ende der Jahrgangsstufe 9/10 (ÜSekII)" ;
+    cur:recognitionHint "Drei Spaltenköpfe in Kapitel 8.2 „Bildungsstandards nach Bildungsgängen“"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss (HSA)" ;
+    cur:verified false .
+
+schul:re-DE-HE-907ff00a25ac a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.8-9"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Intercultural,
+        qz:LanguageEducation,
+        qz:Values ;
+    cur:recognitionHint "Kürzel oder Symbol: kein Kürzel; markiert: Abschnitt 1.3 (Teil A) und nicht im Fachplan markiert"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Überfachliche Kompetenzen (Kerncurriculum Oberstufe Ausgabe 2016)" ;
+    cur:verified false .
+
+schul:re-DE-HE-93a2a1eb4652 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Realschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-HE-9d2d06c0668f a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.13 - Physik Gym S.14 und 19"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011 und 2016"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Teilbereich ;
+    cur:negativeHint "Nicht dasselbe wie „Teilbereich“ in BY"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "F1 / E1 / K1 / B1 in der Oberstufe 2016 (Tabelle S.13) - Sek I „Beobachten, beschreiben, vergleichen“" ;
+    cur:recognitionHint "Spaltenkopf „Teilbereiche“ mit Kennziffern in der Oberstufe - Sek I: Zwischenüberschriften in der Standardtabelle"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teilbereiche" ;
+    cur:verified false .
+
+schul:re-DE-HE-9fdcc5183a18 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.11-12 - 2024 S.13 - Operatoren S.1"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2016 als dritte Dimension des Kompetenzmodells - Ausgabe 2024 als Aufgabenmerkmal"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:afb-I,
+        lvl:afb-II,
+        lvl:afb-III ;
+    cur:negativeHint "Rechtsgrundlage § 25 Abs. 4 OAVO"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Anforderungsbereiche sind kein Bestandteil fachspezifischer Kompetenzbereiche, sondern ein Merkmal von Aufgaben" ;
+    cur:recognitionHint "Kompetenzmodell (2016) - Spalte „AFB“ der Operatorenliste"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungsbereiche" ;
+    cur:verified false .
+
+schul:re-DE-HE-a5df46bb1c24 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-5 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "5. mangelhaft (3/2/1)" ;
+    cur:verified false .
+
+schul:re-DE-HE-af89b8a890f9 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-3 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "3. befriedigend (9/8/7)" ;
+    cur:verified false .
+
+schul:re-DE-HE-b133ef7348fa a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-6 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "6. ungenügend (0)" ;
+    cur:verified false .
+
+schul:re-DE-HE-b34388c0b0be a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: Mathematik Gym S.22"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2011"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Physik Gymnasium: Kap 7.1 entfällt wegen der Stundentafel - Zeitbezug dann „nach ca. der Hälfte des Stundenkontingents“"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die nachfolgenden … Kompetenzerwartungen … beschreiben jeweils die Anforderungen am Ende der Doppeljahrgangsstufen 5/6 und 7/8" ;
+    cur:recognitionHint "Sachtext zu Kapitel 7"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Doppeljahrgangsstufen" ;
+    cur:verified false .
+
+schul:re-DE-HE-b75899612772 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KCGO Physik 2016 S.26-27 - 2024 S.27"@de,
+        "Plangeneration laut Länderrecherche: Ausgabe 2016 Q1-Q4 - Ausgabe 2024 Q1-Q4 mit anderen Themen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:negativeHint "Q-Kürzel nennen das Halbjahr - Einführungsphase fasst E1 und E2 als Kursjahr zusammen"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Übersicht über die Themen der Kurshalbjahre und die Themenfelder" ;
+    cur:recognitionHint "Überschrift „Q1 Elektrisches und magnetisches Feld“ oder „E1/E2 Mechanik“ mit Themenfeldern darunter"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kurshalbjahr" ;
+    cur:verified false .
+
+schul:re-DE-HE-bbc2fc98aeab a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-HE.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: VOKCGM § 5 Abs. 1 (S.6) - HSchG § 4 Abs. 4 (S.16)"@de,
+        "Plangeneration laut Länderrecherche: seit VOKCGM Fassung 15.05.2012"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:dt-Schulintern ;
+    cur:negativeHint "Fachcurriculum ist integraler Bestandteil des Schulcurriculums - keine amtliche Rechtsform sondern Schulbeschluss"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "bildet dieses den schulintern verbindlichen Rahmen für die Arbeit im Unterricht" ;
+    cur:recognitionHint "Gesetzesformulierung zum schulinternen Rahmen"@de ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulcurriculum" ;
+    cur:verified false .
+
+schul:re-DE-HE-da1caf2203ca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 25"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Hauptschulabschluss" ;
+    cur:verified false .
+
+schul:re-DE-HE-eb3b9f9d9b24 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: nicht belegt"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:course-basic ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Grundkurs" ;
+    cur:verified false .
+
+schul:re-DE-HE-fde818878a07 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/07B-bewertungsskalen.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: HSchG Fassung 22.06.2011 mit Definition je Stufe. Tendenz nur als Anmerkung oder in Klammern gesetztes Plus oder Minus und nicht in Zeugnissen (§ 30 Abs. 1). Abschluss- und Abgangszeugnis enthalten Fächer und Noten (§ 60 Abs. 3). Jahrgänge aus kultus.hessen.de"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:grade-1 ;
+    cur:scopeRegion land:DE-HE ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "1. sehr gut (15/14/13)" ;
+    cur:verified false .
+

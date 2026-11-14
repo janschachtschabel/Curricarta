@@ -1,0 +1,662 @@
+# GENERIERT von werkzeuge/importiere_recherche.py aus recherche-ergebnisse/ (Länderrecherche,
+# ungeprüft). Nicht von Hand ändern: die Redaktion entscheidet über cue_review (Plan M1 10c).
+@prefix cur: <https://w3id.org/wlo/curriculum/core#> .
+@prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix lvl: <https://w3id.org/wlo/curriculum/level/> .
+@prefix qz: <https://w3id.org/wlo/curriculum/crosscutting/> .
+@prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+schul:Terminology cur:hasCue schul:re-DE-BB-0445e8d48e98,
+        schul:re-DE-BB-11a2800210d3,
+        schul:re-DE-BB-1638cb72af62,
+        schul:re-DE-BB-1cbe598d15a4,
+        schul:re-DE-BB-30eaf89f516d,
+        schul:re-DE-BB-31fe341624b0,
+        schul:re-DE-BB-3217f5952379,
+        schul:re-DE-BB-3422fe192a5e,
+        schul:re-DE-BB-36825273dde1,
+        schul:re-DE-BB-3afc958062f2,
+        schul:re-DE-BB-4514e3c393ff,
+        schul:re-DE-BB-47c87513a4ca,
+        schul:re-DE-BB-54842130503c,
+        schul:re-DE-BB-5508ffa0545a,
+        schul:re-DE-BB-573a8f1c7deb,
+        schul:re-DE-BB-69393eedda31,
+        schul:re-DE-BB-6c23b4e0b461,
+        schul:re-DE-BB-6fa531f3de47,
+        schul:re-DE-BB-74d1cea5e852,
+        schul:re-DE-BB-7cba5b0fdeff,
+        schul:re-DE-BB-8410d7e41059,
+        schul:re-DE-BB-8f3e432bd8d8,
+        schul:re-DE-BB-95684b81e0b5,
+        schul:re-DE-BB-998b0923f6c3,
+        schul:re-DE-BB-a1a414881af0,
+        schul:re-DE-BB-a89c4951e555,
+        schul:re-DE-BB-adc761283dc7,
+        schul:re-DE-BB-bea856b44429,
+        schul:re-DE-BB-c14e8f82c8d4,
+        schul:re-DE-BB-c30313808a54,
+        schul:re-DE-BB-c4468e6970ba,
+        schul:re-DE-BB-ca79d95cf9d1,
+        schul:re-DE-BB-cd4488a1c23a,
+        schul:re-DE-BB-d1f155f33ecd,
+        schul:re-DE-BB-d7b1910b7064,
+        schul:re-DE-BB-e1f61f7357bf,
+        schul:re-DE-BB-ec227762e309,
+        schul:re-DE-BB-ed437e7217a5,
+        schul:re-DE-BB-ee16a6077f4a,
+        schul:re-DE-BB-ee686873d6d7,
+        schul:re-DE-BB-eee77abf886c,
+        schul:re-DE-BB-f45d9b83f418 .
+
+schul:re-DE-BB-0445e8d48e98 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Mathe S. 16"@de,
+        "Plangeneration laut Länderrecherche: beide"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:dt-Schulintern ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Anforderungen für die jeweiligen Jahrgangsstufen werden im schulinternen Curriculum festgelegt." ;
+    cur:recognitionHint "Aufträge an die Fachkonferenz"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "schulinternes Curriculum" ;
+    cur:verified false .
+
+schul:re-DE-BB-11a2800210d3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Physik S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2021 und 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-basic ;
+    cur:negativeHint "Leistungskurs-Inhalte stehen zusätzlich in zweiter Spalte"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Grundkurs Leistungskurs (zusätzlich zum Grundkurs)" ;
+    cur:recognitionHint "Standards für beide Kursformen. Tabelle „Grundkurs | Leistungskurs (zusätzlich zum Grundkurs)“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Grundkurs" ;
+    cur:verified false .
+
+schul:re-DE-BB-1638cb72af62 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030246"@de,
+        "Länderrecherche, Beleg E: RLP-Physik S. 31"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Beispiele für Differenzierungsmöglichkeiten" ;
+    cur:recognitionHint "Zeile/Kasten am Ende jedes Themenfelds in den naturwissenschaftlichen Fachteilen. Stets Plural"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beispiele für Differenzierungsmöglichkeiten" ;
+    cur:verified false .
+
+schul:re-DE-BB-1cbe598d15a4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-ke-satzstamm"@de,
+        "Länderrecherche, Beleg E: RLP-Mathe S. 26"@de,
+        "Plangeneration laut Länderrecherche: beide Fassungen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:NiveaugebundeneErwartung ;
+    cur:negativeHint "Nicht jede Zelle beginnt mit dem Stamm"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Die Schülerinnen und Schüler können" ;
+    cur:recognitionHint "Stamm steht einmal im Tabellenkopf. Zellen enthalten nur den Rest. In Listen „Die Schülerinnen und Schüler“ plus „−“ Zeilen. Oberstufe: „Die Lernenden …“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Die Schülerinnen und Schüler können" ;
+    cur:verified false .
+
+schul:re-DE-BB-30eaf89f516d a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-TeilB S. 2"@de,
+        "Länderrecherche, Beleg E: RLP-TeilB S. 2 | RLP-Mathe S. 5"@de,
+        "Länderrecherche, Beleg E: RLP-TeilB S. 2 | RLP-SU S. 28"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:BNE,
+        qz:CareerOrientation,
+        qz:ConsumerEducation,
+        qz:Democracy,
+        qz:Diversity,
+        qz:Health,
+        qz:Intercultural ;
+    cur:recognitionHint "markiert: Zeile „Übergreifende Themen:“ im Vorspann (nur Sachunterricht nachgewiesen) oder Fließtext"@de,
+        "markiert: wie oben"@de,
+        "markiert: wie oben (Mathe: „Sprach-, Medien- und Verbraucherbildung“ im Fließtext)"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B RLP 1-10: Übergreifende Themen" ;
+    cur:verified false .
+
+schul:re-DE-BB-31fe341624b0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Geschichte S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Inhalt ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zur Auswahl stehende Inhalte" ;
+    cur:recognitionHint "Einer der Inhalte bildet den obligatorischen Schwerpunkt. Marker „im Leistungskurs:“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Zur Auswahl stehende Inhalte" ;
+    cur:verified false .
+
+schul:re-DE-BB-3217f5952379 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-G ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe G" ;
+    cur:verified false .
+
+schul:re-DE-BB-3422fe192a5e a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Geschichte S. 2 und 30"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Fächerverbund mit Geografie und Politischer Bildung: Migration und Bevölkerung | Armut und Reichtum | Konflikte und Konfliktlösungen | Europa in der Welt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3 Wahlmodule 7/8" ;
+    cur:recognitionHint "Abschnitte 3.1 bis 3.6. Module als Längsschnitt mit Leitfrage"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Module im gesellschaftswissenschaftlichen Fächerverbund" ;
+    cur:verified false .
+
+schul:re-DE-BB-36825273dde1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-D ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe D" ;
+    cur:verified false .
+
+schul:re-DE-BB-3afc958062f2 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-TeilB S. 3 | GOST-Physik S. 24 | GOST-Geschichte S. 11"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "markiert: Fachplan: Verweis auf „Aspekte der Sprachbildung“ (GOST-Physik S. 24) bzw. „bildungssprachliche Kompetenzen … (vgl. RLP gymnasiale Oberstufe Teil B)“ (GOST-Geschichte S. 11)"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B Oberstufe: bildungssprachliche Handlungskompetenz" ;
+    cur:verified false .
+
+schul:re-DE-BB-4514e3c393ff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Physik S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Die Klammerangaben hinter den Kompetenzbeschreibungen beziehen sich jeweils auf den dazugehörigen Standard" ;
+    cur:recognitionHint "Klammerangaben hinter Kompetenzbeschreibungen verweisen auf Standard-Kennung"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Beiträge zur Kompetenzentwicklung" ;
+    cur:verified false .
+
+schul:re-DE-BB-47c87513a4ca a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-C ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe C" ;
+    cur:verified false .
+
+schul:re-DE-BB-54842130503c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-TeilB S. 2 | RLP-Mathe S. 4"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "markiert: wie Sprachbildung. Mathe 2023 zusätzlich Kompetenzbereich [K7] Mit Medien mathematisch arbeiten"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B RLP 1-10: Basiscurriculum Medienbildung" ;
+    cur:verified false .
+
+schul:re-DE-BB-5508ffa0545a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-B ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe B" ;
+    cur:verified false .
+
+schul:re-DE-BB-573a8f1c7deb a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-TeilB S. 3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:DigitalWorld ;
+    cur:recognitionHint "markiert: Fließtext"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B Oberstufe: Handlungskompetenzen in der digitalen Welt" ;
+    cur:verified false .
+
+schul:re-DE-BB-69393eedda31 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002227"@de,
+        "Länderrecherche, Beleg E: RLP-SU S. 21 und 28"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:negativeHint "Singular der Vorliste ist Plural"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Themen | Inhalte | Unterrichtsanregungen" ;
+    cur:recognitionHint "Dritte Spalte der Themenfeld-Tabelle. Text: „anregenden, jedoch keinen obligatorischen Charakter“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Unterrichtsanregungen" ;
+    cur:verified false .
+
+schul:re-DE-BB-6c23b4e0b461 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Mathe S. 18"@de,
+        "Plangeneration laut Länderrecherche: 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt,
+        schul:ph-eingang ;
+    cur:negativeHint "Der Begriff „Schulanfangsphase“ steht im Berliner Teil (S. 14), der Brandenburger Teil nennt Jahrgangsstufen 1-2"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Jahrgangsstufen 1 – 2 Niveaustufen A und B" ;
+    cur:recognitionHint "Brandenburg: Jahrgangsstufen 1-2 mit Niveaustufen A und B"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Schulanfangsphase" ;
+    cur:verified false .
+
+schul:re-DE-BB-6fa531f3de47 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030043"@de,
+        "Länderrecherche, Beleg E: RLP-Physik S. 30"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2015 und 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Kein Beispiel im Sinne „Beispiel zu einem Basiskonzept“. Aussage ordnet Themenfeld Basiskonzepten zu"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Bezüge zu den Basiskonzepten – Materie: Das thermische Verhalten von Körpern ist stoffabhängig" ;
+    cur:recognitionHint "Zeile je Themenfeld mit Basiskonzept-Namen (Materie | Wechselwirkung | System | Energie) und kurzer Aussage"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Bezüge zu den Basiskonzepten" ;
+    cur:verified false .
+
+schul:re-DE-BB-74d1cea5e852 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-E ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe E" ;
+    cur:verified false .
+
+schul:re-DE-BB-7cba5b0fdeff a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Mathe S. 36"@de,
+        "Plangeneration laut Länderrecherche: beide"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:sn-lernen ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Förderschwerpunkt Lernen" ;
+    cur:recognitionHint "Fußnote „In Brandenburg sind diese Schülerinnen und Schüler dem Bildungsgang Förderschule Lernen gemäß § 30 BbgSchulG zugeordnet.“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Förderschule Lernen" ;
+    cur:verified false .
+
+schul:re-DE-BB-8410d7e41059 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030052"@de,
+        "Länderrecherche, Beleg E: RLP-Physik S. 28 und 30"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Experiment ;
+    cur:negativeHint "Verbindlich, nicht bloße Anregung. Ziel daher Experiment statt Hinweis. In GOST-Physik Einführungsphase nur „Empfehlungen“ (S. 17)"@de ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Inhalte | Experimente/Untersuchungen" ;
+    cur:recognitionHint "Spaltenkopf neben „Inhalte“. Im Text „verbindliche Experimente und Untersuchungen“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Experimente/Untersuchungen" ;
+    cur:verified false .
+
+schul:re-DE-BB-8f3e432bd8d8 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-TeilB S. 3 | GOST-Geschichte S. 18"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:Democracy ;
+    cur:recognitionHint "markiert: Fachplan Geschichte: „Das Modul ermöglicht Bezüge zum übergreifenden Thema Demokratiebildung im Rahmenlehrplan gymnasiale Oberstufe, Teil B.“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B Oberstufe: Übergreifende Themen" ;
+    cur:verified false .
+
+schul:re-DE-BB-95684b81e0b5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Geschichte S. 2 und 30"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Fächerverbund mit Geografie und Politischer Bildung: Migration und Bevölkerung | Armut und Reichtum | Konflikte und Konfliktlösungen | Europa in der Welt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3 Wahlmodule 7/8" ;
+    cur:recognitionHint "Abschnitte 3.1 bis 3.6. Module als Längsschnitt mit Leitfrage"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Wahlmodule" ;
+    cur:verified false .
+
+schul:re-DE-BB-998b0923f6c3 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-F ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe F" ;
+    cur:verified false .
+
+schul:re-DE-BB-a1a414881af0 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-MSA ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Fachoberschulreife (FOR)" ;
+    cur:verified false .
+
+schul:re-DE-BB-a89c4951e555 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Physik S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Stufenabschnitt ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Verteilung der Themenfelder auf die Kurshalbjahre der Qualifikationsphase (Q1 - Q4)" ;
+    cur:recognitionHint "Q1 bis Q4"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Kurshalbjahr" ;
+    cur:verified false .
+
+schul:re-DE-BB-adc761283dc7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-A ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe A" ;
+    cur:verified false .
+
+schul:re-DE-BB-bea856b44429 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-SU S. 23"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Rahmenteil ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Zur Bedeutung der fünf Perspektiven im Sachunterricht" ;
+    cur:recognitionHint "Fünf Perspektiven: sozialwissenschaftliche | naturwissenschaftliche | geografische | historische | technische"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Perspektiven des Sachunterrichts" ;
+    cur:verified false .
+
+schul:re-DE-BB-c14e8f82c8d4 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0002225"@de,
+        "Länderrecherche, Beleg E: GOST-Physik S. 9"@de,
+        "Plangeneration laut Länderrecherche: 2021 und 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Verweis ;
+    cur:negativeHint "Singular der Vorliste ist Plural. Keine eigene Erwartungsliste, sondern Verweis auf Niveaustufe H"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "2.1 Eingangsvoraussetzungen" ;
+    cur:recognitionHint "Abschnitt 2.1 im Oberstufenplan. Inhalt: identisch mit den H-Standards des RLP 1-10"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Eingangsvoraussetzungen" ;
+    cur:verified false .
+
+schul:re-DE-BB-c30313808a54 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:fwu-LP_0030253"@de,
+        "Länderrecherche, Beleg E: RLP-Physik S. 31"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Hinweis ;
+    cur:occursIn cv:occ_tableHeader ;
+    cur:positiveExample "Mögliche Kontexte | Fachbegriffe" ;
+    cur:recognitionHint "Spaltenkopf (Plural) neben „Fachbegriffe“. Kontexte nach eigenem Ermessen"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Mögliche Kontexte" ;
+    cur:verified false .
+
+schul:re-DE-BB-c4468e6970ba a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-ESA ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Berufsbildungsreife (BBR)" ;
+    cur:verified false .
+
+schul:re-DE-BB-ca79d95cf9d1 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-nv-afb"@de,
+        "Länderrecherche, Beleg E: RLP-Mathe S. 7"@de,
+        "Plangeneration laut Länderrecherche: Fassung 2023"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:afb-I,
+        lvl:afb-II,
+        lvl:afb-III ;
+    cur:negativeHint "In Mathe-Standards D bis H mit Zwischenüberschriften an Kompetenzerwartungen. Vorlisten-Regel trifft hier nicht zu"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "Anforderungsbereich II: Zusammenhänge herstellen" ;
+    cur:recognitionHint "Unterabschnitt 1.2 (Mathe) und 1.3 (Deutsch). Namen I Reproduzieren | II Zusammenhänge herstellen | III Verallgemeinern und Reflektieren"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Anforderungsbereiche" ;
+    cur:verified false .
+
+schul:re-DE-BB-cd4488a1c23a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-SU S. 28"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo schul:Verweis ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Kontinente und Ozeane (siehe Wasser)" ;
+    cur:recognitionHint "Klammerverweis auf anderes Themenfeld"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "(siehe Wasser)" ;
+    cur:verified false .
+
+schul:re-DE-BB-d1f155f33ecd a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Mathe S. 17 | RLP-TeilB S. 3"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo qz:LanguageEducation ;
+    cur:recognitionHint "markiert: Fachplan: Satz „Die im Teil B formulierten Standards für die Sprach- und Medienkompetenz … werden in den fachlichen Standards in diesem Kapitel berücksichtigt“. Kein Kürzel"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Teil B RLP 1-10: Basiscurriculum Sprachbildung" ;
+    cur:verified false .
+
+schul:re-DE-BB-d7b1910b7064 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: KMK-Vereinbarung Sek I Anlage 2 S. 24"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:school-EESA ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Erweiterte Berufsbildungsreife (EBR)" ;
+    cur:verified false .
+
+schul:re-DE-BB-e1f61f7357bf a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/06B-abschluesse-niveaus-schularten.md" ;
+    skos:editorialNote "Länderrecherche, Beleg A: aus Berliner Zielliste übernommen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_cue ;
+    cur:mapsTo lvl:bebb-H ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.5 ;
+    cur:surfaceForm "Niveaustufe H" ;
+    cur:verified false .
+
+schul:re-DE-BB-ec227762e309 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Geschichte S. 16-17"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Ohne Stundenzahl. Feste Lage im Kurshalbjahr"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "BM 1 Revolutionen" ;
+    cur:recognitionHint "Kürzel BM und VM mit Nummer. Basismodule obligatorisch. Mindestens ein VM je Kurshalbjahr"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basismodul (BM)" ;
+    cur:verified false .
+
+schul:re-DE-BB-ed437e7217a5 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Physik S. 10"@de,
+        "Plangeneration laut Länderrecherche: 2021"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Kompetenzerwartung,
+        schul:Regelstandard ;
+    cur:negativeHint "Standards gelten für Grund- und Leistungskurs"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "S 1 erklären Phänomene unter Nutzung bekannter physikalischer Modelle und Theorien" ;
+    cur:recognitionHint "Abschnitt 2.2 Oberstufe. Kennungen S 1 … E 1 … K 1 … B 1 in Physik"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Abschlussorientierte Standards" ;
+    cur:verified false .
+
+schul:re-DE-BB-ee16a6077f4a a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Geschichte S. 16-17"@de,
+        "Plangeneration laut Länderrecherche: 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Ohne Stundenzahl. Feste Lage im Kurshalbjahr"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "BM 1 Revolutionen" ;
+    cur:recognitionHint "Kürzel BM und VM mit Nummer. Basismodule obligatorisch. Mindestens ein VM je Kurshalbjahr"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Vertiefungsmodul (VM)" ;
+    cur:verified false .
+
+schul:re-DE-BB-ee686873d6d7 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: RLP-Geschichte S. 2 und 30"@de,
+        "Plangeneration laut Länderrecherche: 2015"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo schul:Unterrichtseinheit ;
+    cur:negativeHint "Fächerverbund mit Geografie und Politischer Bildung: Migration und Bevölkerung | Armut und Reichtum | Konflikte und Konfliktlösungen | Europa in der Welt"@de ;
+    cur:occursIn cv:occ_heading ;
+    cur:positiveExample "3.3 Wahlmodule 7/8" ;
+    cur:recognitionHint "Abschnitte 3.1 bis 3.6. Module als Längsschnitt mit Leitfrage"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Basismodule" ;
+    cur:verified false .
+
+schul:re-DE-BB-eee77abf886c a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Länderrecherche, Beleg E: GOST-Physik S. 24"@de,
+        "Plangeneration laut Länderrecherche: 2021 und 2025"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_pref ;
+    cur:mapsTo lvl:course-advanced ;
+    cur:negativeHint "Leistungskurs-Inhalte stehen zusätzlich in zweiter Spalte"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Grundkurs Leistungskurs (zusätzlich zum Grundkurs)" ;
+    cur:recognitionHint "Standards für beide Kursformen. Tabelle „Grundkurs | Leistungskurs (zusätzlich zum Grundkurs)“"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Leistungskurs" ;
+    cur:verified false .
+
+schul:re-DE-BB-f45d9b83f418 a cur:LexicalCue ;
+    dct:source "recherche-ergebnisse/01-schule-DE-BB.md" ;
+    skos:editorialNote "Korrekturvorschlag der Länderrecherche zu schul:cue-ke-standard"@de,
+        "Länderrecherche, Beleg E: RLP-Mathe S. 17"@de,
+        "Plangeneration laut Länderrecherche: beide Fassungen"@de ;
+    cur:cueKind cv:ck_term ;
+    cur:cueRole cv:role_homonym ;
+    cur:mapsTo schul:NiveaugebundeneErwartung ;
+    cur:negativeHint "Standard = Zelle auf Niveaustufe A-H (learningOutcome). Plan nennt sie selbst „Regelstandards“. Oberstufe: „abschlussorientierte Standards“ = KMK-Bildungsstandards AHR"@de ;
+    cur:occursIn cv:occ_body ;
+    cur:positiveExample "Bei den Standards handelt es sich um Regelstandards." ;
+    cur:recognitionHint "Plan selbst nennt sie Regelstandards"@de ;
+    cur:scopeRegion land:DE-BB ;
+    cur:strength 0.7 ;
+    cur:surfaceForm "Standards" ;
+    cur:verified false .
+
