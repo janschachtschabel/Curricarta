@@ -158,3 +158,22 @@ describe("the ways on from a row chosen", () => {
     expect(dropped).toHaveBeenCalledWith({ outcome: "deleted" }, "statement:s1");
   });
 });
+
+// "Verwerfen" (asked first) stood over the review toggle "Verworfen", and both set a run's statement rejected
+// (backend app/db/statement_editing.py, app/db/review.py): one way, where the panel offers the review (UI review m11)
+describe("rejecting a run's statement where the panel offers its review", () => {
+  it("leaves it to the review toggle", () => {
+    shown = mount(RowActions, { props: { row: row("statement:s1"), reviewed: true }, attachTo: document.body });
+
+    expect(shown.find(".row-actions").exists()).toBe(false);
+  });
+
+  it("still deletes an editor's own statement and a node", () => {
+    for (const key of ["statement:own", "node:a"] as const) {
+      shown = mount(RowActions, { props: { row: row(key), reviewed: true }, attachTo: document.body });
+      expect(shown.findAll("button").map((one) => one.text())).toContain(t("documents.tree.drop.delete"));
+      shown.unmount();
+      shown = null;
+    }
+  });
+});

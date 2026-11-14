@@ -186,6 +186,7 @@ defineExpose({ addAnchor, focus: toHeading });
         v-if="tree.editable"
         :key="row.key"
         :row="row"
+        :reviewed="tree.reviewable"
         @create="(kind) => emit('create', kind)"
         @dropped="dropped"
       />

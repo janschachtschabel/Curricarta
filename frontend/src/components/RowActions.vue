@@ -20,6 +20,8 @@ import { rowStatus } from "@/rowReview";
 
 const props = defineProps<{
   row: Row;
+  /** Whether the panel offers the row's review toggles, whose "Verworfen" rejects a run's statement as well. */
+  reviewed?: boolean;
   /** How taking the row away went. A prop, not an event: these actions go with the row chosen. */
   onDropped?: (done: Exclude<DropOutcome, { outcome: "failed" }>, key: RowKey) => void;
 }>();
@@ -31,8 +33,10 @@ const problem = ref<Notice | null>(null);
 
 // what taking the row away does: deletes a node or an editor's own statement, rejects a run's
 const rejects = computed(() => props.row.kind === "statement" && !props.row.statement.by_hand);
-// a run's statement rejected already: taking it away again would do nothing
-const offered = computed(() => !(rejects.value && rowStatus(props.row) === "rejected"));
+// a run's statement rejected already: taking it away again would do nothing. Where the panel offers the review, its
+// toggle "Verworfen" does what taking a run's statement away does (backend app/db/statement_editing.py and
+// app/db/review.py set the same status): one way, not two side by side
+const offered = computed(() => !(rejects.value && (props.reviewed || rowStatus(props.row) === "rejected")));
 const dropLabel = computed(() => t(rejects.value ? "documents.tree.drop.reject" : "documents.tree.drop.delete"));
 const question = computed(() => {
   const row = props.row;

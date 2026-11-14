@@ -63,6 +63,8 @@ const SAID_SAVED = statement_("s1", {
   fields: { verbatim: "Sie messen genau.", statement_kind: CV + "kind_learningOutcome", addressees: [CV + "addr_learner"] },
 });
 const OPEN = tree_(NODES);
+// open to its owner, who reviews nothing: "Verwerfen" is the owner's way to reject a run's statement
+const OWNED = tree_(NODES, { reviewable: false });
 
 function page(number: number): DocumentPage {
   return {
@@ -626,7 +628,7 @@ describe("a document's tree page", () => {
   });
 
   it("rejects a statement a run found, which stays chosen, the tree read again", async () => {
-    const read = vi.spyOn(api, "getTree").mockResolvedValue(OPEN);
+    const read = vi.spyOn(api, "getTree").mockResolvedValue(OWNED);
     vi.spyOn(api, "dropStatement").mockResolvedValue({ outcome: "rejected", revision: 2 });
     const wrapper = await open({ zeile: "statement:s1" });
 
@@ -1000,7 +1002,7 @@ describe("a document's tree page", () => {
   });
 
   it("lets what the panel said go as a row to add begins", async () => {
-    vi.spyOn(api, "getTree").mockResolvedValue(OPEN);
+    vi.spyOn(api, "getTree").mockResolvedValue(OWNED);
     vi.spyOn(api, "dropStatement").mockResolvedValue({ outcome: "rejected", revision: 2 });
     const wrapper = await open({ zeile: "statement:s1" });
     await press(wrapper, t("documents.tree.drop.reject"));
