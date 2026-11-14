@@ -73,6 +73,26 @@ def allocating(path: Path, engine: str, max_pages: int) -> Conversion:
     return reading(path, engine, len(held))
 
 
+def loading_wants_memory(path: Path, engine: str, max_pages: int) -> Conversion:
+    """Docling's engine whose models fail to load for want of memory - stood in for in the child itself."""
+    from app.conversion import docling_blocks
+
+    def wanting(*_: object) -> object:
+        raise MemoryError
+
+    docling_blocks.version = lambda name: "2.117.0"
+    docling_blocks._converter = wanting  # type: ignore[assignment]
+    return convert_file(path, docling_blocks.DoclingEngine(Path("/models")), max_pages=max_pages)
+
+
+def growing(path: Path, engine: str, max_pages: int) -> Conversion:
+    """A conversion that grows a MiB at a time, every piece held, until an allocation fails: as a parser
+    on a large file meets the child's memory limit, the heap still full as the child ends."""
+    held: list[bytearray] = []
+    while True:
+        held.append(bytearray(1024 * 1024))
+
+
 def unavailable(path: Path, engine: str, max_pages: int) -> Conversion:
     """An engine whose models do not load where it runs."""
     raise EngineUnavailable("Docling could not load its models: OSError")

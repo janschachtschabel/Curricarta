@@ -115,9 +115,12 @@ def _upto(held: int, pages: int) -> str:
 
 @contextmanager
 def _reading() -> Iterator[None]:
-    """Around the library's calls on the file: what they raise makes it unreadable."""
+    """Around the library's calls on the file: what they raise makes it unreadable, but a want of memory,
+    which is the conversion's, not the file's (the child ends died)."""
     try:
         yield
+    except MemoryError:
+        raise
     except Exception as error:  # an untrusted file: whatever the library raises on it
         log.warning("pdfplumber could not read a file: %s", type(error).__name__)
         raise UnreadablePdf("pdfplumber could not read the file as a PDF") from None

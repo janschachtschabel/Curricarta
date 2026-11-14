@@ -137,12 +137,15 @@ ein Test schlägt an, wenn sie veraltet.
 - Speichergrenze der Kindprozesse (`CHILD_MEMORY_LIMIT_MB`, ohne Standard): Die Grenzen der
   Container sind die erste Linie. Zusätzlich begrenzt die Einstellung unter Linux den Adressraum
   jedes Kindprozesses (Konvertierung, SHACL-Prüfung; `RLIMIT_AS`); auf anderen Systemen wird sie
-  mit einer Warnung übergangen. Eine Anforderung über der Grenze scheitert im Kind selbst: Die
-  Konvertierung endet mit `died`, die Prüfung mit `ShaclCrashed` (`MemoryError`). `RLIMIT_AS`
-  zählt virtuellen Speicher, nicht den belegten: Jedes Kind schreibt am Ende eine Zeile
+  mit einer Warnung übergangen. Eine Anforderung über der Grenze scheitert im Kind selbst. Scheitert
+  sie in Python (`MemoryError`), endet die Konvertierung mit `died` – auch beim Laden der Modelle,
+  ohne weiteren Versuch –, die Prüfung mit `ShaclCrashed` (`MemoryError`, vom Job wiederholt).
+  Scheitert eine Bibliothek auf andere Weise (ein `RuntimeError` ihres Allokators, ein Signal),
+  endet die Konvertierung mit `unreadable` oder `crashed` oder als wiederholter Handler-Fehler.
+  `RLIMIT_AS` zählt virtuellen Speicher, nicht den belegten: Jedes Kind schreibt am Ende eine Zeile
   `peak memory: rss=… MiB, virtual=… MiB` (INFO); die Grenze auf das Doppelte des gemessenen
-  `virtual` setzen, nie nach `rss`. Zu knapp, und die Konvertierung scheitert schon beim Laden
-  der Modelle.
+  `virtual` setzen, nie nach `rss`. Zu knapp, und jede Konvertierung endet schon beim Laden der
+  Modelle mit `died`.
 - Prüfung (X5): Gegen die SHACL-Formen prüft ein Kindprozess des Workers, mit derselben Regel für
   Speichermangel; seinen Speicherbedarf misst M6. Gemessen (CPU, ohne Last): rund 2 s für ein
   Dokument mit 100 Knoten und Aussagen (mit Fundstellen 200 Zeilen), 9 s mit 400, 43 s mit 1.200

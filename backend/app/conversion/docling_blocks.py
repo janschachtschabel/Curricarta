@@ -131,6 +131,8 @@ class DoclingEngine:
         if self._flowing is None:
             try:
                 self._flowing = flow_converter()
+            except MemoryError:  # the conversion's want, not the engine's: the child ends died
+                raise
             except Exception as error:  # ours, not the file's: its library
                 log.exception("Docling could not set up its reading of DOCX and HTML")
                 raise EngineUnavailable(f"Docling could not set up: {type(error).__name__}") from None
@@ -145,6 +147,8 @@ class DoclingEngine:
         if ocr not in self._loaded:
             try:
                 self._loaded[ocr] = _converter(self._models, ocr)
+            except MemoryError:  # the conversion's want, not the engine's: asked again, the same limit
+                raise
             except Exception as error:  # ours, not the file's: its library or its models
                 log.exception("Docling could not load its models")  # its frames: no file of a user in them
                 said = type(error).__name__
