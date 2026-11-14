@@ -46,11 +46,23 @@ def settings_variables(settings_cls: type[BaseSettings]) -> set[str]:
     return names | {f"{name}_FILE" for name in names}
 
 
+def hidden_settings_variables(*settings_classes: type[BaseSettings]) -> set[str]:
+    """The variables the classes read (by default every settings class of the app), upper case."""
+    return set().union(*(settings_variables(cls) for cls in settings_classes or (Settings, LLMSettings)))
+
+
+def environment_without_settings(*settings_classes: type[BaseSettings]) -> dict[str, str]:
+    """A copy of the environment without the variables the classes read; ``os.environ`` untouched -
+    for a child process started from a thread, where ``without_settings_variables`` would race."""
+    hidden = hidden_settings_variables(*settings_classes)
+    return {key: value for key, value in os.environ.items() if key.upper() not in hidden}
+
+
 @contextmanager
 def without_settings_variables(*settings_classes: type[BaseSettings]) -> Iterator[None]:
     """The environment without any variable the classes read (by default every settings class of
     the app: a process's main builds them all), in any case; restored after."""
-    hidden = set().union(*(settings_variables(cls) for cls in settings_classes or (Settings, LLMSettings)))
+    hidden = hidden_settings_variables(*settings_classes)
     with mock.patch.dict(os.environ):
         for key in [key for key in os.environ if key.upper() in hidden]:
             del os.environ[key]
