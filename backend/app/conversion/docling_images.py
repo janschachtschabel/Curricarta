@@ -110,8 +110,12 @@ def pdfium_image_backend() -> type[Any]:
         def __init__(self, in_doc: Any, path_or_stream: BytesIO | Path, options: Any = None) -> None:
             super().__init__(in_doc, path_or_stream, options)
             source = path_or_stream.getvalue() if isinstance(path_or_stream, BytesIO) else path_or_stream
-            with pypdfium2_lock:
-                self._pdfium = pypdfium2.PdfDocument(source)
+            try:
+                with pypdfium2_lock:
+                    self._pdfium = pypdfium2.PdfDocument(source)
+            except Exception:
+                super().unload()
+                raise
 
         def iter_pages(self) -> Any:
             for page in super().iter_pages():
@@ -119,8 +123,10 @@ def pdfium_image_backend() -> type[Any]:
                 yield page
 
         def unload(self) -> None:
-            super().unload()
-            with pypdfium2_lock:
-                self._pdfium.close()
+            try:
+                super().unload()
+            finally:
+                with pypdfium2_lock:
+                    self._pdfium.close()
 
     return PdfiumImageBackend
