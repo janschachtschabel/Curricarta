@@ -32,8 +32,12 @@ async def reword(connection: psycopg.AsyncConnection, account: str, verbatim: st
     assert await edit_statement(connection, reader, said, 1, {"verbatim": WORDS["new"]})
 
 
+def judged_rows(rows: list[dict[str, str]]) -> list[dict[str, str]]:
+    return [row | {"verdict": "correct", "reasons": ""} for row in rows]
+
+
 def judged_all(rows: list[dict[str, str]]) -> bytes:
-    return encoded([row | {"verdict": "correct", "reasons": ""} for row in rows])
+    return encoded(judged_rows(rows))
 
 
 async def test_a_sheet_written_before_a_change_is_taken_after_it_and_again(
@@ -85,4 +89,36 @@ async def test_a_sheet_without_the_shown_marks_is_refused_as_such(
 
     assert refused.value.problems == ["line 1: column_shown_missing"]
     assert [item.id for item in await items_of(connection, sample)]  # the sample stands
+    assert await count(connection, "gold_judgement") == 0
+
+
+@pytest.mark.parametrize("left", ["n/a", ""], ids=["n/a", "empty"])
+async def test_a_sheet_written_after_a_change_imports_where_the_changed_row_is_left_unjudged(
+    connection: psycopg.AsyncConnection, left: str
+) -> None:
+    sample, account = await a_sample(connection)
+    await reword(connection, account, WORDS["outcome"])
+    rows = await sheet_rows(connection, sample, BASE)
+    judged = [
+        row | {"verdict": left, "reasons": left} if row["kind"] == "changed" else row
+        for row in judged_rows(rows)
+    ]
+
+    taken = await take_in(connection, sample, account, encoded(judged))
+
+    assert taken == Taken(judged=4, new=4, changed=0, unchanged=0, left_empty=1)
+
+
+async def test_a_shown_mark_that_lost_its_shape_is_refused_as_such(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    sample, account = await a_sample(connection)
+    rows = judged_rows(await sheet_rows(connection, sample, BASE))
+    rows[0] = rows[0] | {"shown": "6.76E+11"}  # a spreadsheet made a number of it
+    rows[1] = rows[1] | {"shown": "m" + "a" * 12}  # of the shape, another wording's
+
+    with pytest.raises(SheetRefused) as refused:
+        await take_in(connection, sample, account, encoded(rows))
+
+    assert refused.value.problems == ["line 2: shown_mangled", "line 3: item_not_as_drawn"]
     assert await count(connection, "gold_judgement") == 0

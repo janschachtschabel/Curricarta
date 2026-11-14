@@ -8,8 +8,10 @@ A row names its item and mark: the mark must be the item's in this database, els
 database's. A statement's or anchor's item is judged by a verdict with its reasons from the fixed list
 (plan H-3 §1.2), a block's by a count alone; a row whose judging cells are empty (or ``n/a``) is not judged
 yet and takes nothing away. A judgement is taken where the row's ``shown`` is the item's mark - the sheet
-showed it as drawn -, whenever the sheet comes back; else it refuses the sheet: ``item_not_as_drawn``. A
-note longer than the table holds refuses the sheet; one alone, too."""
+showed it as drawn -, whenever the sheet comes back; else it refuses the sheet: ``item_not_as_drawn``, or
+``shown_mangled`` where the cell is neither empty nor of a mark's shape (a spreadsheet's doing, no change of
+the row). A row left unjudged is taken as such, whatever its ``shown``. A note longer than the table holds
+refuses the sheet; one alone, too."""
 
 import argparse
 import asyncio
@@ -135,6 +137,8 @@ def judgements_in(
         found = _judged(line, item, kind)
         if isinstance(found, str):
             problems.append(f"line {line.line}: {found}")
+        elif found is not None and (shown := line.cells.get("shown", "")) and MARK.fullmatch(shown) is None:
+            problems.append(f"line {line.line}: shown_mangled")  # not another wording: a mangled cell
         elif found is not None and line.cells.get("shown") != mark(item):  # the sheet showed another
             problems.append(f"line {line.line}: item_not_as_drawn")
         elif found is None:
