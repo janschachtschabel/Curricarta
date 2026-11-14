@@ -9,6 +9,9 @@ from app.sources.mem import amend_licence
 from app.sources.mem.amend_licence import main
 from tests.support import make_settings
 
+# main configures the process's logging, also the filters of pytest's handlers, which outlive the test
+pytestmark = pytest.mark.usefixtures("restore_logging")
+
 
 @pytest.mark.parametrize(
     "arguments",
