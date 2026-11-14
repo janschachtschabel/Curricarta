@@ -7,13 +7,15 @@ the tests are skipped, unless CURRICARTA_REQUIRE_S3 or CI is set.
 """
 
 import hashlib
+import io
 import os
 import tempfile
 import uuid
 from collections.abc import Iterator
-from typing import BinaryIO, cast
+from typing import Any, BinaryIO, cast
 
 import pytest
+from botocore.awsrequest import AWSResponse  # type: ignore[import-untyped]
 
 from app.core.settings import Settings
 from app.core.storage import ObjectNotFound, StorageNotConfigured, open_storage
@@ -107,6 +109,53 @@ def test_a_stream_of_several_mib_is_stored_whole(storage: S3Storage) -> None:
         storage.put_file("sources/big.pdf", cast(BinaryIO, spooled), len(data))
 
     assert hashlib.sha256(storage.get("sources/big.pdf")).digest() == hashlib.sha256(data).digest()
+
+
+def test_a_retried_put_sends_the_stream_from_where_it_stood_again(storage: S3Storage) -> None:
+    # The first attempt reads the body and is answered 500, as a service may answer; botocore
+    # rewinds the body (seek(0)) and sends it again, here to the local test service
+    data = os.urandom(2 * 2**20)
+    attempts: list[int] = []
+
+    def first_fails(request: Any, **kwargs: Any) -> AWSResponse | None:
+        attempts.append(1)
+        if len(attempts) > 1:
+            return None
+        while request.body.read(2**16):  # sent, as far as the client knows
+            pass
+        return AWSResponse(request.url, 500, {}, Raw(b"<Error><Code>InternalError</Code></Error>"))
+
+    storage.client.meta.events.register("before-send.s3.PutObject", first_fails)
+    try:
+        with tempfile.SpooledTemporaryFile(max_size=2**20) as spooled:
+            spooled.write(b"form head" + data + b"--boundary--")
+            spooled.seek(len(b"form head"))
+
+            storage.put_file("sources/big.pdf", cast(BinaryIO, spooled), len(data))
+    finally:
+        storage.client.meta.events.unregister("before-send.s3.PutObject", first_fails)
+
+    assert len(attempts) == 2
+    assert hashlib.sha256(storage.get("sources/big.pdf")).digest() == hashlib.sha256(data).digest()
+
+
+def test_an_empty_stream_at_its_end_is_stored_empty(storage: S3Storage) -> None:
+    source = io.BytesIO(b"form head")
+    source.seek(0, io.SEEK_END)
+
+    storage.put_file("sources/empty.txt", source, 0)
+
+    assert storage.get("sources/empty.txt") == b""
+
+
+class Raw:
+    """The raw answer AWSResponse reads its content from."""
+
+    def __init__(self, content: bytes) -> None:
+        self._content = content
+
+    def stream(self, **kwargs: Any) -> Iterator[bytes]:
+        yield self._content
 
 
 def test_a_bucket_the_service_does_not_hold_stops_the_opening(service_settings: Settings) -> None:

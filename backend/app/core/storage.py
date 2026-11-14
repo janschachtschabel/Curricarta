@@ -79,7 +79,8 @@ class Storage(Protocol):
     def put(self, key: str, data: bytes) -> None: ...
     def put_file(self, key: str, source: BinaryIO, size: int) -> None:
         """The ``size`` bytes of ``source`` from where it stands, read in pieces; ``source`` must
-        be seekable (S3 rewinds it for a retry). Whole or not at all, as ``put``."""
+        be seekable (a retried S3 PUT reads them again from that place). Whole or not at all, as
+        ``put``."""
         ...
 
     def get(self, key: str) -> bytes: ...

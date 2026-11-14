@@ -14,6 +14,7 @@ Its own module: boto3 takes a noticeable while to import, and a process on the f
 store should not pay for it.
 """
 
+import io
 from typing import Any, BinaryIO
 
 import boto3  # type: ignore[import-untyped]
@@ -53,8 +54,10 @@ class S3Storage:
         self.client.put_object(Bucket=self.bucket, Key=check_key(key), Body=data)
 
     def put_file(self, key: str, source: BinaryIO, size: int) -> None:
-        # botocore reads the stream in pieces from where it stands, and rewinds it there to retry
-        self.client.put_object(Bucket=self.bucket, Key=check_key(key), Body=source, ContentLength=size)
+        # botocore reads the body in pieces and rewinds it with seek(0) before a retry: a window
+        # whose start is where the stream stands, so a retry sends the same size bytes again
+        body = Window(source, size)
+        self.client.put_object(Bucket=self.bucket, Key=check_key(key), Body=body, ContentLength=size)
 
     def get(self, key: str) -> bytes:
         body = self._object(key)["Body"]
@@ -92,6 +95,27 @@ class S3Storage:
         if not self.exists(key):
             raise ObjectNotFound(key)
         self.client.delete_object(Bucket=self.bucket, Key=key)
+
+
+class Window:
+    """``size`` bytes of a seekable stream from where it stands, as a stream of their own: position
+    0 is that place, and reading ends after ``size`` bytes."""
+
+    def __init__(self, source: BinaryIO, size: int) -> None:
+        self._source, self._start, self._size = source, source.tell(), size
+
+    def tell(self) -> int:
+        return self._source.tell() - self._start
+
+    def seek(self, offset: int, whence: int = io.SEEK_SET) -> int:
+        base = {io.SEEK_SET: 0, io.SEEK_CUR: self.tell(), io.SEEK_END: self._size}[whence]
+        position = min(max(base + offset, 0), self._size)
+        self._source.seek(self._start + position)
+        return position
+
+    def read(self, size: int = -1) -> bytes:
+        left = self._size - self.tell()
+        return self._source.read(left if size < 0 else min(size, left)) if left > 0 else b""
 
 
 def error_code(error: ClientError) -> str | None:

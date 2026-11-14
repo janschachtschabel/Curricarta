@@ -12,10 +12,10 @@ import boto3  # type: ignore[import-untyped]
 import pytest
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 from botocore.response import StreamingBody  # type: ignore[import-untyped]
-from botocore.stub import Stubber  # type: ignore[import-untyped]
+from botocore.stub import ANY, Stubber  # type: ignore[import-untyped]
 
 from app.core.storage import InvalidKey, ObjectNotFound
-from app.core.storage_s3 import S3Storage, s3_client
+from app.core.storage_s3 import S3Storage, Window, s3_client
 from tests.support import make_settings
 
 BUCKET = "curricarta-test"
@@ -46,14 +46,31 @@ def test_an_object_is_written_under_its_key(stubbed: tuple[S3Storage, Stubber]) 
 
 
 def test_a_stream_goes_out_as_it_is_with_its_length(stubbed: tuple[S3Storage, Stubber]) -> None:
-    # botocore reads the stream itself, from where it stands, and rewinds it to there for a retry
+    # botocore reads the stream itself; it gets a window over it (below) and the length
     storage, stubber = stubbed
     source = BytesIO(b"form head%PDF")
     source.seek(len(b"form head"))
-    expected = {"Bucket": BUCKET, "Key": "sources/ab.pdf", "Body": source, "ContentLength": 4}
+    expected = {"Bucket": BUCKET, "Key": "sources/ab.pdf", "Body": ANY, "ContentLength": 4}
     stubber.add_response("put_object", {}, expected)
 
     storage.put_file("sources/ab.pdf", source, 4)
+
+
+def test_a_window_rewound_as_botocore_rewinds_reads_the_same_bytes_again() -> None:
+    # a retried PUT rewinds the body with seek(0) (botocore AWSRequest.reset_stream): the window's
+    # start is where the stream stood, and it ends after its size
+    source = BytesIO(b"form head" + b"%PDF-1.7 body" + b"--boundary--")
+    source.seek(len(b"form head"))
+    window = Window(source, len(b"%PDF-1.7 body"))
+
+    first = window.read()
+    window.seek(0)
+    again = b"".join(iter(lambda: window.read(4), b""))
+
+    assert first == again == b"%PDF-1.7 body"
+    assert window.tell() == len(first) and window.seek(0, 2) == len(first)
+    window.seek(5)
+    assert (window.tell(), window.read(3)) == (5, b"1.7")
 
 
 def test_an_object_is_read_back(stubbed: tuple[S3Storage, Stubber]) -> None:
