@@ -21,6 +21,8 @@ ein Test schlägt an, wenn sie veraltet.
 | `DB_POOL_MIN_SIZE` | Zahl ≥ 0 | 1 | – | Dienst |
 | `DB_POOL_MAX_SIZE` | Zahl ≥ 1 | 10 | – | Dienst |
 | `DB_POOL_TIMEOUT_S` | Zahl > 0, ≤ 60 | 5 | – | Dienst |
+| `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` | Zahl ≥ 0, ≤ 3600 | 300 | – | Dienst |
+| `DB_STATEMENT_TIMEOUT_S` | Zahl ≥ 0, ≤ 3600 | 0 | – | Dienst |
 | `HOST` | Text | `127.0.0.1` | – | Dienst |
 | `PUBLIC_PORT` | Zahl ≥ 1, ≤ 65535 | 8000 | – | Dienst |
 | `INTERNAL_PORT` | Zahl ≥ 1, ≤ 65535 | 9000 | – | Dienst |
@@ -130,6 +132,21 @@ ein Test schlägt an, wenn sie veraltet.
   das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress von
   mindestens 60 s voraus. Den Speicher der API bei zwei gleichzeitigen Prüfungen misst M6. Die
   Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
+- Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`). Eine
+  Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der
+  Server; ihre Sperren werden frei, auch die Zeile des Jobs eines hängenden Workers. Eine Anweisung, die
+  länger als `DB_STATEMENT_TIMEOUT_S` läuft (Standard aus; Compose und die Helm-Werte setzen 60 s für die
+  API allein), bricht er ab, das Warten auf eine Sperre eingeschlossen: Die Anfrage antwortet 500. Dazu
+  kommen die Keepalives des Servers (`tcp_keepalives_idle=30`, `tcp_keepalives_interval=10`,
+  `tcp_keepalives_count=3`): Ein Client ohne Lebenszeichen fällt ihm nach rund 60 s auf. Gemessen mit
+  `backend/tools/measure_sessions.py` neben den Datenbanktests: längste Pause in einer Transaktion 2 s,
+  längste Anweisung der API 2 s. Die Kommandos (Migration, Bootstrap, Vokabular, Lizenznachtrag) setzen
+  keine: Eine Migration wartet auf die Sperre einer anderen, solange diese läuft.
+  Hinter PgBouncer kann der Verbindungsaufbau mit `options` scheitern („unsupported startup
+  parameter“). Dann dort `ignore_startup_parameters = options` setzen und dieselben Werte an der
+  Datenbank festlegen, etwa `ALTER ROLE <Rolle> SET idle_in_transaction_session_timeout = '300s'` (für
+  eine eigene Rolle der API auch `statement_timeout = '60s'`); die Keepalives des Servers wirken dann
+  zwischen Server und PgBouncer.
 - `JOB_SHUTDOWN_GRACE_S` mindestens 5 s unter `terminationGracePeriodSeconds` des Workers.
 - `IRI_BASE`: die Basis der IRIs, die ein Dokument beim Festschreiben bekommt (Werk, Dokument,
   Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der Dienst nichts fest

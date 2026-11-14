@@ -87,6 +87,12 @@ def test_the_worker_may_finish_its_job_before_kubernetes_kills_it() -> None:
     assert worker["terminationGracePeriodSeconds"] >= grace + 5
 
 
+def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
+    assert VALUES["api"]["env"]["DB_STATEMENT_TIMEOUT_S"] == "60"
+    assert "DB_STATEMENT_TIMEOUT_S" not in VALUES["env"]
+    assert "DB_STATEMENT_TIMEOUT_S" not in VALUES["worker"]["env"]
+
+
 def test_the_database_and_the_object_store_can_be_the_operators() -> None:
     assert VALUES["postgresql"]["enabled"] is False
     assert VALUES["objectStorage"]["env"]["STORAGE_BACKEND"] == "s3"

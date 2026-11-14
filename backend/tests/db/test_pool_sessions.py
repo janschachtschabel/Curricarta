@@ -1,0 +1,123 @@
+"""The pool's sessions carry the server's limits (app/db/pool.py, ``session_options``): a transaction idle
+past DB_IDLE_IN_TRANSACTION_TIMEOUT_S is ended and its locks go, a statement past DB_STATEMENT_TIMEOUT_S is
+cancelled where one is set, and the server notices a client gone silent by its own keepalives. The connections
+of the commands (the migration, the licence amendment) take none of them: they wait for their lock as long as
+it takes."""
+
+import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
+
+import psycopg
+import pytest
+from psycopg_pool import AsyncConnectionPool
+
+from app.db.pool import CONNECTION_OPTIONS, create_pool
+from app.jobs.queue import Job, claim, enqueue, hold_lease, requeue_expired
+from app.jobs.worker import Worker
+from tests.support import make_settings
+
+pytestmark = [pytest.mark.pg, pytest.mark.anyio]
+
+
+@asynccontextmanager
+async def pool_of(url: str, **settings: object) -> AsyncIterator[AsyncConnectionPool]:
+    pool = create_pool(make_settings(database_url=url, **settings))
+    await pool.open(wait=True)
+    try:
+        yield pool
+    finally:
+        await pool.close()
+
+
+@pytest.fixture
+def url(database_url: str) -> str:
+    with psycopg.connect(database_url, autocommit=True) as connection:
+        connection.execute("CREATE TABLE probe (id int PRIMARY KEY)")
+        connection.execute("INSERT INTO probe VALUES (1)")
+    return database_url
+
+
+async def test_a_session_idle_in_a_transaction_past_its_time_is_ended_and_lets_its_locks_go(url: str) -> None:
+    async with pool_of(url, db_idle_in_transaction_timeout_s=1) as pool, pool.connection() as held:
+        await held.execute("SELECT id FROM probe WHERE id = 1 FOR UPDATE")
+        await asyncio.sleep(1.5)
+
+        with psycopg.connect(url) as other:
+            taken = other.execute("SELECT id FROM probe WHERE id = 1 FOR UPDATE NOWAIT").fetchone()
+        # the server ended the first session: its next word meets the error the server left
+        with pytest.raises(psycopg.errors.IdleInTransactionSessionTimeout):
+            await held.execute("SELECT 1")
+
+    assert taken == (1,)
+
+
+async def test_a_transaction_that_keeps_working_is_not_ended(url: str) -> None:
+    async with pool_of(url, db_idle_in_transaction_timeout_s=1) as pool, pool.connection() as working:
+        for _ in range(5):  # 2 s in all, never idle for 1 s
+            await working.execute("UPDATE probe SET id = id WHERE id = 1")
+            await asyncio.sleep(0.4)
+        await working.commit()
+
+
+async def test_a_statement_past_its_time_is_cancelled_only_where_one_is_set(url: str) -> None:
+    async with pool_of(url, db_statement_timeout_s=1) as limited, limited.connection() as connection:
+        with pytest.raises(psycopg.errors.QueryCanceled):
+            await connection.execute("SELECT pg_sleep(1.5)")
+    async with pool_of(url) as unlimited, unlimited.connection() as connection:
+        await connection.execute("SELECT pg_sleep(1.5)")
+
+
+async def test_the_server_notices_a_client_gone_silent(url: str) -> None:
+    # over TCP, as the test server is reached; over a Unix socket the server has no keepalives to set
+    async with pool_of(url) as pool, pool.connection() as connection:
+        cursor = await connection.execute(
+            "SELECT current_setting('tcp_keepalives_idle'), current_setting('tcp_keepalives_interval'),"
+            " current_setting('tcp_keepalives_count')"
+        )
+        found = await cursor.fetchone()
+
+    assert found == ("30", "10", "3")
+
+
+def test_the_migration_s_connection_keeps_waiting_for_its_lock() -> None:
+    # the commands connect with CONNECTION_OPTIONS: a migration waits for the lock of another as long as it
+    # runs (tests/db/test_migrate.py), and no session timeout of the pool's may end it meanwhile
+    assert "options" not in CONNECTION_OPTIONS
+
+
+async def test_a_dead_worker_s_job_is_handed_back_once_its_session_is_ended(url: str) -> None:
+    async with await psycopg.AsyncConnection.connect(url, autocommit=True) as sweeper:
+        await enqueue(sweeper, "test.work", "account-a", {})
+        job = await claim(sweeper, "gone", ["test.work"], 1)
+        assert job is not None
+        async with pool_of(url, db_idle_in_transaction_timeout_s=1) as pool:
+            # the attempt writes under its lease and then hangs: the job's row stays locked, and a sweep
+            # passes it by while the session lives. Should the attempt wake, its commit meets the end
+            with pytest.raises(psycopg.errors.IdleInTransactionSessionTimeout):
+                async with pool.connection() as stuck:
+                    await hold_lease(stuck, job)
+                    await asyncio.sleep(2.5)
+
+                    handed_back = await requeue_expired(sweeper)
+
+    assert handed_back == ["queued"]
+
+
+async def test_a_job_whose_session_was_ended_is_tried_again(url: str) -> None:
+    # what the worker makes of it: a handler's error like any other, not a database away for a moment
+    async def idles(job: Job) -> None:
+        async with pool.connection() as connection:
+            await connection.execute("SELECT id FROM probe WHERE id = 1 FOR UPDATE")
+            await asyncio.sleep(1.5)
+            await connection.execute("SELECT 1")
+
+    async with pool_of(url, db_idle_in_transaction_timeout_s=1) as pool:
+        async with pool.connection() as connection:
+            job_id = await enqueue(connection, "test.work", "account-a", {}, max_attempts=3)
+        await Worker(pool, {"test.work": idles}, owner="w1").run_once()
+        async with pool.connection() as connection:
+            cursor = await connection.execute("SELECT status, error FROM job WHERE id = %s", (job_id,))
+            found = await cursor.fetchone()
+
+    assert found == ("queued", {"code": "handler_error", "message": "IdleInTransactionSessionTimeout"})

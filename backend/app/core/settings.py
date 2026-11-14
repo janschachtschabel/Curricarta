@@ -126,6 +126,13 @@ class Settings(BaseSettings):
     db_pool_max_size: Annotated[int, Field(ge=1)] = 10
     # How long a request waits for a pool connection before it answers 503
     db_pool_timeout_s: Annotated[float, Field(gt=0, le=60)] = 5.0
+    # How long a session of the pool may sit in a transaction doing nothing before the server ends it and
+    # its locks go - a process stuck in one holds no row past it; 0 for none. The longest pause measured
+    # was 2 s (tools/measure_sessions.py)
+    db_idle_in_transaction_timeout_s: Annotated[int, Field(ge=0, le=3600)] = 300
+    # How long one statement of the pool's sessions may run, waiting for a lock included, before the server
+    # cancels it (an error 500 in the API); 0 for none. The deployment sets 60 for the API alone
+    db_statement_timeout_s: Annotated[int, Field(ge=0, le=3600)] = 0
     # Loopback unless set: the image sets 0.0.0.0, a developer's start stays off the network
     host: str = "127.0.0.1"
     public_port: Port = 8000

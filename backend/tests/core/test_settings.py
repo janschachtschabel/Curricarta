@@ -278,6 +278,35 @@ def test_a_request_waits_for_a_connection_a_bounded_time(
         Settings()
 
 
+def test_the_database_sessions_end_an_idle_transaction_and_let_statements_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", FAKE_URL)
+
+    settings = Settings()
+
+    assert (settings.db_idle_in_transaction_timeout_s, settings.db_statement_timeout_s) == (300, 0)
+
+
+@pytest.mark.parametrize(
+    ("variable", "value"),
+    [
+        ("DB_IDLE_IN_TRANSACTION_TIMEOUT_S", "-1"),
+        ("DB_IDLE_IN_TRANSACTION_TIMEOUT_S", "3601"),
+        ("DB_STATEMENT_TIMEOUT_S", "-1"),
+        ("DB_STATEMENT_TIMEOUT_S", "3601"),
+    ],
+)
+def test_the_database_sessions_timeouts_are_bounded(
+    monkeypatch: pytest.MonkeyPatch, variable: str, value: str
+) -> None:
+    monkeypatch.setenv("DATABASE_URL", FAKE_URL)
+    monkeypatch.setenv(variable, value)
+
+    with pytest.raises(ValidationError, match=variable.lower()):
+        Settings()
+
+
 def test_the_worker_s_times_have_defaults(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("DATABASE_URL", FAKE_URL)
 

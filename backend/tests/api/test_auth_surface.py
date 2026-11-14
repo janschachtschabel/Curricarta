@@ -188,8 +188,19 @@ def test_a_name_that_grows_past_the_limit_in_its_one_spelling_is_refused(databas
         (psycopg.errors.lookup("40P01")("deadlock detected"), 500),
         (psycopg.errors.lookup("57014")("canceling statement due to statement timeout"), 500),
         (psycopg.errors.lookup("54000")("program limit exceeded"), 500),
+        # a session the server ended for its idle transaction (DB_IDLE_IN_TRANSACTION_TIMEOUT_S): a fault
+        (psycopg.errors.lookup("25P03")("terminating connection due to idle-in-transaction timeout"), 500),
     ],
-    ids=["closed", "connection-failure", "admin-shutdown", "pool-timeout", "deadlock", "canceled", "limit"],
+    ids=[
+        "closed",
+        "connection-failure",
+        "admin-shutdown",
+        "pool-timeout",
+        "deadlock",
+        "canceled",
+        "limit",
+        "idle-in-transaction",
+    ],
 )
 def test_only_a_database_away_answers_503(restore_logging: None, error: Exception, status: int) -> None:
     # a deadlock or a statement too big is a fault to see in the log, not a reason to try again

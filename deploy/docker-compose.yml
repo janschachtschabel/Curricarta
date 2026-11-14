@@ -94,6 +94,8 @@ services:
       # the web server is the only proxy: its address alone, not the network, which holds the
       # gateway every connection to the published port comes from
       FORWARDED_ALLOW_IPS: 172.30.123.10
+      # a statement of a request past it is cancelled (500): the longest measured took 2 s
+      DB_STATEMENT_TIMEOUT_S: "60"
     deploy:
       replicas: 2
     restart: unless-stopped

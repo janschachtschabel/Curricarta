@@ -21,6 +21,24 @@ CONNECTION_OPTIONS: dict[str, Any] = {
     "keepalives_count": 3,
     "tcp_user_timeout": 10_000,
 }
+# The server's side of it: a client gone without a word (its host down, the network cut) is noticed in
+# some 60 s, and the locks of its open transaction go - its job's row among them, which a sweep passes by
+SERVER_KEEPALIVES = {"tcp_keepalives_idle": 30, "tcp_keepalives_interval": 10, "tcp_keepalives_count": 3}
+
+
+def session_options(settings: Settings) -> str:
+    """libpq's ``options`` for the pool's sessions: the timeouts the settings set (a 0 is none, and left
+    out), then the server's keepalives. The commands' connections (CONNECTION_OPTIONS) take none: the
+    migration waits for another's lock as long as it runs.
+
+    Behind PgBouncer, which may refuse ``options`` at the start of a session, the same values are set by
+    ``ALTER ROLE … SET`` (docs/uebergabe/konfiguration.md)."""
+    values = {
+        "idle_in_transaction_session_timeout": settings.db_idle_in_transaction_timeout_s * 1000,
+        "statement_timeout": settings.db_statement_timeout_s * 1000,
+    }
+    chosen = {name: value for name, value in values.items() if value} | SERVER_KEEPALIVES
+    return " ".join(f"-c {name}={value}" for name, value in chosen.items())
 
 
 def create_pool(settings: Settings, *, name: str = "curricarta") -> AsyncConnectionPool:
@@ -34,7 +52,7 @@ def create_pool(settings: Settings, *, name: str = "curricarta") -> AsyncConnect
         settings.database_url.get_secret_value(),
         min_size=settings.db_pool_min_size,
         max_size=settings.db_pool_max_size,
-        kwargs={**CONNECTION_OPTIONS, "application_name": name},
+        kwargs={**CONNECTION_OPTIONS, "application_name": name, "options": session_options(settings)},
         check=AsyncConnectionPool.check_connection,
         timeout=settings.db_pool_timeout_s,
         reconnect_timeout=RECONNECT_TIMEOUT_S,

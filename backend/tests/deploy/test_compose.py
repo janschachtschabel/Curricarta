@@ -115,6 +115,14 @@ def test_the_api_trusts_the_web_server_alone_to_name_the_client() -> None:
     assert ipaddress.ip_address(web) not in ipaddress.ip_network(network["ip_range"])
 
 
+def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
+    # a request's statement; a worker's step may wait for a lock longer (no timeout there)
+    others = [name for name, service in SERVICES.items() if name != "api"]
+
+    assert SERVICES["api"]["environment"]["DB_STATEMENT_TIMEOUT_S"] == "60"
+    assert all("DB_STATEMENT_TIMEOUT_S" not in SERVICES[name].get("environment", {}) for name in others)
+
+
 def test_the_database_counts_as_healthy_once_it_listens_on_tcp() -> None:
     # On the first start the entrypoint runs a server on its socket only, to make the database:
     # pg_isready over the socket says healthy then, and the migration finds port 5432 closed
