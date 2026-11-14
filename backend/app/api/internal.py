@@ -25,9 +25,10 @@ METRICS_PATH = "/metrics"
 INTERNAL_PATHS = frozenset({"/health", "/ready", METRICS_PATH})
 # A probe has a short deadline of its own; waiting longer helps nobody. It bounds the wait for a
 # pool connection and, as statement_timeout, each statement - ended by the server, which must
-# answer to end it. A peer gone silent (packets dropped) is left to TCP until the session settings
-# (keepalives, tcp_user_timeout) are set; cancelling in the process would not help, psycopg waits
-# for the server's answer to its cancel request without a bound
+# answer to end it. A peer gone silent (packets dropped) is noticed by TCP, through the pool's
+# keepalives and tcp_user_timeout (CONNECTION_OPTIONS in app/db/pool.py; tcp_user_timeout on Linux
+# only), not by a bound in the process: psycopg waits for the server's answer to its cancel request
+# without a bound
 READY_TIMEOUT_S = 2.0
 # Scrapes come every few seconds, from more than one Prometheus; the job table is asked at most this
 # often per process, and a queue that stalls takes minutes to matter
@@ -68,7 +69,8 @@ async def ready(request: Request) -> JSONResponse:
 async def _with_deadline(connection: psycopg.AsyncConnection) -> None:
     """The transaction's statements get the probe's deadline, local to it: a locked or busy database
     ends them, so it holds neither a probe nor a scrape, nor a pool connection per waiting one.
-    The server ends them; a peer gone silent is TCP's to notice (READY_TIMEOUT_S)."""
+    The server ends them; a peer gone silent is noticed by TCP through the pool's keepalives and
+    tcp_user_timeout (CONNECTION_OPTIONS in app/db/pool.py), see READY_TIMEOUT_S."""
     deadline = f"{int(READY_TIMEOUT_S * 1000)}ms"
     await connection.execute("SELECT set_config('statement_timeout', %s, true)", (deadline,))
 
@@ -89,7 +91,8 @@ async def scrape(request: Request) -> Response:
 async def _read_queue(state: State) -> None:
     """The queue's gauges, read anew at most every QUEUE_READ_EVERY_S. A failed read leaves the last
     values and counts the failure; the scrape answers all the same, after the pool's wait and the
-    statement's at most - while the database answers (READY_TIMEOUT_S)."""
+    statement's at most while the database answers; a peer gone silent takes as long as TCP needs
+    to notice it (READY_TIMEOUT_S)."""
     now = time.monotonic()
     if state.queue_read_at is not None and now - state.queue_read_at < QUEUE_READ_EVERY_S:
         return
