@@ -241,6 +241,11 @@ async function signOut(): Promise<void> {
   font-size: var(--step--1);
 }
 
+/* The retry beside the notice: a link's look, but 24px tall to hit (WCAG 2.5.8), not by spacing alone. */
+.shell__who .btn.link {
+  min-height: 24px;
+}
+
 .shell__roles {
   display: block;
   color: var(--text-muted);

@@ -160,6 +160,13 @@ describe("the shell for an account", () => {
 
 
 describe("the shell while an account is held but not loaded", () => {
+  // 23.3 px tall, passing 2.5.8 by spacing alone (browser check 2, NIT 9); jsdom lays nothing out
+  it("draws its retry tall enough to hit", () => {
+    const rules = cssRules(stylesOf(readFileSync(join(SRC, "App.vue"), "utf8")));
+    const rule = rules.find(({ selectors }) => selectors.includes(".shell__who .btn.link"));
+    expect(rule?.body).toMatch(/min-height:\s*24px/);
+  });
+
   it("offers no sign-in, as if nobody were signed in", async () => {
     api.setToken("curricarta_token");
     vi.spyOn(api, "getMe").mockReturnValue(new Promise(() => undefined));
