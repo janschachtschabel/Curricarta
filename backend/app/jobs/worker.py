@@ -29,7 +29,7 @@ import psycopg
 from psycopg_pool import AsyncConnectionPool, PoolTimeout
 
 from app.core.logging import current_request_id, set_request_id
-from app.core.metrics import observe_expired_leases, observe_job, observe_reservations
+from app.core.metrics import JobOutcome, observe_expired_leases, observe_job, observe_reservations
 from app.core.tracing import continue_trace, end_trace
 from app.jobs.outcome import Ending, Outcome, PermanentError, Result, one_line, say_failure, write_outcome
 from app.jobs.queue import Job, LeaseLost, claim, heartbeat, requeue_expired
@@ -248,7 +248,7 @@ class Worker:
             log.info("handed %d job(s) with an expired lease back", len(handed_back))
 
 
-def _how_it_ended(outcome: Outcome) -> str:
+def _how_it_ended(outcome: Outcome) -> JobOutcome:
     """The outcome label of a run its handler ended (app/core/metrics.py)."""
     if isinstance(outcome, PermanentError):
         return "failed"

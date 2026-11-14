@@ -7,6 +7,7 @@ so the number of series stays bounded.
 """
 
 from collections.abc import Collection, Iterable, Mapping
+from typing import Literal
 
 from prometheus_client import REGISTRY, Counter, Gauge, Histogram
 from prometheus_client.exposition import choose_encoder
@@ -37,7 +38,9 @@ JOB_DURATION_BUCKETS = (1, 5, 15, 30, 60, 120, 300, 600, 1200, 1800, 3600)
 # outcome, as the worker saw the run end and wrote it: done, failed (PermanentError), error
 # (retried while attempts remain), cancelled, released (handed back at a shutdown), lost (its
 # lease, seen at a heartbeat, by the handler or at the end - or an outcome that could not be
-# written: either way the job runs again once its lease expires)
+# written: either way the job runs again once its lease expires). Typed, so the alert rules can be
+# held to the values the code sets (tests/deploy/test_alert_rules.py)
+JobOutcome = Literal["done", "failed", "error", "cancelled", "released", "lost"]
 JOBS = Counter("curricarta_jobs_total", "Job runs by kind and how they ended", ["kind", "outcome"])
 JOB_DURATION = Histogram(
     "curricarta_job_duration_seconds",
@@ -64,6 +67,7 @@ CONVERSION_PAGES = Counter("curricarta_conversion_pages_total", "Pages converted
 # unanswered (sent, never answered) or unsent (the provider never reached); and their tokens by
 # kind - input (of it, cached_input), output, as the provider reported them, and estimated: what
 # was held for one unanswered, or for an answer that reported no usage
+LLMOutcome = Literal["answered", "refused", "unanswered", "unsent"]
 LLM_REQUESTS = Counter(
     "curricarta_llm_requests_total", "Requests to the language model by how they ended", ["outcome"]
 )
@@ -131,14 +135,14 @@ def observe_pool(stats: Mapping[str, int]) -> None:
 
 
 def observe_llm_request(
-    outcome: str,
+    outcome: LLMOutcome,
     *,
     input_tokens: int = 0,
     cached_input_tokens: int = 0,
     output_tokens: int = 0,
     estimated_tokens: int = 0,
 ) -> None:
-    """``outcome`` is answered, refused, unanswered or unsent: a fixed set."""
+    """``outcome`` is one of LLMOutcome: a fixed set."""
     LLM_REQUESTS.labels(outcome).inc()
     tokens = {
         "input": input_tokens,
@@ -164,7 +168,7 @@ def observe_conversion(engine: str, outcome: str, pages: int = 0) -> None:
         CONVERSION_PAGES.labels(engine).inc(pages)
 
 
-def observe_job(kind: str, outcome: str, seconds: float) -> None:
+def observe_job(kind: str, outcome: JobOutcome, seconds: float) -> None:
     """``kind`` is a kind the worker has a handler for: a fixed set, so the series stay few."""
     JOBS.labels(kind, outcome).inc()
     JOB_DURATION.labels(kind).observe(seconds)

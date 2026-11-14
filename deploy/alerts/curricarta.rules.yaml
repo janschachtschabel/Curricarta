@@ -1,0 +1,112 @@
+# Alert rules for the operators' Prometheus: a rule file as Prometheus loads it (rule_files), and the
+# groups a PrometheusRule's spec takes (helm-values.example.yaml, monitoring.prometheusRule).
+# Checked by backend/tests/deploy/test_alert_rules.py: every series is one the service exports,
+# every label value one the code sets.
+#
+# The thresholds are first values, not measured yet; tune them to what a quiet week shows.
+# The queue's gauges come from every API replica alike (each reads the same job table at its scrape):
+# they are read with max, never sum.
+groups:
+  - name: curricarta
+    rules:
+      - alert: CurricartaQueueStalled
+        expr: max by (kind) (curricarta_queue_oldest_waiting_seconds) > 900
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Jobs of kind {{ $labels.kind }} have waited over 15 minutes and no worker takes them"
+          description: >-
+            Look whether the workers of this kind run and stay live (WORKER_KINDS, their /health and
+            logs); a worker that cannot claim logs "could not claim a job". Scale the workers or
+            restart a stuck one; the jobs keep their place in the queue.
+
+      - alert: CurricartaQueueDeep
+        expr: max by (kind) (curricarta_queue_jobs{status="queued"}) > 100
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Over 100 jobs of kind {{ $labels.kind }} are waiting"
+          description: >-
+            More is asked than the workers of this kind finish. Look at curricarta_job_duration_seconds
+            for slower jobs and at the accounts' lanes for one that enqueues a lot; add workers of
+            this kind if the load is real.
+
+      - alert: CurricartaLeasesExpiring
+        expr: sum(increase(curricarta_job_leases_expired_total[15m])) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "More than 3 job leases expired within 15 minutes"
+          description: >-
+            Workers die or their loop is held while they run a job (out of memory, a child process
+            killed, a node drained). Look at the workers' restarts, memory limits and their log lines
+            "lost the lease of job"; the jobs run again while attempts remain.
+
+      - alert: CurricartaJobsFailing
+        expr: >-
+          sum by (kind) (rate(curricarta_jobs_total{outcome=~"error|lost"}[15m]))
+          / sum by (kind) (rate(curricarta_jobs_total[15m])) > 0.2
+        for: 15m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Over 20 % of the runs of kind {{ $labels.kind }} end in an error or a lost lease"
+          description: >-
+            Read the workers' log lines of the failing jobs (by their trace id) for the error;
+            an unreachable dependency (database, object store, the model's provider, the converter)
+            fails every kind that needs it at once.
+
+      - alert: CurricartaModelRefusing
+        expr: >-
+          sum(rate(curricarta_llm_requests_total{outcome!="answered"}[5m]))
+          / sum(rate(curricarta_llm_requests_total[5m])) > 0.2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Over 20 % of the requests to the language model go unanswered"
+          description: >-
+            Check the provider's status, the key (OPENAI_API_KEY) and its quota, and OPENAI_BASE_URL;
+            refused requests are HTTP errors of the provider, unsent ones never reached it (network,
+            proxy, DNS).
+
+      - alert: CurricartaApiErrors
+        expr: >-
+          sum(rate(curricarta_http_requests_total{status=~"5.."}[5m]))
+          / sum(rate(curricarta_http_requests_total[5m])) > 0.05
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Over 5 % of the API's answers are server errors"
+          description: >-
+            Read the API's log lines of the 5xx answers (by route and request id); 503 mostly means
+            the database or the object store did not answer in time - see /ready and
+            CurricartaPoolSaturated.
+
+      - alert: CurricartaPoolSaturated
+        expr: max(curricarta_db_pool_requests_waiting) > 0
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Requests wait for a database connection of the pool"
+          description: >-
+            The pool's connections are all taken (DB_POOL_MAX_SIZE). Look for slow queries or locks in
+            the database (pg_stat_activity); raise DB_POOL_MAX_SIZE or add replicas only if the
+            database takes the connections.
+
+      - alert: CurricartaQueueUnread
+        expr: increase(curricarta_queue_reads_failed_total[10m]) > 3
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "An API replica could not read the job queue for its metrics"
+          description: >-
+            The queue's gauges stand at their last values. The database did not answer within the
+            probe's deadline: look at /ready of the replica, the database's load and its locks on the
+            table job; the API logs "could not read the queue for the metrics".
