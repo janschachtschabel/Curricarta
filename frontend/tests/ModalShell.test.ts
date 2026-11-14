@@ -299,6 +299,29 @@ describe("the page behind an open frame", () => {
     expect(document.body.style.overflow).toBe("");
   });
 
+  // each frame kept its own "before", so closing out of order gave the page the wrong one (UI review 1, NIT 16)
+  it("gives the page its scrolling back as it was, whichever frame goes first", () => {
+    document.body.innerHTML = '<div id="one"></div><div id="two"></div>';
+    document.body.style.overflow = "clip";
+    const first = mount(ModalShell, {
+      props: { labelledby: "a" },
+      slots: { default: '<h2 id="a">A</h2>' },
+      attachTo: document.getElementById("one") as HTMLElement,
+    });
+    const second = mount(ModalShell, {
+      props: { labelledby: "b" },
+      slots: { default: '<h2 id="b">B</h2>' },
+      attachTo: document.getElementById("two") as HTMLElement,
+    });
+
+    first.unmount();
+    expect(document.body.style.overflow).toBe("hidden");
+    second.unmount();
+
+    expect(document.body.style.overflow).toBe("clip");
+    document.body.style.overflow = "";
+  });
+
   it("leaves inert what was inert before it opened", () => {
     document.body.innerHTML = '<aside id="away" inert></aside><div id="host"></div>';
     const wrapper = mount(ModalShell, {

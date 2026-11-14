@@ -1,6 +1,8 @@
 <script lang="ts">
 // The frames open, the last opened on top: Escape is the top one's alone.
 const openFrames: symbol[] = [];
+// The page's scrolling before the first frame opened: one for all frames, given back by whichever goes last
+let overflowBefore = "";
 </script>
 
 <script setup lang="ts">
@@ -38,7 +40,6 @@ let previouslyFocused: HTMLElement | null = null;
 // dialog - and does not scroll under the scrim. Inert are the siblings of the frame and of each element it sits in,
 // up to the body: the frame renders where its opener is, not at the body's end. What was inert before stays so.
 const madeInert: Element[] = [];
-let overflowBefore = "";
 
 function quietPage(): void {
   for (let inside: Element | null = backdrop.value; inside && inside !== document.body; inside = inside.parentElement) {
