@@ -14,6 +14,8 @@ export type SessionState = "none" | "loading" | "ready" | "failed";
 const current = ref<Me | null>(null);
 const state = ref<SessionState>("none");
 const failure = ref<unknown>(null);
+// An account that failed and is asked for again: the shell keeps its notice, retry and way out mounted meanwhile
+const askingAgain = ref(false);
 // Bumped by every change of account: an answer to an older question is dropped
 let generation = 0;
 let loading: Promise<void> | null = null;
@@ -21,6 +23,8 @@ let loading: Promise<void> | null = null;
 export const session: ComputedRef<Me | null> = computed(() => current.value);
 export const sessionState: ComputedRef<SessionState> = computed(() => state.value);
 export const sessionFailure: ComputedRef<unknown> = computed(() => failure.value);
+/** Loading an account whose last loading failed. */
+export const sessionAskingAgain: ComputedRef<boolean> = computed(() => askingAgain.value);
 
 export function hasRole(role: Role): boolean {
   return current.value?.roles.includes(role) ?? false;
@@ -38,6 +42,7 @@ export function setSession(me: Me): void {
   current.value = me;
   state.value = "ready";
   failure.value = null;
+  askingAgain.value = false;
 }
 
 export function clearSession(): void {
@@ -46,6 +51,7 @@ export function clearSession(): void {
   current.value = null;
   state.value = "none";
   failure.value = null;
+  askingAgain.value = false;
 }
 
 /**
@@ -73,6 +79,7 @@ export function ensureSession(): Promise<void> {
     }
     apply();
   };
+  askingAgain.value = state.value === "failed";
   state.value = "loading";
   failure.value = null;
   loading = getMe().then(
@@ -80,6 +87,7 @@ export function ensureSession(): Promise<void> {
     (error: unknown) =>
       settle(() => {
         loading = null;
+        askingAgain.value = false;
         state.value = "failed";
         failure.value = error;
       }),

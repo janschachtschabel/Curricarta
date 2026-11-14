@@ -213,6 +213,45 @@ describe("the shell while an account is held but not loaded", () => {
     expect(wrapper.find("[data-test=account-failed]").exists()).toBe(false);
   });
 
+  // the notice, its button and "Abmelden" went for the whole request, the keyboard with them (UI review 1, finding 3)
+  it("keeps the notice, its button and the way out while it asks again, and says how it went", async () => {
+    api.setToken("curricarta_token");
+    let answer: (me: typeof ME) => void = () => undefined;
+    let refuse: (error: unknown) => void = () => undefined;
+    vi.spyOn(api, "getMe")
+      .mockRejectedValueOnce(new api.ApiError("network", 0))
+      .mockReturnValueOnce(new Promise((_resolve, reject) => (refuse = reject)))
+      .mockReturnValueOnce(new Promise((resolve) => (answer = resolve)));
+    vi.spyOn(api, "listSources").mockResolvedValue(page([]));
+    const wrapper = await render("/quellen");
+    const status = wrapper.get("[data-test=account-status]");
+    expect(status.attributes("role")).toBe("status");
+
+    const retry = wrapper.get("[data-test=account-retry]");
+    (retry.element as HTMLElement).focus();
+    await retry.trigger("click");
+    await flushPromises();
+    // asking: all there, the keyboard where it was, a second press not a second question
+    expect(wrapper.find("[data-test=account-failed]").exists()).toBe(true);
+    expect(document.activeElement).toBe(retry.element);
+    expect(retry.attributes("aria-disabled")).toBe("true");
+    expect(wrapper.find(".shell__sign-out").exists()).toBe(true);
+    await retry.trigger("click");
+    expect(api.getMe).toHaveBeenCalledTimes(2);
+
+    refuse(new api.ApiError("network", 0));
+    await flushPromises();
+    expect(status.text()).toBe(t("app.accountFailed"));
+    expect(document.activeElement).toBe(retry.element);
+    expect(retry.attributes("aria-disabled")).toBeUndefined();
+
+    await retry.trigger("click");
+    answer(ME);
+    await flushPromises();
+    expect(status.text()).toBe(t("app.accountLoaded"));
+    expect(wrapper.find("[data-test=account-failed]").exists()).toBe(false);
+  });
+
   it("leaves saying it to the start, which says it with its own retry", async () => {
     api.setToken("curricarta_token");
     vi.spyOn(api, "getMe").mockRejectedValue(new api.ApiError("network", 0));

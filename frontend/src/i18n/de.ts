@@ -38,6 +38,8 @@ export const messages = {
     signOut: "Abmelden",
     // in the shell, a token held whose account did not load (App.vue)
     accountFailed: "Dein Konto wurde nicht geladen.",
+    // said once a retry in the shell loaded it
+    accountLoaded: "Dein Konto ist geladen.",
   },
   // one convention in every form: a required field says so in its label, a free one says nothing (formWords.ts)
   forms: {

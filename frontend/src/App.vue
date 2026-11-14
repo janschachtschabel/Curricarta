@@ -12,8 +12,9 @@ import AppIcon from "@/components/AppIcon.vue";
 import BrandMark from "@/components/BrandMark.vue";
 import { keepFocusInPage } from "@/focusRescue";
 import { LOCALE, t } from "@/i18n/de";
+import { sayAnew } from "@/liveRegion";
 import { visibleDestinations, type Destination } from "@/navigation";
-import { clearSession, ensureSession, session, sessionState } from "@/session";
+import { clearSession, ensureSession, session, sessionAskingAgain, sessionState } from "@/session";
 
 const route = useRoute();
 const router = useRouter();
@@ -24,15 +25,15 @@ const accountHeld = computed(() => sessionState.value === "loading" || sessionSt
 const destinations = computed(() =>
   session.value ? visibleDestinations(session.value.roles) : accountHeld.value ? visibleDestinations([]) : [],
 );
-const retrying = ref(false);
+// failed, or failed and asked for again: the notice, its retry and the way out stay, the keyboard on the button
+const accountFailed = computed(() => sessionState.value === "failed" || sessionAskingAgain.value);
+// how a retry went, heard: the notice stays as it was while asking, and goes once the account came
+const accountStatus = ref("");
 
 async function retryAccount(): Promise<void> {
-  retrying.value = true;
-  try {
-    await ensureSession();
-  } finally {
-    retrying.value = false;
-  }
+  await ensureSession();
+  if (sessionState.value === "ready") accountStatus.value = sayAnew(accountStatus.value, t("app.accountLoaded"));
+  else if (sessionState.value === "failed") accountStatus.value = sayAnew(accountStatus.value, t("app.accountFailed"));
 }
 const roles = computed(() =>
   new Intl.ListFormat(LOCALE).format((session.value?.roles ?? []).map((role) => t(`app.roles.${role}`))),
@@ -100,14 +101,14 @@ async function signOut(): Promise<void> {
     </nav>
     <div class="shell__account">
       <!-- not on the start, which says it itself, with its own retry -->
-      <p v-if="sessionState === 'failed' && route.name !== 'start'" class="shell__who" data-test="account-failed">
+      <p v-if="accountFailed && route.name !== 'start'" class="shell__who" data-test="account-failed">
         {{ t("app.accountFailed") }}
         <button
           type="button"
           class="btn link"
           data-test="account-retry"
-          :aria-disabled="retrying || undefined"
-          @click="retrying || retryAccount()"
+          :aria-disabled="sessionAskingAgain || undefined"
+          @click="sessionAskingAgain || retryAccount()"
         >
           {{ t("states.retry") }}
         </button>
@@ -119,7 +120,7 @@ async function signOut(): Promise<void> {
       <!-- The way out - for a token held whose account did not load too: a
            refused token behind a locked address has no other -->
       <button
-        v-if="session || sessionState === 'failed'"
+        v-if="session || accountFailed"
         type="button"
         class="btn secondary btn-sm shell__sign-out"
         @click="signOut"
@@ -134,6 +135,8 @@ async function signOut(): Promise<void> {
       >
         {{ t("app.signIn") }}
       </RouterLink>
+      <!-- always in the page, so a retry's outcome is read out -->
+      <p class="visually-hidden" role="status" data-test="account-status">{{ accountStatus }}</p>
     </div>
   </header>
   <!-- `tabindex="-1"` so the skip link and a navigation can put focus here; it
