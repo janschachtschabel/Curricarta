@@ -21,14 +21,19 @@ from app.core.ids import new_id
 from app.core.storage import FileSystemStorage
 from app.db.conversions import all_blocks, printed_pages
 from app.db.documents import Document
+from app.db.gold import Judgement, items_of, judge
 from app.db.measures import model_statements
+from app.db.nodes import write_subtree
+from app.domain.l1 import NodeDraft
 from app.llm.raw import answer_key
 from app.pipeline import statement_read
 from app.pipeline.replay import Replayed, replay_x4
 from app.pipeline.run import extract_document
 from app.quality.report import closed
+from app.quality.sample import Request, draw
 from tests.llm.test_client import llm_settings
-from tests.pipeline.test_run import BODY, Model, a_document, a_job, a_statement, context_of, rows, setup
+from tests.pipeline.test_run import BODY, CV, Model, a_document, a_job, a_statement, context_of, rows, setup
+from tests.quality.gold_documents import MODEL, PROPOSED, done, statement
 from tests.support import make_settings, without_settings_variables
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -227,3 +232,50 @@ async def test_a_document_without_raw_answers_says_so(setup: Any, tmp_path: Path
     assert (nowhere.returncode, nowhere.stdout) == (1, b"")
     assert b"unknown_document" in nowhere.stderr
     assert amiss.returncode == 2  # x4 alone is replayed
+
+
+def report_command(database_url: str, store: Path, *arguments: str) -> subprocess.CompletedProcess[bytes]:
+    with without_settings_variables():
+        environment = {**os.environ, "DATABASE_URL": database_url, "STORAGE_DIR": str(store)}
+    return subprocess.run(  # noqa: S603 - the interpreter running the tests, the tests' own arguments
+        [sys.executable, "-m", "app.quality.report", *arguments],
+        cwd=BACKEND,
+        env=environment,
+        capture_output=True,
+        timeout=180,
+        check=False,
+    )
+
+
+async def test_the_gold_report_tells_what_the_replay_keeps_of_the_judgements(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    pool, connection = setup
+    document = await extracted(pool, connection, tmp_path, database_url, Model())
+    [(account,)] = await rows(connection, "SELECT name FROM account WHERE id = %s", document.owner_id)
+    sample = (await draw(connection, Request(document.id, "statement", "pilot-1", account))).sample
+    for item in await items_of(connection, sample):
+        await judge(connection, item.id, document.owner_id, Judgement("correct", (), None, None))
+    # a document whose statements no run of the model wrote: nothing kept to replay
+    unextracted = await a_document(connection)
+    root = NodeDraft(
+        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title="Kompetenzen",
+        statements=(statement(BODY),),
+    )  # fmt: skip
+    await write_subtree(connection, unextracted.id, root)
+    await done(connection, unextracted, "X4")
+    [(other,)] = await rows(connection, "SELECT name FROM account WHERE id = %s", unextracted.owner_id)
+    elsewhere = (await draw(connection, Request(unextracted.id, "statement", "pilot-2", other))).sample
+
+    made = report_command(database_url, tmp_path / "store", "--sample", str(sample), "--replayed")
+    refused = report_command(database_url, tmp_path / "store", "--sample", str(elsewhere), "--replayed")
+
+    assert made.returncode == 0, made.stderr
+    statements = json.loads(made.stdout)["documents"][0]["statement"]
+    assert statements["replayed"] == {
+        "kept_correct": 2, "kept_imprecise": 0, "kept_wrong": 0,
+        "gone_correct": 0, "gone_imprecise": 0, "gone_wrong": 0,
+        "new_unjudged": 0,
+    }  # fmt: skip
+    assert (refused.returncode, refused.stdout) == (1, b"")
+    assert b"no_raw_answers" in refused.stderr

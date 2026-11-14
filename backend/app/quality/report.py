@@ -1,5 +1,6 @@
-"""``python -m app.quality.report --sample <id> [--sample <id> ...]``: what the judgements of gold samples
-measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever samples of it are named:
+"""``python -m app.quality.report --sample <id> [--sample <id> ...] [--replayed]``: what the judgements of
+gold samples measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever samples of it
+are named:
 
 - ``statement``: by stratum the population when drawn (``frame``), drawn, judged, correct, imprecise,
   wrong, unjudged; the reasons; precision strict and lenient and the wrong rate weighted by each stratum's
@@ -13,6 +14,10 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
   all of them, and again without the title pages' (``front:*``) -, beside ``title_pages`` as kept when
   drawn; apart, ``not_found``: the rows the import did not find - in the frame, drawn, judged, open - and
   how many of those judged hold a wording that is there after all (``missed``, ``missed_rate``).
+- with ``--replayed``, in the statement section: what a replay of the document's kept answers
+  (``python -m app.pipeline.replay``) would keep and lose of the judgements, by verdict, and how many
+  statements it reads that nobody judged (``replayed``; app/quality/report_replay.py) - the precision after
+  a change to the reader, without a new run and without writing.
 
 A weighted rate is said once no drawn item is open in the strata that enter that measure: the anchors'
 precision waits for the found strata alone, the figure without the title pages for those not ``front:*``.
@@ -36,10 +41,14 @@ import psycopg
 
 from app.core.logging import configure_logging
 from app.core.settings import Settings
+from app.core.storage import open_storage
 from app.db.gold import Item, Judgement, Sample, items_of, judgements_of, judges_of, sample_by_id
 from app.db.gold_report import found_in_blocks, head_of
 from app.db.pool import CONNECTION_OPTIONS
+from app.llm.settings import LLMSettings
+from app.pipeline.replay import Refused as ReplayRefused
 from app.quality.rates import recall, weighted, wilson
+from app.quality.report_replay import Replay, replay_of, replayed_counts
 from app.quality.stale import STALE, stale_items
 
 log = logging.getLogger(__name__)
@@ -163,7 +172,9 @@ async def _blocks(
     }  # fmt: skip
 
 
-async def _entry(connection: psycopg.AsyncConnection, samples: Sequence[Sample]) -> Section:
+async def _entry(
+    connection: psycopg.AsyncConnection, samples: Sequence[Sample], replay: Replay | None
+) -> Section:
     head = await head_of(connection, samples[0].document_id)
     entry: Section = {
         "label": _token(samples[0].label),
@@ -198,6 +209,9 @@ async def _entry(connection: psycopg.AsyncConnection, samples: Sequence[Sample])
             else:
                 measured = _verdicts(sample.frame, kept, judgements, STATEMENT_REASONS)
                 section = {"sample": sample.id} | measured | apart
+                if replay is not None:
+                    counts = await replayed_counts(connection, sample.document_id, items, judgements, replay)
+                    section |= {"replayed": counts}
         # the accounts whose judgements are counted - each item's latest, whoever gave it
         entry[sample.kind] = section | {"judges": await judges_of(connection, sample.id)}
     return entry
@@ -216,9 +230,12 @@ def closed(value: object) -> None:
         raise ValueError("a report holds counts, rates and codes alone")
 
 
-async def report(connection: psycopg.AsyncConnection, sample_ids: Sequence[int]) -> dict[str, Any]:
-    """The entries of the samples' documents, in the order first named; Refused where a sample is not
-    there, or two samples of one kind name one document."""
+async def report(
+    connection: psycopg.AsyncConnection, sample_ids: Sequence[int], *, replay: Replay | None = None
+) -> dict[str, Any]:
+    """The entries of the samples' documents, in the order first named, a statement sample's with what
+    ``replay`` reads of its document; Refused where a sample is not there, or two samples of one kind name
+    one document."""
     by_document: dict[Any, list[Sample]] = {}
     for sample_id in dict.fromkeys(sample_ids):
         sample = await sample_by_id(connection, sample_id)
@@ -229,7 +246,7 @@ async def report(connection: psycopg.AsyncConnection, sample_ids: Sequence[int])
             raise Refused("kind_twice", f"two {sample.kind} samples of one document")
         those.append(sample)
     try:
-        made = {"documents": [await _entry(connection, samples) for samples in by_document.values()]}
+        made = {"documents": [await _entry(connection, samples, replay) for samples in by_document.values()]}
     except LookupError:  # its document taken away meanwhile, its samples with it
         raise Refused("unknown_sample", "a sample went with its document") from None
     try:
@@ -242,15 +259,20 @@ async def report(connection: psycopg.AsyncConnection, sample_ids: Sequence[int])
 def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m app.quality.report", description=__doc__.splitlines()[0])
     parser.add_argument("--sample", required=True, type=int, action="append")
+    parser.add_argument("--replayed", action="store_true")
     return parser
 
 
-async def _report(settings: Settings, sample_ids: Sequence[int]) -> dict[str, Any]:
+async def _report(settings: Settings, sample_ids: Sequence[int], replayed: bool) -> dict[str, Any]:
     url = settings.database_url.get_secret_value()
     async with await psycopg.AsyncConnection.connect(
         url, autocommit=True, **CONNECTION_OPTIONS
     ) as connection:
-        return await report(connection, sample_ids)
+        await connection.execute("SET default_transaction_read_only = on")  # a report writes nothing
+        replay = None
+        if replayed:
+            replay = replay_of(connection, open_storage(settings), LLMSettings(), settings.ontology_dir)
+        return await report(connection, sample_ids, replay=replay)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
@@ -258,8 +280,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     settings = Settings()
     configure_logging(settings.log_level, settings.log_format, stream=sys.stderr)
     try:
-        made = asyncio.run(_report(settings, args.sample), loop_factory=asyncio.SelectorEventLoop)
-    except Refused as refused:
+        made = asyncio.run(
+            _report(settings, args.sample, args.replayed), loop_factory=asyncio.SelectorEventLoop
+        )
+    except (Refused, ReplayRefused) as refused:  # a replay's: its document kept no answer of X4
         log.error("%s", refused)
         return 1
     sys.stdout.buffer.write((json.dumps(made, indent=1) + "\n").encode("utf-8"))
