@@ -7,7 +7,9 @@ never a cell's content.
 A row names its item and mark: the mark must be the item's in this database, else the sheet is another
 database's. A statement's or anchor's item is judged by a verdict with its reasons from the fixed list
 (plan H-3 §1.2), a block's by a count alone; a row whose judging cells are empty (or ``n/a``) is not judged
-yet and takes nothing away. A note longer than the table holds refuses the sheet; one alone, too."""
+yet and takes nothing away. A judgement of an item no longer what was drawn (app/quality/stale.py: its row
+gone, its wording changed since) refuses the sheet: ``item_not_as_drawn``. A note longer than the table
+holds refuses the sheet; one alone, too."""
 
 import argparse
 import asyncio
@@ -15,7 +17,7 @@ import json
 import logging
 import re
 import sys
-from collections.abc import Mapping, Sequence
+from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 from typing import cast
 
@@ -27,6 +29,7 @@ from app.db.gold import Item, Judgement, Reason, SampleKind, Verdict, items_of, 
 from app.db.pool import CONNECTION_OPTIONS
 from app.quality.sheet import NOT_ASKED, mark
 from app.quality.sheet_read import SheetLine, SheetRefused, read_sheet
+from app.quality.stale import stale_items
 
 log = logging.getLogger(__name__)
 
@@ -106,10 +109,10 @@ def _judged(line: SheetLine, item: Item, kind: SampleKind) -> Judgement | str | 
 
 
 def judgements_in(
-    lines: Sequence[SheetLine], items: Mapping[int, Item], kind: SampleKind
+    lines: Sequence[SheetLine], items: Mapping[int, Item], kind: SampleKind, stale: Collection[int] = ()
 ) -> tuple[list[tuple[int, Judgement]], int]:
     """The sheet's judgements by item, and how many rows were left empty; SheetRefused naming each row
-    that breaks a rule."""
+    that breaks a rule - a judgement of an item in ``stale`` (no longer what was drawn) among them."""
     problems: list[str] = []
     judgements: list[tuple[int, Judgement]] = []
     seen: set[int] = set()
@@ -133,6 +136,8 @@ def judgements_in(
         found = _judged(line, item, kind)
         if isinstance(found, str):
             problems.append(f"line {line.line}: {found}")
+        elif found is not None and item.id in stale:  # its row gone or reworded since the draw
+            problems.append(f"line {line.line}: item_not_as_drawn")
         elif found is None:
             left_empty += 1
         else:
@@ -154,7 +159,8 @@ async def take_in(connection: psycopg.AsyncConnection, sample_id: int, account: 
         raise Refused("unknown_sample", f"no sample {sample_id}")
     lines = read_sheet(data)
     items = {item.id: item for item in await items_of(connection, sample_id)}
-    judgements, left_empty = judgements_in(lines, items, sample.kind)
+    stale = await stale_items(connection, sample.document_id, list(items.values()))
+    judgements, left_empty = judgements_in(lines, items, sample.kind, stale)
     try:
         judged = await judge_all(connection, found[0], judgements)
     except psycopg.errors.ForeignKeyViolation as violated:  # taken away meanwhile

@@ -5,12 +5,25 @@ spreadsheet turned into a number, an item that is no item of the sheet's sample.
 import psycopg
 import pytest
 
-from app.core.ids import new_id
 from app.db.gold import ItemDraft, SampleDraft, add_sample, items_of, judgements_of
+from app.db.nodes import write_subtree
+from app.domain.l1 import NodeDraft
+from app.domain.wording import text_hash
 from app.quality.judge import SheetRefused, take_in
 from app.quality.sample import Request, draw
 from app.quality.sheet import encoded, sheet_rows
-from tests.quality.gold_documents import a_document, connection, owner
+from tests.quality.gold_documents import (
+    CV,
+    MODEL,
+    PROPOSED,
+    WORDS,
+    a_document,
+    connection,
+    mem_synth,
+    owner,
+    statement,
+    statement_id,
+)
 from tests.quality.test_judge import BOM, EXPECTED, SHEET, a_sample, edited
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -65,16 +78,29 @@ async def test_a_sheet_that_states_utf8_by_its_bom_is_read_as_utf8_alone(
 
 async def test_a_mark_of_digits_alone_comes_back_as_it_went(connection: psycopg.AsyncConnection) -> None:
     document = await a_document(connection)
-    digits = "123456789012" + "a" * 52  # twelve digits: a number to a spreadsheet, were it not for the m
+    # a wording whose hash begins with twelve digits: a number to a spreadsheet, were it not for the m
+    wording = next(
+        made
+        for seed in range(100_000)
+        if (made := mem_synth.wording("Die Lernenden ordnen den Bach.", seed))
+        and text_hash(made)[:12].isdigit()
+    )
+    under = NodeDraft(
+        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title=WORDS["title"],
+        statements=(statement(wording, kind=CV + "kind_content"),),
+    )  # fmt: skip
+    await write_subtree(connection, document.id, under)
     draft = SampleDraft("statement", document.id, "pilot-1", "s", 1, {"content": 1}, document.owner_id, None)
-    item = ItemDraft("content", statement_id=new_id(), text_hash=digits)
+    item = ItemDraft(
+        "content", statement_id=await statement_id(connection, wording), text_hash=text_hash(wording)
+    )
     sample = await add_sample(connection, draft, [item])
     [row] = await sheet_rows(connection, sample, "http://127.0.0.1:18080")
     row["verdict"] = "correct"
 
     taken = await take_in(connection, sample, await owner(connection, document), encoded([row]))
 
-    assert row["mark"] == "m123456789012"
+    assert row["mark"] == "m" + text_hash(wording)[:12] and row["mark"][1:].isdigit()
     assert taken.new == 1
 
 

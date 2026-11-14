@@ -2,8 +2,9 @@
 (run from ``backend/``; the folder lies at the repository's root): the judging sheet of a gold sample (plan
 H-3 §3.3) - one row per item with its wording and where to look, the cells to judge (``verdict``,
 ``reasons``, ``expected``, ``note``) empty, ``n/a`` where a cell is not asked: a block is judged by a count,
-a statement or anchor by a verdict; an item whose row is gone since the draw says so (``kind`` =
-``gone``). ``python -m app.quality.judge`` reads it back.
+a statement or anchor by a verdict; an item no longer what was drawn says so (app/quality/stale.py:
+``kind`` = ``gone`` where its row is gone since the draw, ``changed`` where an editor changed its
+wording), its verdict ``n/a``. ``python -m app.quality.judge`` reads it back.
 
 The sheet holds the document's wordings: it is written to stdout alone. Where the code lies in a working
 tree and stdout is a file, the file must lie under ``data/gold-local/`` (ignored by git and the images) -
@@ -34,6 +35,7 @@ from app.db.documents import document_for_job
 from app.db.gold import Item, items_of, sample_by_id
 from app.db.gold_rows import Shown, blocks_shown, node_names, nodes_shown, statements_shown
 from app.db.pool import CONNECTION_OPTIONS
+from app.quality.stale import state_of
 
 log = logging.getLogger(__name__)
 
@@ -42,7 +44,6 @@ SHEET_HEADER = (
     "verdict", "reasons", "expected", "note",
 )  # fmt: skip
 NOT_ASKED = "n/a"  # in a judging cell the item's kind does not ask for
-GONE = "gone"  # the kind of an item whose statement or node is no more in the document
 BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"  # by name: an invisible literal is lost without a diff
 LOCAL_FOLDER = Path("data") / "gold-local"
 WARNING = (
@@ -122,13 +123,15 @@ async def sheet_rows(connection: psycopg.AsyncConnection, sample_id: int, base_u
                 found = nodes.get(item.node_id) if item.node_id is not None else None
             page = _page_of(item.first_block) or (found.page if found else None)
             at = f"seite={page}" if page is not None else ""
+            stale = state_of(item, found)
             if found is not None:
                 row |= {"kind": found.kind, "wording": found.wording or "", "lead_in": found.lead_in or ""}
                 row |= {"quote": found.quote or "", "path": _path(names, found.under)}
                 address = f"zeile={what}:{key}" + (f"&{at}" if at else "")
             else:  # replaced or taken away since the draw: the item names it still, the tree no more
-                row["kind"] = GONE
                 address = at
+            if stale is not None:  # no longer what was drawn: nothing to judge
+                row |= {"kind": stale, "verdict": NOT_ASKED, "reasons": NOT_ASKED}
             row |= {
                 "link": f"{base}/dokumente/{document.id}/baum" + (f"?{address}" if address else ""),
                 "expected": NOT_ASKED,

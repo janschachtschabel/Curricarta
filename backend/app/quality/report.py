@@ -17,6 +17,10 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
 A weighted rate is said once no drawn item is open in the strata that enter that measure: the anchors'
 precision waits for the found strata alone, the figure without the title pages for those not ``front:*``.
 
+An item no longer what was drawn (app/quality/stale.py: its row gone since the draw, its wording changed)
+is counted apart - ``stale: {gone, changed}`` in the statement and anchor sections - and nowhere else:
+not among the drawn, the judged or the open, its judgement left out of every rate.
+
 Each leaf is a number, a truth value, null or a code of ``LEAF``: no wording, quote or note can pass."""
 
 import argparse
@@ -36,6 +40,7 @@ from app.db.gold import Item, Judgement, Sample, items_of, judgements_of, judges
 from app.db.gold_report import found_in_blocks, head_of
 from app.db.pool import CONNECTION_OPTIONS
 from app.quality.rates import recall, weighted, wilson
+from app.quality.stale import STALE, stale_items
 
 log = logging.getLogger(__name__)
 
@@ -182,12 +187,17 @@ async def _entry(connection: psycopg.AsyncConnection, samples: Sequence[Sample])
     for sample in samples:
         items = await items_of(connection, sample.id)
         judgements = await judgements_of(connection, sample.id)
-        if sample.kind == "block":
+        if sample.kind == "block":  # a block is never stale
             section = await _blocks(connection, sample, items, judgements)
-        elif sample.kind == "anchor":
-            section = _anchors(sample, items, judgements)
         else:
-            section = {"sample": sample.id} | _verdicts(sample.frame, items, judgements, STATEMENT_REASONS)
+            stale = await stale_items(connection, sample.document_id, items)
+            kept = [item for item in items if item.id not in stale]  # still what was drawn
+            apart = {"stale": {state: list(stale.values()).count(state) for state in STALE}}
+            if sample.kind == "anchor":
+                section = _anchors(sample, kept, judgements) | apart
+            else:
+                measured = _verdicts(sample.frame, kept, judgements, STATEMENT_REASONS)
+                section = {"sample": sample.id} | measured | apart
         # the accounts whose judgements are counted - each item's latest, whoever gave it
         entry[sample.kind] = section | {"judges": await judges_of(connection, sample.id)}
     return entry

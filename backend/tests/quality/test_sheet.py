@@ -15,6 +15,9 @@ import pytest
 from app.db.documents import Document
 from app.db.gold import items_of
 from app.db.nodes import write_subtree
+from app.db.review import ReviewItem, set_review
+from app.db.source_queries import Reader
+from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft
 from app.domain.wording import text_hash
 from app.quality.sample import Request, draw
@@ -86,6 +89,27 @@ async def test_an_item_whose_row_is_gone_since_the_draw_says_so(connection: psyc
     assert (gone["kind"], gone["wording"], gone["path"]) == ("gone", "", "")
     assert gone["link"] == f"{BASE}/dokumente/{document.id}/baum?seite=1"  # no row that is not there
     assert all(row["kind"] != "gone" for row in rows if row is not gone)
+    assert (gone["verdict"], gone["reasons"]) == (NOT_ASKED, NOT_ASKED)  # nothing left to judge
+
+
+@pytest.mark.pg
+async def test_an_item_whose_wording_an_editor_changed_since_the_draw_says_so(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    document, sample = await a_statement_sample(connection)
+    reworded = await statement_id(connection, WORDS["outcome"])
+    reader = Reader(document.owner_id, sees_all=False)
+    assert await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["new"]}) == 2
+    confirmed = await statement_id(connection, WORDS["confirmed"])
+    await set_review(connection, document.id, CV + "rev_confirmed", [ReviewItem("statement", confirmed, 1)])
+
+    rows = await sheet_rows(connection, sample, BASE)
+
+    [changed] = [row for row in rows if row["mark"] == "m" + text_hash(WORDS["outcome"])[:12]]
+    assert (changed["kind"], changed["verdict"], changed["reasons"]) == ("changed", NOT_ASKED, NOT_ASKED)
+    assert changed["link"] == f"{BASE}/dokumente/{document.id}/baum?zeile=statement:{reworded}&seite=1"
+    # a review keeps the wording: the item is what was drawn
+    assert sorted(row["kind"] for row in rows if row is not changed) == ["content"] + ["learningOutcome"] * 3
 
 
 @pytest.mark.pg

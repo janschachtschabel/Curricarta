@@ -12,6 +12,8 @@ import pytest
 
 from app.db.gold import Judgement, items_of, judgements_of
 from app.db.nodes import write_subtree
+from app.db.source_queries import Reader
+from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft
 from app.quality.judge import SheetRefused, Taken, take_in
 from app.quality.sample import Request, draw
@@ -134,6 +136,27 @@ async def test_a_verdict_or_reason_outside_the_list_refuses_the_sheet_and_names_
 
     assert refused.value.problems == [f"line 3: {problem}"]
     assert await count(connection, "gold_judgement") == 0  # not the good row either
+
+
+async def test_a_judgement_of_an_item_no_longer_as_drawn_refuses_the_sheet_and_names_the_line(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    sample, account = await a_sample(connection)
+    items = {item.id: item for item in await items_of(connection, sample)}
+    cursor = await connection.execute("SELECT id FROM account WHERE name = %s", (account,))
+    [(judge_id,)] = await cursor.fetchall()
+    reader = Reader(judge_id, sees_all=False)  # the document's owner
+    await connection.execute("DELETE FROM statement WHERE id = %s", (items[1].statement_id,))  # gone
+    reworded = items[3].statement_id
+    assert reworded is not None
+    assert await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["new"]}) == 2  # changed
+    await connection.execute("DELETE FROM statement WHERE id = %s", (items[4].statement_id,))  # left empty
+
+    with pytest.raises(SheetRefused) as refused:
+        await take_in(connection, sample, account, SHEET)
+
+    assert refused.value.problems == ["line 2: item_not_as_drawn", "line 4: item_not_as_drawn"]
+    assert await count(connection, "gold_judgement") == 0
 
 
 async def test_a_duplicated_row_refuses_the_sheet(connection: psycopg.AsyncConnection) -> None:
