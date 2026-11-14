@@ -64,7 +64,9 @@ Container (Daten nur im Arbeitsspeicher, Port nur lokal):
 docker run -d --name curricarta-test-pg -e POSTGRES_USER=curricarta -e POSTGRES_PASSWORD=curricarta-test -e POSTGRES_DB=curricarta -p 127.0.0.1:55432:5432 --tmpfs /var/lib/postgresql/data pgvector/pgvector:pg17
 ```
 
-Dann legt jeder Test eine eigene Datenbank an und entfernt sie wieder:
+Dann legt jeder Test eine eigene Datenbank `curricarta_t_…` an und entfernt sie wieder; jede Sitzung
+legt dazu ein oder zwei Vorlagen `curricarta_tpl_…` an und entfernt sie am Ende, nur ein abgebrochener
+Lauf kann beide zurücklassen:
 
 ```bash
 CURRICARTA_TEST_DATABASE_URL=postgresql://curricarta:curricarta-test@127.0.0.1:55432/curricarta .venv/Scripts/python.exe -m pytest
