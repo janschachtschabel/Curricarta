@@ -53,9 +53,16 @@ function onChosen(event: Event): void {
   file.value = (event.target as HTMLInputElement).files?.[0] ?? null;
 }
 
+// each field by its name, for the status where the keyboard stays elsewhere
+const LABELS: Readonly<Record<Field, () => string>> = {
+  file: () => t("sources.upload.fileLabel"),
+  title: () => t("sources.upload.titleLabel"),
+};
+
 /**
  * The refusal to show, at its field where it is one field's; the same one again is read out again
- * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form.
+ * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form, and
+ * the field reads it; resting elsewhere, the status says it with the field's name - read once either way.
  */
 async function refuse(notice: Notice, field: Field | null): Promise<void> {
   failure.value = { ...notice, text: sayAnew(failure.value?.text ?? "", notice.text) };
@@ -64,6 +71,7 @@ async function refuse(notice: Notice, field: Field | null): Promise<void> {
   if (!field) return;
   await nextTick();
   if (document.activeElement === submitButton.value || focusIsFree()) document.getElementById(`upload-${field}`)?.focus();
+  else status.value = sayAnew(status.value, t("forms.fieldProblem", { field: LABELS[field](), problem: notice.text }));
 }
 
 function tooLarge(): string {
@@ -127,7 +135,8 @@ async function onSubmit(): Promise<void> {
         @change="onChosen"
       />
       <p id="upload-file-hint" class="field__hint">{{ fileHint }}</p>
-      <p v-if="failure && failedField === 'file'" id="upload-error" class="field__error" role="alert">
+      <!-- no alert: the field it describes takes the keyboard and reads it, or the status says it -->
+      <p v-if="failure && failedField === 'file'" id="upload-error" class="field__error">
         <AppIcon name="warning" /> <NoticeText :notice="failure" />
       </p>
     </div>
@@ -143,7 +152,8 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('title')"
       />
       <p id="upload-title-hint" class="field__hint">{{ t("sources.upload.titleHint") }}</p>
-      <p v-if="failure && failedField === 'title'" id="upload-error" class="field__error" role="alert">
+      <!-- no alert: the field it describes takes the keyboard and reads it, or the status says it -->
+      <p v-if="failure && failedField === 'title'" id="upload-error" class="field__error">
         <AppIcon name="warning" /> <NoticeText :notice="failure" />
       </p>
     </div>

@@ -64,9 +64,16 @@ function addressFault(candidate: string): string | null {
   return parsed.username || parsed.password ? "sources.import.errors.credentials" : null;
 }
 
+// each field by its name, for the status where the keyboard stays elsewhere
+const LABELS: Readonly<Record<Field, () => string>> = {
+  url: () => t("sources.import.urlLabel"),
+  title: () => t("sources.import.titleLabel"),
+};
+
 /**
  * The refusal to show, at its field where it is one field's; the same one again is read out again
- * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form.
+ * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form, and
+ * the field reads it; resting elsewhere, the status says it with the field's name - read once either way.
  */
 async function refuse(notice: Notice, field: Field | null): Promise<void> {
   failure.value = { ...notice, text: sayAnew(failure.value?.text ?? "", notice.text) };
@@ -75,6 +82,7 @@ async function refuse(notice: Notice, field: Field | null): Promise<void> {
   if (!field) return;
   await nextTick();
   if (document.activeElement === submitButton.value || focusIsFree()) document.getElementById(`import-${field}`)?.focus();
+  else status.value = sayAnew(status.value, t("forms.fieldProblem", { field: LABELS[field](), problem: notice.text }));
 }
 
 async function onSubmit(): Promise<void> {
@@ -118,7 +126,8 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('url')"
       />
       <p id="import-url-hint" class="field__hint">{{ t("sources.import.urlHint") }}</p>
-      <p v-if="failure && failedField === 'url'" id="import-error" class="field__error" role="alert">
+      <!-- no alert: the field it describes takes the keyboard and reads it, or the status says it -->
+      <p v-if="failure && failedField === 'url'" id="import-error" class="field__error">
         <AppIcon name="warning" /> <NoticeText :notice="failure" />
       </p>
     </div>
@@ -134,7 +143,8 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('title')"
       />
       <p id="import-title-hint" class="field__hint">{{ t("sources.import.titleHint") }}</p>
-      <p v-if="failure && failedField === 'title'" id="import-error" class="field__error" role="alert">
+      <!-- no alert: the field it describes takes the keyboard and reads it, or the status says it -->
+      <p v-if="failure && failedField === 'title'" id="import-error" class="field__error">
         <AppIcon name="warning" /> <NoticeText :notice="failure" />
       </p>
     </div>

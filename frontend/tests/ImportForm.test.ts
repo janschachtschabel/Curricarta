@@ -79,6 +79,25 @@ describe("the import form", () => {
     wrapper.unmount();
   });
 
+  // the error was an alert and the field it named took the keyboard: read twice (UI review 1, finding 8)
+  it("has a field's error read once: by the field the keyboard goes to, or where the form says things", async () => {
+    const wrapper = mount(ImportForm, { attachTo: document.body });
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+
+    await submit(wrapper);
+    expect(wrapper.get("#import-error").attributes("role")).toBeUndefined();
+    expect(wrapper.get("#import-status").text()).toBe("");
+
+    // the keyboard in the other field: it stays, and the status says the error with its field's name
+    (wrapper.get("#import-title").element as HTMLElement).focus();
+    await submit(wrapper);
+    expect(document.activeElement).toBe(wrapper.get("#import-title").element);
+    expect(wrapper.get("#import-status").text()).toBe(
+      t("forms.fieldProblem", { field: t("sources.import.urlLabel"), problem: t("sources.import.errors.missing") }),
+    );
+    wrapper.unmount();
+  });
+
   it("says a refused title inside the title's field", async () => {
     vi.spyOn(api, "importSource").mockRejectedValue(new ApiError("server", 422, "title_invalid"));
     const wrapper = mount(ImportForm, { attachTo: document.body });

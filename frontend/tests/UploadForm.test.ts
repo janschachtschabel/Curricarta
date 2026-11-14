@@ -89,6 +89,24 @@ describe("the upload form", () => {
     wrapper.unmount();
   });
 
+  // the error was an alert and the field it named took the keyboard: read twice (UI review 1, finding 8)
+  it("has a field's error read once: by the field the keyboard goes to, or where the form says things", async () => {
+    const wrapper = mount(UploadForm, { props: { maxUploadMb: 50 }, attachTo: document.body });
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+
+    await submit(wrapper);
+    expect(wrapper.get("#upload-error").attributes("role")).toBeUndefined();
+    expect(wrapper.get("#upload-status").text()).toBe("");
+
+    (wrapper.get("#upload-title").element as HTMLElement).focus();
+    await submit(wrapper);
+    expect(document.activeElement).toBe(wrapper.get("#upload-title").element);
+    expect(wrapper.get("#upload-status").text()).toBe(
+      t("forms.fieldProblem", { field: t("sources.upload.fileLabel"), problem: t("sources.upload.errors.missing") }),
+    );
+    wrapper.unmount();
+  });
+
   it("says a refusal of no field below the fields, the keyboard left where it is", async () => {
     vi.spyOn(api, "uploadSource").mockRejectedValue(new ApiError("server", 500));
     const wrapper = mount(UploadForm, { props: { maxUploadMb: 50 }, attachTo: document.body });

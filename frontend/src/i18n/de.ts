@@ -44,6 +44,8 @@ export const messages = {
   // one convention in every form: a required field says so in its label, a free one says nothing (formWords.ts)
   forms: {
     required: "{label} (Pflichtfeld)",
+    // a field's problem, said where the keyboard stayed elsewhere (ImportForm.vue, UploadForm.vue)
+    fieldProblem: "{field}: {problem}",
   },
   login: {
     heading: "Anmeldung",
