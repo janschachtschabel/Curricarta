@@ -63,7 +63,9 @@ ARG REVISION=unknown
 ENV CURRICARTA_REVISION=$REVISION
 # Hugging Face's libraries never ask the net for a model: the converter reads them from MODELS_DIR.
 # EasyOCR makes its folder (~/.EasyOCR) as it starts; the service's user has no home and the root is
-# read-only, so it goes to the tmpfs (Docling's models of it still come from MODELS_DIR)
+# read-only, so it goes to the tmpfs (Docling's models of it still come from MODELS_DIR).
+# pydantic-ai prints a banner on stderr at a process's first agent run where stderr is a terminal
+# (docker compose exec without -T): a command's words for the operator would carry it
 ENV PATH="/opt/venv/bin:$PATH" \
     PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
@@ -71,7 +73,8 @@ ENV PATH="/opt/venv/bin:$PATH" \
     ONTOLOGY_DIR=/srv/ontology \
     HF_HUB_OFFLINE=1 \
     HF_HUB_DISABLE_TELEMETRY=1 \
-    EASYOCR_MODULE_PATH=/tmp/easyocr
+    EASYOCR_MODULE_PATH=/tmp/easyocr \
+    PYDANTIC_AI_NO_BANNER=1
 WORKDIR /srv/backend
 USER 10001
 # 8000 the public API, 9000 the internal port: /health, /ready, /metrics

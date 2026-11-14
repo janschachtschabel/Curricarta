@@ -5,6 +5,7 @@ out of the files in between: bases pinned, no root, a health check that really a
 or secrets in the build context.
 """
 
+import inspect
 import os
 import re
 import subprocess
@@ -14,6 +15,7 @@ from typing import Any
 
 import pytest
 import yaml  # type: ignore[import-untyped]
+from pydantic_ai import _display
 
 from app.api.security_headers import SECURITY_HEADERS
 from app.conversion.models import MODELS_DIR
@@ -99,6 +101,14 @@ def test_no_model_is_baked_into_the_image_and_none_is_fetched_at_run_time() -> N
 def test_easyocr_writes_its_folder_on_the_tmpfs_the_read_only_root_leaves() -> None:
     # it makes ~/.EasyOCR at its start, and the service's user has no home: Docling's OCR would not load
     assert re.search(r"EASYOCR_MODULE_PATH=/tmp/\S+", _final_stage(API))
+
+
+def test_no_agent_run_prints_the_library_s_banner_into_an_operator_s_output() -> None:
+    # pydantic-ai shows a banner on stderr at a process's first agent run where stderr is a terminal
+    # (docker compose exec without -T): a command's words for the operator would carry it; the library
+    # reads the variable's presence
+    assert re.search(r"(?m)^\s+PYDANTIC_AI_NO_BANNER=1\b", _final_stage(API))
+    assert "'PYDANTIC_AI_NO_BANNER' in os.environ" in inspect.getsource(_display._banner_suppressed)
 
 
 def test_the_models_folder_is_the_engine_s_and_belongs_to_the_service_s_user() -> None:
