@@ -14,19 +14,23 @@ document named by the label, never by its title, nor its plan by its IRI:
   letters and more) the searched text holds more often than the stage tries places (``FUZZY_PLACES``) - its
   place may lie past them -, an estimate mostly from above (``rare_word_hidden_by``), and apart the
   not-found wordings longer than the fuzzy stage takes (``too_long_for_fuzzy``); rows past the search's
-  time in neither (app/quality/mem_rare.py says how, and what the estimate rests on);
-- ``label_is_iri_tail``: parts titled by their IRI's tail, their label saying nothing once cleaned as the
-  import cleans it (app/sources/mem/tree.py ``clean_label``);
+  time in neither, the two null where those rows cannot be told apart (app/quality/mem_rare.py says how,
+  and what the estimate rests on); the rows past the search's time are those the stages name;
+- ``label_is_iri_tail``: parts of the kept tree titled by their IRI's tail - references outside the
+  closure included -, their label saying nothing once cleaned as the import cleans it
+  (app/sources/mem/tree.py ``clean_label``);
   ``cut``: node titles longer than ``MAX_TITLE`` and statement wordings longer than ``MAX_WORDING``, which
   the import cut - both from the plan's answers kept under the run (null where they are gone), typed by the
   rules as they stand now (``cut`` null too where the catalogue names the plan no more);
 - with ``--endpoint-counts`` alone the endpoint is asked (``endpoint``: app/sources/mem/queries.py
-  ``label_shape_count``) - only on the operator's word, as every query there.
+  ``label_shape_count``) - only on the operator's word, as every query there; its ``no_label`` counts
+  the closure's parts alone, another population than ``label_is_iri_tail``.
 
 Without the switch the database and the object store are all it reads, through one snapshot that refuses
 every write (app/db/snapshot.py).
 Exit code 1 for a document that is not there or no import, an import run whose result holds no
-``stages`` or no ``front`` (``import_unreadable``), an endpoint refused or away, or an output that
+``stages`` or no ``front``, or a total of rows past the search's time other than its stages'
+(``import_unreadable``), an endpoint refused or away, or an output that
 is not counts and codes alone (``report_not_closed``); 2 for a call amiss."""
 
 import argparse
@@ -36,6 +40,7 @@ import logging
 import sys
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
+from datetime import UTC
 from typing import Any
 from uuid import UUID
 
@@ -52,7 +57,7 @@ from app.db.runs import stage_result
 from app.db.snapshot import snapshot
 from app.llm.raw import kept_answers
 from app.quality.closed import NOT_CLOSED, closed, token
-from app.quality.mem_hits import hits
+from app.quality.mem_hits import KINDS, hits
 from app.quality.mem_rare import rare_words, rows_left
 from app.quality.sample import LABEL, matching
 from app.sources.mem.classes import MemRules, typed
@@ -142,6 +147,11 @@ async def mem_report(
     if not isinstance(run.result.get("stages"), Mapping) or "front" not in run.result:
         # a run of another shape: its rows are not zero, nor are its title pages unknown
         raise Refused("import_unreadable", "the import's run holds no stages or no title pages")
+    stages = run.result["stages"]
+    unsearched = sum(stages.get(kind, {}).get("unsearched", 0) for kind in KINDS)
+    if run.result.get("unsearched", unsearched) != unsearched:
+        # the rows past the search's time are the stages'; a total that names others is not read as either
+        raise Refused("import_unreadable", "the import's run counts its rows left twice, apart")
     head = await head_of(connection, document.id)
     plan = None if document.mem_iri is None else await plan_by_iri(connection, document.mem_iri)
     findings: dict[str, int] = {}
@@ -159,7 +169,7 @@ async def mem_report(
         if tree is None or plan is None or rules is None
         else rows_in_order(tree, rules, plan.iri, plan.title)
     )
-    left = rows_left(rows, run.result.get("unsearched") or 0)
+    left = rows_left(rows, unsearched)
     made: dict[str, Any] = {
         "label": label,
         "regions": [token(region) for region in head.regions],
@@ -169,7 +179,7 @@ async def mem_report(
         "hits": hits(run.result),
         "run": {
             "which": "last_finished",  # the document's last run of IM that ended done
-            "finished_at": run.finished_at.isoformat(),
+            "finished_at": run.finished_at.astimezone(UTC).isoformat(),  # whatever the server's zone
             "duration_s": None if run.duration_s is None else round(run.duration_s, 3),
             "search_budget_s": settings.mem_search_budget_s,
             "lease_s": settings.job_lease_s,

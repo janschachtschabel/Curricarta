@@ -82,3 +82,32 @@ async def test_a_run_whose_result_lacks_what_the_report_reads_is_refused(
         await report_of(context, connection, document)
 
     assert refused.value.code == "import_unreadable"  # never read as zeros, nor as title pages unknown
+
+
+STAGES_LEFT = {"statement": {"exact": 1, "unsearched": 2}}  # the stages name two rows past the search's time
+
+
+async def test_the_rows_past_the_search_s_time_are_the_stages_where_the_run_names_no_total(
+    setup: Any,
+) -> None:
+    context, connection = setup
+    document = await a_document(connection)
+    run_id = await start_run(connection, RunStart(document.id, None, None, "IM", None, None, None, None))
+    await finish_run(connection, run_id, "done", {"stages": STAGES_LEFT, "front": None})
+
+    report = await report_of(context, connection, document)
+
+    # two rows left that cannot be told apart (no plan's answers kept): unknown, never counted as searched
+    assert (report["rare_word_hidden"], report["too_long_for_fuzzy"]) == (None, None)
+
+
+async def test_a_run_whose_total_left_disagrees_with_its_stages_is_refused(setup: Any) -> None:
+    context, connection = setup
+    document = await a_document(connection)
+    run_id = await start_run(connection, RunStart(document.id, None, None, "IM", None, None, None, None))
+    await finish_run(connection, run_id, "done", {"stages": STAGES_LEFT, "unsearched": 1, "front": None})
+
+    with pytest.raises(Refused) as refused:
+        await report_of(context, connection, document)
+
+    assert refused.value.code == "import_unreadable"

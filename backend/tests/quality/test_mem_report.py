@@ -5,6 +5,7 @@ labels that are their IRI's tail and wordings cut. Imports are made as tests/job
 them, from the synthetic fixtures, against a stand-in endpoint. Never a title, a wording or a plan's IRI."""
 
 import json
+from datetime import UTC
 from typing import Any
 
 import httpx2
@@ -135,6 +136,7 @@ async def test_an_import_s_hit_rate_is_read_from_its_run(in_process_shacl: None,
     made[statement] = text_block(made[statement], "Vorwort")
     made[at(made, "Reihe")] = text_block(made[at(made, "Reihe")], "Nachwort")
     document = await imported(context, connection, made)
+    await connection.execute("SET TIME ZONE 'Asia/Kolkata'")  # a server whose zone is not UTC
 
     report = await report_of(context, connection, document)
 
@@ -156,7 +158,9 @@ async def test_an_import_s_hit_rate_is_read_from_its_run(in_process_shacl: None,
     )
     [(finished,)] = await cursor.fetchall()
     assert report["run"]["which"] == "last_finished"
-    assert report["run"]["finished_at"] == finished.isoformat()  # ties the figure to a sample drawn later
+    # ties the figure to a sample drawn later, in UTC whatever the server's zone
+    assert report["run"]["finished_at"] == finished.astimezone(UTC).isoformat()
+    assert report["run"]["finished_at"].endswith("+00:00")
 
 
 async def test_an_import_whose_contents_were_not_found_says_so(in_process_shacl: None, setup: Any) -> None:

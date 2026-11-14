@@ -10,9 +10,9 @@ Only wordings the fuzzy stage looked for are held against it:
 - a row past the search's time (``import.unsearched``) was not looked for at all: the rows the search left
   are the last ones in its order (app/sources/mem/anchoring.py stops for good once the time is past), read
   from the plan's kept answers in the order the import searched them (``rows_in_order``). Neither count
-  holds one of them: the two and ``unsearched`` are disjoint. Where the rows left cannot be told by their
-  MEM IRI (one of no storable IRI, every row left, or the kept answers or the plan gone), both counts are
-  null.
+  holds one of them: the two and ``unsearched`` are disjoint. Where the search left rows and they cannot
+  be told by their MEM IRI (one of no storable IRI, every row left, or the kept answers or the plan gone),
+  both counts are null.
 
 The count is an estimate (``rare_word_hidden_by: whole_text_estimate``), mostly from above: the words are
 counted in the whole searched text, while the search looks in windows - after the place of the row found
