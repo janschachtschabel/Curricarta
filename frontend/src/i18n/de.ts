@@ -652,6 +652,10 @@ export const messages = {
         "Das Sprachmodell hat auch nach mehreren Versuchen keine verwertbare Antwort geliefert. Starte die " +
         "Extraktion später noch einmal; scheitert sie wieder, melde es der Administration.",
       model_not_configured: "Für das Sprachmodell ist kein Zugang eingerichtet. Melde das bitte der Administration.",
+      // the provider refused a request for good: a 4xx but 408 and 429 (backend app/pipeline/side_by_side.py)
+      model_refused:
+        "Der Anbieter des Sprachmodells hat die Anfrage abgelehnt (Schlüssel, Modellname oder Anfrage). Das kann " +
+        "nur die Administration beheben; ein neuer Start hilft nicht.",
       // not even one section beside the title pages and the frame fits the model's context
       prefix_too_long:
         "Ein Abschnitt des Dokuments ist zu lang, als dass das Sprachmodell ihn zusammen mit Titelei und " +

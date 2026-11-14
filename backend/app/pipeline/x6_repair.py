@@ -7,8 +7,9 @@ same prefix and the defects named (prompts/x6.py), side by side as X4 asks, and 
 as it is answered (app/pipeline/x6_unit.py). An answer out of form leaves its package as it was: it is
 counted as a repair, and its finding (``x6.unanswered``) asks for one more; so does an answer of no
 statement for a package that has some (``x6.empty_answer``). A budget spent lets no further package
-begin, as in X4. Then X5 checks the document again, its findings replacing the ones
-before (app/pipeline/x5_stage.py) - also where the budget ended X6, before the job ends with it.
+begin, as in X4, nor does a provider's error, which ends the run as in X4. Then X5 checks the
+document again, its findings replacing the ones before (app/pipeline/x5_stage.py) - also where the
+budget ended X6, before the job ends with it.
 
 A document is repaired once X5 has checked it, every package done then; one not checked yet goes on
 with extract.run (``document_not_checked``). With nothing to repair - the editors took it meanwhile -
@@ -17,10 +18,11 @@ passes over an X6 done; X5 checks the document whenever a repair began since its
 (app/db/runs.x5_owed) - this job's, or one that ended before its check, which extract.run checks too.
 """
 
-import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
+
+from pydantic_ai.exceptions import ModelAPIError
 
 from app.conversion.base import Block
 from app.db.conversions import all_blocks, printed_pages
@@ -40,6 +42,7 @@ from app.pipeline.extraction import document_in
 from app.pipeline.ground import ground_of
 from app.pipeline.progress import report
 from app.pipeline.prompts import x6
+from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider
 from app.pipeline.x2_segments import WorkPackage
 from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
@@ -131,67 +134,57 @@ class _Repairs:
     written: int = 0
     dropped: int = 0
     spent: BudgetExhausted | None = None  # once set, no further package begins
+    broken: ModelAPIError | None = None  # the provider's first error; as spent
     unanswered: list[str] = field(default_factory=list)
 
     async def run(self, units: Sequence[RepairUnit]) -> dict[str, Any]:
-        settings = self.asking.context.settings
         stage = self.asking.agent(x6.SCHEMA, x6.SCHEMA_NAME, x6.INSTRUCTIONS)
-        # each package asking holds one connection at a time; the worker's own work needs another
-        gate = asyncio.Semaphore(max(1, min(settings.extract_concurrency, settings.db_pool_max_size - 1)))
-        failed: Exception | None = None
-        try:
-            async with asyncio.TaskGroup() as group:
-                for unit in units:
-                    group.create_task(self._unit(unit, gate, stage))
-        except ExceptionGroup as broken:  # the first error ended the others: it is the run's
-            failed = broken.exceptions[0]
-        if failed is not None:
-            raise failed
+        await ask_side_by_side(self.asking.context.settings, units, lambda unit: self._unit(unit, stage))
         return await self._end()
 
-    async def _unit(self, unit: RepairUnit, gate: asyncio.Semaphore, stage: StageAgent) -> None:
-        async with gate:
-            if self.spent is not None:
-                return
+    async def _unit(self, unit: RepairUnit, stage: StageAgent) -> None:
+        if self.spent is not None or self.broken is not None:
+            return
 
-            def task(package: WorkPackage, node: str, excerpt: str) -> str:
-                return x6.repair_task(package, node, excerpt, unit.defects, unit.kept)
+        def task(package: WorkPackage, node: str, excerpt: str) -> str:
+            return x6.repair_task(package, node, excerpt, unit.defects, unit.kept)
 
-            question = await self.questions.question(unit.package, task)
+        question = await self.questions.question(unit.package, task)
+        try:
+            answer = await self.asking.answer(stage, "x6.unit", question.prompt)
+            read = read_unit(answer, self.questions.statements, unit.package)
+        except BudgetExhausted as spent:
+            self.spent = spent
+            return
+        except PROVIDER_ERRORS as error:
+            self.broken = self.broken or error
+            return
+        except (Unanswered, WrongUnit):
+            message = "the model's answer never took the form of the unit, or answered for another"
+            of_unit = {"unit": unit.package.key}
+            await self._left(
+                [Finding("x6.unanswered", "warning", self.asking.document.id, message, None, of_unit)]
+            )
+            return
+        key = unit.package.key
+        named = [replace(found, details={**found.details, "unit": key}) for found in read.findings]
+        read = replace(read, findings=[*question.findings, *named])
+        context, job, document = self.asking.context, self.asking.job, self.asking.document
+        left = False
+        async with context.pool.connection() as connection:
             try:
-                answer = await self.asking.answer(stage, "x6.unit", question.prompt)
-                read = read_unit(answer, self.questions.statements, unit.package)
-            except BudgetExhausted as spent:
-                self.spent = spent
-                return
-            except (Unanswered, WrongUnit):
-                message = "the model's answer never took the form of the unit, or answered for another"
-                of_unit = {"unit": unit.package.key}
-                await self._left(
-                    [Finding("x6.unanswered", "warning", self.asking.document.id, message, None, of_unit)]
-                )
-                return
-            key = unit.package.key
-            named = [replace(found, details={**found.details, "unit": key}) for found in read.findings]
-            read = replace(read, findings=[*question.findings, *named])
-            context, job, document = self.asking.context, self.asking.job, self.asking.document
-            left = False
-            async with context.pool.connection() as connection:
-                try:
-                    made = await rewrite_unit(
-                        connection, job, document, unit, read, run_id=self.asking.run_id
-                    )
-                except EmptyAnswer:
-                    left = True  # the connection goes back first: a package holds one at a time
-                else:
-                    self.written += made.statements
-                    self.dropped += made.dropped
-                    self.done += 1
-                    await report(connection, job, "repair_units", done=self.done, total=self.total)
-            if left:  # with what reading it found: the next repair is told what was wrong
-                message = "the answer held no statement to write, of a unit that has some: it stays as it was"
-                empty = Finding("x6.empty_answer", "warning", document.id, message, None, {"unit": key})
-                await self._left([*read.findings, empty])
+                made = await rewrite_unit(connection, job, document, unit, read, run_id=self.asking.run_id)
+            except EmptyAnswer:
+                left = True  # the connection goes back first: a package holds one at a time
+            else:
+                self.written += made.statements
+                self.dropped += made.dropped
+                self.done += 1
+                await report(connection, job, "repair_units", done=self.done, total=self.total)
+        if left:  # with what reading it found: the next repair is told what was wrong
+            message = "the answer held no statement to write, of a unit that has some: it stays as it was"
+            empty = Finding("x6.empty_answer", "warning", document.id, message, None, {"unit": key})
+            await self._left([*read.findings, empty])
 
     async def _left(self, findings: Sequence[Finding]) -> None:
         """The package the last of the findings names stays as it was; its repair is counted (it was
@@ -210,6 +203,8 @@ class _Repairs:
     async def _end(self) -> dict[str, Any]:
         if self.spent is not None:
             raise self.spent
+        if self.broken is not None:
+            fail_by_provider(self.broken)
         context, job, run_id = self.asking.context, self.asking.job, self.asking.run_id
         result = {
             "units": self.total,

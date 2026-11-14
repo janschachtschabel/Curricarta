@@ -8,7 +8,9 @@ database's pool leaves beside the worker's own work: each holds one connection a
 asks only the units still open - an earlier job's done stay done (extraction_unit) -, and none where
 no window of the document fits one of them (``prefix_too_long``, before the run). A budget spent
 lets no further unit begin: those asked are answered and written, then the run ends as
-``budget_exhausted`` and the job with it, and a job with budget goes on with the rest. A unit whose
+``budget_exhausted`` and the job with it, and a job with budget goes on with the rest. So does a
+provider's error, once its waits are spent (app/pipeline/side_by_side.py): the run ends by it, a
+request refused for good as ``model_refused``, any other for the job's next attempt. A unit whose
 answer never took its form, or answered for another unit, stays open while the others go on; the
 run then ends as failed (``model_unanswered``) and the next job asks it again. Any other error - a
 lease lost, the database - ends every unit still asking; what was written stays. The run ends done
@@ -16,12 +18,12 @@ once every unit is, under the lease and the document's lock: a run of X4 done me
 over. Progress is reported as each unit is written.
 """
 
-import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
 import psycopg
+from pydantic_ai.exceptions import ModelAPIError
 
 from app.conversion.base import Block
 from app.db.documents import Document
@@ -37,6 +39,7 @@ from app.pipeline.asking import Asking, Superseded, Unanswered, ended, model_of
 from app.pipeline.ground import ground_of
 from app.pipeline.progress import report
 from app.pipeline.prompts import x4
+from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider
 from app.pipeline.x2_segments import WorkPackage
 from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
@@ -103,56 +106,45 @@ class _Units:
     total: int
     done: int
     spent: BudgetExhausted | None = None  # once set, no further unit begins
+    broken: ModelAPIError | None = None  # the provider's first error; as spent
     unanswered: list[str] = field(default_factory=list)
     taken: int = 0
 
     async def run(self, units: Sequence[WorkPackage]) -> dict[str, Any]:
-        context = self.asking.context
         stage = self.asking.agent(x4.SCHEMA, x4.SCHEMA_NAME, x4.INSTRUCTIONS)
-        # each unit asking holds one connection at a time; the worker's own work needs another
-        gate = asyncio.Semaphore(
-            max(1, min(context.settings.extract_concurrency, context.settings.db_pool_max_size - 1))
-        )
-        failed: Exception | None = None
-        try:
-            async with asyncio.TaskGroup() as group:
-                for unit in units:
-                    group.create_task(self._unit(unit, gate, stage))
-        except ExceptionGroup as broken:  # the first error ended the others: it is the run's
-            failed = broken.exceptions[0]
-        if failed is not None:
-            # raised outside the handler: its cause and the error it was raised in handling stay its own
-            raise failed
+        await ask_side_by_side(self.asking.context.settings, units, lambda unit: self._unit(unit, stage))
         return await self._end()
 
-    async def _unit(self, unit: WorkPackage, gate: asyncio.Semaphore, stage: StageAgent) -> None:
-        async with gate:
-            if self.spent is not None:
-                return
-            question = await self.questions.question(unit)
+    async def _unit(self, unit: WorkPackage, stage: StageAgent) -> None:
+        if self.spent is not None or self.broken is not None:
+            return
+        question = await self.questions.question(unit)
+        try:
+            answer = await self.asking.answer(stage, "x4.unit", question.prompt)
+            read = read_unit(answer, self.questions.statements, unit)
+        except BudgetExhausted as spent:
+            self.spent = spent
+            return
+        except PROVIDER_ERRORS as error:
+            self.broken = self.broken or error
+            return
+        except (Unanswered, WrongUnit):
+            self.unanswered.append(unit.key)
+            return
+        # a unit's findings name it: one answer's paths are no document's (X6 repairs by unit)
+        named = [replace(found, details={**found.details, "unit": unit.key}) for found in read.findings]
+        read = replace(read, findings=[*question.findings, *named])
+        context, job, document = self.asking.context, self.asking.job, self.asking.document
+        async with context.pool.connection() as connection:
+            first = first_position(unit, self.packages)
             try:
-                answer = await self.asking.answer(stage, "x4.unit", question.prompt)
-                read = read_unit(answer, self.questions.statements, unit)
-            except BudgetExhausted as spent:
-                self.spent = spent
-                return
-            except (Unanswered, WrongUnit):
-                self.unanswered.append(unit.key)
-                return
-            # a unit's findings name it: one answer's paths are no document's (X6 repairs by unit)
-            named = [replace(found, details={**found.details, "unit": unit.key}) for found in read.findings]
-            read = replace(read, findings=[*question.findings, *named])
-            context, job, document = self.asking.context, self.asking.job, self.asking.document
-            async with context.pool.connection() as connection:
-                first = first_position(unit, self.packages)
-                try:
-                    await write_unit(
-                        connection, job, document, unit, read, first=first, run_id=self.asking.run_id
-                    )
-                except UnitTaken:  # by a job beside this one: done all the same
-                    self.taken += 1
-                self.done += 1
-                await report(connection, job, "extract_statements", done=self.done, total=self.total)
+                await write_unit(
+                    connection, job, document, unit, read, first=first, run_id=self.asking.run_id
+                )
+            except UnitTaken:  # by a job beside this one: done all the same
+                self.taken += 1
+            self.done += 1
+            await report(connection, job, "extract_statements", done=self.done, total=self.total)
 
     async def _end(self) -> dict[str, Any]:
         context, job, document, run_id = (
@@ -163,9 +155,12 @@ class _Units:
             message = "units the model's answers never took the form of, or answered for another"
             finding = Finding("x4.unanswered", "warning", document.id, message, None, {"units": keys})
             async with context.pool.connection() as connection, connection.transaction():
+                await hold_lease(connection, job)
                 await add_findings(connection, document.id, run_id, [finding])
         if self.spent is not None:
             raise self.spent
+        if self.broken is not None:
+            fail_by_provider(self.broken)
         if keys:
             raise Unanswered(f"units {', '.join(keys)} were never answered in form")
         async with context.pool.connection() as connection, connection.transaction():
