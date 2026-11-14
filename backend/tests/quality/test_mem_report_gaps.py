@@ -9,9 +9,11 @@ from typing import Any
 import pytest
 
 from app.db.mem_plans import replace_graph
+from app.db.runs import RunStart, finish_run, start_run
 from app.quality.mem_report import Refused
 from app.sources.mem.drafts import MAX_TITLE, MAX_WORDING
 from tests.jobs.test_mem_import import FROZEN, PLAN, Endpoint, a_job, an_import, blocks, run, setup
+from tests.quality.gold_documents import a_document
 from tests.quality.test_mem_report import imported, report_of
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -61,3 +63,22 @@ async def test_a_plan_gone_from_the_catalogue_is_not_asked_for(in_process_shacl:
         await report_of(context, connection, document, endpoint_counts=True)
 
     assert report["cut"] is None and refused.value.code == "unknown_plan"
+
+
+@pytest.mark.parametrize(
+    "result",
+    [{}, {"stages": {"node": {"exact": 1}}}, {"stages": [], "front": None}, {"front": None}],
+    ids=["empty", "no-front", "stages-no-mapping", "no-stages"],
+)
+async def test_a_run_whose_result_lacks_what_the_report_reads_is_refused(
+    setup: Any, result: dict[str, Any]
+) -> None:
+    context, connection = setup
+    document = await a_document(connection)
+    run_id = await start_run(connection, RunStart(document.id, None, None, "IM", None, None, None, None))
+    await finish_run(connection, run_id, "done", result)
+
+    with pytest.raises(Refused) as refused:
+        await report_of(context, connection, document)
+
+    assert refused.value.code == "import_unreadable"  # never read as zeros, nor as title pages unknown

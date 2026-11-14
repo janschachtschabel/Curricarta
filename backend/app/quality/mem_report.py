@@ -23,7 +23,8 @@ document named by the label, never by its title, nor its plan by its IRI:
 
 Without the switch the database and the object store are all it reads, through one snapshot that refuses
 every write (app/db/snapshot.py).
-Exit code 1 for a document that is not there or no import, an endpoint refused or away, or an output that
+Exit code 1 for a document that is not there or no import, an import run whose result holds no
+``stages`` or no ``front`` (``import_unreadable``), an endpoint refused or away, or an output that
 is not counts and codes alone (``report_not_closed``); 2 for a call amiss."""
 
 import argparse
@@ -31,7 +32,7 @@ import asyncio
 import json
 import logging
 import sys
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
@@ -128,13 +129,17 @@ async def mem_report(
     transport: Any = None,
 ) -> dict[str, Any]:
     """The report as the module says; ``transport`` is the network (tests), used with ``endpoint_counts``
-    alone. Refused where the document is not there or no import of it is done."""
+    alone. Refused where the document is not there, no import of it is done, or its run's result is of
+    another shape."""
     document = await document_for_job(connection, document_id)
     if document is None:
         raise Refused("unknown_document", f"no document {document_id}")
     run = await import_run(connection, document.id)
     if run is None:
         raise Refused("not_an_import", "the document has no import done")
+    if not isinstance(run.result.get("stages"), Mapping) or "front" not in run.result:
+        # a run of another shape: its rows are not zero, nor are its title pages unknown
+        raise Refused("import_unreadable", "the import's run holds no stages or no title pages")
     head = await head_of(connection, document.id)
     plan = None if document.mem_iri is None else await plan_by_iri(connection, document.mem_iri)
     findings: dict[str, int] = {}
