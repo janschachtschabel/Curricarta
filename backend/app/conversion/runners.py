@@ -29,11 +29,12 @@ import json
 import logging
 import traceback
 from collections.abc import Callable
+from functools import partial
 from pathlib import Path
 
 from app.conversion.base import Conversion, EngineUnavailable, engine
 from app.conversion.convert import ConversionRefused, convert_file
-from app.core.child import KILLED, ChildLog, log_peak, run_in_child, stand_alone, write
+from app.core.child import KILLED, ChildLog, log_peak, run_in_child, said_out_of_memory, stand_alone, write
 from app.core.logging import current_request_id
 
 __all__ = [
@@ -95,7 +96,7 @@ async def convert_in_child(
     stands in for the conversion in tests: a function the child imports by its name."""
     told = child_log or ChildLog(level="WARNING", format="text", request_id=current_request_id())
     return await run_in_child(
-        _run, (convert, str(path), engine, max_pages, told), prefix="convert-", read=_outcome
+        _run, (convert, str(path), engine, max_pages, told), prefix="convert-", read=partial(_outcome, told)
     )
 
 
@@ -105,7 +106,7 @@ def log_crash(error: BaseException) -> None:
     logging.getLogger(__name__).error("the conversion raised %s\n%s", type(error).__name__, frames)
 
 
-def _outcome(exit_code: int | None, out: Path) -> Conversion:
+def _outcome(told: ChildLog, exit_code: int | None, out: Path) -> Conversion:
     if (out / "result.json").exists():
         return Conversion.model_validate_json((out / "result.json").read_bytes())
     if (out / "refused.json").exists():
@@ -117,6 +118,7 @@ def _outcome(exit_code: int | None, out: Path) -> Conversion:
     if exit_code == KILLED:
         raise ConversionDied(f"the conversion's process was ended by signal {-exit_code}")
     if exit_code == OUT_OF_MEMORY:
+        said_out_of_memory(told)
         raise ConversionDied("the conversion ran out of memory")
     if exit_code is not None and exit_code < 0:
         raise ConversionCrashed(f"the conversion's process was ended by signal {-exit_code}")

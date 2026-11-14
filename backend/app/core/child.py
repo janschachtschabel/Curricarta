@@ -42,6 +42,7 @@ KILLED = -9  # the exit code of a process ended by SIGKILL, which Windows does n
 KILL_WAIT_S = 5.0
 MIB = 1024 * 1024
 STATUS = Path("/proc/self/status")  # where Linux states a process's peaks
+_unapplied_said = False  # whether this process said CHILD_MEMORY_LIMIT_MB does not hold on its platform
 
 
 @dataclass(frozen=True)
@@ -55,7 +56,12 @@ class ChildLog:
 
     @classmethod
     def of(cls, settings: "Settings") -> Self:
-        """As the service logs, under the current request, bounded as the service's settings say."""
+        """As the service logs, under the current request, bounded as the service's settings say - where
+        the platform holds no such bound, said once by the service, not by each child."""
+        global _unapplied_said  # once a process, as the module's logger is
+        if settings.child_memory_limit_mb is not None and sys.platform != "linux" and not _unapplied_said:
+            _unapplied_said = True
+            log.warning("CHILD_MEMORY_LIMIT_MB is not applied on %s", sys.platform)
         return cls(
             settings.log_level, settings.log_format, current_request_id(), settings.child_memory_limit_mb
         )
@@ -101,11 +107,9 @@ def stand_alone(told: ChildLog, quiet: Iterable[str]) -> None:
 
 
 def limit_memory(memory_mb: int | None) -> None:
-    """Bound this process's address space to ``memory_mb`` MiB, on Linux; elsewhere passed over, said."""
-    if memory_mb is None:
-        return
-    if sys.platform != "linux":  # Windows has no RLIMIT_AS, macOS does not hold to it
-        log.warning("CHILD_MEMORY_LIMIT_MB is not applied on %s", sys.platform)
+    """Bound this process's address space to ``memory_mb`` MiB, on Linux; elsewhere passed over - the
+    service says so once (ChildLog.of)."""
+    if memory_mb is None or sys.platform != "linux":  # Windows has no RLIMIT_AS, macOS does not hold to it
         return
     _set_address_space(memory_mb * MIB)
 
@@ -118,6 +122,13 @@ def _set_address_space(limit: int) -> None:
         # the soft limit, below a hard one the operator set: above it setrlimit refuses
         soft = limit if hard == resource.RLIM_INFINITY else min(limit, hard)
         resource.setrlimit(resource.RLIMIT_AS, (soft, hard))
+
+
+def said_out_of_memory(told: ChildLog) -> None:
+    """In the parent, where a child's outcome is a MemoryError: the limit it ran under, if one was set -
+    no word of what it worked on."""
+    if told.memory_mb is not None:
+        log.warning("out of memory under CHILD_MEMORY_LIMIT_MB=%d", told.memory_mb)
 
 
 def log_peak(status: Path = STATUS) -> None:

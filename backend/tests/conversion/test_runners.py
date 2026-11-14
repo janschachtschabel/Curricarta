@@ -125,6 +125,22 @@ async def test_a_conversion_grown_to_its_memory_limit_died() -> None:
         )  # fmt: skip
 
 
+@pytest.mark.parametrize(
+    ("memory_mb", "said"), [(65536, ["out of memory under CHILD_MEMORY_LIMIT_MB=65536"]), (None, [])]
+)
+async def test_a_conversion_out_of_memory_names_the_limit_it_ran_under(
+    caplog: pytest.LogCaptureFixture, memory_mb: int | None, said: list[str]
+) -> None:
+    # the operator connects died to the setting, without the peak's line alone; no word of the file
+    with caplog.at_level(logging.WARNING, logger="app.core.child"), pytest.raises(ConversionDied):
+        await convert_in_child(
+            FIXTURES / "prose.pdf", engine="stand-in", max_pages=9, convert=standins.exhausting,
+            child_log=ChildLog(level="WARNING", format="text", request_id="-", memory_mb=memory_mb),
+        )  # fmt: skip
+
+    assert caplog.messages == said
+
+
 def test_a_crash_is_logged_by_its_kind_and_frames_without_its_message(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

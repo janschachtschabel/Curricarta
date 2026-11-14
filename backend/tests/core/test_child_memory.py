@@ -94,14 +94,42 @@ def test_without_a_limit_the_child_is_left_alone(
 def test_where_the_platform_has_no_such_limit_it_is_passed_over(
     monkeypatch: pytest.MonkeyPatch, limits: list[int], caplog: pytest.LogCaptureFixture, platform: str
 ) -> None:
-    # Windows has no RLIMIT_AS, macOS does not hold to it: the containers' limits are the first line
+    # Windows has no RLIMIT_AS, macOS does not hold to it: the containers' limits are the first line.
+    # The child says nothing of it: the service says it once (below)
     monkeypatch.setattr(sys, "platform", platform)
 
-    with caplog.at_level(logging.WARNING, logger="app.core.child"):
+    with caplog.at_level(logging.INFO, logger="app.core.child"):
         limit_memory(512)
 
-    assert limits == []
+    assert (limits, caplog.messages) == ([], [])
+
+
+@pytest.mark.parametrize("platform", ["win32", "darwin"])
+def test_the_service_says_once_that_the_limit_is_not_applied_on_its_platform(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, platform: str
+) -> None:
+    monkeypatch.setattr(sys, "platform", platform)
+    monkeypatch.setattr(child, "_unapplied_said", False)
+    bounded = make_settings(child_memory_limit_mb=1024)
+
+    with caplog.at_level(logging.WARNING, logger="app.core.child"):
+        ChildLog.of(bounded)
+        ChildLog.of(bounded)
+
     assert caplog.messages == [f"CHILD_MEMORY_LIMIT_MB is not applied on {platform}"]
+
+
+@pytest.mark.parametrize(("platform", "memory_mb"), [("linux", 1024), ("win32", None)])
+def test_where_the_limit_holds_or_none_is_set_the_service_says_nothing_of_it(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture, platform: str, memory_mb: int | None
+) -> None:
+    monkeypatch.setattr(sys, "platform", platform)
+    monkeypatch.setattr(child, "_unapplied_said", False)
+
+    with caplog.at_level(logging.WARNING, logger="app.core.child"):
+        ChildLog.of(make_settings(child_memory_limit_mb=memory_mb))
+
+    assert caplog.messages == []
 
 
 def test_the_child_s_start_hands_its_limit_on(monkeypatch: pytest.MonkeyPatch) -> None:

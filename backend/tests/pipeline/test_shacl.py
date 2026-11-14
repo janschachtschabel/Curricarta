@@ -4,6 +4,7 @@ document's Kern graph, in a child process with a deadline. The model left withou
 alignments and migration, the document's rows as focus nodes and rdflib's queries kept translated: a
 measured tenth of the time, the same results (plan M1, Nachtrag 8a)."""
 
+import logging
 import multiprocessing
 import pickle
 import uuid
@@ -250,13 +251,20 @@ def exhausting(ontology_dir: str, data: str, shapes: ShapeSet, told: ChildLog, o
 
 
 async def test_a_check_out_of_memory_in_its_child_comes_back_as_crashed_by_its_kind(
-    monkeypatch: pytest.MonkeyPatch,
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
 ) -> None:
     # the operator tells it from a timeout and from an answer never given
     monkeypatch.setattr(shacl, "run_child", exhausting)
 
-    with pytest.raises(ShaclCrashed, match=r"^the SHACL validation raised MemoryError in its process$"):
-        await shacl_check(kern_graph(a_document([])), ontology_dir=ONTOLOGY, timeout_s=120, told=TOLD)
+    bounded = ChildLog(level="WARNING", format="text", request_id="-", memory_mb=65536)
+
+    with (
+        caplog.at_level(logging.WARNING, logger="app.core.child"),
+        pytest.raises(ShaclCrashed, match=r"^the SHACL validation raised MemoryError in its process$"),
+    ):
+        await shacl_check(kern_graph(a_document([])), ontology_dir=ONTOLOGY, timeout_s=120, told=bounded)
+
+    assert caplog.messages == ["out of memory under CHILD_MEMORY_LIMIT_MB=65536"]
 
 
 async def test_the_graph_reaches_the_child_as_a_file_so_its_start_writes_little(

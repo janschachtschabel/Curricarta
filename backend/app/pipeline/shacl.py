@@ -17,13 +17,14 @@ import json
 import shutil
 import tempfile
 from collections.abc import Sequence
+from functools import partial
 from pathlib import Path
 from typing import cast
 from uuid import UUID
 
 from rdflib import Graph
 
-from app.core.child import ChildLog, run_in_child
+from app.core.child import ChildLog, run_in_child, said_out_of_memory
 from app.db.findings import Finding
 from app.domain.l1 import Severity
 from app.pipeline.shacl_child import ShaclResult, ShapeSet, run_child
@@ -51,7 +52,10 @@ async def shacl_check(
         await asyncio.to_thread(graph.serialize, destination=data, format="nt", encoding="utf-8")
         async with asyncio.timeout(timeout_s):
             return await run_in_child(
-                run_child, (str(ontology_dir), str(data), shapes, told), prefix="shacl-", read=_outcome
+                run_child,
+                (str(ontology_dir), str(data), shapes, told),
+                prefix="shacl-",
+                read=partial(_outcome, told),
             )
     except TimeoutError:
         raise ShaclTimeout(f"the SHACL validation took longer than {timeout_s} s") from None
@@ -91,10 +95,12 @@ def _row(focus: str) -> UUID | None:
         return None
 
 
-def _outcome(exit_code: int | None, out: Path) -> list[ShaclResult]:
+def _outcome(told: ChildLog, exit_code: int | None, out: Path) -> list[ShaclResult]:
     if (out / "result.json").exists():
         return [ShaclResult(*row) for row in json.loads((out / "result.json").read_text(encoding="utf-8"))]
     if (out / "crashed.json").exists():
         crashed = json.loads((out / "crashed.json").read_text(encoding="utf-8"))
+        if crashed["error"] == "MemoryError":
+            said_out_of_memory(told)
         raise ShaclCrashed(f"the SHACL validation raised {crashed['error']} in its process")
     raise ShaclCrashed(f"the SHACL validation's process ended without an answer (exit code {exit_code})")
