@@ -5,7 +5,7 @@
  * What goes inside, and where the keyboard starts, is the dialog's own.
  */
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { defineComponent, h, ref } from "vue";
 
 import ModalShell from "@/components/ModalShell.vue";
@@ -320,6 +320,34 @@ describe("the page behind an open frame", () => {
 
     expect(document.body.style.overflow).toBe("clip");
     document.body.style.overflow = "";
+  });
+
+  // the page moved sideways by the scrollbar's width as it was hidden (browser check 2, NIT 6)
+  it("keeps the room of the scrollbar it hides while the page does not scroll, for all frames, and gives it back", () => {
+    // jsdom lays nothing out: a classic 15 px scrollbar stands in
+    const clientWidth = vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(window.innerWidth - 15);
+    document.body.innerHTML = '<div id="one"></div><div id="two"></div>';
+    document.body.style.paddingInlineEnd = "";
+    const first = mount(ModalShell, { props: { labelledby: "a" }, slots: { default: '<h2 id="a">A</h2>' }, attachTo: "#one" });
+    expect(document.body.style.paddingInlineEnd).toBe("15px");
+    const second = mount(ModalShell, { props: { labelledby: "b" }, slots: { default: '<h2 id="b">B</h2>' }, attachTo: "#two" });
+
+    first.unmount();
+    expect(document.body.style.paddingInlineEnd).toBe("15px");
+    second.unmount();
+
+    expect(document.body.style.paddingInlineEnd).toBe("");
+    clientWidth.mockRestore();
+  });
+
+  it("adds no room where the scrollbar takes none", () => {
+    const clientWidth = vi.spyOn(document.documentElement, "clientWidth", "get").mockReturnValue(window.innerWidth);
+    document.body.innerHTML = '<div id="host"></div>';
+    const wrapper = mount(ModalShell, { props: { labelledby: "t" }, slots: { default: '<h2 id="t">T</h2>' }, attachTo: "#host" });
+
+    expect(document.body.style.paddingInlineEnd).toBe("");
+    wrapper.unmount();
+    clientWidth.mockRestore();
   });
 
   it("leaves inert what was inert before it opened", () => {

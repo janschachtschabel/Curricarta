@@ -1,8 +1,10 @@
 <script lang="ts">
 // The frames open, the last opened on top: Escape is the top one's alone.
 const openFrames: symbol[] = [];
-// The page's scrolling before the first frame opened: one for all frames, given back by whichever goes last
+// The page's scrolling before the first frame opened, and the room at its end: one for all frames, given back by
+// whichever goes last
 let overflowBefore = "";
+let paddingBefore = "";
 </script>
 
 <script setup lang="ts">
@@ -50,14 +52,21 @@ function quietPage(): void {
     }
   }
   if (openFrames.length === 1) {
+    // a classic scrollbar hidden gives its width to the page, which moved sideways by it: the body keeps that room
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
     overflowBefore = document.body.style.overflow;
+    paddingBefore = document.body.style.paddingInlineEnd;
     document.body.style.overflow = "hidden";
+    if (scrollbar > 0) document.body.style.paddingInlineEnd = `${scrollbar}px`;
   }
 }
 
 function wakePage(): void {
   for (const element of madeInert.splice(0)) element.removeAttribute("inert");
-  if (openFrames.length === 0) document.body.style.overflow = overflowBefore;
+  if (openFrames.length === 0) {
+    document.body.style.overflow = overflowBefore;
+    document.body.style.paddingInlineEnd = paddingBefore;
+  }
 }
 
 onMounted(() => {
