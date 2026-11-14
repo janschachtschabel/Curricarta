@@ -266,9 +266,11 @@ async def _read_form(request: Request, timeout_s: float) -> AsyncIterator[FormDa
     files it spooled itself; ``Connection: close`` makes the server end the connection instead of
     reading the rest of the body at that same pace."""
     try:
-        async with asyncio.timeout(timeout_s):
+        async with asyncio.timeout(timeout_s) as deadline:
             form = await request.form(max_files=1, max_fields=2)
     except TimeoutError:
+        if not deadline.expired():  # the server's own (a spool write's ETIMEDOUT), not the client's pace
+            raise
         raise Refusal(
             408, "upload_too_slow", "The upload did not arrive in time.", {"Connection": "close"}
         ) from None
