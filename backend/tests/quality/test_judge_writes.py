@@ -35,6 +35,28 @@ async def test_a_judgement_the_database_refuses_last_leaves_none_written(
     assert await count(connection, "gold_judgement") == 0
 
 
+async def test_judgements_are_written_in_the_items_order_whatever_order_they_come_in(
+    connection: psycopg.AsyncConnection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    sample, account = await a_sample(connection)
+    cursor = await connection.execute("SELECT id FROM account WHERE name = %s", (account,))
+    [(judge_id,)] = await cursor.fetchall()
+    items = [item.id for item in await items_of(connection, sample)]
+    written: list[int] = []
+    execute = connection.execute
+
+    async def watched(query: Any, params: Any = None, **options: Any) -> Any:
+        if isinstance(params, dict) and "item" in params:
+            written.append(params["item"])
+        return await execute(query, params, **options)
+
+    monkeypatch.setattr(connection, "execute", watched)
+
+    await judge_all(connection, judge_id, [(item, CORRECT) for item in reversed(items)])
+
+    assert written == sorted(items)  # one lock order for every import: two at once wait, never deadlock
+
+
 def _then(connection: psycopg.AsyncConnection, statement: str, value: Any) -> Any:
     """items_of, after which the statement takes something away: as if another hand did it meanwhile."""
 

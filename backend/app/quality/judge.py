@@ -155,8 +155,8 @@ async def take_in(connection: psycopg.AsyncConnection, sample_id: int, account: 
     lines = read_sheet(data)
     items = {item.id: item for item in await items_of(connection, sample_id)}
     judgements, left_empty = judgements_in(lines, items, sample.kind)
-    try:  # in the items' order: two imports at once take their rows' locks in one order, and deadlock not
-        judged = await judge_all(connection, found[0], sorted(judgements, key=lambda judged: judged[0]))
+    try:
+        judged = await judge_all(connection, found[0], judgements)
     except psycopg.errors.ForeignKeyViolation as violated:  # taken away meanwhile
         if violated.diag.constraint_name == _OF_ACCOUNT:
             raise Refused("unknown_account", "the account went while the sheet was read") from None

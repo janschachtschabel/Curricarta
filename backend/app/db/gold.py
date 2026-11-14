@@ -220,10 +220,12 @@ async def judge_all(
     connection: psycopg.AsyncConnection, account_id: UUID, judgements: Sequence[tuple[int, Judgement]]
 ) -> Judged:
     """The account's judgements of the items, all in one transaction or none: two imports at once meet at
-    the key (item, account) and the later finds the earlier's. ForeignKeyViolation where an item is gone."""
+    the key (item, account) and the later finds the earlier's; written in the items' order, whatever order
+    they come in. ForeignKeyViolation where an item is gone."""
     new = changed = 0
     async with connection.transaction():
-        for item_id, judgement in judgements:
+        # in the items' order: two imports at once take their rows' locks in one order, and wait, not deadlock
+        for item_id, judgement in sorted(judgements, key=lambda judged: judged[0]):
             cursor = await connection.execute(
                 _JUDGE_SHEET,
                 {
