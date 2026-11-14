@@ -115,27 +115,28 @@ watch(() => props.refresh, load);
       </p>
       <!-- scrolled on its own where wider than a phone, by the keyboard too; a name of its own -->
       <div class="findings" tabindex="0" role="region" :aria-label="t('documents.findings.table')">
-        <table>
-          <thead>
-            <tr>
-              <th scope="col">{{ t("documents.findings.columns.severity") }}</th>
-              <th scope="col">{{ t("documents.findings.columns.finding") }}</th>
-              <th scope="col">{{ t("documents.findings.columns.focus") }}</th>
+        <!-- roles said outright: stacked on a narrow screen, display: block drops them in some engines -->
+        <table role="table">
+          <thead role="rowgroup">
+            <tr role="row">
+              <th role="columnheader" scope="col">{{ t("documents.findings.columns.severity") }}</th>
+              <th role="columnheader" scope="col">{{ t("documents.findings.columns.finding") }}</th>
+              <th role="columnheader" scope="col">{{ t("documents.findings.columns.focus") }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody role="rowgroup">
             <!-- a finding has no id of its own; the list is read whole each time -->
-            <tr v-for="(row, at) in rows" :key="at">
-              <td>
+            <tr role="row" v-for="(row, at) in rows" :key="at">
+              <td role="cell">
                 <span class="status-badge" :class="SEVERITY_TONES[row.finding.severity]">
                   {{ t(`documents.findings.severities.${row.finding.severity}`) }}
                 </span>
               </td>
-              <td class="findings__text" :data-label="t('documents.findings.columns.finding')">
+              <td role="cell" class="findings__text" :data-label="t('documents.findings.columns.finding')">
                 <q v-if="row.said.lang" lang="en">{{ row.said.text }}</q>
                 <template v-else>{{ row.said.text }}</template>
               </td>
-              <td class="findings__text" :data-label="t('documents.findings.columns.focus')">
+              <td role="cell" class="findings__text" :data-label="t('documents.findings.columns.focus')">
                 <RouterLink
                   v-if="row.row"
                   :to="{ name: 'documentTree', params: { id: documentId }, query: { [ROW_PARAM]: row.row } }"
@@ -191,7 +192,18 @@ watch(() => props.refresh, load);
   }
 
   .findings thead {
-    display: none;
+    /* the project's visually-hidden clip, not display: none: the heads stay the cells' column headers for a screen
+       reader while each cell's label shows them to the eye */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
   }
 
   .findings tr {

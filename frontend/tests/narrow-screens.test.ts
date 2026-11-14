@@ -28,6 +28,21 @@ describe("a table of prose on a narrow screen", () => {
     expect(narrowRule(file, `${table} td[data-label]::before`)).toMatch(/content:\s*attr\(data-label\)/);
   });
 
+  // display: none took the column heads out of the accessibility tree, and display: block drops a table's roles in
+  // some engines (UI review 1, finding 7)
+  it.each([
+    ["components/DocumentFindings.vue", ".findings"],
+    ["components/SourceTable.vue", ".register__table"],
+  ])("keeps its column heads and its table's roles: %s", (file, table) => {
+    const head = narrowRule(file, `${table} thead`) ?? "";
+    expect(head).not.toMatch(/display:\s*none/);
+    expect(head).toMatch(/clip-path:\s*inset\(50%\)/);
+    const roles: Record<string, string> = { table: "table", thead: "rowgroup", tbody: "rowgroup", tr: "row", th: "columnheader", td: "cell" };
+    const tags = [...source(file).matchAll(/<(table|thead|tbody|tr|th|td)(?![\w-])((?:[^>"']|"[^"]*"|'[^']*')*)>/g)];
+    expect(tags.length).toBeGreaterThan(6);
+    for (const [, tag, attributes] of tags) expect(attributes, `<${tag}>`).toContain(`role="${roles[tag]}"`);
+  });
+
   it.each([
     ["components/DocumentFindings.vue", 2],
     ["components/SourceTable.vue", 4],
