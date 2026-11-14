@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,6 +10,8 @@ import { t } from "@/i18n/de";
 import { router } from "@/router";
 import { clearSession, session, setSession } from "@/session";
 import LoginView from "@/views/LoginView.vue";
+
+import { SRC, cssRules, stylesOf } from "./sources";
 
 const TOKEN = "curricarta_" + "t".repeat(43);
 const ME: api.Me = { id: "0190-a", name: "Lehrkraft", roles: ["nutzer"] };
@@ -37,7 +42,7 @@ describe("signing in", () => {
 
     const wrapper = await signIn("   ");
 
-    expect(wrapper.get("[role=alert]").text()).toContain(t("login.errors.empty"));
+    expect(wrapper.get("#login-error").text()).toContain(t("login.errors.empty"));
     expect(check).not.toHaveBeenCalled();
   });
 
@@ -81,7 +86,7 @@ describe("signing in", () => {
 
     const wrapper = await signIn(TOKEN);
 
-    expect(wrapper.get("[role=alert]").text()).toContain(t("login.errors.locked", { count: 15 }));
+    expect(wrapper.get("#login-error").text()).toContain(t("login.errors.locked", { count: 15 }));
   });
 
   it("says to try later where the wait is not named", async () => {
@@ -89,17 +94,17 @@ describe("signing in", () => {
 
     const wrapper = await signIn(TOKEN);
 
-    expect(wrapper.get("[role=alert]").text()).toContain(t("login.errors.lockedLater"));
+    expect(wrapper.get("#login-error").text()).toContain(t("login.errors.lockedLater"));
   });
 
   it("tells a lost connection from a server that failed", async () => {
     vi.spyOn(api, "checkToken").mockRejectedValueOnce(new api.ApiError("network", 0));
     const offline = await signIn(TOKEN);
-    expect(offline.get("[role=alert]").text()).toContain(t("login.errors.network"));
+    expect(offline.get("#login-error").text()).toContain(t("login.errors.network"));
 
     vi.spyOn(api, "checkToken").mockRejectedValueOnce(new api.ApiError("server", 500, "internal_server_error"));
     const failed = await signIn(TOKEN);
-    expect(failed.get("[role=alert]").text()).toContain(t("login.errors.server"));
+    expect(failed.get("#login-error").text()).toContain(t("login.errors.server"));
   });
 
   it("shows that it is checking", async () => {
@@ -119,6 +124,58 @@ describe("signing in", () => {
   });
 });
 
+// unlike every other form, an empty press left the keyboard on the button, the error an alert the field then read
+// again, and the centred card jumped (browser check 2, NIT 10)
+describe("a refusal of what was typed", () => {
+  async function pressed(typed: string) {
+    await router.push({ name: "login" });
+    const wrapper = mount(LoginView, { global: { plugins: [router] }, attachTo: document.body });
+    await wrapper.get("input").setValue(typed);
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+    return wrapper;
+  }
+
+  it("takes the keyboard from the button to the field, which reads the error once", async () => {
+    const wrapper = await pressed("");
+
+    expect(document.activeElement).toBe(wrapper.get("input").element);
+    expect(wrapper.get("input").attributes("aria-describedby")).toBe("login-error");
+    expect(wrapper.get("#login-error").text()).toContain(t("login.errors.empty"));
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
+    expect(wrapper.get("[data-test=login-status]").text()).toBe("");
+  });
+
+  it("says it in the form's status where the keyboard stays in the field", async () => {
+    await router.push({ name: "login" });
+    const wrapper = mount(LoginView, { global: { plugins: [router] }, attachTo: document.body });
+    (wrapper.get("input").element as HTMLElement).focus();
+    await wrapper.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(wrapper.get("input").element);
+    const status = wrapper.get("[data-test=login-status]");
+    expect(status.attributes("role")).toBe("status");
+    expect(status.text()).toBe(t("forms.fieldProblem", { field: t("login.tokenLabel"), problem: t("login.errors.empty") }));
+  });
+
+  it("leaves the keyboard on the button where the server failed, and says so in the status", async () => {
+    vi.spyOn(api, "checkToken").mockRejectedValue(new api.ApiError("network", 0));
+    const wrapper = await pressed(TOKEN);
+
+    expect(document.activeElement).toBe(wrapper.get("button[type=submit]").element);
+    expect(wrapper.get("[data-test=login-status]").text()).toBe(t("login.errors.network"));
+  });
+
+  it("keeps the card where it was: anchored at its top, not centred", () => {
+    const rule = cssRules(stylesOf(readFileSync(join(SRC, "views", "LoginView.vue"), "utf8"))).find(({ selectors }) =>
+      selectors.includes(".login"),
+    );
+    expect(rule?.body).toMatch(/align-items:\s*start/);
+    expect(rule?.body).not.toMatch(/place-items:\s*center/);
+  });
+});
 
 describe("the token's form", () => {
   it.each([["curricarta_" + "t".repeat(42)], ["curricarta_" + "t".repeat(42) + String.fromCodePoint(0x2013)], ["mein-token"]])(
@@ -129,7 +186,7 @@ describe("the token's form", () => {
 
       const wrapper = await signIn(typed);
 
-      expect(wrapper.get("[role=alert]").text()).toContain(t("login.errors.malformed"));
+      expect(wrapper.get("#login-error").text()).toContain(t("login.errors.malformed"));
       expect(check).not.toHaveBeenCalled();
     },
   );

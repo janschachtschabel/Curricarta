@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiError, checkToken, looksLikeToken, setToken } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
+import { focusIsFree } from "@/focusRescue";
 import { requiredLabel } from "@/formWords";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
@@ -16,7 +17,11 @@ const route = useRoute();
 
 const token = ref("");
 const error = ref("");
+// what the error says where the keyboard does not go to the field (fieldRefusal.ts has the same rule)
+const status = ref("");
 const checking = ref(false);
+const submit = ref<HTMLElement | null>(null);
+const field = ref<HTMLElement | null>(null);
 
 /** Why the token could not be checked. Past too many failures the server answers 429 with the wait. */
 function signInFailure(failure: unknown): string {
@@ -28,9 +33,18 @@ function signInFailure(failure: unknown): string {
     : t("login.errors.locked", { count: Math.max(1, Math.ceil(failure.retryAfter / 60)) });
 }
 
-/** The refusal to show; the same one again is read out again (liveRegion.ts). */
-function refuse(message: string): void {
+/** The refusal to show; the same one again is read out again (liveRegion.ts). One of what was typed (`atField`)
+ * takes the keyboard to the field from the button or from nothing, as in every other form, and the field reads
+ * it; resting elsewhere, or where the server failed, the status says it - read once either way. */
+async function refuse(message: string, atField = true): Promise<void> {
   error.value = sayAnew(error.value, message);
+  status.value = "";
+  await nextTick();
+  if (atField && (document.activeElement === submit.value || focusIsFree())) field.value?.focus();
+  else {
+    const words = atField ? t("forms.fieldProblem", { field: t("login.tokenLabel"), problem: message }) : message;
+    status.value = sayAnew(status.value, words);
+  }
 }
 
 async function onSubmit(): Promise<void> {
@@ -50,7 +64,7 @@ async function onSubmit(): Promise<void> {
     setSession(me);
     await router.push(returnTarget(route.query[RETURN_PARAM]) ?? { name: "start" });
   } catch (failure) {
-    refuse(signInFailure(failure));
+    await refuse(signInFailure(failure), false);
   } finally {
     checking.value = false;
   }
@@ -77,6 +91,7 @@ async function onSubmit(): Promise<void> {
                the token to the next person; pasting it stays possible (WCAG 3.3.8) -->
           <input
             id="token"
+            ref="field"
             aria-required="true"
             v-model="token"
             type="password"
@@ -87,27 +102,29 @@ async function onSubmit(): Promise<void> {
           />
         </div>
 
-        <p v-if="error" id="login-error" class="field__error login__error" role="alert">
+        <p v-if="error" id="login-error" class="field__error login__error">
           <AppIcon name="warning" /> {{ error }}
         </p>
 
         <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
-        <button type="submit" class="btn primary login__submit" :aria-disabled="checking || undefined">
+        <button ref="submit" type="submit" class="btn primary login__submit" :aria-disabled="checking || undefined">
           {{ checking ? t("login.checking") : t("login.submit") }}
         </button>
       </form>
+      <!-- always in the page, so what it says is read -->
+      <p class="visually-hidden" role="status" data-test="login-status">{{ status }}</p>
     </section>
   </div>
 </template>
 
 <style scoped>
-/* Centred in what is left of the viewport rather than pinned to a corner: the
-   form is four lines long. */
+/* Across the middle, a little down from the top rather than pinned to a corner: the form is four lines long.
+   Anchored at its top, not centred, so an error line appearing under the field does not move the field. */
 .login {
   display: grid;
-  place-items: center;
-  min-height: 70vh;
-  padding: var(--space-3);
+  justify-items: center;
+  align-items: start;
+  padding: max(var(--space-3), 12vh) var(--space-3) var(--space-3);
 }
 
 .login__card {
