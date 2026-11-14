@@ -36,7 +36,11 @@ def _command(job: str, pattern: str) -> str:
 
 
 def test_there_are_the_workflows_these_guard() -> None:
-    assert [path.name for path in EVERY] == ["audit.yml", "ci.yml", "converter.yml"]
+    assert [path.name for path in EVERY] == ["audit.yml", "ci.yml", "converter.yml", "release.yml"]
+
+
+# the jobs that push the release's images to the registry (tests/deploy/test_release.py)
+PUSHING = {("release.yml", "images"), ("release.yml", "converter")}
 
 
 @pytest.mark.parametrize("path", EVERY, ids=lambda path: path.name)
@@ -52,9 +56,14 @@ def test_it_reads_the_repository_and_nothing_more(path: Path) -> None:
     workflow = yaml.safe_load(path.read_text(encoding="utf-8"))
 
     assert workflow["permissions"] == {"contents": "read"}
-    # a job may widen them for itself
-    jobs = workflow["jobs"].values()
-    assert all(job.get("permissions", {"contents": "read"}) == {"contents": "read"} for job in jobs)
+    # a job may widen them for itself only to push the images it built
+    for name, job in workflow["jobs"].items():
+        allowed = (
+            {"contents": "read", "packages": "write"}
+            if (path.name, name) in PUSHING
+            else {"contents": "read"}
+        )
+        assert job.get("permissions", {"contents": "read"}) == allowed, name
 
 
 @pytest.mark.parametrize("path", EVERY, ids=lambda path: path.name)

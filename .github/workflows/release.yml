@@ -1,0 +1,196 @@
+# Publishes the images to GitHub's container registry: for each version tag vX.Y.Z, which must be the
+# version of backend/pyproject.toml, or by hand for any branch. The API's and the web server's images, the
+# converter's for a tag or when asked; each tagged sha-<the commit's first 12 characters>, a tag's images
+# also X.Y.Z, never latest: a name someone can move to another image is no release. The job start pulls
+# what was pushed by its digests and starts the whole service with it, building nothing again.
+# Only the two jobs that push may write packages, with the run's own token, which the login takes on
+# stdin. No pull request starts it, and no value of one reaches it. Actions are pinned by commit (a tag
+# can be moved); the comment names the version.
+name: release
+
+on:
+  push:
+    tags: ["v*.*.*"]
+  workflow_dispatch:
+    inputs:
+      converter:
+        description: Build and push the converter's image as well
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  # no pull request starts it: a release always ends
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  images:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      api: ${{ steps.push.outputs.api }}
+      web: ${{ steps.push.outputs.web }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # before anything is built: a tag that is not the package's version releases nothing
+      - name: The tag is the package's version
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        run: |
+          version="$(python3 -c 'import tomllib; print(tomllib.load(open("backend/pyproject.toml", "rb"))["project"]["version"])')"
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::the tag $GITHUB_REF_NAME is not v$version, the version of backend/pyproject.toml"
+            exit 1
+          fi
+      # the registry's names are lower case; the version tag only from a version tag's run
+      - &names
+        name: Names and tags
+        run: |
+          version="sha-${GITHUB_SHA::12}"
+          tags="$version"
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = tag ]; then
+            version="${GITHUB_REF_NAME#v}"
+            tags="$tags $version"
+          fi
+          {
+            echo "REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
+            echo "VERSION=$version"
+            echo "TAGS=$tags"
+          } >> "$GITHUB_ENV"
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Build the SPA for the web image
+        run: cd frontend && npm ci && npm run build
+      # the revision goes in where the Dockerfile declares the argument, the image reporting its build
+      - name: Build the images
+        run: |
+          build() {
+            dockerfile="$1" image="$2"
+            revision=()
+            if grep -Eq '^\s*ARG\s+REVISION(=|\s|$)' "$dockerfile"; then revision=(--build-arg "REVISION=$GITHUB_SHA"); fi
+            tags=()
+            for tag in $TAGS; do tags+=(-t "$image:$tag"); done
+            docker build -f "$dockerfile" "${revision[@]}" \
+              --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+              --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+              --label "org.opencontainers.image.version=$VERSION" \
+              --label "org.opencontainers.image.licenses=Apache-2.0" \
+              "${tags[@]}" .
+          }
+          build deploy/api.Dockerfile "$REGISTRY/curricarta"
+          build deploy/web.Dockerfile "$REGISTRY/curricarta-web"
+      # logged in only once everything is built; the digest is the registry's, the same under each tag
+      - name: Push the images
+        id: push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          push() {
+            for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done
+            digest="$(docker image inspect -f '{{index .RepoDigests 0}}' "$REGISTRY/$1:${TAGS%% *}")"
+            digest="${digest#*@}"
+            echo "$2=$digest" >> "$GITHUB_OUTPUT"
+            echo "| \`$REGISTRY/$1\` | $TAGS | \`$digest\` |" >> "$GITHUB_STEP_SUMMARY"
+          }
+          printf '%s\n' "| Image | Tags | Digest |" "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          push curricarta api
+          push curricarta-web web
+      - &logout
+        name: Log out of the registry
+        if: always()
+        run: docker logout ghcr.io
+
+  # ~2 GB of packages; behind the images, so a tag that is not the version stops it as well
+  converter:
+    needs: images
+    if: github.event_name == 'push' || inputs.converter
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - *names
+      - name: Build the converter's image
+        run: |
+          dockerfile=deploy/api.Dockerfile image="$REGISTRY/curricarta-convert"
+          revision=()
+          if grep -Eq '^\s*ARG\s+REVISION(=|\s|$)' "$dockerfile"; then revision=(--build-arg "REVISION=$GITHUB_SHA"); fi
+          tags=()
+          for tag in $TAGS; do tags+=(-t "$image:$tag"); done
+          docker build -f "$dockerfile" "${revision[@]}" --build-arg VENV=convert \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --label "org.opencontainers.image.version=$VERSION" \
+            --label "org.opencontainers.image.licenses=Apache-2.0" \
+            "${tags[@]}" .
+      - name: Push the converter's image
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          push() {
+            for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done
+            digest="$(docker image inspect -f '{{index .RepoDigests 0}}' "$REGISTRY/$1:${TAGS%% *}")"
+            digest="${digest#*@}"
+            echo "| \`$REGISTRY/$1\` | $TAGS | \`$digest\` |" >> "$GITHUB_STEP_SUMMARY"
+          }
+          printf '%s\n' "| Image | Tags | Digest |" "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
+          push curricarta-convert convert
+      - *logout
+
+  # the images as an operator gets them: from the registry, by their digests, without a login
+  start:
+    needs: images
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Pull the pushed images by their digests
+        env:
+          API: ${{ needs.images.outputs.api }}
+          WEB: ${{ needs.images.outputs.web }}
+        run: |
+          [[ "$API" =~ ^sha256:[0-9a-f]{64}$ ]]
+          [[ "$WEB" =~ ^sha256:[0-9a-f]{64}$ ]]
+          registry="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
+          docker pull "$registry/curricarta@$API"
+          docker pull "$registry/curricarta-web@$WEB"
+          docker tag "$registry/curricarta@$API" curricarta-api:local
+          docker tag "$registry/curricarta-web@$WEB" curricarta-web:local
+      - name: Start the whole service with them
+        run: |
+          python3 deploy/make-secrets.py
+          docker compose -f deploy/docker-compose.yml up -d --no-build
+          for i in $(seq 1 60); do
+            if curl -sf --max-time 5 http://127.0.0.1:18080/api/v1/info; then echo; ok=1; break; fi
+            sleep 2
+          done
+          docker compose -f deploy/docker-compose.yml ps -a
+          test "${ok:-0}" = 1
+          # /info needs no database; /ready asks it and the migrations, on each replica's internal port
+          ready="import urllib.request; urllib.request.urlopen('http://127.0.0.1:9000/ready', timeout=5)"
+          docker compose -f deploy/docker-compose.yml exec -T --index 1 api python -c "$ready"
+          docker compose -f deploy/docker-compose.yml exec -T --index 2 api python -c "$ready"
+      - name: Logs of the service
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml logs --no-color | tail -200
+      - name: Stop the service
+        if: always()
+        run: docker compose -f deploy/docker-compose.yml down -v
