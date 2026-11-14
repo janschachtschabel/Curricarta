@@ -6,16 +6,19 @@ it for stored.
 """
 
 import hashlib
+import json
 import threading
 from collections.abc import Iterator
-from typing import Any, BinaryIO
+from typing import Any, BinaryIO, NoReturn
 from uuid import UUID
 
 import pytest
 from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
+from starlette.datastructures import UploadFile
 from starlette.types import Message
 
+from app.api import sources
 from app.api.app import create_app
 from tests.api.test_sources_upload import PUBLIC, migrated, owner, rows, upload
 from tests.api.test_sources_upload_slots import HEAD, drive
@@ -49,11 +52,24 @@ def stored_as_its_row_says(url: str, store: UploadStore) -> bool:
 
 
 def test_an_upload_is_stored_under_the_checksum_its_row_names(
-    client: TestClient, migrated: str, upload_store: UploadStore, owner: tuple[UUID, dict[str, str]]
+    client: TestClient,
+    migrated: str,
+    upload_store: UploadStore,
+    owner: tuple[UUID, dict[str, str]],
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    reads: list[int] = []
+    read = UploadFile.read
+
+    async def counted(self: UploadFile, size: int = -1) -> bytes:
+        reads.append(size)
+        return await read(self, size)
+
+    monkeypatch.setattr(UploadFile, "read", counted)
     answer = upload(client, owner[1], data=FILE)
 
     assert answer.status_code == 201
+    assert reads == []  # examined and stored from the spooled file, never read through UploadFile
     assert answer.json()["file"]["sha256"] == hashlib.sha256(FILE).hexdigest()
     assert stored_as_its_row_says(migrated, upload_store)
 
@@ -75,20 +91,19 @@ def test_an_upload_whose_client_goes_leaves_nothing(
 def test_a_body_past_the_limit_found_while_it_streams_leaves_nothing(
     client: TestClient, migrated: str, upload_store: UploadStore, owner: tuple[UUID, dict[str, str]]
 ) -> None:
-    # sent in pieces without a length: the body limit (MAX_UPLOAD_MB + 1 MiB) counts as it reads
-    def body() -> Iterator[bytes]:
-        yield HEAD
-        for _ in range(6):
-            yield FILE[: 2**20]
+    # a MiB a message and no stated length: the body limit (MAX_UPLOAD_MB + 1 MiB) counts as it reads
+    pieces: list[Message] = [{"type": "http.request", "body": HEAD, "more_body": True}]
+    pieces += [{"type": "http.request", "body": FILE[: 2**20], "more_body": True} for _ in range(8)]
 
-    answer = client.post(
-        "/api/v1/sources",
-        content=body(),
-        headers={**owner[1], "Content-Type": "multipart/form-data; boundary=curricarta"},
-    )
+    async def receive() -> Message:
+        return pieces.pop(0) if pieces else {"type": "http.disconnect"}
 
-    assert answer.status_code == 413
-    assert answer.json()["code"] == "content_too_large"
+    answered = drive(client, owner[1], receive, cancel=None, file_size=None)
+
+    start = next(message for message in answered if message["type"] == "http.response.start")
+    body = b"".join(m.get("body", b"") for m in answered if m["type"] == "http.response.body")
+    assert (start["status"], json.loads(body)["code"]) == (413, "content_too_large")
+    assert 0 < len(pieces) < 8  # refused while the body came in, before its end
     assert no_entry(migrated) and upload_store.stored_keys() == []
 
 
@@ -111,15 +126,19 @@ class Breaking:
         return self._inner.tell()
 
 
-def test_a_store_that_fails_half_way_leaves_nothing_under_the_key(
+def test_a_stream_that_breaks_while_the_store_reads_it_leaves_nothing_under_the_key(
     client: TestClient,
     migrated: str,
     upload_store: UploadStore,
     owner: tuple[UUID, dict[str, str]],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
+    # The file system store breaks off half-way through its temporary file. The S3 store reads the
+    # whole body for its signature before it sends it (SigV4 over http): it breaks before a PUT
+    # goes out - and a PUT is whole or nothing anyway
     store = client.app.state.storage.sync  # type: ignore[attr-defined]
     put_file = store.put_file
+    sent = sends_of(store)
 
     def breaking(key: str, source: BinaryIO, size: int) -> Any:
         return put_file(key, Breaking(source), size)
@@ -127,10 +146,67 @@ def test_a_store_that_fails_half_way_leaves_nothing_under_the_key(
     monkeypatch.setattr(store, "put_file", breaking)
     assert upload(client, owner[1], data=FILE).status_code == 500
     assert no_entry(migrated) and upload_store.stored_keys() == []
+    assert "PutObject" not in sent
 
     # the same bytes again find no object under their key, and are stored whole
     monkeypatch.setattr(store, "put_file", put_file)
     assert upload(client, owner[1], data=FILE).status_code == 201
+    assert stored_as_its_row_says(migrated, upload_store)
+    assert sent.count("PutObject") == (1 if hasattr(store, "client") else 0)  # the count sees a PUT
+
+
+def sends_of(store: Any) -> list[str]:
+    """The requests an S3 store sends from now on, by operation; none for the file system store."""
+    sent: list[str] = []
+
+    def noted(event_name: str, **kwargs: Any) -> None:  # before-send.s3.<operation>
+        sent.append(event_name.rsplit(".", 1)[-1])
+
+    if hasattr(store, "client"):
+        store.client.meta.events.register("before-send.s3", noted)
+    return sent
+
+
+def test_a_failed_insert_leaves_the_object_which_the_next_upload_adopts(
+    client: TestClient,
+    migrated: str,
+    upload_store: UploadStore,
+    owner: tuple[UUID, dict[str, str]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # stored, then the database refuses the entry: the object stays, whole, without a row - it is
+    # addressed by its bytes, nothing in this package sweeps it, and the same bytes take it over
+    async def refused(*args: Any, **kwargs: Any) -> NoReturn:
+        raise RuntimeError("the database refused the entry (invented)")
+
+    monkeypatch.setattr(sources, "record_upload", refused)
+    assert upload(client, owner[1], data=FILE).status_code == 500
+    key = f"sources/{hashlib.sha256(FILE).hexdigest()}"
+    assert no_entry(migrated) and upload_store.stored_keys() == [key]
+
+    monkeypatch.undo()
+    store = client.app.state.storage.sync  # type: ignore[attr-defined]
+    writes: list[str] = []
+    put_file = store.put_file
+
+    def noted(key: str, source: BinaryIO, size: int) -> None:
+        writes.append(key)
+        put_file(key, source, size)
+
+    monkeypatch.setattr(store, "put_file", noted)
+    assert upload(client, owner[1], data=FILE).status_code == 201
+    assert writes == []  # found under its key, not written again
+    assert stored_as_its_row_says(migrated, upload_store)
+
+
+def test_an_empty_text_is_stored_empty(
+    client: TestClient, migrated: str, upload_store: UploadStore, owner: tuple[UUID, dict[str, str]]
+) -> None:
+    # nothing to read: on S3 a PUT of length 0 from a stream at its end
+    answer = upload(client, owner[1], data=b"", name="notiz.txt")
+
+    assert answer.status_code == 201
+    assert answer.json()["file"]["size"] == 0
     assert stored_as_its_row_says(migrated, upload_store)
 
 
