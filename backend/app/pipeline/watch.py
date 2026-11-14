@@ -1,7 +1,7 @@
 """The watch after X2 (plan H-3, 3.6): once X2 has cut the units, and before X3 or X4 asks the model,
 a job of ``extract.run`` reckons what the rest of its run is expected to charge
 (app/pipeline/reckoned.py, expected_charge: X3 where open and each unit X4 would ask, each shared part
-read from the cache but for the first 1 + EXTRACT_CONCURRENCY requests, each answer at the measured
+read from the cache but for the first requests of each prefix asked at once, each answer at the measured
 mean) and ends as ``run_over_budget`` where that is more than the account's quota has left. Nothing is
 sent; X1 and X2 stay done, and a new job - with more budget, or with the watch off - goes on at X3.
 
@@ -29,6 +29,7 @@ from app.llm.client import cost_weights
 from app.pipeline.asking import model_of
 from app.pipeline.ground import ground_of
 from app.pipeline.reckoned import expected_charge, owed_requests, prefix_tokens
+from app.pipeline.side_by_side import at_once
 from app.usage.ledger import usage_of
 
 log = logging.getLogger("app.pipeline.watch")
@@ -69,7 +70,7 @@ async def watch_budget(
             connection, context.llm, document, blocks, printed, ground, model, context.settings.ontology_dir
         )
         prefix = await prefix_tokens(connection, context.llm, document, blocks, printed)
-    first = 1 + context.settings.extract_concurrency  # X3 and the units beside it, before the cache holds
+    first = at_once(context.settings)  # of each prefix, the requests that begin before the cache holds it
     expected = expected_charge(requests, cost_weights(context.llm), uncached_first=first)
     watched = Watched(units, prefix, expected, usage.token_limit, usage.tokens_left)
     log.info(

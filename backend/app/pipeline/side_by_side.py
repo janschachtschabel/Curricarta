@@ -30,11 +30,17 @@ PROVIDER_ERRORS = (ModelHTTPError, ModelAPIError, UnexpectedModelBehavior)
 _PASSING = (408, 429)
 
 
+def at_once(settings: Settings) -> int:
+    """How many units are asked at once: EXTRACT_CONCURRENCY, never more than the pool leaves beside
+    the worker's own work. The reckoning of a run (app/pipeline/watch.py, estimate.py) counts by it."""
+    return max(1, min(settings.extract_concurrency, settings.db_pool_max_size - 1))
+
+
 async def ask_side_by_side[T](
     settings: Settings, units: Sequence[T], ask: Callable[[T], Awaitable[None]]
 ) -> None:
     """``ask`` each of ``units``, side by side as the module says; the first error any raised."""
-    gate = asyncio.Semaphore(max(1, min(settings.extract_concurrency, settings.db_pool_max_size - 1)))
+    gate = asyncio.Semaphore(at_once(settings))
 
     async def one(unit: T) -> None:
         async with gate:

@@ -7,26 +7,89 @@ from pathlib import Path
 from typing import Any
 
 import pytest
+from pydantic_ai.messages import CachePoint
 
 from app.db.conversions import all_blocks, printed_pages
 from app.db.documents import document_for_job
 from app.jobs.outcome import PermanentError
-from app.llm.metering import FULL, Weights
+from app.llm.budget import count_tokens
+from app.llm.calls import StageAgent
+from app.llm.metering import FULL, Spent, Weights
 from app.pipeline.ground import ground_of
-from app.pipeline.reckoned import Request, expected_charge, owed_requests
+from app.pipeline.reckoned import EXPECTED_ANSWER_TOKENS, Request, expected_charge, owed_requests, request_of
 from app.pipeline.run import extract_document
+from app.pipeline.side_by_side import at_once
 from tests.pipeline.test_estimate import Reserved, reserved
 from tests.pipeline.test_run import Model, a_document, a_job, context_of, setup
 from tests.pipeline.test_x4_cut import cutting
 from tests.pipeline.test_x4_statements import FIELDS
+from tests.support import make_settings
 
 __all__ = ["reserved", "setup"]  # fixtures, shared with test_estimate and test_run
 
 LUNA = Weights(Decimal("0.1"), Decimal(5))
 
 
-def a_request(input_tokens: int, shared_tokens: int, output_tokens: int = 16_000) -> Request:
-    return Request("x4.unit", input_tokens, shared_tokens, output_tokens)
+def a_request(
+    input_tokens: int,
+    shared_tokens: int,
+    output_tokens: int = 16_000,
+    *,
+    purpose: str = "x4.unit",
+    window: str = "",
+) -> Request:
+    return Request(purpose, input_tokens, shared_tokens, output_tokens, window)
+
+
+def prefix_of(tokens: int) -> str:
+    """A synthetic document of about ``tokens`` tokens, its lines as the prefix writes blocks."""
+    line = '[p1-b{n}] Die Lernenden "beschreiben" Vorgänge, ordnen sie ein und begründen ihre Wahl.\n'
+    lines = tokens // count_tokens(line.format(n=1))
+    return "=== DOKUMENT ===\n" + "".join(line.format(n=n) for n in range(lines))
+
+
+def test_a_cached_request_is_expected_near_what_its_plain_count_is_charged() -> None:
+    # counted as the meter counts it - JSON, the margin of a tenth -, the request is expected within a
+    # fifth of its plain count charged (the prefix from the cache): the margin on the prefix is cached too
+    # (before, 1.37 times). What stays at full weight is the margin on the request's own part and the
+    # JSON's escapes in the prefix - here a quote pair and a line break every line, more than a plan has
+    prefix = prefix_of(20_000)
+    task = "=== AUFTRAG ===\n" + "Lies die Einheit und gib ihre Aussagen an.\n" * 40
+    stage = StageAgent(None, {"type": "object"}, "Antworte im Schema. " * 60, 16_000)  # type: ignore[arg-type]
+    request = request_of("x4.unit", [prefix, CachePoint(), task], stage)
+    plain = sum(map(count_tokens, (prefix, task, stage.instructions, '{"type": "object"}')))
+    at_plain = LUNA.charged(Spent(plain, count_tokens(prefix), EXPECTED_ANSWER_TOKENS))
+
+    cached = expected_charge([request] * 2, LUNA, uncached_first=1) - expected_charge(
+        [request], LUNA, uncached_first=1
+    )
+
+    assert request.shared_tokens == count_tokens(prefix) > 19_000
+    assert at_plain <= cached <= 1.2 * at_plain
+
+
+def test_each_prefix_s_first_requests_are_read_whole() -> None:
+    # X3's prefix is not X4's, and each window of a document read in windows is a prefix of its own
+    frame = a_request(1_100, 1_000, purpose="x3.frame")
+    in_a, in_b = a_request(1_100, 1_000, window="A"), a_request(1_100, 1_000, window="B")
+
+    owed = [frame, in_a, in_a, in_a, in_b, in_b]
+
+    expected = expected_charge(owed, LUNA, uncached_first=2, answer_tokens=100)
+
+    assert expected == 1_600 + (2 * 1_600 + 610) + 2 * 1_600
+
+
+def test_a_run_going_on_after_x3_reads_its_first_units_whole_alone() -> None:
+    units = [a_request(1_100, 1_000)] * 5
+
+    assert expected_charge(units, LUNA, uncached_first=4, answer_tokens=100) == 4 * 1_600 + 610
+
+
+def test_the_units_at_once_are_the_gate_x4_asks_by() -> None:
+    assert at_once(make_settings(extract_concurrency=4)) == 4
+    assert at_once(make_settings(extract_concurrency=4, db_pool_max_size=3)) == 2  # the pool leaves two
+    assert at_once(make_settings(extract_concurrency=4, db_pool_max_size=1)) == 1
 
 
 def test_the_shared_part_is_read_from_the_cache_after_the_first_requests() -> None:
@@ -34,8 +97,9 @@ def test_the_shared_part_is_read_from_the_cache_after_the_first_requests() -> No
 
     expected = expected_charge(requests, LUNA, uncached_first=1, answer_tokens=100)
 
-    # the first whole: 1,100 + 100 x 5; the others 100 + 1,000 x 0.1 + 100 x 5
-    assert expected == 1_600 + 2 * 700 == 3_000
+    # the first whole: 1,100 + 100 x 5; the others read the shared part with its margin from the cache,
+    # 1,100 x 0.1 + 100 x 5, and nothing at full weight: the margin lies on the shared part
+    assert expected == 1_600 + 2 * 610 == 2_820
 
 
 def test_a_request_without_a_shared_part_is_charged_whole() -> None:
@@ -63,7 +127,7 @@ def test_the_expected_charge_never_exceeds_what_the_reservations_hold() -> None:
                 assert charged <= sum(weights.held(r.input_tokens, r.output_tokens) for r in requests)
     assert (
         expected_charge(requests, LUNA, uncached_first=0, answer_tokens=50_000)
-        == (1_000 + 400 + 2_500 + 900 + 20_000)
+        == (600 + 440 + 2_500 + 900 + 20_000)
         <= held
     )
 

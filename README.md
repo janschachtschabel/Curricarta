@@ -658,11 +658,15 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   Zuschlag, ab der zweiten Anfrage aus dem Cache) und die Obergrenze der Antworten. Dazu kommen:
   - `reserved`: was der Aufruf für diese Anfragen reserviert, in rohen Token;
   - `charged_at_most`: das Höchste, was die Quote für sie halten muss, nach den Gewichten (`weights`).
-  - `charged_expected`: was sie voraussichtlich buchen, in gewichteten Token. Jede Anfrage liest
-    ihren Teil vor dem Haltepunkt aus dem Cache, außer den ersten `1 + EXTRACT_CONCURRENCY`, die
-    beginnen, bevor der Cache steht. Jede Antwort zählt mit 1.100 Token (in der Abnahme rund 1.050),
-    höchstens mit ihrer Obergrenze. `null`, solange X3 oder X4 in `unreckoned` steht. Das ist keine
-    Obergrenze: Wiederholungen und ein verlorener Cache kosten mehr.
+  - `charged_expected`: was sie voraussichtlich buchen, in gewichteten Token. Je Anfrage:
+    `(Eingabe − Cache) + ⌈Cache × Cache-Gewicht + Antwort × Ausgabegewicht⌉`. Eingabe ist die
+    gezählte Eingabe mit Zuschlag; Cache ist ihr Teil vor dem Haltepunkt mit demselben Zuschlag
+    (`⌈shared_tokens × 1,1⌉`, höchstens die Eingabe). Ohne Cache zählen die ersten Anfragen jedes
+    Präfixes, die gleichzeitig beginnen, bevor der Cache steht (so viele, wie X4 gleichzeitig fragt:
+    `EXTRACT_CONCURRENCY`, höchstens `DB_POOL_MAX_SIZE − 1`). Ein eigenes Präfix haben X3, X4 und bei
+    einem Dokument, das in Fenstern gelesen wird, jedes Fenster. Die Antwort zählt mit 1.100 Token (in
+    der Abnahme rund 1.050), höchstens mit ihrer Obergrenze. `null`, solange X3 oder X4 in
+    `unreckoned` steht. Das ist keine Obergrenze: Wiederholungen und ein verlorener Cache kosten mehr.
   Für den ganzen Lauf gelten diese Zahlen nur, wo die Zählung genau ist und `unreckoned` leer ist.
   - Vor X1 rechnet er X1 und nennt das Präfix von X3 (`prefix_tokens`, noch ohne Profil und Baum,
     also zu niedrig). Die Gliederung zählt er ohne die Spezifikationen, die X1 findet, und nach dem

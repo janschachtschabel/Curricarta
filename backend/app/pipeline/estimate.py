@@ -73,6 +73,7 @@ from app.pipeline.reckoned import (
     statement_units,
 )
 from app.pipeline.run import STAGES
+from app.pipeline.side_by_side import at_once
 from app.pipeline.skeleton import Skeleton, build_skeleton
 from app.pipeline.x1_question import outline_questions, profile_question
 from app.pipeline.x2_segments import SegmentNode, depth_of, segments, work_packages
@@ -199,7 +200,7 @@ def summary(
     left unreckoned; ``reserved`` is what the meter reserves for these requests, every answer at its
     cap, ``charged_at_most`` what the budget must hold for them, weighed by ``weights`` - for the run,
     only where the reckoning is exact (the module says where it is not) and nothing is unreckoned;
-    ``charged_expected`` what they are expected to charge, the first ``uncached_first`` read whole
+    ``charged_expected`` what they are expected to charge, the first ``uncached_first`` of each prefix whole
     (app/pipeline/reckoned.py, expected_charge) - None while X3 or X4 is unreckoned."""
     by_purpose: dict[str, dict[str, int]] = {}
     for request in reckoning.requests:
@@ -244,8 +245,8 @@ async def _reckoned(settings: Settings, llm: LLMSettings, document_id: UUID) -> 
             if document is None:
                 return None
             reckoning = await reckon(connection, llm, document, model, settings.ontology_dir)
-            # X3 and the units that begin beside each other before the cache holds the prefix
-            first = 1 + settings.extract_concurrency
+            # the units that begin beside each other before the cache holds their prefix
+            first = at_once(settings)
             return summary(document_id, reckoning, cost_weights(llm), uncached_first=first)
     finally:
         await model.client.close()

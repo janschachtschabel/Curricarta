@@ -43,6 +43,7 @@ _NODES = "SELECT id, node_type_iri, function_iri FROM node WHERE document_id = %
 class UnitQuestion:
     prompt: str | list[UserContent]
     findings: list[Finding]  # of building it: patterns of the lexicon that took too long
+    window: str  # its prefix's (app/pipeline/prefix.py, Prefix.window): the cache it shares
 
 
 @dataclass
@@ -87,7 +88,7 @@ class UnitQuestions:
             )
             for cue in sorted(excerpt.timeouts)
         ]  # fmt: skip
-        return UnitQuestion(cached_up_to(prefix.text, asked, self.model), findings)
+        return UnitQuestion(cached_up_to(prefix.text, asked, self.model), findings, prefix.window)
 
 
 async def unit_questions(

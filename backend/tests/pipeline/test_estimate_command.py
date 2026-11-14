@@ -65,7 +65,7 @@ async def test_the_command_prints_what_the_run_is_expected_to_charge(
     setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # before X2 the units are not counted: no expectation; after it X3 and each unit, the cache read
-    # after the first requests (1 + EXTRACT_CONCURRENCY), each answer at the measured mean
+    # after the first requests of each prefix (EXTRACT_CONCURRENCY), each answer at the measured mean
     _, connection = setup
     before = json.loads(estimate(database_url, str((await a_document(connection)).id)).stdout)
     document, _ = await after_x2(setup, tmp_path, database_url)
@@ -78,7 +78,7 @@ async def test_the_command_prints_what_the_run_is_expected_to_charge(
     weights = Weights(Decimal(printed["weights"]["cached_input"]), Decimal(printed["weights"]["output"]))
     assert before["charged_expected"] is None
     assert printed["unreckoned"] == {}
-    assert printed["charged_expected"] == expected_charge(requests, weights, uncached_first=5)
+    assert printed["charged_expected"] == expected_charge(requests, weights, uncached_first=4)
     assert 0 < printed["charged_expected"] <= printed["charged_at_most"]
 
 

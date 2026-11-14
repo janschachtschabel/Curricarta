@@ -33,7 +33,7 @@ from tests.support import unwatched
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, shared with test_run
 
-UNCACHED_FIRST = 5  # X3 and the EXTRACT_CONCURRENCY (4) units that begin beside it
+UNCACHED_FIRST = 4  # of each prefix: the EXTRACT_CONCURRENCY (4) requests that begin before the cache
 
 
 def tightening(connection: psycopg.AsyncConnection, document: Document, model: Model) -> Any:

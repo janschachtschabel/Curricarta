@@ -5,14 +5,17 @@ counts them (app/llm/metering.py, ``Weights``). The estimate command (app/pipeli
 it, the watch after X2 (app/pipeline/watch.py) ends a run by it; neither is loaded here.
 
 The expectation is not the most a run may cost (``Weights.held``, every answer at its cap): each
-request is expected to read its shared part - the prefix before the cache breakpoint - from the cache,
-but the first ``uncached_first`` of them, which begin before the cache holds it, and to be answered at
-EXPECTED_ANSWER_TOKENS, about what the acceptance's requests answered (some 1,050 each), at most its
-cap. A run may charge more: an answer out of form asks again, a cache the provider dropped is read
-whole.
+request is expected to read its shared part - the prefix before the cache breakpoint, with the margin
+the meter counts on it (``MARGIN``) - from the cache, but the first ``uncached_first`` of each prefix,
+which begin before the cache holds it, and to be answered at EXPECTED_ANSWER_TOKENS, about what the
+acceptance's requests answered (some 1,050 each), at most its cap. A prefix is a stage's and a window's
+(``Request.window``): X3's is not X4's, and a document read in windows has one a window. A run may charge
+more: an answer out of form asks again, a cache the provider dropped is read whole.
 """
 
 import asyncio
+import math
+from collections import Counter
 from collections.abc import Sequence
 from dataclasses import dataclass
 from pathlib import Path
@@ -27,7 +30,7 @@ from app.db.documents import Document
 from app.db.runs import done_stages, stage_result
 from app.llm.budget import count_tokens
 from app.llm.calls import StageAgent, build_agent, output_cap
-from app.llm.metering import Spent, Weights, estimate_input
+from app.llm.metering import MARGIN, Spent, Weights, estimate_input
 from app.llm.schema import SCHEMA_DIR, load_schema
 from app.llm.settings import LLMSettings
 from app.pipeline.ground import Ground
@@ -47,6 +50,7 @@ class Request:
     input_tokens: int  # as the meter reckons it, its margin beside
     shared_tokens: int  # of it the text before the cache breakpoint, counted plainly; 0 without one
     output_tokens: int  # the cap the answer reserves
+    window: str = ""  # the window of its prefix (app/pipeline/prefix.py, Prefix.window); "" where one serves
 
 
 def stage_agent(model: Model, ontology_dir: Path, prompts: ModuleType) -> StageAgent:
@@ -56,12 +60,15 @@ def stage_agent(model: Model, ontology_dir: Path, prompts: ModuleType) -> StageA
     return build_agent(model, schema=schema, name=prompts.SCHEMA_NAME, instructions=prompts.INSTRUCTIONS)
 
 
-def request_of(purpose: str, prompt: str | list[UserContent], stage: StageAgent) -> Request:
-    """The first request of a stage's agent, as the meter reckons it (app/llm/calls.py, _attempt)."""
+def request_of(
+    purpose: str, prompt: str | list[UserContent], stage: StageAgent, *, window: str = ""
+) -> Request:
+    """The first request of a stage's agent, as the meter reckons it (app/llm/calls.py, _attempt);
+    ``window`` that of its prefix."""
     request = ModelRequest(parts=[UserPromptPart(prompt)])
     reckoned = estimate_input([], request, instructions=stage.instructions, schema=stage.schema)
     shared = 0 if isinstance(prompt, str) else count_tokens(str(prompt[0]))
-    return Request(purpose, reckoned, shared, stage.output_tokens)
+    return Request(purpose, reckoned, shared, stage.output_tokens, window)
 
 
 def expected_charge(
@@ -71,19 +78,36 @@ def expected_charge(
     uncached_first: int,
     answer_tokens: int = EXPECTED_ANSWER_TOKENS,
 ) -> int:
-    """What ``requests`` are expected to charge, weighed by ``weights``: each its input, its shared
-    part read from the cache but for the first ``uncached_first``, and an answer of ``answer_tokens``,
-    at most its cap - so never more than their reservations hold."""
+    """What ``requests`` are expected to charge, weighed by ``weights`` (``expected_charges``)."""
     return sum(
-        weights.charged(
-            Spent(
-                input_tokens=request.input_tokens,
-                cached_input_tokens=0 if at < uncached_first else request.shared_tokens,
-                output_tokens=min(answer_tokens, request.output_tokens),
-            )
-        )
-        for at, request in enumerate(requests)
+        expected_charges(requests, weights, uncached_first=uncached_first, answer_tokens=answer_tokens)
     )
+
+
+def expected_charges(
+    requests: Sequence[Request],
+    weights: Weights,
+    *,
+    uncached_first: int,
+    answer_tokens: int = EXPECTED_ANSWER_TOKENS,
+) -> list[int]:
+    """What each of ``requests`` is expected to charge, weighed by ``weights``: its input, its shared
+    part with its margin read from the cache but for the first ``uncached_first`` of each prefix (a
+    stage's, a window's), and an answer of ``answer_tokens``, at most its cap - so never more than its
+    reservation holds."""
+    asked: Counter[tuple[str, str]] = Counter()
+    charges = []
+    for request in requests:
+        prefix = (request.purpose, request.window)
+        cached = 0 if asked[prefix] < uncached_first else math.ceil(request.shared_tokens * MARGIN)
+        asked[prefix] += 1
+        spent = Spent(
+            input_tokens=request.input_tokens,
+            cached_input_tokens=min(request.input_tokens, cached),
+            output_tokens=min(answer_tokens, request.output_tokens),
+        )
+        charges.append(weights.charged(spent))
+    return charges
 
 
 async def statement_units(
@@ -113,16 +137,21 @@ async def owed_requests(
     a stage's question fits no window: the stage ends the job before it asks."""
     done = await done_stages(connection, document.id)
     units = await statement_units(connection, document, model)
-    prompts: list[tuple[str, str | list[UserContent], ModuleType]] = []
+    prompts: list[tuple[str, str | list[UserContent], ModuleType, str]] = []
     if "X3" not in done:
         question = await frame_question(connection, llm, document, blocks, printed, ground, model)
-        prompts.append(("x3.frame", question.prompt, x3))
+        prompts.append(("x3.frame", question.prompt, x3, ""))
     if "X4" not in done:
         questions = await unit_questions(connection, llm, document, blocks, printed, ground, model)
-        prompts += [("x4.unit", (await questions.question(unit)).prompt, x4) for unit in units]
+        for unit in units:
+            asked = await questions.question(unit)
+            prompts.append(("x4.unit", asked.prompt, x4, asked.window))
     agents = {module: stage_agent(model, ontology_dir, module) for module in {item[2] for item in prompts}}
     requests = await asyncio.to_thread(
-        lambda: [request_of(purpose, prompt, agents[module]) for purpose, prompt, module in prompts]
+        lambda: [
+            request_of(purpose, prompt, agents[module], window=window)
+            for purpose, prompt, module, window in prompts
+        ]
     )
     return requests, len(units)
 
