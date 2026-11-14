@@ -691,7 +691,7 @@ Volume unter `/models`, zusammen rund 600 MB: Layout, TableFormer und EasyOCR mi
 GitHub) und prüft jede Datei an Größe und SHA-256 (`app/conversion/models.py`); Exit-Code 0, 1 bei
 einer Datei, die nicht stimmt, 2 bei falschem Aufruf. Zur Laufzeit fragt kein Teil Hugging Face
 (`HF_HUB_OFFLINE=1`). Docling liest je acht Seiten auf einmal (rund 4 s je Seite auf vier Kernen,
-Spitze rund 1,8 GB).
+Spitze rund 1,8 GB; gemessen mit Docling 2.117, für 2.150 nicht neu gemessen).
 
 Texterkennung (Paket 3b-2): Seiten ohne Textebene liest Docling mit EasyOCR (Deutsch) in einer eigenen
 Pipeline, die erst lädt, wenn eine Datei solche Seiten hat; sie liest die Bilder der Seite und lässt eine

@@ -2,7 +2,7 @@
 app/conversion/layout.py), so the names, the running heads and feet, the tables over pages and the
 findings that follow treat both engines alike (app/conversion/assemble.py).
 
-Docling (2.117) reads a page as items in its reading order - text, section headers, list items, tables, the
+Docling reads a page as items in its reading order - text, section headers, list items, tables, the
 contents, pictures, running heads and feet - each with its box, and docling-parse the page's words with
 their box and font. An item becomes a block: a table with Docling's cells, the contents
 (``document_index``) one text block of their words, a line to an entry - a row of Docling's the words at

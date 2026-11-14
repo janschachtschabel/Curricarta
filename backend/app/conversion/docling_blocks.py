@@ -274,7 +274,7 @@ def _pages_of(
     for item, _level in result.document.iterate_items(included_content_layers=layers):
         label = item.label.value
         for prov in item.prov[:1] if label in _TABULAR else item.prov:  # a paragraph Docling carried over
-            if prov.page_no not in heights:  # a page of another block: none in Docling 2.117
+            if prov.page_no not in heights:  # a page of another block: none came in Docling 2.117
                 continue
             box = _box(prov.bbox, heights[prov.page_no])
             rows = _rows(item.data, heights[prov.page_no]) if label in _TABULAR else ()

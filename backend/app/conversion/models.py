@@ -4,8 +4,9 @@ recognition, which reads German. They lie in MODELS_DIR - the image's folder, wh
 is mounted -, fetched once by ``python -m app.conversion.fetch_models``; the converter never fetches one
 (HF_HUB_OFFLINE in the image).
 
-Each file by its size and SHA-256, as fetched on 2026-11-05 for Docling 2.117 and EasyOCR 1.7.2: a
-conversion checks the sizes at its start, cheaply; the fetch checks the hashes, wholly.
+Each file by its size and SHA-256, as fetched on 2026-11-05 for Docling 2.117 and EasyOCR 1.7.2 - Docling
+2.150 reads the same files -: a conversion checks the sizes at its start, cheaply; the fetch checks the
+hashes, wholly.
 """
 
 import hashlib

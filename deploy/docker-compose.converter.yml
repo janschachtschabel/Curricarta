@@ -37,7 +37,8 @@ services:
       LOG_FORMAT: json
       WORKER_KINDS: source.convert_docling
       # some 4 s a page on four cores (app/conversion/docling_blocks.py): 800 pages take near an hour; a scan
-      # read by OCR some 16 s a page, its 200 at most (MAX_OCR_PAGES) as long
+      # read by OCR some 16 s a page, its 200 at most (MAX_OCR_PAGES) as long - measured with Docling 2.117,
+      # not again with 2.150
       CONVERT_TIMEOUT_S: "3600"
     volumes: ["models:/models:ro"]
     # the image's check, asked more often: the API waits for the first healthy one
