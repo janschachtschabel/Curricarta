@@ -38,10 +38,15 @@ COMPOSE_FILE = "deploy/docker-compose.yml"
 _COMPOSE_TEXT = (ROOT / COMPOSE_FILE).read_text(encoding="utf-8")
 _NAME = re.search(r"^name: (\S+)$", _COMPOSE_TEXT, re.MULTILINE)
 _POSTGRES = re.search(r"^  postgres:\n(?:    .*\n)*?    image: (\S+)$", _COMPOSE_TEXT, re.MULTILINE)
-assert _NAME and _POSTGRES  # noqa: S101 - the Compose file of this repository
+_USER = re.search(r"^      POSTGRES_USER: (\S+)$", _COMPOSE_TEXT, re.MULTILINE)
+_DB = re.search(r"^      POSTGRES_DB: (\S+)$", _COMPOSE_TEXT, re.MULTILINE)
+assert _NAME and _POSTGRES and _USER and _DB  # noqa: S101 - the Compose file of this repository
 REAL_PROJECT = _NAME.group(1)
 # the archive is made by the image Compose pins for PostgreSQL: no further image to trust
 IMAGE = _POSTGRES.group(1)
+# the superuser and the database the postgres image makes on its first start
+DB_USER = _USER.group(1)
+DB_NAME = _DB.group(1)
 PROJECT = "curricarta-drill"
 COMPOSE = ["docker", "compose", "-p", PROJECT, "-f", COMPOSE_FILE]
 OBJECTS = f"{PROJECT}_miniodata"
@@ -88,7 +93,7 @@ class Drill:
         return ran.out
 
     def sql(self, statement: str) -> str:
-        psql = ["psql", "-U", "curricarta", "-d", "curricarta", "-At", "-v", "ON_ERROR_STOP=1", "-c"]
+        psql = ["psql", "-U", DB_USER, "-d", DB_NAME, "-At", "-v", "ON_ERROR_STOP=1", "-c"]
         return self.must([*COMPOSE, "exec", "-T", "postgres", *psql, statement]).decode().strip()
 
     def rows(self) -> str:
@@ -169,7 +174,9 @@ class Drill:
         secret.write_text(secrets.token_urlsafe(48), encoding="ascii")
         secret.chmod(0o644)  # the containers run as other users (deploy/make-secrets.py)
         override = folder / "compose.yml"
-        override.write_text(f"secrets:\n  api_key_pepper:\n    file: {secret.as_posix()}\n", encoding="utf-8")
+        # a JSON string is a YAML string: a folder named with " #" or ": " stays one path
+        file = json.dumps(secret.as_posix())
+        override.write_text(f"secrets:\n  api_key_pepper:\n    file: {file}\n", encoding="utf-8")
         compose = [*COMPOSE, "-f", override.as_posix()]
         self.must([*compose, "up", "-d", "--no-deps", "--force-recreate", "api", "worker"])
         revoked = self.sql("UPDATE api_key SET revoked_at = now() WHERE revoked_at IS NULL")
@@ -191,9 +198,7 @@ class Drill:
         self.folder.mkdir(parents=True)
         dumped = self.archive(
             "db.dump",
-            self.must(
-                [*COMPOSE, "exec", "-T", "postgres", "pg_dump", "-U", "curricarta", "-Fc", "curricarta"]
-            ),
+            self.must([*COMPOSE, "exec", "-T", "postgres", "pg_dump", "-U", DB_USER, "-Fc", DB_NAME]),
         )
         self.must([*COMPOSE, "stop", "minio"])
         packed = self.archive(
@@ -202,11 +207,12 @@ class Drill:
         print(f"backup: db.dump {dumped} bytes, objects.tar {packed} bytes")
         self.must([*COMPOSE, "down", "-v"])
 
-        self.must([*COMPOSE, "up", "-d", "--wait", "postgres", "minio"])
-        self.must([*COMPOSE, "stop", "minio"])  # MinIO writes nothing while its data comes back
+        self.must([*COMPOSE, "up", "-d", "--wait", "postgres"])
+        # the volume with Compose's labels, MinIO not started: it would write a fresh state into it
+        self.must([*COMPOSE, "create", "minio"])
         archive = (self.folder / "objects.tar").read_bytes()
         self.must(_tar(["-i", "-v", f"{OBJECTS}:/data"], "-xf", "-", "-C", "/data"), archive)
-        restore = ["pg_restore", "-U", "curricarta", "--clean", "--if-exists", "-d", "curricarta"]
+        restore = ["pg_restore", "-U", DB_USER, "--clean", "--if-exists", "-d", DB_NAME]
         self.must([*COMPOSE, "exec", "-T", "postgres", *restore], (self.folder / "db.dump").read_bytes())
         self.must([*COMPOSE, "up", "-d"])
         self.ready()
@@ -224,9 +230,8 @@ class Drill:
 
 
 def drill(run: Runner, http: Http, backup: Path, *, sleep: Callable[[float], None] = time.sleep) -> int:
-    running = run(
-        ["docker", "ps", "-q", "--filter", f"label=com.docker.compose.project={REAL_PROJECT}"], None
-    )
+    label = f"label=com.docker.compose.project={REAL_PROJECT}"
+    running = run(["docker", "ps", "-q", "--filter", label], None)
     if running.code != 0:
         print("docker does not answer", file=sys.stderr)
         return 1
@@ -236,15 +241,37 @@ def drill(run: Runner, http: Http, backup: Path, *, sleep: Callable[[float], Non
             file=sys.stderr,
         )
         return 1
+    # stopped but not removed, its network still holds the subnet the drill's would take
+    networks = run(["docker", "network", "ls", "-q", "--filter", label], None)
+    if networks.code != 0:
+        print("docker does not answer", file=sys.stderr)
+        return 1
+    if networks.out.strip():
+        print(
+            f"the network of the project {REAL_PROJECT} remains: it holds the subnet; remove it first"
+            f" (docker compose -f {COMPOSE_FILE} down)",
+            file=sys.stderr,
+        )
+        return 1
     steps = Drill(run, http, backup, sleep)
+    passed = False
     try:
         steps.run()
+        passed = True
     except DrillFailed as failure:
         print(f"restore drill failed: {failure}", file=sys.stderr)
-        return 1
     finally:
-        run([*COMPOSE, "down", "-v"], None)
+        removed = run([*COMPOSE, "down", "-v"], None).code == 0
         shutil.rmtree(steps.folder / "pepper", ignore_errors=True)
+    if not removed:
+        # its network would keep the subnet, and the next start of the real project would fail on it
+        print(
+            f"the project {PROJECT} remains; remove it with: {' '.join([*COMPOSE, 'down', '-v'])}",
+            file=sys.stderr,
+        )
+        return 1
+    if not passed:
+        return 1
     print("restore drill passed")
     return 0
 

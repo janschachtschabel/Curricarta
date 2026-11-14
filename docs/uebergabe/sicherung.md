@@ -77,7 +77,16 @@ noch die Images lesen (`.gitignore`, `.dockerignore`). Während das Archiv der O
 MinIO gestoppt: Uploads und Jobs, die den Speicher brauchen, scheitern so lange. Das Archiv macht das
 Postgres-Image, das Compose schon per Digest festlegt; kein weiteres Image kommt ins Spiel.
 
+Die ersten beiden Zeilen gehören vor jeden der beiden Teile (Sichern, Zurück), die je als eigenes
+Skript laufen (`bash sichern.sh`), nicht Zeile für Zeile in einer offenen Shell, die `set -e` beim
+ersten Fehler selbst beenden würde. `set -e` hält beim ersten Fehler an: Ohne es folgten auf ein
+gescheitertes Entpacken `pg_restore` und `up -d`, und der Dienst liefe mit einer Datenbank, der
+Objekte fehlen. `MSYS_NO_PATHCONV=1` hält Git Bash unter Windows davon ab, `/data` in den Argumenten
+an docker in einen Windows-Pfad umzuschreiben; unter Linux ändert es nichts.
+
 ```bash
+set -e
+export MSYS_NO_PATHCONV=1
 # Sichern: erst die Datenbank, dann die Objekte
 dir="data/backup/$(date -u +%Y%m%dT%H%M%SZ)" && mkdir -p "$dir"
 docker compose -f deploy/docker-compose.yml exec -T postgres pg_dump -U curricarta -Fc curricarta > "$dir/db.dump"
@@ -87,15 +96,17 @@ docker compose -f deploy/docker-compose.yml start minio
 # Zurück: erst die Objekte, dann die Datenbank (dir zeigt auf die Sicherung)
 docker compose -f deploy/docker-compose.yml down
 docker volume rm curricarta_pgdata curricarta_miniodata
-docker compose -f deploy/docker-compose.yml up -d --wait postgres minio
-docker compose -f deploy/docker-compose.yml stop minio
+docker compose -f deploy/docker-compose.yml up -d --wait postgres
+docker compose -f deploy/docker-compose.yml create minio
 docker run --rm -i -v curricarta_miniodata:/data pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f tar --numeric-owner -xf - -C /data < "$dir/objects.tar"
 docker compose -f deploy/docker-compose.yml exec -T postgres pg_restore -U curricarta --clean --if-exists -d curricarta < "$dir/db.dump"
 docker compose -f deploy/docker-compose.yml up -d
 ```
 
 `docker volume rm` löscht die Daten des Projekts `curricarta`: erst ausführen, wenn `db.dump` und
-`objects.tar` der Sicherung da sind und nicht leer. `pg_restore` legt auch die Erweiterungen
+`objects.tar` der Sicherung da sind und nicht leer. `create minio` legt das Volume von MinIO an, ohne
+MinIO zu starten: Auf dem leeren Volume schriebe es sonst einen frischen Zustand, den das Archiv nur
+teilweise überschreibt. `pg_restore` legt auch die Erweiterungen
 (`vector`, `pg_trgm`, `unaccent`) an und braucht dafür die Rechte eines Superusers; in Compose hat
 die Rolle `curricarta` sie. Die Rolle selbst legt der Container beim ersten Start mit `db_password`
 an, daher müssen die Geheimnisse aus `deploy/secrets/` dieselben sein wie bei der Sicherung.
@@ -121,7 +132,8 @@ aus derselben Datei, mit eigenen Volumes:
    lädt ein erzeugtes PDF hoch;
 2. sichert erst die Datenbank, dann die Objekte nach `data/backup/<Zeitstempel>/` (`db.dump`,
    `objects.tar`) und entfernt das Projekt samt Volumes;
-3. spielt erst die Objekte, dann die Datenbank zurück und startet alles;
+3. startet nur PostgreSQL, legt MinIOs Container und Volume an, ohne MinIO zu starten, spielt erst
+   die Objekte, dann die Datenbank zurück und startet alles;
 4. prüft `/ready` an jeder API-Replica, dass das alte Token sich anmeldet, dass die Datei mit
    demselben SHA-256 zurückkommt und dass `source`, `source_file`, `audit_log` und
    `schema_migration` so viele Zeilen haben wie vor der Sicherung;
@@ -131,9 +143,11 @@ aus derselben Datei, mit eigenen Volumes:
 6. entfernt am Ende, bestanden oder nicht, das Übungsprojekt samt Volumes.
 
 Es läuft nicht neben dem Projekt `curricarta` (beide bräuchten Port 18080 und dasselbe Subnetz) und
-bricht dann mit Exit-Code 1 ab, bevor es etwas anfasst; `down -v` nennt immer `-p curricarta-drill`.
-Ausgegeben werden nur Zählwerte, zuletzt `restore drill passed` (Exit-Code 0); ein Fehler nennt den
-Schritt (Exit-Code 1). Die Images müssen gebaut, die Geheimnisse geschrieben sein:
+bricht mit Exit-Code 1 ab, bevor es etwas anfasst, wenn dessen Container laufen oder dessen Netz nach
+einem `stop` noch besteht; `down -v` nennt immer `-p curricarta-drill`. Ausgegeben werden nur
+Zählwerte, zuletzt `restore drill passed` (Exit-Code 0); ein Fehler nennt den Schritt (Exit-Code 1).
+Lässt sich das Übungsprojekt am Ende nicht entfernen, sagt das Skript es mit dem Befehl, der es
+entfernt, und endet mit 1. Die Images müssen gebaut, die Geheimnisse geschrieben sein:
 
 ```bash
 python deploy/make-secrets.py
@@ -144,5 +158,6 @@ python backend/tools/restore_drill.py
 ```
 
 Die Tests des Skripts (`backend/tests/deploy/test_restore_drill.py`) laufen ohne Docker gegen einen
-Ersatz, der jedes Kommando nur liest. **Mit Docker ist die Übung noch nicht gelaufen**; ihr erster
-Lauf und seine Zählwerte werden hier nachgetragen.
+Ersatz, der jedes Kommando nur liest. **Mit Docker ist die Übung noch nicht gelaufen**: Jeder ihrer
+Schritte ist unbewiesen, auch das Anlegen von MinIOs Volume per `create minio` vor dem Entpacken. Ihr
+erster Lauf und seine Zählwerte werden hier nachgetragen.

@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[3]
 DOC = (ROOT / "docs" / "uebergabe" / "sicherung.md").read_text(encoding="utf-8")
 COMPOSE: dict[str, Any] = yaml.safe_load((ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8"))
 # the subcommands whose arguments name services, and the options among theirs that take a value
-SERVICE_VERBS = {"exec", "run", "start", "stop", "restart", "up"}
+SERVICE_VERBS = {"create", "exec", "run", "start", "stop", "restart", "up"}
 VALUED = {"--index", "-e", "-u", "--user", "-w", "--workdir"}
 
 
@@ -69,6 +69,23 @@ def test_every_service_and_volume_the_commands_name_is_one_compose_has() -> None
     assert {volume.removeprefix(f"{project}_") for volume in volumes} <= set(COMPOSE["volumes"])
     # the archive is made by an image Compose pins already: no further image to trust
     assert images == {COMPOSE["services"]["postgres"]["image"]}
+
+
+def test_the_block_stops_at_the_first_failure_and_hands_docker_its_paths_unchanged() -> None:
+    # without set -e a failed unpack is followed by pg_restore and up -d: a restore silently partial;
+    # Git Bash rewrites "/data" in docker's arguments to a Windows path unless told not to
+    assert _block()[:2] == ["set -e", "export MSYS_NO_PATHCONV=1"]
+
+
+def test_the_database_s_user_and_name_are_those_compose_gives_it() -> None:
+    environment = COMPOSE["services"]["postgres"]["environment"]
+    clients = [shlex.split(line) for line in _block() if re.search(r"\b(pg_dump|pg_restore|psql)\b", line)]
+
+    assert len(clients) >= 2
+    for words in clients:
+        assert words[words.index("-U") + 1] == environment["POSTGRES_USER"], words
+        named = words[words.index("-d") + 1] if "-d" in words else words[words.index(">") - 1]
+        assert named == environment["POSTGRES_DB"], words
 
 
 def test_the_document_names_every_secret_a_restore_needs() -> None:

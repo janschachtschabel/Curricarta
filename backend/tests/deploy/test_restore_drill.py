@@ -36,19 +36,41 @@ restore_drill = tool()
 class World:
     """Docker and the API as the drill sees them: a stand-in that answers each command and request."""
 
-    def __init__(self, *, real_project_running: bool = False) -> None:
+    def __init__(
+        self,
+        *,
+        real_project_running: bool = False,
+        real_network: bool = False,
+        failing: str | None = None,
+        cleanup_fails: bool = False,
+    ) -> None:
         self.real_project_running = real_project_running
+        self.real_network = real_network
+        self.failing = failing  # a word of the command that fails, its error output naming a token
+        self.cleanup_fails = cleanup_fails
         self.commands: list[list[str]] = []
         self.valid = set[str]()
         self.bootstraps = [OLD, NEW]
         self.files: dict[str, bytes] = {}
+        self.overrides: list[str] = []
 
     def run(self, args: list[str], stdin: bytes | None) -> Any:
         self.commands.append(list(args))
         text = " ".join(args)
         out = b""
+        if self.failing is not None and self.failing in args:
+            return restore_drill.Ran(1, b"", f"error: connection for {OLD} refused\n".encode())
+        removals = [command for command in self.commands if command[-2:] == ["down", "-v"]]
+        if args[-2:] == ["down", "-v"] and self.cleanup_fails and len(removals) == 2:
+            # the first removal lies between backup and restore; the second is the one at the end
+            return restore_drill.Ran(1, b"", b"error while removing network\n")
+        if args[:2] == ["docker", "compose"] and args.count("-f") == 2:
+            # the override for the lost pepper, read while it exists (the drill removes it at the end)
+            self.overrides.append(Path(args[args.index("-f", 5) + 1]).read_text(encoding="utf-8"))
         if args[:2] == ["docker", "ps"]:
             out = b"0123456789ab\n" if self.real_project_running else b""
+        elif args[:3] == ["docker", "network", "ls"]:
+            out = b"fedcba987654\n" if self.real_network else b""
         elif "app.bootstrap" in args:
             token = self.bootstraps.pop(0)
             self.valid.add(token)
@@ -134,7 +156,96 @@ def test_it_refuses_to_run_beside_the_real_project(
     assert world.commands == [
         ["docker", "ps", "-q", "--filter", f"label=com.docker.compose.project={COMPOSE['name']}"]
     ]
-    assert "curricarta" in capsys.readouterr().err
+    assert "the project curricarta runs" in capsys.readouterr().err
+
+
+def test_it_refuses_beside_the_real_project_stopped_with_its_network_left(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    # stopped, not removed: its network still holds the subnet the drill's would take
+    world = World(real_network=True)
+
+    code = drill(world, tmp_path)
+
+    assert code == 1
+    label = f"label=com.docker.compose.project={COMPOSE['name']}"
+    assert world.commands == [
+        ["docker", "ps", "-q", "--filter", label],
+        ["docker", "network", "ls", "-q", "--filter", label],
+    ]
+    assert "the network of the project curricarta remains" in capsys.readouterr().err
+
+
+def test_minio_never_starts_on_the_empty_volume_before_the_archive_is_unpacked(
+    ran: tuple[World, int, str],
+) -> None:
+    world, _code, _output = ran
+    removed = world.commands.index([*restore_drill.COMPOSE, "down", "-v"])
+    unpacked = next(index for index, args in enumerate(world.commands) if "-xf" in args)
+    between = world.commands[removed + 1 : unpacked]
+
+    assert [*restore_drill.COMPOSE, "create", "minio"] in between
+    for args in between:
+        verb = next((word for word in args[6:] if word in {"up", "start", "restart"}), None)
+        if verb is None:
+            continue
+        services = [word for word in args[args.index(verb) + 1 :] if not word.startswith("-")]
+        assert services and "minio" not in services, args
+
+
+def test_the_database_s_user_and_name_are_those_compose_gives_it(ran: tuple[World, int, str]) -> None:
+    world, _code, _output = ran
+    environment = COMPOSE["services"]["postgres"]["environment"]
+    clients = [args for args in world.commands if {"pg_dump", "pg_restore", "psql"} & set(args)]
+
+    assert environment["POSTGRES_USER"] == restore_drill.DB_USER
+    assert environment["POSTGRES_DB"] == restore_drill.DB_NAME
+    assert len(clients) >= 4
+    for args in clients:
+        assert args[args.index("-U") + 1] == restore_drill.DB_USER, args
+        named = args[args.index("-d") + 1] if "-d" in args else args[-1]
+        assert named == restore_drill.DB_NAME, args
+
+
+def test_the_override_names_the_new_pepper_s_path_however_it_is_spelled(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    world = World()
+    backup = tmp_path / "a folder #1 [x]"
+
+    assert drill(world, backup) == 0
+    assert world.overrides
+    for text in world.overrides:
+        given = yaml.safe_load(text)["secrets"]["api_key_pepper"]["file"]
+        assert Path(given).parent.parent.parent == backup
+        assert Path(given).name == "api_key_pepper"
+
+
+def test_the_token_is_never_printed_when_a_command_names_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    world = World(failing="pg_dump")
+
+    code = drill(world, tmp_path)
+
+    captured = capsys.readouterr()
+    assert code == 1
+    assert "connection for" in captured.err  # the command's error output is shown, the token not
+    assert "curricarta_" not in captured.out + captured.err
+    assert world.commands[-1] == [*restore_drill.COMPOSE, "down", "-v"]
+
+
+def test_a_project_left_behind_is_said_with_the_command_that_removes_it(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    world = World(cleanup_fails=True)
+
+    code = drill(world, tmp_path)
+
+    err = capsys.readouterr().err
+    assert code == 1
+    assert "the project curricarta-drill remains" in err
+    assert "docker compose -p curricarta-drill -f deploy/docker-compose.yml down -v" in err
 
 
 def test_the_archive_is_made_with_an_image_compose_pins(ran: tuple[World, int, str]) -> None:
