@@ -22,9 +22,9 @@ _FINDINGS = (
 # The rows of the import still as imported - a node's title, a statement not rejected, as the anchor
 # sample takes them (app/db/measures.py) -, by their first anchor with a match kind: those not found
 _NOT_FOUND = """
-SELECT wording FROM (
+SELECT mem_iri, wording FROM (
     SELECT DISTINCT ON (coalesce(a.statement_id, a.node_id)) a.match_kind_iri,
-        coalesce(s.verbatim, n.original_title) AS wording
+        coalesce(s.mem_iri, n.mem_iri) AS mem_iri, coalesce(s.verbatim, n.original_title) AS wording
     FROM anchor a
     LEFT JOIN statement s ON s.id = a.statement_id
     LEFT JOIN node n ON n.id = a.node_id
@@ -54,9 +54,11 @@ async def findings_by_rule(connection: psycopg.AsyncConnection, document_id: UUI
     return {rule: count for rule, count in await cursor.fetchall()}
 
 
-async def not_found_wordings(connection: psycopg.AsyncConnection, document_id: UUID) -> list[str]:
-    """The wordings of the import's rows whose anchor stands ``notFound`` - those past the search's time
-    among them, which the anchors do not tell apart."""
+async def not_found_wordings(
+    connection: psycopg.AsyncConnection, document_id: UUID
+) -> list[tuple[str | None, str]]:
+    """The MEM IRI (None where the row keeps none) and wording of each of the import's rows whose anchor
+    stands ``notFound`` - those past the search's time among them, which the anchors do not tell apart."""
     values = {
         "document": document_id,
         "imported": CV + "orig_import",
@@ -64,4 +66,4 @@ async def not_found_wordings(connection: psycopg.AsyncConnection, document_id: U
         "not_found": CV + "match_notFound",
     }
     cursor = await connection.execute(_NOT_FOUND, values)
-    return [wording for (wording,) in await cursor.fetchall()]
+    return [(iri, wording) for iri, wording in await cursor.fetchall()]

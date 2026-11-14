@@ -8,8 +8,11 @@ document named by the label, never by its title, nor its plan by its IRI:
   strata (app/quality/mem_hits.py, which says where the two figures still differ by construction);
 - ``run``: how long the run took, beside MEM_SEARCH_BUDGET_S and the job's lease as configured now;
 - ``findings`` by rule and ``shacl``, as X5 left them;
-- ``rare_word_hidden``: the not-found wordings whose rarest word (of three letters and more) the searched
-  text holds more often than the fuzzy stage tries places (``FUZZY_PLACES``) - its place may lie past them;
+- ``rare_word_hidden``: the not-found wordings the fuzzy stage looked for whose rarest word (of three
+  letters and more) the searched text holds more often than the stage tries places (``FUZZY_PLACES``) - its
+  place may lie past them -, an estimate mostly from above (``rare_word_hidden_by``), and apart the
+  not-found wordings longer than the fuzzy stage takes (``too_long_for_fuzzy``); rows past the search's
+  time in neither (app/quality/mem_rare.py says how, and what the estimate rests on);
 - ``label_is_iri_tail``: parts titled by their IRI's tail - of no label, or of one that says no more -;
   ``cut``: node titles longer than ``MAX_TITLE`` and statement wordings longer than ``MAX_WORDING``, which
   the import cut - both from the plan's answers kept under the run (null where they are gone), typed by the
@@ -18,8 +21,7 @@ document named by the label, never by its title, nor its plan by its IRI:
   ``label_shape_count``) - only on the operator's word, as every query there.
 
 Without the switch the database and the object store are all it reads, through one snapshot that refuses
-every write (app/db/snapshot.py). The searched text and the title pages for ``rare_word_hidden`` are found
-as the import found them (app/pipeline/ground.py ``contents_of``), by the document's cues as they stand now.
+every write (app/db/snapshot.py).
 Exit code 1 for a document that is not there or no import, an endpoint refused or away, or an output that
 is not counts and codes alone (``report_not_closed``); 2 for a call amiss."""
 
@@ -27,7 +29,6 @@ import argparse
 import asyncio
 import json
 import logging
-import re
 import sys
 from collections.abc import Sequence
 from typing import Any
@@ -38,23 +39,19 @@ import psycopg
 from app.core.logging import configure_logging
 from app.core.settings import Settings
 from app.core.storage import Storage, open_storage
-from app.db.conversions import all_blocks
-from app.db.documents import Document, document_for_job
+from app.db.documents import document_for_job
 from app.db.gold_report import head_of
-from app.db.mem_measures import findings_by_rule, import_run, not_found_wordings
+from app.db.mem_measures import findings_by_rule, import_run
 from app.db.mem_plans import MemPlan, plan_by_iri
 from app.db.runs import stage_result
 from app.db.snapshot import snapshot
 from app.llm.raw import kept_answers
-from app.pipeline.anchor_fuzzy import FUZZY_PLACES, FUZZY_QUOTE
-from app.pipeline.anchor_match import needle
-from app.pipeline.anchor_search import search_text
-from app.pipeline.ground import contents_of, ground_of
 from app.quality.closed import NOT_CLOSED, closed, token
 from app.quality.mem_hits import hits
+from app.quality.mem_rare import rare_words, rows_left
 from app.quality.sample import LABEL, matching
-from app.sources.mem.classes import typed
-from app.sources.mem.drafts import MAX_TITLE, MAX_WORDING
+from app.sources.mem.classes import MemRules, typed
+from app.sources.mem.drafts import MAX_TITLE, MAX_WORDING, rows_in_order
 from app.sources.mem.queries import LABEL_SHAPES, label_shape_count
 from app.sources.mem.rules_db import load_rules
 from app.sources.mem.sparql import KMK_GRAPH, MemEndpoint, MemRefused, MemSparql, MemUnavailable
@@ -63,30 +60,12 @@ from app.sources.mem.tree import MemTree, build_tree, iri_tail
 log = logging.getLogger("app.quality.mem_report")  # also when run as __main__
 
 IMPORT_COUNTS = ("rules", "parts", "references", "typed", "untraced", "stages", "unsearched", "front")
-_WORD = re.compile(r"\w{3,}")  # a word as the fuzzy stage picks its places by (app/pipeline/anchor_fuzzy.py)
 
 
 class Refused(Exception):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(f"{code}: {message}")
         self.code = code
-
-
-def rarest_too_often(wording: str, text: str) -> bool:
-    """Whether the rarest of the words the fuzzy stage looks for the wording's places by stands in ``text``
-    more often than it tries places; a wording none of whose words stand there is not."""
-    counts = [text.count(word) for word in set(_WORD.findall(needle(wording)[:FUZZY_QUOTE]))]
-    held = [count for count in counts if count]
-    return bool(held) and min(held) > FUZZY_PLACES
-
-
-async def _rare_word_hidden(connection: psycopg.AsyncConnection, document: Document) -> int:
-    blocks = await all_blocks(connection, document.conversion_id)
-    ground = await ground_of(connection, document)
-    contents = await asyncio.to_thread(contents_of, ground, blocks, document.document_type_iri)
-    text = search_text(blocks, contents.positions).text
-    wordings = await not_found_wordings(connection, document.id)
-    return sum(rarest_too_often(wording, text) for wording in wordings)
 
 
 async def _kept_tree(storage: Storage, run_id: UUID) -> MemTree | None:
@@ -101,8 +80,7 @@ async def _kept_tree(storage: Storage, run_id: UUID) -> MemTree | None:
         return None
 
 
-async def _cut(connection: psycopg.AsyncConnection, settings: Settings, tree: MemTree, plan: MemPlan) -> Any:
-    rules = await load_rules(connection, settings.ontology_dir, kmk=plan.graph == KMK_GRAPH)
+def _cut(tree: MemTree, rules: MemRules) -> dict[str, int]:
     titles = wordings = 0
     for part in tree.parts.values():
         if typed(part, rules).node:
@@ -152,6 +130,15 @@ async def mem_report(
         findings[key] = findings.get(key, 0) + count
     checked = await stage_result(connection, document.id, "X5")
     tree = await _kept_tree(storage, run.id)
+    rules = None
+    if tree is not None and plan is not None:
+        rules = await load_rules(connection, settings.ontology_dir, kmk=plan.graph == KMK_GRAPH)
+    rows = (
+        None
+        if tree is None or plan is None or rules is None
+        else rows_in_order(tree, rules, plan.iri, plan.title)
+    )
+    left = rows_left(rows, run.result.get("unsearched") or 0)
     made: dict[str, Any] = {
         "label": label,
         "regions": [token(region) for region in head.regions],
@@ -166,11 +153,11 @@ async def mem_report(
         },
         "findings": findings,
         "shacl": None if checked is None else token(checked.get("shacl")),
-        "rare_word_hidden": await _rare_word_hidden(connection, document),
+        **await rare_words(connection, document, left),
         "label_is_iri_tail": None
         if tree is None
         else sum(part.label == iri_tail(part.iri) for part in tree.parts.values()),
-        "cut": None if tree is None or plan is None else await _cut(connection, settings, tree, plan),
+        "cut": None if tree is None or rules is None else _cut(tree, rules),
     }
     if endpoint_counts:
         made["endpoint"] = await _endpoint_counts(settings, plan, transport)

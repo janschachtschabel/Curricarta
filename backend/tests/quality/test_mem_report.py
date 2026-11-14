@@ -13,6 +13,7 @@ import pytest
 
 from app.conversion.base import Block
 from app.db.mem_plans import record_import, replace_graph
+from app.pipeline.anchor_fuzzy import FUZZY_PLACES
 from app.quality.closed import closed
 from app.quality.mem_hits import hits
 from app.quality.mem_report import Refused, mem_report
@@ -35,10 +36,16 @@ pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, from test_mem_import
 
 MARKER = "Kieselbachufer"  # the document's title: never in the report
+STATEMENT = next(row["label"] for row in FROZEN["closure"] if row["types"].endswith("/LP_0000432"))
 
 
 def text_block(block: Block, text: str) -> Block:
     return block.model_copy(update={"text": text})
+
+
+def frequent(word: str) -> str:
+    """A block of ``word`` more often than the fuzzy stage tries places."""
+    return " ".join([word] * (FUZZY_PLACES + 8))
 
 
 def at(made: list[Block], label: str) -> int:
@@ -164,17 +171,32 @@ async def test_a_wording_whose_rarest_word_stands_too_often_is_counted(
 ) -> None:
     context, connection = setup
     made = blocks()
-    # "Vorgang Muster" nowhere as such, each word more often than the fuzzy stage tries places;
-    # "Reihe" nowhere
+    # "Vorgang Muster" nowhere as such, each word more often than the fuzzy stage tries places; "Reihe"
+    # nowhere; "Antwort" found, its one word as frequent; the statement nowhere, each of its words as
+    # frequent, and rejected after the import
     first = at(made, "Vorgang Muster")
-    made[first] = text_block(made[first], " ".join(["Muster"] * 40))
-    made[at(made, "Reihe")] = text_block(made[at(made, "Reihe")], " ".join(["Vorgang"] * 40))
+    made[first] = text_block(made[first], frequent("Muster"))
+    made[at(made, "Reihe")] = text_block(made[at(made, "Reihe")], frequent("Vorgang"))
+    made[at(made, "Antwort")] = text_block(made[at(made, "Antwort")], frequent("Antwort"))
+    statement = at(made, STATEMENT)
+    words = STATEMENT.rstrip("!").split()
+    made[statement : statement + 1] = [
+        text_block(made[statement], frequent(word)).model_copy(update={"id": f"p{made[statement].page}-b{n}"})
+        for n, word in enumerate(reversed(words), start=1)
+    ]
     document = await imported(context, connection, made)
+    await connection.execute(
+        "UPDATE statement SET review_status_iri = %s WHERE document_id = %s",
+        ("https://w3id.org/wlo/curriculum/vocab#rev_rejected", document.id),
+    )
 
     report = await report_of(context, connection, document)
 
     assert report["hits"]["strata"]["notFound:node"] == 2
-    assert report["rare_word_hidden"] == 1
+    assert report["hits"]["strata"]["notFound:statement"] == 1
+    assert report["rare_word_hidden"] == 1  # neither the found title nor the rejected statement
+    assert report["rare_word_hidden_by"] == "whole_text_estimate"
+    assert report["too_long_for_fuzzy"] == 0
 
 
 async def test_the_report_names_no_plan_title_and_no_wording(in_process_shacl: None, setup: Any) -> None:
