@@ -14,6 +14,7 @@ from pydantic_ai.usage import RequestUsage
 from app.jobs.outcome import PermanentError
 from app.pipeline import x4_statements
 from app.pipeline.run import extract_document
+from app.pipeline.x4_unit import write_unit
 from tests.pipeline.provider_support import usage_rows
 from tests.pipeline.test_run import Model, a_document, a_job, context_of, rows, setup
 from tests.pipeline.test_x3_frame import prompt_of
@@ -134,12 +135,11 @@ async def test_a_cut_is_named_at_once_and_no_next_attempt_pays_for_it_though_a_n
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
     model = Model()
-    write = x4_statements.write_unit
 
     async def broken(connection: Any, job: Any, document: Any, unit: Any, *args: Any, **kwargs: Any) -> Any:
         if unit.key == "E4":  # one at a time: after E3 was cut
             raise RuntimeError("the write was refused (invented)")
-        return await write(connection, job, document, unit, *args, **kwargs)
+        return await write_unit(connection, job, document, unit, *args, **kwargs)
 
     monkeypatch.setattr(x4_statements, "write_unit", broken)
     context = with_concurrency(
@@ -150,7 +150,7 @@ async def test_a_cut_is_named_at_once_and_no_next_attempt_pays_for_it_though_a_n
     assert await x4_findings(connection, document) == [
         ("x4.answer_cut", "warning", {"units": ["E3"], "cap": 4_000})
     ]
-    monkeypatch.setattr(x4_statements, "write_unit", write)
+    monkeypatch.setattr(x4_statements, "write_unit", write_unit)
     again = await a_job(connection, document.id, document.owner_id)
 
     with pytest.raises(PermanentError) as ended:
