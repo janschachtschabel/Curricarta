@@ -268,6 +268,28 @@ def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_
     assert sample(READS_FAILED) == failed + 1
 
 
+@pytest.mark.pg
+@pytest.mark.usefixtures("every_scrape_reads")
+def test_a_read_the_database_does_not_end_is_ended_by_the_scrape(
+    queue_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # a peer gone silent never answers, and the server's statement_timeout cannot reach the
+    # client: the scrape bounds the read itself. A short bound stands in for it here, under the
+    # server's own deadline, so the client's is the one that ends the read
+    monkeypatch.setattr(internal_api, "CLIENT_DEADLINE_S", 0.3)
+    with scraping(queue_url) as client:
+        client.get("/metrics")  # the pool's connection is open
+        failed = sample(READS_FAILED)
+        with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=READY_TIMEOUT_S + 3):
+            started = time.monotonic()
+            response = client.get("/metrics")
+            elapsed = time.monotonic() - started
+
+    assert response.status_code == 200
+    assert elapsed < 1
+    assert sample(READS_FAILED) == failed + 1
+
+
 def test_an_unreachable_database_leaves_the_scrape_answering_in_time() -> None:
     failed = sample(READS_FAILED)
     with scraping(FAKE_DATABASE_URL) as client:

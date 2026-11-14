@@ -5,6 +5,7 @@ port an internal path answers 404 as if it did not exist, also with a trailing s
 router's redirect would otherwise confirm it) and under a root path.
 """
 
+import asyncio
 import logging
 import time
 
@@ -24,6 +25,10 @@ from app.jobs.queue import queue_depth
 METRICS_PATH = "/metrics"
 INTERNAL_PATHS = frozenset({"/health", "/ready", METRICS_PATH})
 READY_TIMEOUT_S = 2.0  # a probe has a short deadline of its own; waiting longer helps nobody
+# The whole wait, bounded in the process as well: statement_timeout is the server's, and a peer
+# gone silent (packets dropped) would hold a probe or a scrape until TCP gives up. The pool's wait
+# and the statement's, each READY_TIMEOUT_S, fit in it
+CLIENT_DEADLINE_S = 2 * READY_TIMEOUT_S
 # Scrapes come every few seconds, from more than one Prometheus; the job table is asked at most this
 # often per process, and a queue that stalls takes minutes to matter
 QUEUE_READ_EVERY_S = 15.0
@@ -50,10 +55,10 @@ async def ready(request: Request) -> JSONResponse:
     """
     pool: AsyncConnectionPool = request.app.state.pool
     try:
-        async with pool.connection(timeout=READY_TIMEOUT_S) as connection:
+        async with asyncio.timeout(CLIENT_DEADLINE_S), pool.connection(timeout=READY_TIMEOUT_S) as connection:
             await _with_deadline(connection)
             applied = await applied_versions(connection)
-    except (PoolTimeout, psycopg.Error):
+    except (PoolTimeout, psycopg.Error, TimeoutError):
         return _unavailable("database")
     if not request.app.state.expected_migrations <= applied:
         return _unavailable("migration")
@@ -90,10 +95,10 @@ async def _read_queue(state: State) -> None:
     state.queue_read_at = now
     pool: AsyncConnectionPool = state.pool
     try:
-        async with pool.connection(timeout=READY_TIMEOUT_S) as connection:
+        async with asyncio.timeout(CLIENT_DEADLINE_S), pool.connection(timeout=READY_TIMEOUT_S) as connection:
             await _with_deadline(connection)
             depth = await queue_depth(connection)
-    except (PoolTimeout, psycopg.Error) as error:
+    except (PoolTimeout, psycopg.Error, TimeoutError) as error:
         metrics.QUEUE_READS_FAILED.inc()
         log.warning("could not read the queue for the metrics: %s", type(error).__name__)
         return

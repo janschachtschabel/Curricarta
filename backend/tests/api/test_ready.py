@@ -5,6 +5,7 @@ import time
 import psycopg
 import pytest
 
+from app.api import internal
 from app.api.app import create_app
 from app.api.internal import READY_TIMEOUT_S
 from app.db.migrate import migrate
@@ -80,6 +81,29 @@ def test_a_database_that_does_not_answer_in_time_is_not_ready(database_url: str)
 
     assert response.status_code == 503
     assert elapsed < READY_TIMEOUT_S + 2
+
+
+@pytest.mark.pg
+def test_a_probe_the_database_does_not_end_is_ended_by_ready_itself(
+    database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # a peer gone silent never answers, and the server's statement_timeout cannot reach the
+    # client: /ready bounds the wait itself. A short bound stands in for it, under the server's own
+    migrate(database_url)
+    monkeypatch.setattr(internal, "CLIENT_DEADLINE_S", 0.3)
+    app = create_app(make_settings(database_url=database_url))
+    lock = "LOCK TABLE schema_migration IN ACCESS EXCLUSIVE MODE"
+    with selector_client(app, base_url=INTERNAL) as client:
+        assert client.get("/ready").status_code == 200  # the pool's connection is open
+        with lock_held(database_url, lock, at_most_s=READY_TIMEOUT_S + 3):
+            started = time.monotonic()
+            response = client.get("/ready")
+            elapsed = time.monotonic() - started
+        after = client.get("/ready")  # the connection the bound cut off spoils no later probe
+
+    assert response.json() == {"status": "unavailable", "reason": "database"}
+    assert elapsed < 1
+    assert after.status_code == 200
 
 
 @pytest.mark.pg
