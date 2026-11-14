@@ -38,7 +38,9 @@ async def test_a_judgement_given_before_the_item_changed_stays_and_an_open_stale
     [entry] = (await report(connection, [sample]))["documents"]
 
     measures = entry["statement"]
-    assert measures["stale"] == {"gone": 1, "changed": 0, "judged_before": 1}
+    assert measures["stale"] == {
+        "gone": 1, "changed": 0, "judged_before": 1, "strata": {"learningOutcome": {"gone": 1, "changed": 0}},
+    }  # fmt: skip
     assert (measures["judged"], measures["open"]) == (4, 0)  # the reworded one judged as drawn: it stays
     assert measures["strata"]["learningOutcome"] == {
         "frame": 4, "drawn": 3, "judged": 3, "correct": 2, "imprecise": 0, "wrong": 1, "unjudged": 0,
@@ -69,7 +71,9 @@ async def test_an_item_whose_kind_anchors_or_first_block_changed_is_no_longer_wh
 
     measures = (await report(connection, [sample]))["documents"][0]["statement"]
 
-    assert measures["stale"] == {"gone": 0, "changed": 1, "judged_before": 0}
+    assert measures["stale"] == {
+        "gone": 0, "changed": 1, "judged_before": 0, "strata": {"learningOutcome": {"gone": 0, "changed": 1}},
+    }  # fmt: skip
     assert sum(row["drawn"] for row in measures["strata"].values()) == 4
 
 
@@ -85,7 +89,10 @@ async def test_an_import_s_row_gone_since_the_draw_is_counted_apart_from_the_row
 
     anchors = (await report(connection, [sample]))["documents"][0]["anchor"]
 
-    assert anchors["stale"] == {"gone": 1, "changed": 0, "judged_before": 1}
+    assert anchors["stale"] == {
+        "gone": 1, "changed": 0, "judged_before": 1,
+        "strata": {"notFound:statement": {"gone": 1, "changed": 0}},
+    }  # fmt: skip
     assert anchors["not_found"] == {
         "frame": 2, "drawn": 1, "judged": 1, "open": 0, "missed": 0, "missed_rate": 0.0,
     }  # fmt: skip

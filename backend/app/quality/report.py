@@ -24,9 +24,11 @@ precision waits for the found strata alone, the figure without the title pages f
 
 An item no longer what was drawn (app/quality/stale.py: its row gone since the draw, or its wording, origin
 or first block changed) and not judged is counted apart - ``stale: {gone, changed}`` in the statement and
-anchor sections - and nowhere else: not among the drawn or the open, in no denominator. One judged while it
-was as drawn stays among the judged and in every rate - a row changed afterwards does not undo what was
-seen, and editors and repairs change what was wrong -; ``stale.judged_before`` counts those.
+anchor sections, and again by stratum (``stale.strata``) - and nowhere else: not among the drawn or the
+open, in no denominator. What editors reword and repairs replace is mostly what was wrong: once such an
+item has left a stratum unjudged, that stratum's rates are an upper estimate - ``stale.strata`` shows
+where. One judged while it was as drawn stays among the judged and in every rate - a row changed
+afterwards does not undo what was seen -; ``stale.judged_before`` counts those.
 
 Each leaf is a number, a truth value, null or a code of ``LEAF``: no wording, quote or note can pass."""
 
@@ -101,7 +103,15 @@ async def _entry(
             open_stale = {key: state for key, state in stale.items() if key not in judgements}
             kept = [item for item in items if item.id not in open_stale]  # as drawn, or judged so
             counted = {state: list(open_stale.values()).count(state) for state in STALE}
-            apart = {"stale": counted | {"judged_before": len(stale) - len(open_stale)}}
+            by_stratum: dict[str, dict[str, int]] = {}
+            for item in items:
+                if item.id in open_stale:  # where the rates are an upper estimate now
+                    left = by_stratum.setdefault(item.stratum, dict.fromkeys(STALE, 0))
+                    left[open_stale[item.id]] += 1
+            apart = {
+                "stale": counted
+                | {"judged_before": len(stale) - len(open_stale), "strata": dict(sorted(by_stratum.items()))}
+            }
             if sample.kind == "anchor":
                 section = anchors(sample, kept, judgements) | apart
             else:
