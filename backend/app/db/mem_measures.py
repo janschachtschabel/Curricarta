@@ -3,6 +3,7 @@ findings by rule, and the wordings of its rows the import did not find - read, n
 counts them."""
 
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -12,8 +13,8 @@ from app.db.runs import stage_iri
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
 _RUN = """
-SELECT id, result, extract(epoch FROM finished_at - started_at)::float FROM extraction_run
-WHERE document_id = %s AND stage_iri = %s AND outcome = 'done'
+SELECT id, result, extract(epoch FROM finished_at - started_at)::float, finished_at FROM extraction_run
+WHERE document_id = %s AND stage_iri = %s AND outcome = 'done' AND finished_at IS NOT NULL
 ORDER BY finished_at DESC, id DESC LIMIT 1
 """
 _FINDINGS = (
@@ -40,13 +41,14 @@ class ImportRun:
     id: UUID
     result: dict[str, Any]
     duration_s: float | None
+    finished_at: datetime
 
 
 async def import_run(connection: psycopg.AsyncConnection, document_id: UUID) -> ImportRun | None:
     """The document's last run of IM that ended done, where one did."""
     cursor = await connection.execute(_RUN, (document_id, stage_iri("IM")))
     found = await cursor.fetchone()
-    return None if found is None else ImportRun(found[0], found[1] or {}, found[2])
+    return None if found is None else ImportRun(found[0], found[1] or {}, found[2], found[3])
 
 
 async def findings_by_rule(connection: psycopg.AsyncConnection, document_id: UUID) -> dict[str, int]:

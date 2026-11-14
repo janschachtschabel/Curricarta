@@ -150,6 +150,13 @@ async def test_an_import_s_hit_rate_is_read_from_its_run(in_process_shacl: None,
     assert report["run"]["search_budget_s"] == context.settings.mem_search_budget_s
     assert report["run"]["lease_s"] == context.settings.job_lease_s
     assert 0 <= report["run"]["duration_s"] < 60
+    cursor = await connection.execute(
+        "SELECT finished_at FROM extraction_run WHERE document_id = %s AND stage_iri LIKE %s",
+        (document.id, "%stage_IM"),
+    )
+    [(finished,)] = await cursor.fetchall()
+    assert report["run"]["which"] == "last_finished"
+    assert report["run"]["finished_at"] == finished.isoformat()  # ties the figure to a sample drawn later
 
 
 async def test_an_import_whose_contents_were_not_found_says_so(in_process_shacl: None, setup: Any) -> None:

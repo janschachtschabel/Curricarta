@@ -6,7 +6,9 @@ document named by the label, never by its title, nor its plan by its IRI:
   rows by search stage for nodes and statements, rows past the search's time, rows on the title pages;
 - ``hits``: the anchor search's hit rate, over all rows and without the title pages, by the anchor sample's
   strata (app/quality/mem_hits.py, which says where the two figures still differ by construction);
-- ``run``: how long the run took, beside MEM_SEARCH_BUDGET_S and the job's lease as configured now;
+- ``run``: which run IM it reports - the last that ended done, and when it ended, so that the figure can be
+  held against an anchor sample drawn at a known time -, how long it took, beside MEM_SEARCH_BUDGET_S and
+  the job's lease as configured now;
 - ``findings`` by rule and ``shacl``, as X5 left them;
 - ``rare_word_hidden``: the not-found wordings the fuzzy stage looked for whose rarest word (of three
   letters and more) the searched text holds more often than the stage tries places (``FUZZY_PLACES``) - its
@@ -166,6 +168,8 @@ async def mem_report(
         "import": {name: run.result.get(name) for name in IMPORT_COUNTS},
         "hits": hits(run.result),
         "run": {
+            "which": "last_finished",  # the document's last run of IM that ended done
+            "finished_at": run.finished_at.isoformat(),
             "duration_s": None if run.duration_s is None else round(run.duration_s, 3),
             "search_budget_s": settings.mem_search_budget_s,
             "lease_s": settings.job_lease_s,
