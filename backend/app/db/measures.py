@@ -91,3 +91,10 @@ async def title_blocks(connection: psycopg.AsyncConnection, document_id: UUID) -
     """The blocks the anchors of the document's nodes name: their headings."""
     cursor = await connection.execute(_TITLE_BLOCKS, (document_id,))
     return {block for (block,) in await cursor.fetchall()}
+
+
+async def conversion_pages(connection: psycopg.AsyncConnection, conversion_id: UUID) -> int | None:
+    """How many pages the conversion counted, where it holds a count."""
+    cursor = await connection.execute("SELECT pages FROM conversion WHERE id = %s", (conversion_id,))
+    found = await cursor.fetchone()
+    return None if found is None else found[0]

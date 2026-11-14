@@ -42,16 +42,21 @@ async def test_the_command_prints_the_sample_and_its_strata(
     account = await owner(connection, document)
 
     first = sample_command(database_url, *arguments, account, "--size", "2")
+    again = sample_command(
+        database_url, str(document.id), "--kind", "statement", "--label", "pilot-2", "--account", account
+    )
     refused = sample_command(database_url, *arguments, "niemand")
 
     assert first.returncode == 0, first.stderr
     printed = json.loads(first.stdout)
     assert printed == {
         "sample": printed["sample"], "kind": "statement", "seed": SEED, "drawn_before": False,
-        "title_pages": None,
+        "title_pages": None, "label": "pilot-1", "size": 2, "call": "same",
         "strata": {"content": {"frame": 1, "drawn": 1}, "learningOutcome": {"frame": 4, "drawn": 2}},
     }  # fmt: skip
     assert isinstance(printed["sample"], int)
+    assert again.returncode == 0, again.stderr
+    assert json.loads(again.stdout) == printed | {"drawn_before": True, "call": "differs"}  # pilot-1, size 2
     assert (refused.returncode, refused.stdout) == (1, b"")
     [line] = refused.stderr.splitlines()
     assert b"unknown_account" in line

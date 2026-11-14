@@ -9,10 +9,11 @@ from uuid import UUID
 
 import psycopg
 import pytest
+from psycopg.types.json import Jsonb
 
 from app.conversion.base import Block, BlockKind
 from app.db.documents import Document
-from app.db.gold import items_of
+from app.db.gold import add_sample, items_of
 from app.db.migrate import migrate
 from app.db.nodes import write_subtree
 from app.db.review import ReviewItem, set_review
@@ -299,7 +300,10 @@ async def test_a_sample_drawn_again_is_the_one_there(connection: psycopg.AsyncCo
 
     again = await draw(connection, Request(document.id, "statement", "pilot-2", account, size=5))
 
-    assert again == Drawn(first.sample, True, first.strata, None)
+    # the one there, as kept: its label and size, and the call told it asked for others
+    assert again == Drawn(first.sample, True, first.strata, None, "pilot-1", 40, "differs")
+    same = await draw(connection, Request(document.id, "statement", "pilot-1", account, size=40))
+    assert (same.drawn_before, same.call) == (True, "same")
     assert await items_of(connection, first.sample) == before
     other = await draw(connection, Request(document.id, "statement", "pilot-1", account, seed="another"))
     assert other.sample != first.sample
@@ -355,3 +359,41 @@ async def test_a_document_that_is_not_there_is_refused(connection: psycopg.Async
         await draw(connection, request)
 
     assert refused.value.code == "unknown_document"
+
+
+async def test_a_document_taken_away_while_drawn_is_refused(
+    connection: psycopg.AsyncConnection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    document = await a_reviewed_document(connection)
+
+    async def after_it_went(opened: psycopg.AsyncConnection, *args: Any) -> int:
+        await connection.execute("DELETE FROM document WHERE id = %s", (document.id,))
+        return await add_sample(opened, *args)
+
+    monkeypatch.setattr("app.quality.sample.add_sample", after_it_went)
+
+    with pytest.raises(Refused) as refused:
+        await draw(
+            connection, Request(document.id, "statement", "pilot-1", await owner(connection, document))
+        )
+
+    assert refused.value.code == "unknown_document"
+    assert await count(connection, "gold_sample") == 0
+
+
+async def test_the_thirds_are_of_the_conversion_s_pages(connection: psycopg.AsyncConnection) -> None:
+    document = await document_of(
+        connection, [block("p1-b1", LONG), block("p2-b1", LONG), block("p5-b1", LONG)]
+    )
+    # nine pages, the last four without a block: pages 1 to 3 the first third, 4 to 6 the second
+    await connection.execute(
+        "UPDATE conversion SET pages = 9, printed_pages = %s WHERE id = %s",
+        (Jsonb([None] * 9), document.conversion_id),
+    )
+    await done(connection, document, "X4")
+
+    drawn = await draw(
+        connection, Request(document.id, "block", "pilot-1", await owner(connection, document))
+    )
+
+    assert drawn.strata == {"t1:text": (2, 2), "t2:text": (1, 1)}

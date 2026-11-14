@@ -49,6 +49,7 @@ LABEL = re.compile(r"[a-z0-9][a-z0-9-]{0,39}")  # as migration gold checks it
 SEED_TEXT = re.compile(r"[A-Za-z0-9._-]{1,100}")
 _BY_NAME = "SELECT id FROM account WHERE name = %s"
 
+Call = Literal["same", "differs"]
 RefusalCode = Literal["unknown_document", "unknown_account", "extraction_not_done", "nothing_to_draw"]
 
 
@@ -74,6 +75,9 @@ class Drawn:
     drawn_before: bool
     strata: dict[str, tuple[int, int]]  # by stratum, in their order: the population and how many were drawn
     title_pages: TitlePages | None  # a block's or anchor's sample: whether its title pages were found
+    label: str  # the sample's, as kept
+    size: int  # asked for when drawn
+    call: Call  # whether this call asked for the label and size kept, or for others
 
 
 async def draw(connection: psycopg.AsyncConnection, request: Request) -> Drawn:
@@ -90,7 +94,7 @@ async def draw(connection: psycopg.AsyncConnection, request: Request) -> Drawn:
     if NEEDS[request.kind] not in await done_stages(connection, document.id):
         raise Refused("extraction_not_done", f"a {request.kind} sample needs {NEEDS[request.kind]} done")
     if (there := await sample_drawn(connection, document.id, request.kind, request.seed)) is not None:
-        return await _kept(connection, there, drawn_before=True)
+        return await _kept(connection, there, request, drawn_before=True)
     found = await population_of(connection, document, request.kind)
     population = found.items
     if not population:
@@ -114,8 +118,11 @@ async def draw(connection: psycopg.AsyncConnection, request: Request) -> Drawn:
         drawn_by=account[0],
         title_pages=found.title_pages,
     )
-    sample = await add_sample(connection, draft, picked)
-    return await _kept(connection, sample, drawn_before=False)
+    try:
+        sample = await add_sample(connection, draft, picked)
+    except (psycopg.errors.ForeignKeyViolation, LookupError):  # the document taken away meanwhile
+        raise Refused("unknown_document", f"no document {request.document_id}") from None
+    return await _kept(connection, sample, request, drawn_before=False)
 
 
 def _key(item: ItemDraft) -> str:
@@ -126,13 +133,17 @@ def _key(item: ItemDraft) -> str:
     return f"{item.text_hash or 'none'}:{item.first_block or 'none'}"
 
 
-async def _kept(connection: psycopg.AsyncConnection, sample_id: int, *, drawn_before: bool) -> Drawn:
+async def _kept(
+    connection: psycopg.AsyncConnection, sample_id: int, request: Request, *, drawn_before: bool
+) -> Drawn:
     sample = await sample_by_id(connection, sample_id)
     if sample is None:  # taken away with its document since
         raise Refused("unknown_document", "the document went with its sample")
     picked = Counter(item.stratum for item in await items_of(connection, sample_id))
     strata = {stratum: (population, picked[stratum]) for stratum, population in sorted(sample.frame.items())}
-    return Drawn(sample_id, drawn_before, strata, sample.title_pages)
+    asked = (request.label, request.size or SIZES[request.kind])
+    call: Call = "same" if asked == (sample.label, sample.size) else "differs"
+    return Drawn(sample_id, drawn_before, strata, sample.title_pages, sample.label, sample.size, call)
 
 
 def _matching(pattern: re.Pattern[str], what: str) -> Callable[[str], str]:
@@ -185,6 +196,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         "seed": request.seed,
         "drawn_before": made.drawn_before,
         "title_pages": made.title_pages,
+        "label": made.label,
+        "size": made.size,
+        "call": made.call,
         "strata": {
             stratum: {"frame": frame, "drawn": count} for stratum, (frame, count) in made.strata.items()
         },

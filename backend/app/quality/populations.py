@@ -6,7 +6,8 @@
   stays out.
 - ``block``: the blocks of the running text - no header or footer, none of the contents, none on the title
   pages, no node's heading, 40 signs at least - by the third of the document they stand in and whether
-  they are text or a table.
+  they are text or a table. The thirds are of the pages the conversion counted; where it holds no count,
+  of the pages up to the last one that holds a block.
 - ``anchor``: the rows of an import still as imported, by how their anchor was found and whether it is a
   node's or a statement's; a row whose first anchor block lies on the title pages in a stratum of its own,
   ``front:node`` or ``front:statement``, as the import counts them apart (E15).
@@ -23,7 +24,7 @@ import psycopg
 from app.db.conversions import all_blocks
 from app.db.documents import Document
 from app.db.gold import ItemDraft, SampleKind, TitlePages
-from app.db.measures import imported_anchors, model_statements, title_blocks
+from app.db.measures import conversion_pages, imported_anchors, model_statements, title_blocks
 from app.pipeline.ground import contents_of, ground_of
 from app.pipeline.toc import OUTSIDE, title_page_blocks
 
@@ -52,7 +53,9 @@ async def population_of(
         anchors = await imported_anchors(connection, document.id)
         return Population([_set_apart(item, front) for item in anchors], title_pages)
     headings = await title_blocks(connection, document.id)
-    pages = max((block.page for block in blocks), default=1)
+    pages = await conversion_pages(connection, document.conversion_id) or max(
+        (b.page for b in blocks), default=1
+    )
     items = [
         ItemDraft(stratum=f"t{1 + 3 * (block.page - 1) // pages}:{block.kind}", block_id=block.id)
         for position, block in enumerate(blocks)
