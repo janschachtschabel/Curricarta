@@ -9,7 +9,7 @@
 # The venv the image carries: api (the default, which CI and Compose build) or convert
 ARG VENV=api
 
-FROM python:3.13-slim@sha256:27b7c9d4f13ca20bb1170148f02095d50a5dfce1f7f2dabf5ca273727e43b7ea AS venv-api
+FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90 AS venv-api
 # The runtime packages of uv.lock, exported with their hashes (a test keeps the export equal to the
 # lock): pip checks every file against its hash, takes wheels only, so nothing compiles here, and
 # installs nothing the export does not name. No uv in the image: pip comes with the base.
@@ -18,7 +18,7 @@ RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir --disable-pip-version-check \
        --require-hashes --no-deps --only-binary=:all: -r /tmp/requirements-api.txt
 
-FROM python:3.13-slim@sha256:27b7c9d4f13ca20bb1170148f02095d50a5dfce1f7f2dabf5ca273727e43b7ea AS venv-convert
+FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90 AS venv-convert
 # The same with the group convert of uv.lock: Docling, EasyOCR and torch without CUDA (~1.6 GB);
 # its models are no part of the image (MODELS_DIR, python -m app.conversion.fetch_models). torch's
 # CPU builds come from PyTorch's index; the hashes hold every file to the lock whichever index has it
@@ -31,7 +31,7 @@ RUN python -m venv /opt/venv \
 # BuildKit takes no build argument in COPY --from, and builds only the venv this stage names
 FROM venv-${VENV} AS venv
 
-FROM python:3.13-slim@sha256:27b7c9d4f13ca20bb1170148f02095d50a5dfce1f7f2dabf5ca273727e43b7ea AS runtime
+FROM python:3.13-slim@sha256:e48f59cdba69a3cbd9ed2cf0f348d90d45a8d350d98134cf1070bc106ee9ed90 AS runtime
 # Code and ontology belong to root: the service reads them, it cannot change them. It writes
 # nothing to the image; objects go to the object store, rows to PostgreSQL. With a read-only root
 # file system (Compose, Helm) only /tmp stays writable.
