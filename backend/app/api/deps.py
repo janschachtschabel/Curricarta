@@ -5,10 +5,11 @@ token always passes: behind a proxy or a school's NAT many people share one addr
 of them with a stale token must not lock out the rest. A header that is no bearer token of a
 token's form is refused (401) before the database is asked, uncounted. One of the form that
 names no active key is refused and counted against its source - an IPv4 address, or an IPv6
-/64, which one client holds whole; past AUTH_FAILURE_LIMIT failures within AUTH_FAILURE_WINDOW_S the source
-gets 429 for its failures. With 256-bit tokens guessing is hopeless anyway; the limit keeps
-garbage from costing a write per request. The source is the socket's peer unless it is one
-of FORWARDED_ALLOW_IPS, whose X-Forwarded-For uvicorn reads instead. Routes then ask for what they need:
+/64, which one client holds whole; past AUTH_FAILURE_LIMIT failures within
+AUTH_FAILURE_WINDOW_S the source gets 429 for its failures. With 256-bit tokens guessing is
+hopeless anyway; the limit keeps garbage from costing a write per request. The source is the
+socket's peer unless it is one of FORWARDED_ALLOW_IPS, whose X-Forwarded-For uvicorn reads
+instead. Routes then ask for what they need:
 ``require_account`` (writing, and always the language model: AI tokens are never free),
 ``require_role`` or ``public_read``, which lets visitors in as far as PUBLIC_ACCESS allows.
 """
