@@ -27,9 +27,9 @@ CONNECTION_OPTIONS: dict[str, Any] = {
 SERVER_KEEPALIVES = {"tcp_keepalives_idle": 30, "tcp_keepalives_interval": 10, "tcp_keepalives_count": 3}
 
 
-def session_options(settings: Settings, *, statement_timeout: bool = True) -> str:
+def session_options(settings: Settings, *, statement_timeout: bool = False) -> str:
     """libpq's ``options`` for the pool's sessions: the timeouts the settings set (a 0 is none, and left
-    out; ``statement_timeout`` False leaves the statement timeout out whatever is set), then the server's
+    out; the statement timeout only where ``statement_timeout`` asks for it), then the server's
     keepalives - or nothing at all where no timeout is left: the way behind a pooler that refuses
     ``options`` at the start of a session, the values then set by ``ALTER ROLE … SET``
     (docs/uebergabe/konfiguration.md). The commands' connections (CONNECTION_OPTIONS) take none: the
@@ -45,15 +45,16 @@ def session_options(settings: Settings, *, statement_timeout: bool = True) -> st
 
 
 def create_pool(
-    settings: Settings, *, name: str = "curricarta", statement_timeout: bool = True
+    settings: Settings, *, name: str = "curricarta", statement_timeout: bool = False
 ) -> AsyncConnectionPool:
     """A pool that is not open yet; ``await pool.open(wait=False)`` starts it without the database.
 
     A connection is checked before it is handed out: after a database restart the pool's
     connections are cut, and each would otherwise fail one request. ``name`` is the sessions'
-    application_name: pg_stat_activity tells the API's from the worker's by it. The session options
-    (``session_options``) come after any ``options`` of DATABASE_URL, which stay: on the same parameter
-    the pool's win, as the server takes the last of them.
+    application_name: pg_stat_activity tells the API's from the worker's by it. The statement timeout
+    is the API's alone, asked for by ``statement_timeout``: a caller that forgets it takes none. An
+    ``options`` of DATABASE_URL stays and stands before the pool's (``session_options``): on the same
+    parameter the pool's win, as the server takes the last of them.
     """
     url = settings.database_url.get_secret_value()
     kwargs = {**CONNECTION_OPTIONS, "application_name": name}
@@ -76,4 +77,4 @@ def create_pool(
 def worker_pool(settings: Settings) -> AsyncConnectionPool:
     """The worker's pool, never with a statement timeout: it would cancel a heartbeat waiting behind the
     lease and a booking waiting for the quota row - each a paid retry."""
-    return create_pool(settings, name="curricarta-worker", statement_timeout=False)
+    return create_pool(settings, name="curricarta-worker")

@@ -22,8 +22,10 @@ pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
 
 @asynccontextmanager
-async def pool_of(url: str, **settings: object) -> AsyncIterator[AsyncConnectionPool]:
-    pool = create_pool(make_settings(database_url=url, **settings))
+async def pool_of(
+    url: str, *, statement_timeout: bool = False, **settings: object
+) -> AsyncIterator[AsyncConnectionPool]:
+    pool = create_pool(make_settings(database_url=url, **settings), statement_timeout=statement_timeout)
     await pool.open(wait=True)
     try:
         yield pool
@@ -62,11 +64,25 @@ async def test_a_transaction_that_keeps_working_is_not_ended(url: str) -> None:
 
 
 async def test_a_statement_past_its_time_is_cancelled_only_where_one_is_set(url: str) -> None:
-    async with pool_of(url, db_statement_timeout_s=1) as limited, limited.connection() as connection:
+    async with (
+        pool_of(url, db_statement_timeout_s=1, statement_timeout=True) as limited,
+        limited.connection() as connection,
+    ):
         with pytest.raises(psycopg.errors.QueryCanceled):
             await connection.execute("SELECT pg_sleep(1.5)")
     async with pool_of(url) as unlimited, unlimited.connection() as connection:
         await connection.execute("SELECT pg_sleep(1.5)")
+
+
+async def test_a_pool_not_asked_for_the_statement_timeout_takes_none_whatever_is_set(url: str) -> None:
+    # the safe side for a caller that forgets the flag: no step of its is cancelled behind a lock
+    pool = create_pool(make_settings(database_url=url, db_statement_timeout_s=1))
+    await pool.open(wait=True)
+    try:
+        async with pool.connection() as connection:
+            await connection.execute("SELECT pg_sleep(1.5)")
+    finally:
+        await pool.close()
 
 
 async def test_the_server_notices_a_client_gone_silent(url: str) -> None:
@@ -102,7 +118,7 @@ async def settings_of(pool: AsyncConnectionPool, *names: str) -> tuple[str, ...]
 async def test_the_options_of_the_database_url_stay_beside_the_pool_s(url: str) -> None:
     # an operator's own (a schema of its own on a shared server): the commands keep them, so must the pool
     own = make_conninfo(url, options="-c search_path=elsewhere,public -c statement_timeout=9000")
-    async with pool_of(own, db_statement_timeout_s=1) as pool:
+    async with pool_of(own, db_statement_timeout_s=1, statement_timeout=True) as pool:
         found = await settings_of(
             pool, "search_path", "statement_timeout", "idle_in_transaction_session_timeout"
         )

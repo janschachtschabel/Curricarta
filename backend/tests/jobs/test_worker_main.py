@@ -18,7 +18,7 @@ from pathlib import Path
 import pytest
 
 from app.db.migrate import migrate
-from tests.support import throwaway_store, without_settings_variables
+from tests.support import lock_held, throwaway_store, without_settings_variables
 
 pytestmark = pytest.mark.pg
 
@@ -164,3 +164,32 @@ def test_a_worker_without_docling_told_to_take_its_conversions_does_not_start(da
 
     assert code == 1
     assert "source.convert_docling" in output
+
+
+def test_the_worker_waits_behind_a_lock_whatever_statement_timeout_is_set(database_url: str) -> None:
+    # DB_STATEMENT_TIMEOUT_S set for every container by mistake: the worker's statements are never cancelled -
+    # a heartbeat behind the lease, a booking behind the quota row would each cost a paid retry
+    migrate(database_url)
+    process = start_worker(database_url, DB_STATEMENT_TIMEOUT_S="1")
+    seen: list[str] = []
+    started = threading.Event()
+
+    def read() -> None:
+        assert process.stdout is not None
+        for line in process.stdout:
+            seen.append(line)
+            if " takes " in line:
+                started.set()
+
+    threading.Thread(target=read, daemon=True).start()
+    try:
+        assert started.wait(START_S), "".join(seen)[-2000:]
+        # its polls every 0.1 s wait behind the lock for 2.5 s, past the second the setting names
+        with lock_held(database_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=2.5):
+            time.sleep(2.5)
+        time.sleep(0.5)
+    finally:
+        process.kill()
+        process.wait(10)
+
+    assert not [line for line in seen if "could not" in line], "".join(seen)[-2000:]

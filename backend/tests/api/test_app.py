@@ -116,3 +116,18 @@ def test_each_process_names_itself_to_the_database(database_url: str) -> None:
 
     assert run(api_s_name()) == "curricarta-api"
     assert workers == [("curricarta-worker",)]
+
+
+@pytest.mark.pg
+def test_the_api_s_pool_cancels_a_statement_past_its_time(database_url: str) -> None:
+    # the API opts in where it builds its pool; a pool asked for nothing takes none
+    app = create_app(make_settings(database_url=database_url, db_statement_timeout_s=1))
+
+    async def statement_timeout() -> str:
+        async with app.router.lifespan_context(app), app.state.pool.connection() as connection:
+            cursor = await connection.execute("SELECT current_setting('statement_timeout')")
+            found = await cursor.fetchone()
+        assert found is not None
+        return str(found[0])
+
+    assert run(statement_timeout()) == "1s"
