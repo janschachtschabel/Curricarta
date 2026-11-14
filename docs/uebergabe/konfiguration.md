@@ -109,10 +109,18 @@ ein Test schlägt an, wenn sie veraltet.
   stückweise, ohne sie ganz in den Arbeitsspeicher zu laden (gemessen bei 8 MiB: rund 2 MiB, mit
   beiden Speichern). Je gleichzeitigem Upload braucht eine API-Replica also bis zu
   `MAX_UPLOAD_MB` + 1 MiB in `/tmp`. Gleichzeitig nimmt ein API-Prozess höchstens
-  `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer wartet bis zu 10 s auf einen freien Platz und bekommt dann 503
-  `uploads_busy` mit `Retry-After`. `/tmp` braucht daher mindestens `MAX_CONCURRENT_UPLOADS` ×
-  (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard: 2 × 51 = 102 MiB).
-  `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto kann alle Plätze einer Replica belegen.
+  `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer wartet bis zu 10 s auf einen
+  freien Platz und bekommt dann 503 `uploads_busy` mit `Retry-After`. `/tmp` braucht daher
+  mindestens `MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard:
+  2 × 51 = 102 MiB). `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto kann alle Plätze einer
+  Replica belegen.
+- Der Rand vor der API (Proxy, Ingress) muss den Body einer Anfrage ganz puffern, bevor er ihn
+  weitergibt: Ein Upload hält seinen Platz, während sein Body ankommt, und ein Client, der
+  langsam sendet, hielte ihn sonst in seinem Tempo. nginx und ingress-nginx puffern von sich aus;
+  `proxy_request_buffering off` bzw. die Annotation
+  `nginx.ingress.kubernetes.io/proxy-request-buffering: "off"` darf vor der API nicht stehen
+  (`tests/deploy/test_upload_edge.py`). Ein Rand, der Bodies durchreicht (etwa Traefik ohne
+  Puffer-Middleware oder der Port der API direkt), ist dafür nicht geeignet.
 - Konvertierung: Der Worker legt die Datei für die Dauer der Umwandlung in `/tmp` ab (bis
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel
