@@ -1,6 +1,7 @@
 """The populations the gold standard's samples are drawn from (plan H-3 §3.2), each unit an item to judge:
 
-- ``statement``: the statements the model wrote, by their kind, whatever a reviewer did with them since: a
+- ``statement``: every statement of origin ``orig_model`` the document holds now, whatever run made it - a
+  repair's beside the first run's -, by its kind, whatever a reviewer did with it since: a
   confirmed and a rejected one are the model's output as much as the rest (a review counts the revision up
   and keeps the origin, app/db/review.py); one an editor reworded is the editor's (``orig_human``) and
   stays out.
