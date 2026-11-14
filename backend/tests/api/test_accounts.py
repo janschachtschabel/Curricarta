@@ -98,9 +98,12 @@ def test_only_an_admin_manages_accounts(client: TestClient, migrated: str) -> No
         "/api/v1/accounts",
         f"/api/v1/accounts/{me_id(client, user)}",
         f"/api/v1/accounts/{me_id(client, user)}/keys",
+        # an unknown one too: 403 before any 404, so a non-admin learns not which accounts exist
+        "/api/v1/accounts/01890000-0000-7000-8000-000000000000",
+        "/api/v1/accounts/01890000-0000-7000-8000-000000000000/keys",
     ]
-    assert [client.get(path, headers=user).status_code for path in reads] == [403] * 3
-    assert [client.get(path).status_code for path in reads] == [401] * 3
+    assert [client.get(path, headers=user).status_code for path in reads] == [403] * 5
+    assert [client.get(path).status_code for path in reads] == [401] * 5
 
 
 def test_an_admin_lists_the_accounts_with_their_roles_and_whether_blocked(

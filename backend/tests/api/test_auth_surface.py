@@ -1,6 +1,7 @@
 """What the auth layer shows outward: guarded routes, the spec, clean input, a database away."""
 
 import time
+from pathlib import Path
 from typing import Any
 
 import psycopg
@@ -10,6 +11,7 @@ from psycopg_pool import PoolTimeout
 
 from app.api.app import create_app
 from app.api.deps import principal
+from app.core.ids import new_id
 from app.db.migrate import migrate
 from tests.support import make_settings, seed_admin, selector_client
 
@@ -62,6 +64,43 @@ def test_a_database_away_answers_503_soon(restore_logging: None) -> None:
     assert response.json()["code"] == "service_unavailable"
     assert int(response.headers["Retry-After"]) > 0
     assert elapsed < 5
+
+
+@pytest.mark.parametrize(
+    "header",
+    ["Basic dXNlcjpwYXNz", "Bearer", "Bearer curricarta_short", "curricarta_" + "a" * 43],
+    ids=["basic", "empty-bearer", "short", "no-scheme"],
+)
+def test_a_header_that_is_no_token_s_form_is_refused_without_the_database(header: str) -> None:
+    # the pool reaches no server: a refusal that asked the database would wait for it and answer 503
+    app = create_app(make_settings(db_pool_timeout_s=1))
+    with selector_client(app, base_url=PUBLIC) as client:
+        refused = client.get("/api/v1/me", headers={"Authorization": header})
+
+    assert refused.status_code == 401
+    assert refused.headers["WWW-Authenticate"] == "Bearer"
+
+
+@pytest.mark.parametrize(
+    "opened",
+    [
+        {},
+        {"third_party_markdown": "accounts", "public_access": "search"},
+        {"third_party_markdown": "public", "public_access": "off"},
+    ],
+    ids=["defaults", "accounts-only", "public-access-off"],
+)
+@pytest.mark.parametrize("route", ["file", "conversion", "conversion/blocks?page=1"])
+def test_a_visitor_is_refused_before_the_database_where_nothing_is_open_to_visitors(
+    tmp_path: Path, opened: dict[str, str], route: str
+) -> None:
+    # the pool reaches no server: a refusal that asked the database would wait for it and answer 503
+    app = create_app(make_settings(storage_dir=tmp_path, db_pool_timeout_s=1, **opened))
+    with selector_client(app, base_url=PUBLIC) as client:
+        refused = client.get(f"/api/v1/sources/{new_id()}/{route}")
+
+    assert refused.status_code == 401
+    assert refused.headers["WWW-Authenticate"] == "Bearer"
 
 
 @pytest.mark.pg

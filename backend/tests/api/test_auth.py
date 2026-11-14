@@ -139,28 +139,27 @@ def test_a_header_with_no_valid_token_is_refused(client: TestClient, header: str
     assert client.post("/api/v1/t/write", headers={"Authorization": header}).status_code == 401
 
 
-@pytest.mark.parametrize(
-    "header",
-    ["Basic dXNlcjpwYXNz", "Bearer", "Bearer curricarta_short", "curricarta_" + "a" * 43],
-    ids=["basic", "empty-bearer", "short", "no-scheme"],
-)
-def test_a_header_that_is_no_token_s_form_is_refused_without_the_database(header: str) -> None:
-    # the pool reaches no server: a refusal that asked the database would wait for it and answer 503
-    app = create_app(make_settings(db_pool_timeout_s=1))
-    with selector_client(app, base_url=PUBLIC) as client:
-        refused = client.get("/api/v1/me", headers={"Authorization": header})
+def test_a_header_of_a_token_s_form_is_still_counted_and_limited(migrated: str) -> None:
+    # no token can be guessed by a header of another form: it costs no write, is not counted, and
+    # gets 401 even from a source past the limit, where one of a token's form gets 429
+    basic = {"Authorization": "Basic dXNlcjpwYXNz"}
+    with selector_client(app_with_probes(migrated), base_url=PUBLIC, client=("192.0.2.10", 5000)) as client:
+        first = client.post("/api/v1/t/write", headers=basic)
+        counted = [
+            client.post("/api/v1/t/write", headers=bearer("curricarta_" + "x" * 43)).status_code
+            for _ in range(10)
+        ]
+        malformed = client.post("/api/v1/t/write", headers=basic)
+        locked = client.post("/api/v1/t/write", headers=bearer("curricarta_" + "y" * 43))
 
-    assert refused.status_code == 401
-    assert refused.headers["WWW-Authenticate"] == "Bearer"
-
-
-def test_a_header_of_a_token_s_form_is_still_counted_and_limited(client: TestClient, migrated: str) -> None:
-    # no token can be guessed by a header of another form: it costs no write and is not counted
-    client.post("/api/v1/t/write", headers={"Authorization": "Basic dXNlcjpwYXNz"})
-    client.post("/api/v1/t/write", headers=bearer("curricarta_" + "x" * 43))
-
+    assert (first.status_code, counted, malformed.status_code, locked.status_code) == (
+        401,
+        [401] * 10,
+        401,
+        429,
+    )
     with psycopg.connect(migrated) as connection:
-        assert connection.execute("SELECT count(*) FROM auth_failure").fetchone() == (1,)
+        assert connection.execute("SELECT count(*) FROM auth_failure").fetchone() == (10,)
 
 
 def test_too_many_failures_refuse_the_source_s_further_failures_only(migrated: str) -> None:
