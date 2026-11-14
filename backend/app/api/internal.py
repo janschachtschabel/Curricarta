@@ -103,6 +103,7 @@ async def _read_queue(state: State) -> None:
         log.warning("could not read the queue for the metrics: %s", type(error).__name__)
         return
     metrics.observe_queue(depth, state.job_kinds)
+    metrics.QUEUE_READ_AT.set_to_current_time()
 
 
 def is_internal(path: str) -> bool:

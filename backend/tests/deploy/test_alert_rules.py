@@ -11,6 +11,7 @@ from typing import Any, get_args
 import yaml  # type: ignore[import-untyped]
 from prometheus_client import REGISTRY
 
+from app.api.internal import QUEUE_READ_EVERY_S
 from app.core import metrics
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -78,17 +79,46 @@ def test_every_alert_waits_before_it_fires_names_its_severity_and_says_what_to_d
         assert rule["annotations"]["description"].strip(), rule["alert"]
 
 
+# When a replica last read the queue: its own time, not one the replicas share
+READ_AT = "curricarta_queue_read_timestamp_seconds"
+# A replica's queue values count while its last good read, as of the scrape that took them, is at
+# most two of its read intervals old; a replica whose reads fail keeps its last values and drops
+# out. timestamp() is the scrape's time: time() would drop a healthy replica between two scrapes a
+# minute apart, Prometheus' default
+FRESH = f"and on (instance) (timestamp({READ_AT}) - {READ_AT} < {2 * QUEUE_READ_EVERY_S:g})"
+
+
+def queue_gauges() -> set[str]:
+    """The gauges every API replica reads alike from the job table."""
+    exported_gauges = {name for name, kind in exported().items() if kind == "gauge"}
+    return {name for name in exported_gauges if "_queue_" in name} - {READ_AT}
+
+
 def test_a_gauge_every_replica_reports_is_read_as_one_value() -> None:
     # every API replica reads the queue from the same table: a sum would count it once per replica
-    queue_gauges = {name for name, kind in exported().items() if kind == "gauge" and "_queue_" in name}
-    assert queue_gauges == {"curricarta_queue_jobs", "curricarta_queue_oldest_waiting_seconds"}
+    assert queue_gauges() == {"curricarta_queue_jobs", "curricarta_queue_oldest_waiting_seconds"}
 
     for rule in RULES:
         expr = rule["expr"]
         for found in METRIC.finditer(expr):
-            if found.group(0) in queue_gauges:
+            if found.group(0) in queue_gauges():
                 before = expr[: found.start()]
                 assert re.search(r"\bmax(\s+by\s*\([^)]*\))?\s*\(\s*$", before), rule["alert"]
+
+
+def test_a_replica_whose_queue_values_are_stale_is_left_out() -> None:
+    reading = [rule for rule in RULES if set(METRIC.findall(rule["expr"])) & queue_gauges()]
+    assert reading
+
+    for rule in reading:
+        # inside the max: the gauge, then the condition on the same replica
+        expr = " ".join(rule["expr"].split())
+        inside = (
+            r"\bmax(\s+by\s*\([^)]*\))?\s*\(\s*curricarta_queue_[a-z_]+(\{[^}]*\})? "
+            + re.escape(FRESH)
+            + r"\s*\)"
+        )
+        assert re.search(inside, expr), rule["alert"]
 
 
 def test_the_helm_example_points_at_the_rules() -> None:

@@ -192,6 +192,7 @@ def test_the_build_says_its_version_and_revision(internal: TestClient) -> None:
 # The queue as the API reads it at a scrape: every replica says the same, the rules take the max
 JOBS = "curricarta_queue_jobs"
 READS_FAILED = "curricarta_queue_reads_failed_total"
+READ_AT = "curricarta_queue_read_timestamp_seconds"
 
 
 @pytest.fixture
@@ -266,6 +267,24 @@ def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_
     assert elapsed < 3
     assert sample(JOBS, kind="source.fetch", status="queued") == 1
     assert sample(READS_FAILED) == failed + 1
+
+
+@pytest.mark.pg
+@pytest.mark.usefixtures("every_scrape_reads")
+def test_the_time_of_the_last_read_moves_only_when_a_read_succeeds(
+    queue_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # the rules leave out a replica whose values are stale (deploy/alerts/curricarta.rules.yaml)
+    monkeypatch.setattr(internal_api, "CLIENT_DEADLINE_S", 0.3)  # the failed read need not wait long
+    with scraping(queue_url) as client:
+        before = time.time()
+        client.get("/metrics")
+        read_at = sample(READ_AT)
+        with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=READY_TIMEOUT_S + 3):
+            client.get("/metrics")
+
+    assert before <= read_at <= time.time()
+    assert sample(READ_AT) == read_at
 
 
 @pytest.mark.pg

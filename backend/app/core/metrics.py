@@ -96,6 +96,11 @@ QUEUE_OLDEST_WAITING = Gauge(
     "How long the oldest due waiting job has waited, by kind",
     ["kind"],
 )
+# When this process last read the queue successfully (unix seconds): the rules leave out a replica
+# whose values are stale - its reads fail and its last values stand
+QUEUE_READ_AT = Gauge(
+    "curricarta_queue_read_timestamp_seconds", "When this process last read the queue successfully"
+)
 QUEUE_READS_FAILED = Counter(
     "curricarta_queue_reads_failed_total", "Reads of the queue at a scrape that failed; the last values stand"
 )

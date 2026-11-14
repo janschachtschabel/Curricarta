@@ -5,12 +5,19 @@
 #
 # The thresholds are first values, not measured yet; tune them to what a quiet week shows.
 # The queue's gauges come from every API replica alike (each reads the same job table at its scrape):
-# they are read with max, never sum.
+# they are read with max, never sum. A replica whose reads fail keeps its last values; the queue rules
+# take a replica only while its last good read, as of the scrape that took it, is under 30 s old
+# (2 x QUEUE_READ_EVERY_S, backend/app/api/internal.py). timestamp() is the scrape's own time, so the
+# bound holds whatever the scrape interval; it assumes the clocks of pods and Prometheus agree
+# within seconds. CurricartaQueueUnread names the replica that fails.
 groups:
   - name: curricarta
     rules:
       - alert: CurricartaQueueStalled
-        expr: max by (kind) (curricarta_queue_oldest_waiting_seconds) > 900
+        expr: >-
+          max by (kind) (curricarta_queue_oldest_waiting_seconds
+            and on (instance) (timestamp(curricarta_queue_read_timestamp_seconds) - curricarta_queue_read_timestamp_seconds < 30)
+          ) > 900
         for: 10m
         labels:
           severity: critical
@@ -22,7 +29,10 @@ groups:
             restart a stuck one; the jobs keep their place in the queue.
 
       - alert: CurricartaQueueDeep
-        expr: max by (kind) (curricarta_queue_jobs{status="queued"}) > 100
+        expr: >-
+          max by (kind) (curricarta_queue_jobs{status="queued"}
+            and on (instance) (timestamp(curricarta_queue_read_timestamp_seconds) - curricarta_queue_read_timestamp_seconds < 30)
+          ) > 100
         for: 15m
         labels:
           severity: warning
