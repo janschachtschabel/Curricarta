@@ -47,6 +47,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `EXPORTS_PER_MINUTE` | Zahl ≥ 1 | 10 | – | Dienst |
 | `EXTRACT_CONCURRENCY` | Zahl ≥ 1, ≤ 16 | 4 | – | Dienst |
 | `SHACL_TIMEOUT_S` | Zahl ≥ 10, ≤ 1800 | 300 | – | Dienst |
+| `X5_ANCHOR_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |
 | `FETCH_USER_AGENT` | Text nach Muster `^[A-Za-z0-9._-]+(/[!-~]+)?( [ -~]*[!-~])?$`, höchstens 200 Zeichen | `Curricarta (+https://github.com/janschachtschabel/Curricarta)` | – | Dienst |
 | `CHECK_HOST_INTERVAL_S` | Zahl ≥ 0.5, ≤ 60 | 2 | – | Dienst |
 | `MEM_SEARCH_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |

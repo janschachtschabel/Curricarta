@@ -3,7 +3,10 @@
 1. Each anchor of a statement or a node's heading that has no match kind yet is checked against the
    text of the blocks it names (app/pipeline/anchor_check.py) - CPU work, beside the event loop - and
    its match kind, the document's text at the place and its span written under the attempt's lease and
-   the tree's lock (who changes a tree's anchors takes it first, migration l1_nodes).
+   the tree's lock (who changes a tree's anchors takes it first, migration l1_nodes) - batch by batch,
+   each written as it is done, within X5_ANCHOR_BUDGET_S (audit 2026-11-14): past it no further batch
+   begins, the rest stays unchecked with ``x5.anchors_unchecked`` (violation), and the next check of the
+   document goes on with it; freezing refuses a document with an anchor unchecked (app/db/freezing.py).
 2. A wording its named blocks do not hold is ``x5.wording_not_found`` (violation) on its statement or
    node, read from the anchors as they stand, so a later run of X5 finds it again; the plausibility
    checks (app/pipeline/x5_checks.py) add theirs. A wording the MEM import found nowhere in the document
@@ -21,8 +24,11 @@ One open extraction job per document (app/pipeline/extraction.py) keeps a second
 """
 
 import asyncio
+import logging
+import threading
 from collections import Counter
 from collections.abc import Sequence
+from time import monotonic
 from typing import Any
 
 from app.core.child import ChildLog
@@ -53,7 +59,9 @@ from app.pipeline.x4_unit import UNIT_WITHOUT_NODE
 from app.pipeline.x5_checks import plausibility
 from app.vocab.lookup import current_release
 
+log = logging.getLogger(__name__)
 PROMPT_VERSION = "x5-checks/3"  # the checks' version: a run says by which rules it found
+ANCHOR_BATCH = 200  # the anchors matched, then written, at a time
 _CV = "https://w3id.org/wlo/curriculum/vocab#"
 _MOST_QUOTE = 20_000  # what the anchor's quote holds (0015)
 _SEVERITIES: tuple[Severity, ...] = ("violation", "warning", "info")
@@ -83,7 +91,7 @@ async def run_x5(context: JobContext, job: Job, document: Document, *, again: bo
 async def _checked(
     context: JobContext, job: Job, document: Document, run_id: Any, *, again: bool
 ) -> dict[str, Any]:
-    await _anchors(context, job, document)
+    left = await _anchors(context, job, document)
     # the findings and the graph of one state of the document: a node moved meanwhile is in both or in none
     async with context.pool.connection() as connection, connection.transaction():
         await connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
@@ -108,6 +116,13 @@ async def _checked(
             for anchor, owner in await import_not_found_anchors(connection, document.id)
         ]
         findings += await plausibility(connection, document.id)
+        if left:
+            message = f"{left} anchors were not checked within X5_ANCHOR_BUDGET_S: the next check goes on"
+            findings.append(
+                Finding(
+                    "x5.anchors_unchecked", "violation", document.id, message, details={"unchecked": left}
+                )
+            )
         kinds = await match_kinds(connection, document.id)  # as they stand: an attempt before set some
         rows = await read_document(connection, document.id)
     graph = await asyncio.to_thread(kern_graph, rows)  # a second for a long document: beside the loop
@@ -126,6 +141,7 @@ async def _checked(
     counted = Counter(found.severity for found in findings)
     result = {
         "anchors": kinds,
+        "anchors_left": left,
         "findings": {severity: counted[severity] for severity in _SEVERITIES},
         "shacl": shacl,
     }
@@ -140,23 +156,44 @@ async def _checked(
     return result
 
 
-async def _anchors(context: JobContext, job: Job, document: Document) -> None:
-    """Check the document's unchecked anchors and write their matches."""
+async def _anchors(context: JobContext, job: Job, document: Document) -> int:
+    """Check the document's unchecked anchors batch by batch, each batch's matches written under the
+    lease as it is done, until the budget is spent; how many were left unchecked."""
     async with context.pool.connection() as connection:
         # X4's node of a unit under no heading bears the document's title, no wording of its blocks
         unchecked = await unchecked_anchors(connection, document.id, rule_titles=(UNIT_WITHOUT_NODE,))
-    matches = await asyncio.to_thread(_matched, unchecked)
-    async with context.pool.connection() as connection, connection.transaction():
-        await hold_lease(connection, job)
-        await lock_tree(connection, document.id)
-        await set_matches(
-            connection,
-            [checked_anchor(anchor, match) for anchor, match in zip(unchecked, matches, strict=True)],
-        )
+    budget = context.settings.x5_anchor_budget_s
+    started = monotonic()
+    stop = threading.Event()  # set by a cancel: the thread ends after the anchor in hand
+    done = 0
+    while done < len(unchecked) and monotonic() - started < budget:
+        batch = unchecked[done : done + ANCHOR_BATCH]
+        try:
+            matches = await asyncio.to_thread(_matched, batch, stop)
+        except BaseException:
+            stop.set()
+            raise
+        # a lost lease writes nothing more; the batches before stay, matches of the anchors as they are
+        async with context.pool.connection() as connection, connection.transaction():
+            await hold_lease(connection, job)
+            await lock_tree(connection, document.id)
+            await set_matches(
+                connection,
+                [checked_anchor(anchor, match) for anchor, match in zip(batch, matches, strict=True)],
+            )
+        done += len(batch)
+    log.info("x5 checked %d anchors in %.1f s", done, monotonic() - started)
+    return len(unchecked) - done
 
 
-def _matched(unchecked: Sequence[UncheckedAnchor]) -> list[AnchorMatch]:
-    return [check_wording(anchor.wording, anchor.texts) for anchor in unchecked]
+def _matched(batch: Sequence[UncheckedAnchor], stop: threading.Event) -> list[AnchorMatch]:
+    """The batch's matches, in a thread; fewer where ``stop`` is set - its caller is gone by then."""
+    matches = []
+    for anchor in batch:
+        if stop.is_set():
+            break
+        matches.append(check_wording(anchor.wording, anchor.texts))
+    return matches
 
 
 def checked_anchor(anchor: UncheckedAnchor, match: AnchorMatch) -> CheckedAnchor:

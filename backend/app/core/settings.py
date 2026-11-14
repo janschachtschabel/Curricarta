@@ -194,6 +194,10 @@ class Settings(BaseSettings):
     # How long X5 may validate one document against the Kern's shapes, in a child process killed at
     # its end (app/pipeline/shacl.py): 43 s measured for 2,400 rows, room for a slower machine
     shacl_timeout_s: Annotated[int, Field(ge=10, le=1800)] = 300
+    # How long X5 may check one document's anchors against their blocks (app/pipeline/x5_stage.py):
+    # past it no further batch begins, the rest stays unchecked with a finding, and the next check of
+    # the document goes on with it - as long as the SHACL check may take
+    x5_anchor_budget_s: Annotated[float, Field(ge=10, le=3600)] = 300.0
     # Who the register's requests say they are (source.fetch, source.check): the product token
     # robots.txt knows us by, then where to reach the operators; printable ASCII, as a header
     # holds it - and no space at its end, which h11 refuses in a header's value

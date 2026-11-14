@@ -1223,6 +1223,8 @@ export const messages = {
           "Der importierte Wortlaut wurde im Dokument nicht gefunden; die Seite ist nur geschätzt. Bitte die Stelle im Dokument zuordnen.",
         unit_without_statements: "Das Arbeitspaket wurde ganz gelesen, enthält aber keine Aussage.",
         shacl_timeout: "Die Regelprüfung (SHACL) dauerte zu lange; das Ergebnis bleibt gesperrt.",
+        anchors_unchecked:
+          "Die Prüfung der Fundstellen brauchte zu lange; ein Teil ist noch ungeprüft. Starte die Prüfung erneut.",
         rule_bounds: "Die Grenzen einer Regel widersprechen sich.",
         retired_value: "Ein Wert, den die Vokabulare nicht mehr führen.",
         heading_as_statement: "Eine Aussage, die nur eine Überschrift des Dokuments wiederholt.",

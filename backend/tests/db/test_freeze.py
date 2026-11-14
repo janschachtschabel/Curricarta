@@ -220,6 +220,25 @@ async def test_a_document_x5_owes_a_check_or_with_an_anchor_unchecked_is_refused
     assert (await iris(connection, document))["frozen"] is False
 
 
+async def test_a_document_with_anchors_left_unchecked_is_not_frozen(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # X5 past its time (app/pipeline/x5_stage.py): its run is done, two anchors are left for the next check
+    await ready(connection, document)
+    await connection.execute(
+        "UPDATE anchor SET match_kind_scheme = NULL, match_kind_iri = NULL WHERE statement_id IN"
+        " (SELECT id FROM statement WHERE verbatim IN ('Sie messen.', 'Sie prüfen.'))"
+    )
+    run = await start_run(connection, RunStart(document.id, None, None, "X5", None, None, None, None))
+    await finish_run(connection, run, "done", {"anchors_left": 2})
+
+    with pytest.raises(FreezeRefused) as refused:
+        await freeze(connection, document.id, BASE, accept_violations=True)
+
+    assert (refused.value.code, refused.value.details) == ("check_owed", {"unchecked": 2})
+    assert (await iris(connection, document))["frozen"] is False
+
+
 async def test_a_document_x5_never_checked_is_refused_though_nobody_edited_it(
     connection: psycopg.AsyncConnection, document: Any
 ) -> None:

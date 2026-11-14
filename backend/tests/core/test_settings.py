@@ -541,9 +541,21 @@ def test_x5_gives_its_shacl_check_ten_seconds_to_half_an_hour(value: int) -> Non
     assert make_settings(shacl_timeout_s=value).shacl_timeout_s == value
 
 
+def test_x5_gives_its_anchors_five_minutes_by_default() -> None:
+    # as long as its SHACL check: past it the rest is left to the next check (audit 2026-11-14)
+    assert make_settings().x5_anchor_budget_s == 300.0
+
+
+@pytest.mark.parametrize("value", [10.0, 3600.0])
+def test_x5_gives_its_anchors_ten_seconds_to_an_hour(value: float) -> None:
+    assert make_settings(x5_anchor_budget_s=value).x5_anchor_budget_s == value
+
+
 @pytest.mark.parametrize(
     ("variable", "value"),
     [
+        ("X5_ANCHOR_BUDGET_S", "9.9"),
+        ("X5_ANCHOR_BUDGET_S", "3600.1"),
         ("MAX_JOBS_IN_FLIGHT", "0"),
         ("MAX_JOBS_IN_FLIGHT", "1001"),
         ("MODEL_STARTS_PER_MINUTE", "0"),
