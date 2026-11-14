@@ -269,6 +269,36 @@ describe("the page behind an open frame", () => {
     expect(document.body.style.overflow).toBe("");
   });
 
+  // no behaviour test had a frame opened inside another (UI review 1, finding 9)
+  it("keeps the frame a second one opens inside it reachable, and gives each part back as its frame goes", () => {
+    document.body.style.overflow = "";
+    document.body.innerHTML = '<main id="page"><p id="beside">Text</p><div id="host"></div></main>';
+    const outer = mount(ModalShell, {
+      props: { labelledby: "t1" },
+      slots: { default: '<h2 id="t1">Außen</h2><button type="button" id="outer-ok">OK</button><div id="inner-host"></div>' },
+      attachTo: document.getElementById("host") as HTMLElement,
+    });
+    const inner = mount(ModalShell, {
+      props: { labelledby: "t2" },
+      slots: { default: '<h2 id="t2">Innen</h2><button type="button" id="inner-ok">OK</button>' },
+      attachTo: document.getElementById("inner-host") as HTMLElement,
+    });
+
+    expect(inner.get("[role=dialog]").element.closest("[inert]")).toBeNull();
+    expect(document.getElementById("outer-ok")?.closest("[inert]")).not.toBeNull();
+    expect(document.getElementById("beside")?.hasAttribute("inert")).toBe(true);
+    expect(document.body.style.overflow).toBe("hidden");
+
+    inner.unmount();
+    expect(document.getElementById("outer-ok")?.closest("[inert]")).toBeNull();
+    expect(document.getElementById("beside")?.hasAttribute("inert")).toBe(true);
+    expect(document.body.style.overflow).toBe("hidden");
+
+    outer.unmount();
+    expect(document.querySelectorAll("[inert]")).toHaveLength(0);
+    expect(document.body.style.overflow).toBe("");
+  });
+
   it("leaves inert what was inert before it opened", () => {
     document.body.innerHTML = '<aside id="away" inert></aside><div id="host"></div>';
     const wrapper = mount(ModalShell, {
