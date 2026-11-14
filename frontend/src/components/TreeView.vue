@@ -96,14 +96,18 @@ function remember(key: RowKey, element: Element | ComponentPublicInstance | null
 }
 
 // focus() alone leaves a row where it is if it lies in the viewport, also under the sticky "Zur Auswahl" bar at the
-// screen's foot (DocumentTreeView): the row is scrolled into sight itself, its scroll margin keeping it above the bar
-function focusRow(key: RowKey): void {
+// screen's foot (DocumentTreeView): the row is scrolled into sight itself, its scroll margin keeping it above the bar.
+// A row under a node closed since is drawn first; one the status filter hides is not: false says so to the page.
+function focusRow(key: RowKey): boolean {
+  if (kept.value && !kept.value.has(key)) return false;
+  open(ancestors(props.rows, key));
   at.value = key;
   void nextTick(() => {
     const element = elements.get(key);
     element?.focus({ preventScroll: true });
     element?.scrollIntoView({ block: "nearest" });
   });
+  return true;
 }
 
 // The row a key was pressed on: the tab stop moves with a row chosen from without (the browser's back),

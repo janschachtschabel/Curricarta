@@ -1390,6 +1390,48 @@ describe("the ways between the row, its panel and the source", () => {
     expect(row.attributes("tabindex")).toBe("0");
   });
 
+  // the button did nothing, and said nothing, where the row was not drawn (UI review 1, finding 5)
+  it("opens the way to the row chosen when its node was closed since", async () => {
+    const wrapper = await open({ zeile: "statement:s2" });
+    await wrapper.get("[data-key='node:a'] .tree__toggle").trigger("click");
+    await flushPromises();
+    expect(wrapper.find("[data-key='statement:s2']").exists()).toBe(false);
+    const button = jump(wrapper, "toRow");
+    (button?.element as HTMLElement).focus();
+
+    await button?.trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get("[data-key='node:a']").attributes("aria-expanded")).toBe("true");
+    expect(document.activeElement).toBe(wrapper.get("[data-key='statement:s2']").element);
+  });
+
+  it("says so where the filter hides the row chosen", async () => {
+    const wrapper = await open({ zeile: "statement:s2" });
+    const rejected = wrapper
+      .findAll(".status-filter button")
+      .find((one) => one.text().startsWith(statusWord(statusIri("rejected"))));
+    await rejected?.trigger("click");
+    await flushPromises();
+    const button = jump(wrapper, "toRow");
+    (button?.element as HTMLElement).focus();
+
+    await button?.trigger("click");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(button?.element);
+    const note = wrapper.get("[data-test=jump-status]");
+    expect(note.attributes("role")).toBe("status");
+    expect(note.text()).toBe(t("documents.tree.jump.rowFiltered"));
+
+    // another row chosen: the words go
+    await wrapper.get(".status-filter .btn.link").trigger("click");
+    await flushPromises();
+    await wrapper.get("[data-key='statement:s1']").trigger("click");
+    await flushPromises();
+    expect(note.text()).toBe("");
+  });
+
   it("offers no way back to a row while none is chosen", async () => {
     const wrapper = await open();
 

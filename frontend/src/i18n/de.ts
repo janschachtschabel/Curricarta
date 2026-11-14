@@ -1474,6 +1474,8 @@ export const messages = {
         toPanel: "Zur Auswahl",
         toRow: "Zurück zur Zeile im Baum",
         toSource: "Zur Quelle",
+        // "toRow" pressed while the status filter hides the row chosen
+        rowFiltered: "Die gewählte Zeile ist durch den Filter ausgeblendet.",
       },
       detail: {
         heading: "Auswahl",

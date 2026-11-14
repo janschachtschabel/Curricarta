@@ -63,7 +63,7 @@ const heading = computed(() =>
 const source = ref<InstanceType<typeof SourcePane> | null>(null);
 const panel = ref<InstanceType<typeof RowPanel> | null>(null);
 const treeView = ref<InstanceType<typeof TreeView> | null>(null);
-const { toPanel, toRow, toSource } = useTreeJumps({ selected, treeView, panel, source });
+const { note: jumpNote, toPanel, toRow, toSource } = useTreeJumps({ selected, treeView, panel, source });
 // a row the address named that the tree does not hold: said above tree and panel, seen at once however narrow,
 // and in the page's region, there from the start - words in a region inserted with them are often not read;
 // both until a row is chosen or another document read
@@ -194,7 +194,7 @@ watch([heading, () => route.fullPath], ([name]) => {
           </p>
         </section>
         <div ref="side" class="document-tree__side">
-          <TreeSideWays class="document-tree__ways" :chosen="selectedRow !== null" @row="toRow" @source="toSource" />
+          <TreeSideWays class="document-tree__ways" :chosen="selectedRow !== null" :note="jumpNote" @row="toRow" @source="toSource" />
           <RowPanel
             ref="panel"
             :row="selectedRow"
