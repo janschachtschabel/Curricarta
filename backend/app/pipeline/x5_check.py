@@ -7,6 +7,7 @@ with extract.run (``document_not_checked``); an attempt after this job's check w
 
 from typing import Any
 
+from app.db.anchors import unchecked_anchors
 from app.db.documents import document_for_job
 from app.db.runs import done_stages, stages_done_by
 from app.jobs.context import JobContext
@@ -14,6 +15,7 @@ from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job
 from app.pipeline.extraction import CHECK_KIND as CHECK_KIND
 from app.pipeline.extraction import checkable, document_in
+from app.pipeline.x4_unit import UNIT_WITHOUT_NODE
 from app.pipeline.x5_stage import run_x5
 
 
@@ -31,4 +33,7 @@ async def check_document(context: JobContext, job: Job) -> dict[str, Any]:
         checked = "X5" in await stages_done_by(connection, job.id)
     if not checked:
         await run_x5(context, job, document, again=True)
-    return {"document_id": str(document.id), "checked": True}
+    # the anchors a check past X5_ANCHOR_BUDGET_S left, as they stand: the next check goes on with them
+    async with context.pool.connection() as connection:
+        left = len(await unchecked_anchors(connection, document.id, rule_titles=(UNIT_WITHOUT_NODE,)))
+    return {"document_id": str(document.id), "checked": True, "anchors_left": left}

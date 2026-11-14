@@ -12,6 +12,7 @@ from app.db.draft_copy import copy_document
 from app.db.runs import RunStart, finish_run, start_run, x5_owed
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, account_lane, claim, enqueue
+from app.pipeline import x5_stage
 from app.pipeline.extraction import CHECK_KIND
 from app.pipeline.x5_check import check_document
 from app.usage.admission import MODEL_JOB_KINDS
@@ -53,7 +54,7 @@ async def test_a_check_finds_anew_what_the_editors_left(
         context_of(pool, tmp_path, asked, database_url), await a_check(connection, document)
     )
 
-    assert made == {"document_id": str(document.id), "checked": True}
+    assert made == {"document_id": str(document.id), "checked": True, "anchors_left": 0}
     assert (await not_found(connection, document), asked.units, asked.asked) == ([], [], [])
     assert [(stage, outcome) for stage, outcome, _ in await runs_of(connection, document)] == [
         ("X5", "done"), ("X5", "done"),
@@ -71,8 +72,38 @@ async def test_an_attempt_after_its_check_was_done_checks_not_again(
     await check_document(context, job)
     again = await check_document(context, job)
 
-    assert again == {"document_id": str(document.id), "checked": True}
+    assert again == {"document_id": str(document.id), "checked": True, "anchors_left": 0}
     assert len(await runs_of(connection, document)) == 2  # the extraction's, the check's
+
+
+async def test_a_check_its_time_cut_says_how_many_anchors_it_left(
+    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # "checked" says the job ran its check, not that every anchor was: the rest stands beside it
+    pool, connection = setup
+    document = await extracted(setup, tmp_path, database_url, invent=())
+    await connection.execute(
+        "UPDATE anchor SET match_kind_scheme = NULL, match_kind_iri = NULL, quote = NULL"
+        " WHERE document_id = %s AND (statement_id IS NOT NULL OR node_id IS NOT NULL)",
+        (document.id,),
+    )
+    ticks = iter(range(0, 10**6, 200))
+    monkeypatch.setattr(x5_stage, "ANCHOR_BATCH", 1)
+    monkeypatch.setattr(x5_stage, "monotonic", lambda: float(next(ticks)))  # one batch within 300 s
+
+    made = await check_document(
+        context_of(pool, tmp_path, Quoting(), database_url), await a_check(connection, document)
+    )
+
+    [(left,)] = await rows(
+        connection,
+        "SELECT count(*) FROM anchor a WHERE a.document_id = %s AND a.match_kind_iri IS NULL"
+        " AND EXISTS (SELECT FROM anchor_block ab WHERE ab.anchor_id = a.id)"
+        " AND (a.statement_id IS NOT NULL OR a.node_id IS NOT NULL)",
+        document.id,
+    )
+    assert left > 0
+    assert made == {"document_id": str(document.id), "checked": True, "anchors_left": left}
 
 
 async def test_a_document_not_checked_yet_is_left_to_its_extraction(
@@ -110,7 +141,7 @@ async def test_an_import_whose_tree_is_written_is_checked_with_no_x5_before(
         context_of(pool, tmp_path, Quoting(), database_url), await a_check(connection, document)
     )
 
-    assert made == {"document_id": str(document.id), "checked": True}
+    assert made == {"document_id": str(document.id), "checked": True, "anchors_left": 0}
     assert not await x5_owed(connection, document.id)
     assert_checked(await last_x5_check(connection, document.id))
 
@@ -133,7 +164,7 @@ async def test_a_draft_copy_is_checked_with_no_x5_of_its_own_and_x5_owes_it_noth
         await a_check(connection, SimpleNamespace(id=copy, owner_id=document.owner_id)),
     )
 
-    assert made == {"document_id": str(copy), "checked": True}
+    assert made == {"document_id": str(copy), "checked": True, "anchors_left": 0}
     assert await rows(
         connection, "SELECT count(*) FROM extraction_run WHERE document_id = %s AND outcome = 'done'", copy
     ) == [(1,)]
