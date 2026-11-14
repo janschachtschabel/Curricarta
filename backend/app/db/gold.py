@@ -122,9 +122,10 @@ async def add_sample(
         made = await cursor.fetchone()
         if made is None:
             # read after the insert waited for the draw it met: this statement sees what that one wrote
-            cursor = await connection.execute(_THERE, (draft.document_id, draft.kind, draft.seed))
-            (there,) = await cursor.fetchall()
-            return int(there[0])
+            there = await sample_drawn(connection, draft.document_id, draft.kind, draft.seed)
+            if there is None:  # taken away with its document meanwhile
+                raise LookupError(f"no document {draft.document_id}")
+            return there
         sample = int(made[0])
         async with connection.cursor() as writing:
             await writing.executemany(
@@ -136,6 +137,15 @@ async def add_sample(
                 ],
             )  # fmt: skip
     return sample
+
+
+async def sample_drawn(
+    connection: psycopg.AsyncConnection, document_id: UUID, kind: SampleKind, seed: str
+) -> int | None:
+    """The id of the document's sample of this kind and seed, where one is drawn."""
+    cursor = await connection.execute(_THERE, (document_id, kind, seed))
+    found = await cursor.fetchone()
+    return None if found is None else int(found[0])
 
 
 async def sample_by_id(connection: psycopg.AsyncConnection, sample_id: int) -> Sample | None:
