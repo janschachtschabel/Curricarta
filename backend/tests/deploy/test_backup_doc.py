@@ -1,0 +1,94 @@
+"""docs/uebergabe/sicherung.md tells the operators what to back up, in which order, how to restore and how
+to roll back (audit 2026-11-14). What it names - Compose's services and volumes, the secrets, the store's
+prefixes - is read here against the code, so the document cannot drift from what a restore needs.
+tests/deploy/test_restore_drill.py guards the script that runs the restore once."""
+
+import re
+import shlex
+from pathlib import Path
+from typing import Any
+
+import yaml  # type: ignore[import-untyped]
+
+from app.core.config_doc import setting_rows
+
+ROOT = Path(__file__).resolve().parents[3]
+DOC = (ROOT / "docs" / "uebergabe" / "sicherung.md").read_text(encoding="utf-8")
+COMPOSE: dict[str, Any] = yaml.safe_load((ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8"))
+# the subcommands whose arguments name services, and the options among theirs that take a value
+SERVICE_VERBS = {"exec", "run", "start", "stop", "restart", "up"}
+VALUED = {"--index", "-e", "-u", "--user", "-w", "--workdir"}
+
+
+def _block() -> list[str]:
+    """The commands of the document's block for Compose."""
+    after = DOC[DOC.index("Befehle für Compose") :]
+    block = re.search(r"```bash\n(.*?)```", after, re.DOTALL)
+    assert block
+    return [line for line in block.group(1).splitlines() if line.strip() and not line.startswith("#")]
+
+
+def _services(words: list[str]) -> set[str]:
+    """The services a ``docker compose -f … <verb> …`` line names."""
+    verb = next(index for index, word in enumerate(words) if word in SERVICE_VERBS)
+    named: set[str] = set()
+    skip = False
+    for word in words[verb + 1 :]:
+        if word in {">", "<", "|"}:
+            break
+        if skip:
+            skip = False
+        elif word in VALUED:
+            skip = True
+        elif not word.startswith("-"):
+            named.add(word)
+            if words[verb] in {"exec", "run"}:
+                break  # what follows is the command run in it
+    return named
+
+
+def test_every_service_and_volume_the_commands_name_is_one_compose_has() -> None:
+    project = COMPOSE["name"]
+    services: set[str] = set()
+    volumes: set[str] = set()
+    images: set[str] = set()
+    for line in _block():
+        words = shlex.split(line, posix=True)
+        if words[:2] == ["docker", "compose"]:
+            assert words[2:4] == ["-f", "deploy/docker-compose.yml"], line
+            if any(word in SERVICE_VERBS for word in words):
+                services |= _services(words)
+        volumes |= {name for name in re.findall(r"\b(\S+?)(?=:/)", line) if name.startswith(f"{project}_")}
+        volumes |= {word for word in words if word.startswith(f"{project}_") and ":" not in word}
+        if words[:3] == ["docker", "run", "--rm"]:
+            images |= {word for word in words if "@sha256:" in word}
+
+    assert {"postgres", "minio"} <= services
+    assert services <= set(COMPOSE["services"])
+    assert volumes == {f"{project}_{volume}" for volume in ("pgdata", "miniodata")}
+    assert {volume.removeprefix(f"{project}_") for volume in volumes} <= set(COMPOSE["volumes"])
+    # the archive is made by an image Compose pins already: no further image to trust
+    assert images == {COMPOSE["services"]["postgres"]["image"]}
+
+
+def test_the_document_names_every_secret_a_restore_needs() -> None:
+    secrets = {row.variable for row in setting_rows() if row.secret}
+    scope = DOC[DOC.index("## Umfang") :].split("\n## ", 1)[0]
+
+    assert secrets == {"DATABASE_URL", "API_KEY_PEPPER", "S3_ACCESS_KEY", "S3_SECRET_KEY", "OPENAI_API_KEY"}
+    for secret in secrets:
+        assert f"`{secret}`" in scope, secret
+
+
+def test_the_document_names_every_prefix_the_store_holds() -> None:
+    app = ROOT / "backend" / "app"
+    written = {
+        prefix
+        for path in ("api/sources.py", "db/runs.py", "exports/mem_export.py")
+        for prefix in re.findall(r'f"([a-z]+/)\{', (app / path).read_text(encoding="utf-8"))
+    }
+    scope = DOC[DOC.index("## Umfang") :].split("\n## ", 1)[0]
+
+    assert written == {"sources/", "runs/", "exports/"}
+    for prefix in written:
+        assert f"`{prefix}`" in scope, prefix
