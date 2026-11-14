@@ -25,6 +25,7 @@ from app.domain.wording import text_hash
 from app.quality.sample import Drawn, Refused, Request, draw
 from app.vocab.store import load_vocabulary
 from tests.db.document_of import document_of
+from tests.sources.test_mem_fixtures import tool
 from tests.support import ontology_vocabulary, waiting_on_a_lock
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -32,16 +33,28 @@ pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 CV = "https://w3id.org/wlo/curriculum/vocab#"
 MODEL, HUMAN, IMPORTED = CV + "orig_model", CV + "orig_human", CV + "orig_import"
 PROPOSED = CV + "rev_proposed"
-# wordings of the tests' own: none is a curriculum's
-WORDS = {
-    "outcome": "Die Lernenden ordnen Kiesel und Sand nach ihrer Farbe.",
-    "content": "Kiesel, Sand und Lehm im Wechsel der Jahreszeiten.",
-    "confirmed": "Die Lernenden messen den Bach am Morgen.",
-    "rejected": "Die Lernenden zählen die Kiesel am Bach.",
-    "reworded": "Die Lernenden zeichnen den Lauf des Baches.",
-    "own": "Die Lernenden sammeln Blätter am Ufer.",
+# Wordings made by the tool the MEM fixtures are made with (backend/tools/mem_synth.py): its words alone
+mem_synth = tool()
+_FORMS = {  # the form each takes: its words replaced, its numbers and marks kept
+    "outcome": "Die Lernenden ordnen die Kiesel am Bach.",
+    "content": "Kiesel, Sand und Lehm.",
+    "confirmed": "Die Lernenden messen den Bach.",
+    "rejected": "Die Lernenden zählen Kiesel.",
+    "reworded": "Die Lernenden zeichnen den Bach.",
+    "own": "Die Lernenden sammeln Blätter.",
+    "title": "Am Bach",
+    "long": "Am Ufer liegen Kiesel, Sand und Lehm, und der Bach trägt sie langsam weiter.",
+    "cover": "Ein Plan für das Lernen am Bach, mit Kiesel, Sand und Lehm.",
+    "header": "Kopfzeile des Plans am Bach, mit Kiesel, Sand und Lehm, Seite 3",
+    "short": "Kurz und knapp.",
+    "again": "Noch einmal.",
+    "new": "Neu.",
 }
-LONG = "Am Ufer liegen Kiesel, Sand und Lehm, und der Bach trägt sie langsam weiter."  # 40 signs and more
+WORDS = {name: mem_synth.wording(form, seed) for seed, (name, form) in enumerate(_FORMS.items())}
+LONG = WORDS["long"]  # 40 signs and more
+PART = mem_synth.NOUNS[0]  # what the contents' entries and the heading name
+CONTENTS = "Inhalt"  # how the contents are titled: a word of the tool's too
+assert CONTENTS in mem_synth.NOUNS
 
 
 def block(block_id: str, text: str, kind: BlockKind = "text") -> Block:
@@ -93,10 +106,10 @@ def statement(verbatim: str, blocks: tuple[str, ...] = ("p1-b2",), **fields: Any
 async def a_document(connection: psycopg.AsyncConnection) -> Document:
     """A document whose model wrote five statements, and an editor one."""
     document = await document_of(
-        connection, [block("p1-b1", "Am Bach"), block("p1-b2", LONG), block("p1-b3", LONG)]
+        connection, [block("p1-b1", WORDS["title"]), block("p1-b2", LONG), block("p1-b3", LONG)]
     )
     root = NodeDraft(
-        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title="Am Bach",
+        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title=WORDS["title"],
         anchors=(AnchorDraft(("p1-b1",), page_start=1),),
         statements=(
             statement(WORDS["outcome"], ("p1-b3", "p1-b2")),  # its first block in reading order
@@ -135,7 +148,10 @@ async def a_reviewed_document(connection: psycopg.AsyncConnection) -> Document:
     reworded = await statement_id(connection, WORDS["reworded"])
     reader = Reader(document.owner_id, sees_all=False)
     assert (
-        await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["reworded"] + " Neu."}) == 2
+        await edit_statement(
+            connection, reader, reworded, 1, {"verbatim": WORDS["reworded"] + " " + WORDS["new"]}
+        )
+        == 2
     )
     return document
 
@@ -165,16 +181,16 @@ async def test_the_model_s_statements_are_drawn_however_reviewed_but_a_reworded_
 
 def with_contents() -> list[Block]:
     """A cover, the contents on page 2, a header, a heading and the text it heads, a short line."""
-    lines = "\n".join(f"{n} Teil {n} {'.' * 20} {n + 2}" for n in range(1, 4))
+    lines = "\n".join(f"{n} {PART} {n} {'.' * 20} {n + 2}" for n in range(1, 4))
     return [
-        block("p1-b1", "Ein Plan für das Lernen am Bach, mit Kiesel, Sand und Lehm"),
-        block("p2-b1", "Inhalt"),
+        block("p1-b1", WORDS["cover"]),
+        block("p2-b1", CONTENTS),
         block("p2-b2", lines),
-        block("p3-b1", "Kopfzeile des Plans am Bach, mit Kiesel, Sand und Lehm, Seite 3", "page_header"),
-        block("p3-b2", "1 Teil 1: der Bach, der Kiesel, der Sand und der Lehm am Ufer"),
+        block("p3-b1", WORDS["header"], "page_header"),
+        block("p3-b2", f"1 {PART} 1: {WORDS['long']}"),
         block("p3-b3", LONG),
-        block("p4-b1", "Kurz und knapp."),
-        block("p5-b1", LONG + " Noch einmal."),
+        block("p4-b1", WORDS["short"]),
+        block("p5-b1", LONG + " " + WORDS["again"]),
     ]
 
 
@@ -183,7 +199,7 @@ async def test_blocks_of_the_contents_the_title_pages_and_the_headers_are_not_dr
 ) -> None:
     document = await document_of(connection, with_contents())
     heading = NodeDraft(
-        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title="1 Teil 1",
+        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title=f"1 {PART} 1",
         anchors=(AnchorDraft(("p3-b2",), page_start=3),),
     )  # fmt: skip
     await write_subtree(connection, document.id, heading)
@@ -228,11 +244,11 @@ async def test_without_contents_the_title_pages_are_unknown_and_drawn(
 async def test_an_import_s_anchors_are_drawn_by_how_they_were_found(
     connection: psycopg.AsyncConnection,
 ) -> None:
-    document = await document_of(connection, [block("p1-b1", "Am Bach"), block("p1-b2", LONG)])
+    document = await document_of(connection, [block("p1-b1", WORDS["title"]), block("p1-b2", LONG)])
     found = AnchorDraft(("p1-b2",), page_start=1, match_kind=CV + "match_whitespace")
     lost = AnchorDraft((), page_start=1, match_kind=CV + "match_notFound")
     root = NodeDraft(
-        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title="Am Bach",
+        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title=WORDS["title"],
         anchors=(AnchorDraft(("p1-b1",), page_start=1, match_kind=CV + "match_exact"),),
         statements=(
             statement(WORDS["outcome"], origin=IMPORTED, anchors=(found,)),
@@ -254,7 +270,7 @@ async def test_an_import_s_anchors_are_drawn_by_how_they_were_found(
     }
     items = await items_of(connection, drawn.sample)
     assert [(item.stratum, item.text_hash, item.first_block, item.node_id is None) for item in items] == [
-        ("exact:node", text_hash("Am Bach"), "p1-b1", False),
+        ("exact:node", text_hash(WORDS["title"]), "p1-b1", False),
         ("notFound:statement", text_hash(WORDS["content"]), None, True),
         ("whitespace:statement", text_hash(WORDS["outcome"]), "p1-b2", True),
     ]
@@ -268,7 +284,7 @@ async def test_an_import_s_anchors_on_the_title_pages_are_a_stratum_apart(
     on_cover = AnchorDraft(("p1-b1",), page_start=1, match_kind=CV + "match_whitespace")
     in_body = AnchorDraft(("p3-b3",), page_start=3, match_kind=CV + "match_exact")
     root = NodeDraft(
-        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title="1 Teil 1",
+        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title=f"1 {PART} 1",
         anchors=(AnchorDraft(("p3-b2",), page_start=3, match_kind=CV + "match_exact"),),
         statements=(
             *(statement(f"{WORDS['outcome']} {n}", origin=IMPORTED, anchors=(on_cover,)) for n in range(6)),
@@ -400,3 +416,12 @@ async def test_the_thirds_are_of_the_conversion_s_pages(connection: psycopg.Asyn
     )
 
     assert drawn.strata == {"t1:text": (2, 2), "t2:text": (1, 1)}
+
+
+def test_the_wordings_are_made_of_the_tool_s_words() -> None:
+    known = {*mem_synth.NOUNS, *mem_synth.WORDS}
+    for made in WORDS.values():
+        for piece in made.split():
+            word = "".join(sign for sign in piece if sign.isalpha())
+            assert word in known or not word or any(sign.isdigit() for sign in piece), (made, piece)
+    assert len(set(WORDS.values())) == len(WORDS)  # each its own

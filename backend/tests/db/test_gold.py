@@ -123,7 +123,7 @@ async def test_a_judgement_made_again_replaces_the_account_s_own(
     sample, items = await a_sample(connection, made)
     await judge(connection, items[0].id, made["second"], CORRECT)
     await judge(connection, items[0].id, made["owner"], CORRECT)
-    wrong = Judgement(verdict="wrong", reasons=("not_a_statement",), expected=None, note="eine Notiz")
+    wrong = Judgement(verdict="wrong", reasons=("not_a_statement",), expected=None, note="Beispiel")
 
     await judge(connection, items[0].id, made["owner"], wrong)
 
@@ -157,7 +157,7 @@ async def test_the_latest_judgement_of_an_item_is_the_one_read(
 
 async def test_a_count_and_a_note_are_kept(connection: psycopg.AsyncConnection, made: dict[str, Any]) -> None:
     sample, items = await a_sample(connection, made)
-    counted = Judgement(verdict=None, reasons=(), expected=3, note="drei")
+    counted = Judgement(verdict=None, reasons=(), expected=3, note="Thema")
 
     await judge(connection, items[1].id, made["owner"], counted)
 
