@@ -207,8 +207,10 @@ jobs:
           API: ${{ needs.images.outputs.api }}
           WEB: ${{ needs.images.outputs.web }}
         run: |
-          [[ "$API" =~ ^sha256:[0-9a-f]{64}$ ]]
-          [[ "$WEB" =~ ^sha256:[0-9a-f]{64}$ ]]
+          [[ "$API" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "::error::job images handed over no digest for curricarta"; exit 1; }
+          [[ "$WEB" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+            echo "::error::job images handed over no digest for curricarta-web"; exit 1; }
           registry="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
           docker pull "$registry/curricarta@$API"
           docker pull "$registry/curricarta-web@$WEB"

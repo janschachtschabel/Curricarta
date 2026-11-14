@@ -318,7 +318,11 @@ def test_the_pushed_image_is_started_by_its_digest_not_built_again() -> None:
         ("API", "curricarta", "curricarta-api"),
         ("WEB", "curricarta-web", "curricarta-web"),
     ):
-        assert f'[[ "${digest}" =~ ^sha256:[0-9a-f]{{64}}$ ]]' in pull
+        assert re.search(
+            rf'\[\[ "\${digest}" =~ \^sha256:\[0-9a-f\]\{{64\}}\$ \]\] \|\| \{{\n'
+            rf'\s*echo "::error::job images handed over no digest for {re.escape(image)}"; exit 1; \}}',
+            pull,
+        ), digest
         assert f'docker pull "$registry/{image}@${digest}"' in pull
         assert f'docker tag "$registry/{image}@${digest}" {local}:local' in pull
     assert not any("docker build" in run for run in _runs("start"))
