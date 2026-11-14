@@ -48,12 +48,14 @@ class TooManyPages(ValueError):
 
 
 class TooDense(ValueError):
-    """A page holds more signs than the service takes, as the engine reads it: pdfium reads one
-    text drawn many times at one place as one, pdfminer each time."""
+    """A page holds more signs than the service takes, as the engine reads it - pdfium reads one
+    text drawn many times at one place as one, pdfminer each time -, or a table states more places in
+    its grid than any page holds (``what`` "places of a table"; ``page`` None for a DOCX or an HTML page,
+    which have none): ``count`` of them, more than ``most``."""
 
-    def __init__(self, page: int | None, signs: int, max_signs: int, *, what: str = "signs") -> None:
-        where = "the file" if page is None else f"page {page}"  # a DOCX's, an HTML page's: no page
-        super().__init__(f"{where} holds {signs} {what}, more than the {max_signs} taken")
+    def __init__(self, page: int | None, count: int, most: int, *, what: str = "signs") -> None:
+        where = "the file" if page is None else f"page {page}"
+        super().__init__(f"{where} holds {count} {what}, more than the {most} taken")
         self.page = page
 
 

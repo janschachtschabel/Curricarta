@@ -608,7 +608,8 @@ export const messages = {
       too_dense:
         "Eine Seite der Datei – bei DOCX und HTML ein einzelner Absatz oder eine Tabellenzeile – trägt weit mehr " +
         "Text, als eine Seite " +
-        "fassen kann; die Datei wurde nicht umgewandelt. Prüfe, ob sie das Dokument selbst ist, und lade sonst " +
+        "fassen kann, oder eine Tabelle gibt weit mehr Zellen an, als eine Seite fasst; die Datei wurde nicht " +
+        "umgewandelt. Prüfe, ob sie das Dokument selbst ist, und lade sonst " +
         "eine andere Fassung hoch.",
       needs_ocr:
         "Zu wenige Seiten der PDF-Datei tragen Text; sie ist wohl eingescannt, und diese Umwandlung liest keine " +

@@ -61,7 +61,7 @@ READS_SCANS = frozenset({"docling"})  # the engines that read a scan by OCR (the
 MESSAGES: dict[FailureCode, str] = {
     "unreadable": "The file cannot be read.",
     "too_many_pages": "The file has more pages than the service converts.",
-    "too_dense": "A page of the file holds more text than any page does.",
+    "too_dense": "A page of the file holds more text than any page does, or a table states more cells.",
     "needs_ocr": "Too few pages carry a text layer: the file is a scan, which this engine does not read.",
     "empty": "The conversion found no text beyond running heads and feet.",
     "timed_out": "The conversion took longer than it may.",
