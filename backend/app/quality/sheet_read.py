@@ -1,15 +1,15 @@
 """A judging sheet as it comes back from a spreadsheet or an editor, read into its rows: UTF-8 with or
 without a BOM - without one, else the Windows code page a spreadsheet saves "CSV" in -, ``;`` or ``,``
 between the cells (the header's tells which), any line end, the columns in any order and any of them
-dropped but ``item`` and ``mark``. Only the columns the importer reads are kept, their cells stripped;
-the wording and the other shown columns are never read. Whatever cannot be read refuses the sheet at its
-line."""
+dropped but ``item``, ``mark`` and ``shown`` (a sheet without ``shown`` is refused as such:
+``column_shown_missing``). Only the columns the importer reads are kept, their cells stripped; the
+wording and the other shown columns are never read. Whatever cannot be read refuses the sheet at its line."""
 
 import csv
 import io
 from dataclasses import dataclass
 
-READ = ("item", "mark", "verdict", "reasons", "expected", "note")
+READ = ("item", "mark", "shown", "verdict", "reasons", "expected", "note")
 NEEDED = ("item", "mark")
 _BOM = b"\xef\xbb\xbf"
 _WIDE = (b"\xff\xfe", b"\xfe\xff")  # UTF-16's marks: a "Unicode text" save, tabs between its cells
@@ -60,6 +60,8 @@ def read_sheet(data: bytes) -> list[SheetLine]:
             raise SheetRefused(["line 1: column_twice"])
         if any(name not in header for name in NEEDED):
             raise SheetRefused(["line 1: column_missing"])
+        if "shown" not in header:  # a sheet written before the column was: it proves nothing
+            raise SheetRefused(["line 1: column_shown_missing"])
         at = {name: header.index(name) for name in READ if name in header}
         lines: list[SheetLine] = []
         begins = reader.line_num + 1

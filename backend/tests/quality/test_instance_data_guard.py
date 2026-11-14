@@ -44,7 +44,7 @@ def test_the_local_gold_folder_stays_out_of_the_images() -> None:
 
 
 _WIDTHS = ((b"\xef\xbb\xbf", "utf-8-sig"), (b"\xff\xfe", "utf-16-le"), (b"\xfe\xff", "utf-16-be"))
-SHOWN = {"wording", "quote", "verdict"}  # what a sheet shows of the document, or asks of its judge
+SHOWN = {"wording", "quote", "verdict", "shown"}  # what a sheet shows of the document, or asks of its judge
 
 
 def _is_a_sheet(path: Path) -> bool:
@@ -63,7 +63,7 @@ def _is_a_sheet(path: Path) -> bool:
     return False
 
 
-HEADER = "item;mark;stratum;page;path;kind;wording;lead_in;quote;link;verdict;reasons;expected;note"
+HEADER = "item;mark;shown;stratum;page;path;kind;wording;lead_in;quote;link;verdict;reasons;expected;note"
 BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"
 
 
@@ -78,12 +78,13 @@ BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"
         (f"{HEADER}\r1;m0\r".encode(), True),  # CR alone
         (HEADER.replace(";", ",").encode(), True),
         (HEADER.replace(";", "\t").encode(), True),
+        (b"item;mark;shown\r\n", True),  # cut down to what proves a judgement
         (b"item;mark;stratum\r\n", False),  # nothing a sheet shows or asks
         (b"name;value\r\nitem;mark\r\n", False),
         (b"\xff\xfe\x00", False),  # a broken sign: no error, no sheet
     ],
     ids=["no-verdict", "title-row", "utf-16-lf", "utf-16-crlf", "utf-16-be", "cr", "commas", "tabs",
-         "no-shown-column", "other", "broken"],
+         "shown-marks", "no-shown-column", "other", "broken"],
 )  # fmt: skip
 def test_a_sheet_is_known_however_it_was_saved(tmp_path: Path, data: bytes, sheet: bool) -> None:
     saved = tmp_path / "saved.csv"

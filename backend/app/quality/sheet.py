@@ -4,7 +4,8 @@ H-3 §3.3) - one row per item with its wording and where to look, the cells to j
 ``reasons``, ``expected``, ``note``) empty, ``n/a`` where a cell is not asked: a block is judged by a count,
 a statement or anchor by a verdict; an item no longer what was drawn says so (app/quality/stale.py:
 ``kind`` = ``gone`` where its row is gone since the draw, ``changed`` where its wording, origin or first
-block changed), its verdict ``n/a``. ``python -m app.quality.judge`` reads it back.
+block changed), its verdict ``n/a``. ``shown`` proves what the judge saw: the item's mark where its row was
+as drawn when the sheet was written, empty where it was not. ``python -m app.quality.judge`` reads it back.
 
 The sheet holds the document's wordings: it is written to stdout alone. Where the code lies in a working
 tree and stdout is a file, the file must lie under ``data/gold-local/`` (ignored by git and the images) -
@@ -40,7 +41,7 @@ from app.quality.stale import stale_items
 log = logging.getLogger(__name__)
 
 SHEET_HEADER = (
-    "item", "mark", "stratum", "page", "path", "kind", "wording", "lead_in", "quote", "link",
+    "item", "mark", "shown", "stratum", "page", "path", "kind", "wording", "lead_in", "quote", "link",
     "verdict", "reasons", "expected", "note",
 )  # fmt: skip
 NOT_ASKED = "n/a"  # in a judging cell the item's kind does not ask for
@@ -99,13 +100,14 @@ async def sheet_rows(connection: psycopg.AsyncConnection, sample_id: int, base_u
         connection, document.conversion_id, [i.block_id for i in items if i.block_id is not None]
     )
     names = await node_names(connection, document.id)
-    stales = await stale_items(connection, sample, items)
+    stales = await stale_items(connection, sample, items)  # none of a block
     base = base_url.rstrip("/")
     rows: list[Row] = []
     for item in items:
         row = dict.fromkeys(SHEET_HEADER, "") | {
             "item": str(item.id),
             "mark": mark(item),
+            "shown": mark(item) if item.id not in stales else "",
             "stratum": item.stratum,
         }
         if item.block_id is not None:

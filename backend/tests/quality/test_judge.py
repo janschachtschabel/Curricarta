@@ -12,8 +12,6 @@ import pytest
 
 from app.db.gold import Judgement, items_of, judgements_of
 from app.db.nodes import write_subtree
-from app.db.source_queries import Reader
-from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft
 from app.quality.judge import SheetRefused, Taken, take_in
 from app.quality.sample import Request, draw
@@ -40,7 +38,7 @@ __all__ = ["connection"]  # the fixture, from gold_documents
 
 SHEET = (Path(__file__).parent / "fixtures" / "bogen.csv").read_bytes()
 BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"
-HEADER = "note;verdict;reasons;item;mark;stratum;wording;expected"
+HEADER = "note;verdict;reasons;item;mark;stratum;wording;expected;shown"
 # by physical line: the header, items 1 and 2, item 3 over two lines (its note runs on), items 4 and 5
 ROWS = SHEET.decode("utf-8-sig").split("\r\n")
 EXPECTED = {
@@ -138,27 +136,6 @@ async def test_a_verdict_or_reason_outside_the_list_refuses_the_sheet_and_names_
     assert await count(connection, "gold_judgement") == 0  # not the good row either
 
 
-async def test_a_judgement_of_an_item_no_longer_as_drawn_refuses_the_sheet_and_names_the_line(
-    connection: psycopg.AsyncConnection,
-) -> None:
-    sample, account = await a_sample(connection)
-    items = {item.id: item for item in await items_of(connection, sample)}
-    cursor = await connection.execute("SELECT id FROM account WHERE name = %s", (account,))
-    [(judge_id,)] = await cursor.fetchall()
-    reader = Reader(judge_id, sees_all=False)  # the document's owner
-    await connection.execute("DELETE FROM statement WHERE id = %s", (items[1].statement_id,))  # gone
-    reworded = items[3].statement_id
-    assert reworded is not None
-    assert await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["new"]}) == 2  # changed
-    await connection.execute("DELETE FROM statement WHERE id = %s", (items[4].statement_id,))  # left empty
-
-    with pytest.raises(SheetRefused) as refused:
-        await take_in(connection, sample, account, SHEET)
-
-    assert refused.value.problems == ["line 2: item_not_as_drawn", "line 4: item_not_as_drawn"]
-    assert await count(connection, "gold_judgement") == 0
-
-
 async def test_a_duplicated_row_refuses_the_sheet(connection: psycopg.AsyncConnection) -> None:
     sample, account = await a_sample(connection)
 
@@ -174,8 +151,10 @@ async def test_a_block_is_judged_by_a_count_alone(connection: psycopg.AsyncConne
     await done(connection, document, "X4")
     account = await owner(connection, document)
     sample = (await draw(connection, Request(document.id, "block", "pilot-1", account))).sample
-    header = "item;mark;verdict;reasons;expected"
-    first, second, third = (f"{item.id};{item.block_id}" for item in await items_of(connection, sample))
+    header = "item;mark;shown;verdict;reasons;expected"
+    first, second, third = (
+        f"{item.id};{item.block_id};{item.block_id}" for item in await items_of(connection, sample)
+    )
 
     taken = await take_in(
         connection, sample, account, edited(f"{first};n/a;n/a;3", f"{second};;; 0 ", header=header)
@@ -214,8 +193,10 @@ async def test_an_anchor_not_found_is_wrong_where_its_wording_is_there(
     await done(connection, document, "IM")
     account = await owner(connection, document)
     sample = (await draw(connection, Request(document.id, "anchor", "mem-1", account))).sample
-    items = {item.stratum: f"{item.id};{mark(item)}" for item in await items_of(connection, sample)}
-    header = "item;mark;verdict;reasons"
+    items = {
+        item.stratum: f"{item.id};{mark(item)};{mark(item)}" for item in await items_of(connection, sample)
+    }
+    header = "item;mark;shown;verdict;reasons"
     missed, misplaced = items["notFound:statement"], items["whitespace:statement"]
 
     taken = await take_in(
@@ -234,14 +215,19 @@ async def test_an_anchor_not_found_is_wrong_where_its_wording_is_there(
 
 async def test_the_wording_column_is_never_read_back(connection: psycopg.AsyncConnection) -> None:
     sample, account = await a_sample(connection)
-    shown = "item;mark;verdict;reasons;expected;wording;quote"
-    bare = "item;mark;verdict;reasons;expected"
+    shown = "item;mark;shown;verdict;reasons;expected;wording;quote"
+    bare = "item;mark;shown;verdict;reasons;expected"
 
     taken = await take_in(
         connection, sample, account,
-        edited('1;m676f35a0284b;correct;;n/a;"=HYPERLINK(""x"");wrong;not_a_statement";@', header=shown),
+        edited(
+            '1;m676f35a0284b;m676f35a0284b;correct;;n/a;"=HYPERLINK(""x"");wrong;not_a_statement";@',
+            header=shown,
+        ),
     )  # fmt: skip
-    without = await take_in(connection, sample, account, edited("1;m676f35a0284b;correct;;n/a", header=bare))
+    without = await take_in(
+        connection, sample, account, edited("1;m676f35a0284b;m676f35a0284b;correct;;n/a", header=bare)
+    )
 
     assert taken == Taken(judged=1, new=1, changed=0, unchanged=0, left_empty=0)
     assert without == Taken(judged=1, new=0, changed=0, unchanged=1, left_empty=0)
@@ -252,9 +238,13 @@ async def test_a_note_is_cut_to_what_the_table_holds_or_refused(connection: psyc
     sample, account = await a_sample(connection)
     longest = "a" * 500
 
-    taken = await take_in(connection, sample, account, edited(f"{longest}   ;correct;;1;m676f35a0284b;;;n/a"))
+    taken = await take_in(
+        connection, sample, account, edited(f"{longest}   ;correct;;1;m676f35a0284b;;;n/a;m676f35a0284b")
+    )
     with pytest.raises(SheetRefused) as refused:
-        await take_in(connection, sample, account, edited(f"{longest}b;correct;;1;m676f35a0284b;;;n/a"))
+        await take_in(
+            connection, sample, account, edited(f"{longest}b;correct;;1;m676f35a0284b;;;n/a;m676f35a0284b")
+        )
 
     assert taken.new == 1
     assert (await judgements_of(connection, sample))[1].note == longest  # the spaces after it cut

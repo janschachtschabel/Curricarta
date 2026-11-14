@@ -68,7 +68,8 @@ async def test_the_sheet_names_each_item_with_where_to_look(connection: psycopg.
     outcome = by_wording[WORDS["outcome"]]
     made = await statement_id(connection, WORDS["outcome"])
     assert outcome == {
-        "item": outcome["item"], "mark": "m" + text_hash(WORDS["outcome"])[:12], "stratum": "learningOutcome",
+        "item": outcome["item"], "mark": "m" + text_hash(WORDS["outcome"])[:12],
+        "shown": "m" + text_hash(WORDS["outcome"])[:12], "stratum": "learningOutcome",
         "page": "1", "path": WORDS["title"], "kind": "learningOutcome", "wording": WORDS["outcome"],
         "lead_in": "", "quote": "",
         "link": f"{BASE}/dokumente/{document.id}/baum?zeile=statement:{made}&seite=1",
@@ -129,7 +130,8 @@ async def test_a_block_s_row_shows_its_text_and_asks_for_a_count(connection: psy
 
     first = rows[0]
     assert first == {
-        "item": first["item"], "mark": "p3-b3", "stratum": "t2:text", "page": "3", "path": "", "kind": "text",
+        "item": first["item"], "mark": "p3-b3", "shown": "p3-b3", "stratum": "t2:text", "page": "3",
+        "path": "", "kind": "text",
         "wording": with_contents()[5].text, "lead_in": "", "quote": "",
         "link": f"{BASE}/quellen/{document.source_id}/bloecke?seite=3",
         "verdict": NOT_ASKED, "reasons": NOT_ASKED, "expected": "", "note": "",
