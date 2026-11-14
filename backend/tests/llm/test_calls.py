@@ -631,6 +631,47 @@ async def test_an_answer_cut_at_the_cap_before_any_tool_call_is_cut(parts: str) 
     assert ledger.booked == [(1, Spent(input_tokens=100, output_tokens=2_000, requests=1))]
 
 
+async def test_a_tool_call_cut_at_the_cap_before_its_first_argument_is_cut() -> None:
+    # empty arguments read as {}: only the cap tells them from an answer of no title
+    built, seen = answering(lambda info: [ToolCallPart(info.output_tools[0].name, "")])
+
+    answer = await ask(built, "Text", meter=Ledger())
+
+    assert (answer.output, answer.cut, len(seen)) == (None, True, 1)
+
+
+async def test_an_answer_at_the_cap_whose_reason_is_unknown_and_arguments_cut_is_cut() -> None:
+    # a provider whose reason pydantic-ai does not know (finish_reason None): the cap reached and the
+    # arguments no JSON yet tell the cut together
+    built, seen = answering(
+        lambda info: [ToolCallPart(info.output_tools[0].name, '{"title": "Zah')], finish_reason=None
+    )
+
+    answer = await ask(built, "Text", meter=Ledger())
+
+    assert (answer.output, answer.cut, len(seen)) == (None, True, 1)
+
+
+@pytest.mark.parametrize(
+    ("args", "output_tokens"), [('{"title": "Zah', 1_999), ('{"title": "Zahlen"}', 2_000)]
+)
+async def test_an_answer_with_one_sign_of_a_cut_alone_is_not_taken_for_cut(
+    args: str, output_tokens: int
+) -> None:
+    # arguments cut below the cap are an answer out of form, asked again; the cap reached with whole
+    # arguments is an answer read
+    built, seen = answering(
+        lambda info: [ToolCallPart(info.output_tools[0].name, args)],
+        finish_reason=None,
+        output_tokens=output_tokens,
+    )
+
+    answer = await ask(built, "Text", meter=Ledger())
+
+    assert answer.cut is False
+    assert len(seen) == (3 if answer.output is None else 1)
+
+
 async def test_an_answer_out_of_form_is_not_taken_for_cut() -> None:
     built, _ = stage(['{"title": 3}'])
 

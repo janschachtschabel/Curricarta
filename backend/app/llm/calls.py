@@ -232,7 +232,7 @@ async def _attempt(
                         # kept before the next node checks it against the schema
                         if raw is not None:
                             await raw.keep(ModelMessagesTypeAdapter.dump_json([node.model_response]))
-                        if cut_at_cap(node.model_response):
+                        if cut_at_cap(node.model_response, stage.output_tokens):
                             failure = f"an answer was cut at the output cap ({stage.output_tokens} tokens)"
                             log.warning("a stage's answer took no form: %s", failure)
                             return None, spent, failure, True

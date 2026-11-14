@@ -62,20 +62,28 @@ async def book_cut_off(meter: Meter, open_: OpenRequest, output_tokens: int, *, 
     await asyncio.shield(meter.book(open_.reservation, cost))
 
 
-def cut_at_cap(response: ModelResponse) -> bool:
-    """Whether the answer stopped at the cap before its output was whole - no tool call, or one whose
-    arguments are no JSON object yet. pydantic-ai would ask again twice before it says so
-    (IncompleteToolCall), each request paid for and cut alike under the same cap."""
-    if response.finish_reason != "length":
-        return False
+def cut_at_cap(response: ModelResponse, cap: int) -> bool:
+    """Whether the answer stopped at the cap before its output was whole. pydantic-ai would ask again
+    twice before it says so (IncompleteToolCall), each request paid for and cut alike under the same
+    cap. Where the provider says it stopped at the cap (``length``), an answer is cut unless its last
+    part is a tool call whose arguments are a whole JSON object - empty ones are not, they read as
+    ``{}``. Where it says no reason pydantic-ai knows, two signs are needed together: the output
+    reported at the cap alone may be a whole answer that took all of it, and arguments that are no
+    JSON alone are an answer out of form, worth asking again."""
     last = response.parts[-1] if response.parts else None
-    if not isinstance(last, ToolCallPart):
-        return True
+    whole = isinstance(last, ToolCallPart) and bool(last.args) and _parses(last)
+    if response.finish_reason == "length":
+        return not whole
+    at_cap = response.finish_reason is None and response.usage.output_tokens >= cap
+    return at_cap and isinstance(last, ToolCallPart) and not whole
+
+
+def _parses(call: ToolCallPart) -> bool:
     try:
-        last.args_as_dict(raise_if_invalid=True)
+        call.args_as_dict(raise_if_invalid=True)
     except (ValueError, AssertionError):
-        return True
-    return False
+        return False
+    return True
 
 
 def answered(response: ModelResponse, estimate: int, output_tokens: int) -> Spent:
