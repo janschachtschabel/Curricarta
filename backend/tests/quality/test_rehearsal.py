@@ -115,9 +115,8 @@ class Operator:
 
     def _local(self, word: str, values: dict[str, str]) -> Path:
         path = PurePosixPath(self._filled(word, values))
-        assert path.is_relative_to(LOCAL_FOLDER.as_posix()), (
-            path
-        )  # the handout's rule: sheets lie there alone
+        # the handout's rule: sheets lie there alone
+        assert path.is_relative_to(LOCAL_FOLDER.as_posix()), path
         return self.folder / path.relative_to(LOCAL_FOLDER.as_posix())
 
     def _run(self, name: str, values: dict[str, str]) -> subprocess.CompletedProcess[bytes]:
@@ -269,6 +268,7 @@ async def test_the_acceptance_runs_end_to_end_with_a_model_standing_in(
     statement_items = await items_of(connection, statements["sample"])
     block_items = await items_of(connection, blocks["sample"])
     last = len(statement_items) - 1
+    assert last >= 1  # a correct statement and a wrong one at least
     judged(
         operator.folder / f"{LABEL}-aussagen.csv",
         lambda n, _: (
@@ -291,16 +291,20 @@ async def test_the_acceptance_runs_end_to_end_with_a_model_standing_in(
         1,
     )
     assert statement["pooled"]["precision_strict"] == round(last / len(statement_items), 4)
-    assert statement["weighted"]["precision_strict"] is not None  # every drawn item judged
+    # every drawn item judged, one stratum: the weighted rate is said, and is the pooled one
+    assert statement["weighted"]["precision_strict"] == statement["pooled"]["precision_strict"]
     sampled = {item.block_id for item in block_items}
     found = len(sampled & set(model.chosen))
+    assert 0 < found < len(block_items)  # blocks holding a statement and blocks holding none
     assert (entry["block"]["judged"], entry["block"]["expected"], entry["block"]["found"]) == (
         len(block_items),
         len(block_items),
         found,
     )
     assert entry["block"]["recall"] == round(found / len(block_items), 4)
-    assert again["documents"][0]["statement"]["replayed"]["judged"] == len(statement_items)
+    kept = again["documents"][0]["statement"]["replayed"]
+    assert (kept["judged"], kept["kept_correct"], kept["kept_wrong"]) == (len(statement_items), last, 1)
+    assert kept["new_unjudged"] == 0  # the reader unchanged: the replay reads what was judged, no more
 
     # 6. every command of the handout was run
     assert sorted(set(operator.ran)) == sorted(COMMANDS)
