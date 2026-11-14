@@ -2,6 +2,7 @@
 names it with the cap, the run ends as answer_cut; no job asks it again under a cap no higher, one under
 a higher cap does. A model stands in (FunctionModel)."""
 
+import asyncio
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ from pydantic_ai.messages import ModelMessage, ModelResponse, ToolCallPart
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai.usage import RequestUsage
 
+from app.db.findings import add_findings
 from app.jobs.outcome import PermanentError
 from app.pipeline import x4_statements
 from app.pipeline.run import extract_document
@@ -180,3 +182,61 @@ async def test_a_cut_unit_read_under_a_higher_cap_takes_its_finding_along_before
     assert ended.value.code == "model_unanswered"
     assert [key for key, _, _ in await units_done(connection, document)] == ["E2", "E3"]
     assert [rule for rule, _, _ in await x4_findings(connection, document)] == ["x4.unanswered"] * 2
+
+
+async def test_a_unit_cut_again_under_a_higher_cap_has_one_finding_with_the_higher_cap(
+    setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    model = Model()
+    context = context_of(pool, tmp_path, cutting(model, "E3"), database_url)
+    with pytest.raises(PermanentError):
+        await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    higher = FunctionModel(cutting(model, "E3"), settings={"max_tokens": 8_000})
+
+    with pytest.raises(PermanentError):
+        await extract_document(
+            replace(context, model=lambda: higher), await a_job(connection, document.id, document.owner_id)
+        )
+
+    assert sorted(model.units) == ["E2", "E3", "E3", "E4"]
+    assert await x4_findings(connection, document) == [
+        ("x4.answer_cut", "warning", {"units": ["E3"], "cap": 8_000})
+    ]
+
+
+async def test_a_cut_is_named_though_a_cancel_comes_as_its_finding_is_written(
+    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    writing, written = asyncio.Event(), asyncio.Event()
+
+    async def slow(connection: Any, document_id: Any, run_id: Any, findings: Any) -> None:
+        if any(found.rule == "x4.answer_cut" for found in findings):
+            writing.set()
+            await asyncio.wait_for(written.wait(), 10)
+        await add_findings(connection, document_id, run_id, findings)
+
+    monkeypatch.setattr(x4_statements, "add_findings", slow)
+    context = with_concurrency(
+        context_of(pool, tmp_path, cutting(Model(), "E3"), database_url), database_url, 1
+    )
+    job = asyncio.create_task(
+        extract_document(context, await a_job(connection, document.id, document.owner_id))
+    )
+    await asyncio.wait_for(writing.wait(), 10)
+    job.cancel()
+    await asyncio.sleep(0)  # the cancel reaches the unit while its finding is written
+    written.set()
+    with pytest.raises(asyncio.CancelledError):
+        await job
+    for _ in range(200):  # the note's write goes on beside the cancel
+        if await x4_findings(connection, document):
+            break
+        await asyncio.sleep(0.01)
+
+    assert await x4_findings(connection, document) == [
+        ("x4.answer_cut", "warning", {"units": ["E3"], "cap": 4_000})
+    ]

@@ -22,6 +22,7 @@ once every unit is, under the lease and the document's lock: a run of X4 done me
 over. Progress is reported as each unit is written.
 """
 
+import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
@@ -148,8 +149,8 @@ class _Units:
         except PROVIDER_ERRORS as error:
             self.broken = first_of(self.broken, error)
             return
-        except AnswerCut:
-            await self._cut(unit)
+        except AnswerCut:  # the request is booked: the note that it was cut must not go with a cancel
+            await asyncio.shield(self._cut(unit))
             return
         except (Unanswered, WrongUnit):
             self.unanswered.append(unit.key)
@@ -166,9 +167,6 @@ class _Units:
                 )
             except UnitTaken:  # by a job beside this one: done all the same
                 self.taken += 1
-            async with connection.transaction():  # read now: an earlier cut is no longer true of it
-                await hold_lease(connection, job)
-                await drop_findings_naming(connection, document.id, "x4.answer_cut", unit.key)
             self.done += 1
             await report(connection, job, "extract_statements", done=self.done, total=self.total)
 
@@ -181,6 +179,8 @@ class _Units:
         details = {"units": [unit.key], "cap": self.cap}
         async with context.pool.connection() as connection, connection.transaction():
             await hold_lease(connection, job)
+            # one finding a unit: one cut under a lower cap before is said by this one
+            await drop_findings_naming(connection, document.id, "x4.answer_cut", unit.key)
             await add_findings(
                 connection,
                 document.id,

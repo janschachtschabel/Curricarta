@@ -20,7 +20,7 @@ from uuid import UUID
 import psycopg
 
 from app.db.documents import Document
-from app.db.findings import add_findings
+from app.db.findings import add_findings, drop_findings_naming
 from app.db.nodes import append_statements, lock_tree, node_stands, write_subtree
 from app.db.units import mark_unit
 from app.domain.l1 import AnchorDraft, NodeDraft, StatementDraft
@@ -83,6 +83,8 @@ async def write_unit(
             await append_statements(
                 connection, document.id, unit.node_id, drafts, first_position=first, run_id=run_id
             )
+        # read now: a cut of an earlier run is no longer true of it, and goes with the write
+        await drop_findings_naming(connection, document.id, "x4.answer_cut", unit.key)
         await add_findings(connection, document.id, run_id, read.findings)
     return len(drafts)
 

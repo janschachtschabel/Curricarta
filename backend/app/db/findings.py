@@ -49,9 +49,10 @@ ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule
 LIMIT %(most)s
 """
 _DROP_RULE = "DELETE FROM validation_finding WHERE document_id = %s AND rule = %s"
-# a finding of ``rule`` that names the package among its details.units
+# a finding of ``rule`` that names the package: among its details.units (X4's), or as details.unit
 _DROP_NAMING = """
-DELETE FROM validation_finding WHERE document_id = %s AND rule = %s AND details -> 'units' ? %s
+DELETE FROM validation_finding WHERE document_id = %(document)s AND rule = %(rule)s
+    AND (details -> 'units' ? %(unit)s OR details ->> 'unit' = %(unit)s)
 """
 _RULE_DETAILS = (
     "SELECT details FROM validation_finding WHERE document_id = %s AND rule = %s ORDER BY created_at, id"
@@ -156,9 +157,8 @@ async def drop_rule_findings(connection: psycopg.AsyncConnection, document_id: U
 async def drop_findings_naming(
     connection: psycopg.AsyncConnection, document_id: UUID, rule: str, unit_key: str
 ) -> int:
-    """Drop the document's findings of ``rule`` that name the package ``unit_key`` among their units;
-    how many went."""
-    cursor = await connection.execute(_DROP_NAMING, (document_id, rule, unit_key))
+    """Drop the document's findings of ``rule`` that name the package ``unit_key``; how many went."""
+    cursor = await connection.execute(_DROP_NAMING, {"document": document_id, "rule": rule, "unit": unit_key})
     return cursor.rowcount
 
 

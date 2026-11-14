@@ -20,6 +20,7 @@ passes over an X6 done; X5 checks the document whenever a repair began since its
 (app/db/runs.x5_owed) - this job's, or one that ended before its check, which extract.run checks too.
 """
 
+import asyncio
 from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
@@ -27,7 +28,7 @@ from typing import Any
 from app.conversion.base import Block
 from app.db.conversions import all_blocks, printed_pages
 from app.db.documents import Document, document_for_job
-from app.db.findings import Finding, add_findings
+from app.db.findings import Finding, add_findings, drop_findings_naming
 from app.db.runs import RunStart, done_stages, finish_run, stages_done_by, start_run, x5_owed
 from app.db.units import count_repair
 from app.jobs.context import JobContext
@@ -167,7 +168,8 @@ class _Repairs:
             message = "the answer was cut at the output cap: the unit stays as it was"
             of_unit = {"unit": unit.package.key, "cap": stage.output_tokens}
             cut = Finding("x6.answer_cut", "warning", self.asking.document.id, message, None, of_unit)
-            await self._left([cut], repaired=False)
+            # the request is booked: the note that it was cut must not go with a cancel
+            await asyncio.shield(self._left([cut], repaired=False, replaces="x6.answer_cut"))
             return
         except (Unanswered, WrongUnit):
             message = "the model's answer never took the form of the unit, or answered for another"
@@ -196,10 +198,13 @@ class _Repairs:
             empty = Finding("x6.empty_answer", "warning", document.id, message, None, {"unit": key})
             await self._left([*read.findings, empty])
 
-    async def _left(self, findings: Sequence[Finding], *, repaired: bool = True) -> None:
+    async def _left(
+        self, findings: Sequence[Finding], *, repaired: bool = True, replaces: str | None = None
+    ) -> None:
         """The package the last of the findings names stays as it was; its repair is counted (it was
         paid for) where ``repaired`` - not for an answer cut at the cap, which changed nothing and is
-        not asked again under that cap -, and the findings kept."""
+        not asked again under that cap -, and the findings kept, in place of the package's findings of
+        the rule ``replaces``: one cut a package."""
         context, job, document = self.asking.context, self.asking.job, self.asking.document
         key = findings[-1].details["unit"]
         self.unanswered.append(key)
@@ -208,6 +213,8 @@ class _Repairs:
                 await hold_lease(connection, job)
                 if repaired:
                     await count_repair(connection, document.id, key)
+                if replaces is not None:
+                    await drop_findings_naming(connection, document.id, replaces, key)
                 await add_findings(connection, document.id, self.asking.run_id, findings)
             self.done += 1
             await report(connection, job, "repair_units", done=self.done, total=self.total)
