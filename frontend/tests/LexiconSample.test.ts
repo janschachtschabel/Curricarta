@@ -9,6 +9,7 @@ import { EVERYWHERE, SAMPLE_PAGE } from "@/lexiconStrata";
 
 import { violations } from "./axe";
 import { LABELS, REGION, SCHOOL, cueDecision, reviewCue } from "./lexiconFixtures";
+import { observeResizes, scrollsSideways } from "./resizeObservers";
 
 const OTHER = SCHOOL + "re-DE-BY-ba9876543210";
 const GONE = SCHOOL + "re-DE-NW-000000000000";
@@ -70,6 +71,21 @@ describe("the sample of the research's cues", () => {
     expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
     expect(wrapper.find("[data-test=retired]").exists()).toBe(false);
     expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  // a tab stop with nothing to scroll (browser check 2, NIT 8), as the register's box was
+  it("makes the strata's box a tab stop only while it scrolls sideways", async () => {
+    const resized = observeResizes();
+    const wrapper = await section();
+    const box = wrapper.get("[role=region]");
+    expect(box.attributes("tabindex")).toBeUndefined();
+
+    scrollsSideways(box.element);
+    resized();
+    await flushPromises();
+
+    expect(box.attributes("tabindex")).toBe("0");
+    vi.unstubAllGlobals();
   });
 
   it("says that it waits until the list comes", async () => {

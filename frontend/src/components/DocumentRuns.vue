@@ -4,12 +4,19 @@
  * how it stands and why it failed - in the page's words where it knows them, else as the server
  * wrote it, quoted as English and shortened.
  */
+import { ref } from "vue";
+
 import type { Run } from "@/api";
 import { messages, momentFormat, t } from "@/i18n/de";
 import { JOB_FAILURE_CODES, jobFailureText } from "@/jobMessages";
+import { useOverflowing } from "@/overflowing";
 import { word } from "@/registerWords";
 
 defineProps<{ runs: Run[] }>();
+
+// the table's box is a tab stop only while it scrolls sideways (overflowing.ts)
+const box = ref<HTMLElement | null>(null);
+const overflowing = useOverflowing(box);
 
 /** The most of a server's sentence the table shows; the rest is cut at a word. */
 const MOST_SIGNS = 200;
@@ -42,9 +49,16 @@ function shortened(failure: string): string {
 <template>
   <section aria-labelledby="document-runs">
     <h2 id="document-runs" tabindex="-1">{{ t("documents.page.runs") }}</h2>
-    <!-- wider than a phone: scrolled on its own, by the keyboard too; a name of its own, as two
+    <!-- narrower than its table: scrolled on its own, by the keyboard too; a name of its own, as two
          regions of one name would be one landmark twice -->
-    <div v-if="runs.length" class="runs" tabindex="0" role="region" :aria-label="t('documents.page.runsTable')">
+    <div
+      v-if="runs.length"
+      ref="box"
+      class="runs"
+      :tabindex="overflowing ? 0 : undefined"
+      role="region"
+      :aria-label="t('documents.page.runsTable')"
+    >
       <table>
         <thead>
           <tr>

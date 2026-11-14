@@ -21,6 +21,7 @@ import { ANY_CUE, SAMPLE_PAGE, chosen, type CueChoice } from "@/lexiconStrata";
 import { labelList, sectorWord } from "@/lexiconWords";
 import { sayAnew } from "@/liveRegion";
 import { useOpenEntries } from "@/openEntries";
+import { useOverflowing } from "@/overflowing";
 import { useSectionReading } from "@/sectionReading";
 
 const emit = defineEmits<{ dirty: [dirty: boolean] }>();
@@ -71,6 +72,9 @@ watch(choice, () => {
 });
 
 const itemsBox = ref<HTMLElement | null>(null);
+// the strata's box is a tab stop only while it scrolls sideways (overflowing.ts)
+const strataBox = ref<HTMLElement | null>(null);
+const overflowing = useOverflowing(strataBox);
 
 // as the register's "Weitere laden": the keyboard to the first cue the press brought
 async function more(): Promise<void> {
@@ -118,8 +122,15 @@ onMounted(load);
       :body="t('lexicon.sample.noneBody')"
     />
     <template v-else>
-      <!-- scrolled on its own where wider than a phone, by the keyboard too; a name of its own -->
-      <div v-if="list.strata.length" class="lexicon-sample__strata" tabindex="0" role="region" aria-labelledby="lexicon-strata">
+      <!-- scrolled on its own where narrower than its table, by the keyboard too; a name of its own -->
+      <div
+        v-if="list.strata.length"
+        ref="strataBox"
+        class="lexicon-sample__strata"
+        :tabindex="overflowing ? 0 : undefined"
+        role="region"
+        aria-labelledby="lexicon-strata"
+      >
         <table>
           <caption id="lexicon-strata">{{ t("lexicon.sample.strata") }}</caption>
           <thead>
