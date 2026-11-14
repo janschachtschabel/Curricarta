@@ -94,11 +94,11 @@ def test_an_account_s_limits_are_counts_or_none(connection: psycopg.Connection) 
         "INSERT INTO quota (account_id, token_limit, page_limit) VALUES (%s, %s, 0)", (limited, 5 * 10**9)
     )
 
-    rows = connection.execute(
-        "SELECT account_id, token_limit, page_limit FROM quota ORDER BY account_id"
-    ).fetchall()
+    rows = connection.execute("SELECT account_id, token_limit, page_limit FROM quota").fetchall()
 
-    assert rows == [(unlimited, None, None), (limited, 5 * 10**9, 0)]
+    # by account, not by id: two ids of one millisecond sort by chance
+    assert {row[0]: row[1:] for row in rows} == {unlimited: (None, None), limited: (5 * 10**9, 0)}
+    assert len(rows) == 2
 
 
 @pytest.mark.parametrize("column", ["token_limit", "page_limit"])
