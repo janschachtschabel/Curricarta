@@ -90,7 +90,7 @@ async def test_the_command_prints_the_report(connection: psycopg.AsyncConnection
     assert made == json.loads(json.dumps(await report(connection, [sample])))
     [entry] = made["documents"]
     assert entry["statement"]["weighted"]["precision_strict"] == 1.0  # all correct
-    assert entry["statement"]["pooled"]["precision_strict_wilson95"] == [0.5655, 1.0]
+    assert entry["statement"]["pooled"]["precision_strict_pooled_wilson95"] == [0.5655, 1.0]
     assert (entry["label"], entry["source_kind"], entry["regions"], entry["pages"]) == (
         "pilot-1", "extraction", ["DE-NW"], 1,
     )  # fmt: skip

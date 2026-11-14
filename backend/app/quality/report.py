@@ -3,8 +3,9 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
 
 - ``statement``: by stratum the population when drawn (``frame``), drawn, judged, correct, imprecise,
   wrong, unjudged; the reasons; precision strict and lenient and the wrong rate weighted by each stratum's
-  share of the frame kept when drawn (``by: frame_when_drawn``; null while a stratum has no judged item),
-  beside the pooled rates over the judged items (``by: item``) with their Wilson intervals (95 %).
+  share of the frame kept when drawn (``by: frame_when_drawn``; null while a drawn item is still open, their
+  count beside it), and the pooled rates over the judged items (``by: item``), each with the Wilson
+  interval (95 %) of the pooled rate alone (``*_pooled_wilson95``): the weighted rate has none.
 - ``block``: recall - Σ min(found, expected) / Σ expected over the judged blocks, ``found`` the model's
   statements whose anchors name the block now, however reviewed -, the blocks missed, those expected
   empty but holding statements (apart), the surplus.
@@ -28,7 +29,7 @@ import psycopg
 
 from app.core.logging import configure_logging
 from app.core.settings import Settings
-from app.db.gold import Item, Judgement, Sample, items_of, judgements_of, sample_by_id
+from app.db.gold import Item, Judgement, Sample, items_of, judgements_of, judges_of, sample_by_id
 from app.db.gold_report import found_in_blocks, head_of
 from app.db.pool import CONNECTION_OPTIONS
 from app.quality.rates import recall, weighted, wilson
@@ -80,20 +81,23 @@ def _verdicts(
         "wrong_rate": ("wrong",),
     }
     judged = sum(row["judged"] for row in strata.values())
+    still = sum(row["unjudged"] for row in strata.values())
     pooled: dict[str, Any] = {"by": "item", "judged": judged}
-    weighing: dict[str, Any] = {"by": "frame_when_drawn"}
+    weighing: dict[str, Any] = {"by": "frame_when_drawn", "open": still}
     for name, hits_of in counted.items():
         hits = {stratum: (sum(row[v] for v in hits_of), row["judged"]) for stratum, row in strata.items()}
-        weighing[name] = _rate(weighted({s: frame.get(s, 0) for s in strata}, hits))
+        # said once every drawn item is judged: a stratum's rate on part of its items is not yet its own
+        weighing[name] = _rate(weighted({s: frame.get(s, 0) for s in strata}, hits)) if not still else None
         total = sum(hit for hit, _ in hits.values())
         pooled[name] = _rate(total / judged) if judged else None
-        pooled[f"{name}_wilson95"] = [_rate(end) for end in wilson(total, judged)] if judged else None
+        interval = [_rate(end) for end in wilson(total, judged)] if judged else None
+        pooled[f"{name}_pooled_wilson95"] = interval  # the pooled rate's alone, never the weighted one's
     named: list[str] = [r for item in items if item.id in judgements for r in judgements[item.id].reasons]
     return {
         "strata": strata,
         "reasons": {reason: named.count(reason) for reason in reasons},
         "judged": judged,
-        "open": sum(row["unjudged"] for row in strata.values()),
+        "open": still,
         "weighted": weighing,
         "pooled": pooled,
     }
@@ -171,13 +175,13 @@ async def _entry(connection: psycopg.AsyncConnection, samples: Sequence[Sample])
         items = await items_of(connection, sample.id)
         judgements = await judgements_of(connection, sample.id)
         if sample.kind == "block":
-            entry["block"] = await _blocks(connection, sample, items, judgements)
+            section = await _blocks(connection, sample, items, judgements)
         elif sample.kind == "anchor":
-            entry["anchor"] = _anchors(sample, items, judgements)
+            section = _anchors(sample, items, judgements)
         else:
-            entry["statement"] = {"sample": sample.id} | _verdicts(
-                sample.frame, items, judgements, STATEMENT_REASONS
-            )
+            section = {"sample": sample.id} | _verdicts(sample.frame, items, judgements, STATEMENT_REASONS)
+        # the accounts whose judgements are counted - each item's latest, whoever gave it
+        entry[sample.kind] = section | {"judges": await judges_of(connection, sample.id)}
     return entry
 
 
@@ -210,7 +214,10 @@ async def report(connection: psycopg.AsyncConnection, sample_ids: Sequence[int])
         made = {"documents": [await _entry(connection, samples) for samples in by_document.values()]}
     except LookupError:  # its document taken away meanwhile, its samples with it
         raise Refused("unknown_sample", "a sample went with its document") from None
-    closed(made)
+    try:
+        closed(made)
+    except ValueError:  # a stratum's name longer than a leaf, say
+        raise Refused("report_not_closed", "a key or leaf is no count, rate or code") from None
     return made
 
 

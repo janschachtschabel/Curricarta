@@ -67,6 +67,15 @@ FROM gold_judgement j JOIN gold_item i ON i.id = j.item_id
 WHERE i.sample_id = %s
 ORDER BY j.item_id, j.judged_at DESC, j.judged_by DESC
 """
+# The accounts among the judgements the report counts: each item's latest
+_JUDGES = """
+SELECT count(DISTINCT judged_by) FROM (
+    SELECT DISTINCT ON (j.item_id) j.judged_by
+    FROM gold_judgement j JOIN gold_item i ON i.id = j.item_id
+    WHERE i.sample_id = %s
+    ORDER BY j.item_id, j.judged_at DESC, j.judged_by DESC
+) latest
+"""
 
 
 @dataclass(frozen=True)
@@ -242,3 +251,10 @@ async def judgements_of(connection: psycopg.AsyncConnection, sample_id: int) -> 
         )
         for row in rows
     }
+
+
+async def judges_of(connection: psycopg.AsyncConnection, sample_id: int) -> int:
+    """How many accounts gave the judgements read for the sample (judgements_of): two mean a mixed figure."""
+    cursor = await connection.execute(_JUDGES, (sample_id,))
+    [(found,)] = await cursor.fetchall()
+    return int(found)

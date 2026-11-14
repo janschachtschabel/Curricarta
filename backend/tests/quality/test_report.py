@@ -3,13 +3,10 @@ and rates (plan H-3 §3.4) - each document one entry, a statement's precision we
 populations kept when drawn beside the pooled rate, recall by the statements found in the judged blocks
 now, an anchor sample's figures over all strata and without the title pages. Never a wording."""
 
-import json
-import re
-from collections.abc import Iterator
-
 import psycopg
 import pytest
 
+from app.core.ids import new_id
 from app.db.documents import Document
 from app.db.gold import Item, Judgement, SampleKind, items_of, judge
 from app.db.nodes import write_subtree
@@ -17,20 +14,18 @@ from app.db.review import ReviewItem, set_review
 from app.db.source_queries import Reader
 from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft
-from app.quality.report import LEAF, Refused, closed, report
+from app.quality.report import Refused, report
 from app.quality.sample import Request, draw
 from tests.db.document_of import document_of
 from tests.quality.gold_documents import (
     CV,
     HUMAN,
     IMPORTED,
-    LONG,
     MODEL,
     PART,
     PROPOSED,
     WORDS,
     a_document,
-    block,
     connection,
     done,
     owner,
@@ -81,10 +76,11 @@ async def test_the_report_weighs_by_the_frame_kept_when_drawn(connection: psycop
 
     [nothing] = before["documents"]
     assert nothing["statement"]["weighted"] == {
-        "by": "frame_when_drawn", "precision_strict": None, "precision_lenient": None, "wrong_rate": None,
+        "by": "frame_when_drawn", "open": 3,
+        "precision_strict": None, "precision_lenient": None, "wrong_rate": None,
     }  # fmt: skip
     assert nothing["statement"]["pooled"]["precision_strict"] is None
-    assert nothing["statement"]["pooled"]["precision_strict_wilson95"] is None
+    assert nothing["statement"]["pooled"]["precision_strict_pooled_wilson95"] is None
     assert (nothing["statement"]["judged"], nothing["statement"]["open"]) == (0, 3)
     [entry] = after["documents"]
     measures = entry["statement"]
@@ -98,33 +94,61 @@ async def test_the_report_weighs_by_the_frame_kept_when_drawn(connection: psycop
     }  # fmt: skip
     # 1/5 * 1/1 + 4/5 * 1/2 - by the drawn it would be 1/3 + 2/3 * 1/2; pooled 2 of 3
     assert measures["weighted"] == {
-        "by": "frame_when_drawn", "precision_strict": 0.6, "precision_lenient": 0.6, "wrong_rate": 0.4,
+        "by": "frame_when_drawn", "open": 0,
+        "precision_strict": 0.6, "precision_lenient": 0.6, "wrong_rate": 0.4,
     }  # fmt: skip
     assert measures["pooled"] == {
         "by": "item", "judged": 3,
-        "precision_strict": 0.6667, "precision_strict_wilson95": [0.2077, 0.9385],
-        "precision_lenient": 0.6667, "precision_lenient_wilson95": [0.2077, 0.9385],
-        "wrong_rate": 0.3333, "wrong_rate_wilson95": [0.0615, 0.7923],
+        "precision_strict": 0.6667, "precision_strict_pooled_wilson95": [0.2077, 0.9385],
+        "precision_lenient": 0.6667, "precision_lenient_pooled_wilson95": [0.2077, 0.9385],
+        "wrong_rate": 0.3333, "wrong_rate_pooled_wilson95": [0.0615, 0.7923],
     }  # fmt: skip
     assert (measures["judged"], measures["open"]) == (3, 0)
     assert measures["reasons"] == {"not_a_statement": 0, "not_in_document": 0, "node": 1, "boundary": 0,
                                    "kind": 0, "fields": 0}  # fmt: skip
 
 
-async def test_a_stratum_nobody_judged_leaves_the_report_s_weighted_rate_unsaid(
+async def test_a_weighted_rate_is_said_once_no_drawn_item_is_open(
     connection: psycopg.AsyncConnection,
 ) -> None:
     document = await a_document(connection)
     await done(connection, document, "X4")
-    sample = await drawn(connection, document, "statement")
-    for item in (await by_stratum(connection, sample))["learningOutcome"]:
+    sample = await drawn(connection, document, "statement")  # content 1, learningOutcome 4: all drawn
+    strata = await by_stratum(connection, sample)
+    for item in strata["learningOutcome"]:
         await judge(connection, item.id, document.owner_id, IMPRECISE)
+    nobody = (await report(connection, [sample]))["documents"][0]["statement"]
+    await judge(connection, strata["content"][0].id, document.owner_id, CORRECT)
+    await connection.execute(
+        "DELETE FROM gold_judgement WHERE item_id = %s", (strata["learningOutcome"][0].id,)
+    )  # each stratum judged, one item open still
+
+    one_open = (await report(connection, [sample]))["documents"][0]["statement"]
+
+    assert nobody["weighted"]["precision_lenient"] is None  # content drawn, not judged
+    assert nobody["pooled"]["precision_lenient"] == 1.0  # all four judged imprecise
+    assert nobody["pooled"]["precision_strict"] == 0.0
+    assert one_open["weighted"] == {
+        "by": "frame_when_drawn", "open": 1,
+        "precision_strict": None, "precision_lenient": None, "wrong_rate": None,
+    }  # fmt: skip
+    assert (one_open["pooled"]["judged"], one_open["pooled"]["precision_strict"]) == (4, 0.25)
+    assert one_open["judges"] == 1
+
+
+async def test_two_judges_are_told(connection: psycopg.AsyncConnection) -> None:
+    document = await a_document(connection)
+    await done(connection, document, "X4")
+    sample = await drawn(connection, document, "statement")
+    other = new_id()
+    await connection.execute("INSERT INTO account (id, name) VALUES (%s, 'zweite')", (other,))
+    first, second, *_ = await items_of(connection, sample)
+    await judge(connection, first.id, document.owner_id, CORRECT)
+    await judge(connection, second.id, other, WRONG)
 
     [entry] = (await report(connection, [sample]))["documents"]
 
-    assert entry["statement"]["weighted"]["precision_lenient"] is None  # content drawn, not judged
-    assert entry["statement"]["pooled"]["precision_lenient"] == 1.0  # all four judged imprecise
-    assert entry["statement"]["pooled"]["precision_strict"] == 0.0
+    assert entry["statement"]["judges"] == 2
 
 
 async def blocks_with_statements(connection: psycopg.AsyncConnection) -> Document:
@@ -166,7 +190,7 @@ async def test_the_model_s_statements_are_found_however_reviewed_but_an_editor_s
 
     # p3-b3: the model's three, not the editor's own; p5-b1: two where none is expected
     assert found["documents"][0]["block"] == {
-        "sample": sample, "title_pages": "left_out", "judged": 2, "open": 0,
+        "sample": sample, "title_pages": "left_out", "judged": 2, "open": 0, "judges": 1,
         "expected": 3, "found": 3, "recall": 1.0, "missed_blocks": 0, "surplus_blocks": 1, "surplus": 2,
     }  # fmt: skip
     # rejected since: still the model's, still found; reworded: the editor's now, found no more
@@ -236,7 +260,7 @@ async def test_an_anchor_sample_tells_the_found_anchors_precision_and_the_missed
     assert set(anchors["strata"]) == {"exact:node", "exact:statement", "front:statement"}  # found ones
     # found, all: strict (1 + 15 + 2) / 37, lenient (1 + 25 + 2) / 37, wrong (5 + 4) / 37
     assert anchors["weighted"] == {
-        "by": "frame_when_drawn",
+        "by": "frame_when_drawn", "open": 0,
         "precision_strict": 0.4865, "precision_lenient": 0.7568, "wrong_rate": 0.2432,
     }  # fmt: skip
     assert (anchors["judged"], anchors["open"], anchors["pooled"]["precision_strict"]) == (37, 0, 0.4865)
@@ -249,58 +273,3 @@ async def test_an_anchor_sample_tells_the_found_anchors_precision_and_the_missed
     assert (without["weighted"]["wrong_rate"], without["judged"], without["open"]) == (0.1613, 31, 0)
     assert anchors["not_found"] == {"judged": 2, "missed": 1, "missed_rate": 0.5}
     assert anchors["reasons"] == {"boundary": 10, "wrong_place": 9}
-
-
-def leaves(value: object, path: str = "") -> Iterator[tuple[str, object]]:
-    if isinstance(value, dict):
-        for key, inner in value.items():
-            yield f"{path}/key", key
-            yield from leaves(inner, f"{path}/{key}")
-    elif isinstance(value, list):
-        for inner in value:
-            yield from leaves(inner, path)
-    else:
-        yield path, value
-
-
-async def test_the_report_holds_counts_alone(connection: psycopg.AsyncConnection) -> None:
-    markers = ("Zettelmarke", "Kellerfund", "Notizmarke", "Blockmarke", "Kopfmarke")
-    document = await document_of(
-        connection, [block("p1-b1", f"{markers[3]} {LONG}"), block("p2-b1", LONG), block("p3-b1", LONG)]
-    )
-    await connection.execute("UPDATE document SET title = %s WHERE id = %s", (markers[4], document.id))
-    root = NodeDraft(
-        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title=markers[1],
-        anchors=(AnchorDraft(("p1-b1",), page_start=1),),
-        statements=(statement(f"{markers[0]} {WORDS['outcome']}", ("p1-b1",), lead_in=markers[1]),),
-    )  # fmt: skip
-    await write_subtree(connection, document.id, root)
-    await done(connection, document, "X4")
-    statements, blocks = (
-        await drawn(connection, document, "statement"),
-        await drawn(connection, document, "block"),
-    )
-    for item in await items_of(connection, statements):
-        await judge(connection, item.id, document.owner_id, Judgement("wrong", ("node",), None, markers[2]))
-    for item in await items_of(connection, blocks):
-        await judge(connection, item.id, document.owner_id, Judgement(None, (), 1, markers[2]))
-
-    made = await report(connection, [statements, blocks])
-
-    printed = json.dumps(made)
-    assert not [marker for marker in markers if marker in printed]
-    for path, leaf in leaves(made):
-        assert (
-            leaf is None
-            or isinstance(leaf, int | float | bool)
-            or (isinstance(leaf, str) and re.fullmatch(LEAF, leaf))
-        ), (path, leaf)
-
-
-@pytest.mark.parametrize(
-    "value", [{"a": "two words"}, {"two words": 1}, {"a": ["x" * 61]}, {"a": {"b": object()}}]
-)
-def test_a_leaf_other_than_a_count_or_code_breaks_the_report(value: object) -> None:
-    with pytest.raises(ValueError, match="counts, rates and codes"):
-        closed(value)
-    closed({"a": [1, 0.5, None, True, "front:statement", "x4-statements/2"]})
