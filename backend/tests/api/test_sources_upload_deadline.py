@@ -8,6 +8,7 @@ on a copy of the app's settings.
 """
 
 import asyncio
+import errno
 import io
 import json
 import re
@@ -21,6 +22,7 @@ from uuid import UUID
 import pytest
 from fastapi.testclient import TestClient
 from starlette import formparsers
+from starlette.datastructures import UploadFile
 from starlette.types import Message
 
 from app.api import sources
@@ -187,6 +189,28 @@ def test_the_server_ends_the_connection_of_a_refused_upload(
 
     assert (status.split(b" ")[1], body["code"]) == (b"408", "upload_too_slow")
     assert closed
+
+
+def test_a_timeout_of_the_server_s_own_is_no_slow_upload(
+    one_slot: tuple[TestClient, asyncio.Semaphore],
+    owner: tuple[UUID, dict[str, str]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # a spool write to a /tmp that stalls fails with ETIMEDOUT, which Python raises as TimeoutError
+    stalled = OSError(errno.ETIMEDOUT, "the spool's disk did not answer")
+    assert isinstance(stalled, TimeoutError)
+
+    async def failing(self: UploadFile, data: bytes) -> None:
+        raise stalled
+
+    monkeypatch.setattr(UploadFile, "write", failing)
+
+    async def receive() -> Message:
+        return {"type": "http.request", "body": HEAD + PDF + TAIL, "more_body": False}
+
+    answered = drive(one_slot[0], owner[1], receive, cancel=None)
+
+    assert answered[0]["status"] == 500
 
 
 def test_an_upload_that_arrives_in_time_is_not_touched_by_the_deadline(
