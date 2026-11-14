@@ -14,31 +14,27 @@ from pydantic_ai.models.function import AgentInfo
 
 from app.jobs.outcome import PermanentError
 from app.pipeline.run import extract_document
-from tests.pipeline.provider_support import asks, refusal, usage_rows, waited
+from tests.pipeline.provider_support import asks, provider_failed, refusal, usage_rows, waited
 from tests.pipeline.test_run import Model, a_document, a_job, context_of, rows, setup
 from tests.pipeline.test_x4_statements import FIELDS, units_done, with_concurrency, x4_runs
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["setup", "waited"]  # the fixtures, shared with test_run and provider_support
+__all__ = ["provider_failed", "setup", "waited"]  # the fixtures, shared with test_run and provider_support
 
 
 async def test_a_provider_s_error_in_one_unit_lets_those_asking_beside_it_finish_and_begins_no_other(
-    setup: Any, tmp_path: Path, database_url: str, waited: list[float]
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float], provider_failed: asyncio.Event
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
     job = await a_job(connection, document.id, document.owner_id)
     model = Model()
-    e2_asked = []
 
     async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         if asks(messages, "E2"):
-            e2_asked.append(1)
             raise refusal(500)
         if asks(messages, "E3"):
-            while len(e2_asked) < 3:  # E2 given up on while E3 is asked
-                await asyncio.sleep(0.01)
-            await asyncio.sleep(0.3)  # and its place at the gate taken by E4 meanwhile
+            await provider_failed.wait()  # answered once E2 is given up on, never before
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)

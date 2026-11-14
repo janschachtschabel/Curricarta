@@ -24,7 +24,7 @@ from app.pipeline.run import extract_document
 from app.pipeline.x5_stage import run_x5
 from app.usage.admission import MODEL_JOB_KINDS
 from app.usage.ledger import usage_of
-from tests.pipeline.provider_support import asks, refusal, usage_rows, waited
+from tests.pipeline.provider_support import asks, provider_failed, refusal, usage_rows, waited
 from tests.pipeline.test_run import (
     BODY,
     CV,
@@ -43,7 +43,7 @@ from tests.pipeline.test_x4_statements import FIELDS, cutting, with_concurrency
 from tests.support import make_settings
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["setup", "waited"]  # the fixtures, shared with test_run and provider_support
+__all__ = ["provider_failed", "setup", "waited"]  # the fixtures, shared with test_run and provider_support
 
 
 class Quoting(Model):
@@ -600,22 +600,18 @@ async def failures(connection: Any, document: Any) -> list[tuple[Any, ...]]:
 
 
 async def test_a_provider_s_error_in_one_package_lets_the_others_finish(
-    setup: Any, tmp_path: Path, database_url: str, waited: list[float]
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float], provider_failed: asyncio.Event
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E2", "E3", "E4"))
     job = await a_repair(connection, document)
     fixer = Quoting()
-    e2_asked = []
 
     async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         if asks(messages, "E2"):
-            e2_asked.append(1)
             raise refusal(503)
         if asks(messages, "E3"):
-            while len(e2_asked) < 3:  # E2 given up on while E3 is asked
-                await asyncio.sleep(0.01)
-            await asyncio.sleep(0.3)  # and its place at the gate taken by E4 meanwhile
+            await provider_failed.wait()  # answered once E2 is given up on, never before
         return fixer(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
