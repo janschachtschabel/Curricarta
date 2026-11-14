@@ -575,10 +575,14 @@ ungültig.
   annimmt; ein weiterer wartet bis zu 10 s und bekommt dann 503 `uploads_busy` mit `Retry-After`.
 - `UPLOAD_READ_TIMEOUT_S` (Standard 120, 5 bis 3600): so lange liest die API das Formular eines
   Uploads höchstens, während er einen dieser Plätze hält (das Warten auf den Platz zählt nicht
-  mit). Wer langsamer sendet, bekommt 408 `upload_too_slow`, die Verbindung wird geschlossen, und
-  die Oberfläche rät zu einer schnelleren Verbindung oder einer kleineren Datei. Die Frist ist
-  die zweite Linie hinter dem Rand, der Bodies puffern muss: Hinter ihm kommt der Body auf einmal
-  an, und sie greift nie (`docs/uebergabe/konfiguration.md`).
+  mit). Wer langsamer sendet, bekommt von der API 408 `upload_too_slow`, und sie schließt die
+  Verbindung. Wo der Browser diese Antwort zustellt, rät die Oberfläche zu einer schnelleren
+  Verbindung oder einer kleineren Datei; da der Server die Verbindung beendet, während der Browser
+  noch sendet, kann sie auch als Netzwerkfehler ankommen. Mit 120 s und `MAX_UPLOAD_MB` 50 braucht
+  die größte Datei rund 3,5 Mbit/s im Upload (50 MiB × 8 / 120 s = 3,495 Mbit/s, auf eine
+  Nachkommastelle gerundet). Die Frist ist die zweite Linie hinter dem Rand, der Bodies puffern
+  muss: Hinter ihm kommt der Body auf einmal an, und sie greift nie
+  (`docs/uebergabe/konfiguration.md`).
 - `FETCH_USER_AGENT`: so stellen sich URL-Import und Prüfjob den Servern vor. Vorn steht das
   Produktkürzel, unter dem robots.txt uns kennt (`Curricarta`), dahinter, wo die
   Betreiber zu erreichen sind – hier den eigenen Kontakt eintragen (öffentliche Seite oder

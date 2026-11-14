@@ -134,10 +134,14 @@ ein Test schlägt an, wenn sie veraltet.
   `UPLOAD_READ_TIMEOUT_S` lang (Standard 120 s, 5 bis 3600; das Warten auf den Platz zählt nicht
   mit). Hinter einem puffernden Rand kommt der Body auf einmal an, die Frist greift dann nie. Wer
   länger braucht, bekommt 408 `upload_too_slow`; die API gibt den Platz frei, behält nichts vom
-  Upload und schließt die Verbindung, statt den Rest des Bodies weiterzulesen. Die Oberfläche
-  sagt dann, die Datei sei zu langsam angekommen, und rät zu einer schnelleren Verbindung oder
-  einer kleineren Datei. Wo Nutzer große Dateien über langsame Leitungen hochladen und der Rand
-  nicht puffert, die Frist erhöhen.
+  Upload und schließt die Verbindung, statt den Rest des Bodies weiterzulesen. Wo der Browser
+  diese Antwort zustellt, sagt die Oberfläche, die Datei sei zu langsam angekommen, und rät zu
+  einer schnelleren Verbindung oder einer kleineren Datei. Weil der Server die Verbindung beendet,
+  während der Browser noch sendet, kann die Antwort auch verloren gehen; dann sieht der Nutzer
+  einen Netzwerkfehler. Mit den Standardwerten (120 s, `MAX_UPLOAD_MB` 50) braucht die größte
+  Datei hinter einem Rand, der Bodies durchreicht, rund 3,5 Mbit/s im Upload (50 MiB × 8 / 120 s =
+  3,495 Mbit/s, auf eine Nachkommastelle gerundet). Wo Nutzer große Dateien über langsamere
+  Leitungen hochladen und der Rand nicht puffert, die Frist erhöhen.
 - Konvertierung: Der Worker legt die Datei für die Dauer der Umwandlung in `/tmp` ab (bis
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel
