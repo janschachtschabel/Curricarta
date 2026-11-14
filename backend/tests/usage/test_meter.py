@@ -20,7 +20,7 @@ from app.db.migrate import migrate
 from app.jobs.queue import account_lane, enqueue
 from app.llm.calls import StageAgent, ask, build_agent
 from app.llm.metering import FULL, BudgetExhausted, Spent, Weights
-from app.usage.ledger import Charge, usage_of
+from app.usage.ledger import Charge, Reservation, usage_of
 from app.usage.meter import LedgerMeter
 from tests.llm.test_calls import SCHEMA, Ledger
 
@@ -181,3 +181,54 @@ async def test_workers_side_by_side_never_spend_more_than_the_limit(
     )
     reported = (reports.input_tokens, reports.cached_input_tokens, reports.output_tokens)
     assert await cursor.fetchone() == tuple(len(booked) * tokens for tokens in reported)  # raw as reported
+
+
+class Answering(LedgerMeter):
+    """The ledger's meter whose reservation is committed at once and answered only once ``answered``
+    is set, as a commit's answer on its way back."""
+
+    def __init__(self, pool: AsyncConnectionPool, charge: Charge) -> None:
+        super().__init__(pool, charge)
+        self.holding = asyncio.Event()
+        self.answered = asyncio.Event()
+
+    async def reserve(self, input_tokens: int, output_tokens: int) -> Reservation:
+        held = await super().reserve(input_tokens, output_tokens)
+        self.holding.set()
+        await self.answered.wait()
+        return held
+
+
+async def test_a_reservation_a_cancel_came_upon_is_handed_back_though_a_second_cancel_comes(
+    connection: psycopg.AsyncConnection, database_url: str
+) -> None:
+    account = await an_account(connection, token_limit=100_000)
+    charge = await a_charge(connection, account)
+    reports = Reports()
+
+    async with AsyncConnectionPool(database_url, min_size=1, max_size=2, open=False) as pool:
+        meter = Answering(pool, charge)
+        task = asyncio.create_task(ask(a_stage(reports), CONTENT, meter=meter))
+        await meter.holding.wait()
+        task.cancel()
+        await asyncio.sleep(0)  # the first cancel is taken: the call waits for the reservation
+        task.cancel()  # as the loop's teardown would
+        await asyncio.sleep(0)
+        meter.answered.set()
+        with pytest.raises(asyncio.CancelledError):
+            await task
+        for _ in range(200):  # the hand-back goes on in a task of its own
+            cursor = await connection.execute(
+                "SELECT count(*) FROM usage_reservation WHERE job_id = %s", (charge.job_id,)
+            )
+            if await cursor.fetchone() == (0,):
+                break
+            await asyncio.sleep(0.01)
+
+    assert reports.asked == 0
+    cursor = await connection.execute(
+        "SELECT count(*) FROM usage_reservation WHERE job_id = %s", (charge.job_id,)
+    )
+    assert await cursor.fetchone() == (0,)
+    cursor = await connection.execute("SELECT count(*) FROM llm_usage WHERE job_id = %s", (charge.job_id,))
+    assert await cursor.fetchone() == (0,)

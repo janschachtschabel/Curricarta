@@ -27,18 +27,29 @@ class OpenRequest:
 async def reserve(meter: Meter, input_tokens: int, output_tokens: int) -> Any:
     """The meter's reservation, made whole however a cancel comes: one that came while it was made -
     its row may stand, the commit's answer not yet come - is waited for and handed back unspent, as
-    no request went out; left standing, the job's end would book it as abandoned, an estimate."""
+    no request went out; left standing, the job's end would book it as abandoned, an estimate. The
+    hand-back runs in a task of its own, kept until it is done: a second cancel does not stop it."""
     reserving = asyncio.ensure_future(meter.reserve(input_tokens, output_tokens))
     try:
         return await asyncio.shield(reserving)
     except asyncio.CancelledError:
-        try:
-            reservation = await asyncio.shield(reserving)
-        except Exception:  # noqa: S110 - none was made: nothing to hand back, the cancel goes on
-            pass
-        else:
-            await asyncio.shield(meter.book(reservation, Spent()))
+        handing = asyncio.ensure_future(_hand_back(meter, reserving))
+        _HANDING_BACK.add(handing)
+        handing.add_done_callback(_HANDING_BACK.discard)
+        await asyncio.shield(handing)
         raise
+
+
+# the hand-backs under way: the loop keeps a task by a weak reference only
+_HANDING_BACK: set[asyncio.Future[None]] = set()
+
+
+async def _hand_back(meter: Meter, reserving: asyncio.Future[Any]) -> None:
+    try:
+        reservation = await reserving
+    except Exception:  # none was made: nothing to hand back
+        return
+    await meter.book(reservation, Spent())
 
 
 async def book_cut_off(meter: Meter, open_: OpenRequest, output_tokens: int, *, sent: bool) -> None:
