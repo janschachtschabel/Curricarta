@@ -238,3 +238,47 @@ describe("a text selection that ends on the scrim", () => {
     wrapper.unmount();
   });
 });
+
+// Trap, Escape and the way back worked, but the page behind stayed reachable by a screen reader's
+// browse mode and scrolled under the scrim (UI review, NIT)
+describe("the page behind an open frame", () => {
+  function page() {
+    document.body.innerHTML = '<header id="shell"><a href="/">Start</a></header><main id="page"><p id="beside">Text</p><div id="host"></div></main>';
+    const wrapper = mount(ModalShell, {
+      props: { labelledby: "t" },
+      slots: { default: '<h2 id="t">Titel</h2><button type="button">OK</button>' },
+      attachTo: document.getElementById("host") as HTMLElement,
+    });
+    mounted.push(wrapper);
+    return wrapper;
+  }
+
+  it("is inert and does not scroll while it is open, and is given back as it was", () => {
+    document.body.style.overflow = "";
+    const wrapper = page();
+
+    expect(document.getElementById("shell")?.hasAttribute("inert")).toBe(true);
+    expect(document.getElementById("beside")?.hasAttribute("inert")).toBe(true);
+    expect(wrapper.get("[role=dialog]").element.closest("[inert]")).toBeNull();
+    expect(document.body.style.overflow).toBe("hidden");
+
+    wrapper.unmount();
+    mounted.pop();
+
+    expect(document.querySelectorAll("[inert]")).toHaveLength(0);
+    expect(document.body.style.overflow).toBe("");
+  });
+
+  it("leaves inert what was inert before it opened", () => {
+    document.body.innerHTML = '<aside id="away" inert></aside><div id="host"></div>';
+    const wrapper = mount(ModalShell, {
+      props: { labelledby: "t" },
+      slots: { default: '<h2 id="t">Titel</h2>' },
+      attachTo: document.getElementById("host") as HTMLElement,
+    });
+
+    wrapper.unmount();
+
+    expect(document.getElementById("away")?.hasAttribute("inert")).toBe(true);
+  });
+});

@@ -30,13 +30,40 @@ defineProps<{
 const emit = defineEmits<{ close: [] }>();
 
 const dialog = ref<HTMLElement | null>(null);
+const backdrop = ref<HTMLElement | null>(null);
 const frame = Symbol("modal");
 let previouslyFocused: HTMLElement | null = null;
+
+// The page behind the frame is inert while it is open - a screen reader's browse mode does not wander out of the
+// dialog - and does not scroll under the scrim. Inert are the siblings of the frame and of each element it sits in,
+// up to the body: the frame renders where its opener is, not at the body's end. What was inert before stays so.
+const madeInert: Element[] = [];
+let overflowBefore = "";
+
+function quietPage(): void {
+  for (let inside: Element | null = backdrop.value; inside && inside !== document.body; inside = inside.parentElement) {
+    for (const sibling of inside.parentElement?.children ?? []) {
+      if (sibling === inside || sibling.hasAttribute("inert")) continue;
+      sibling.setAttribute("inert", "");
+      madeInert.push(sibling);
+    }
+  }
+  if (openFrames.length === 1) {
+    overflowBefore = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+  }
+}
+
+function wakePage(): void {
+  for (const element of madeInert.splice(0)) element.removeAttribute("inert");
+  if (openFrames.length === 0) document.body.style.overflow = overflowBefore;
+}
 
 onMounted(() => {
   previouslyFocused = document.activeElement as HTMLElement | null;
   openFrames.push(frame);
   document.addEventListener("keydown", onEscape);
+  quietPage();
 });
 
 onBeforeUnmount(() => {
@@ -45,6 +72,8 @@ onBeforeUnmount(() => {
   // splicing at -1 would take another frame off instead.
   const at = openFrames.indexOf(frame);
   if (at >= 0) openFrames.splice(at, 1);
+  // before the keyboard goes back: an inert opener takes no focus
+  wakePage();
   // The opener may be gone -- the row it sat in can be what was just removed.
   if (previouslyFocused?.isConnected) previouslyFocused.focus();
 });
@@ -93,7 +122,7 @@ defineExpose({ dialog });
 </script>
 
 <template>
-  <div class="backdrop" @mousedown="onScrimPress" @mouseup="onScrimRelease" @click.self="onScrimClick">
+  <div ref="backdrop" class="backdrop" @mousedown="onScrimPress" @mouseup="onScrimRelease" @click.self="onScrimClick">
     <div
       ref="dialog"
       class="dialog"
