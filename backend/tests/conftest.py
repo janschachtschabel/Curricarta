@@ -118,6 +118,21 @@ def empty_database_url() -> Iterator[str]:
 
 
 @pytest.fixture
+def in_process_shacl(monkeypatch: pytest.MonkeyPatch) -> None:
+    """The SHACL check without its child at the names X5 (and with it the repair and the MEM import) and
+    the MEM export call, the model and shapes read once per session (tests/shacl_in_process.py): for a
+    test of what they do with its results. Each caller keeps a test of its own on the real child."""
+    # imported here: every other test session would load the exporter, X5 and rdflib's SPARQL for nothing
+    from app.exports import mem_export
+    from app.pipeline import shacl_child, x5_stage
+    from tests.shacl_in_process import parsed_once, shacl_in_process
+
+    monkeypatch.setattr(shacl_child, "_parsed", parsed_once)
+    monkeypatch.setattr(x5_stage, "shacl_check", shacl_in_process)
+    monkeypatch.setattr(mem_export, "shacl_check", shacl_in_process)
+
+
+@pytest.fixture
 def anyio_backend() -> tuple[str, dict[str, object]]:
     """Async tests run on asyncio's selector loop: psycopg's async mode refuses Windows' proactor."""
     return "asyncio", {"loop_factory": asyncio.SelectorEventLoop}
