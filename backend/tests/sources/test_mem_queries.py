@@ -145,7 +145,7 @@ def test_the_count_query_names_only_checked_iris() -> None:
 def test_the_count_query_counts_the_parts_by_the_shape_of_their_labels_and_typed_literals() -> None:
     turtle = f"""
     <{PLAN}> obo:BFO_0000051 <https://w3id.org/p/a> , <https://w3id.org/p/b> , <https://w3id.org/p/c> ,
-        <https://w3id.org/p/d> .
+        <https://w3id.org/p/d> , <https://w3id.org/p/e> .
     <https://w3id.org/p/a> rdfs:label "Deutsch"@de , "Zweit"@de , "English"@en ;
         lp:LP_0030057 "3"^^<http://www.w3.org/2001/XMLSchema#integer> ;
         lp:LP_0000026 "5"^^<http://www.w3.org/2001/XMLSchema#integer> .
@@ -154,6 +154,7 @@ def test_the_count_query_counts_the_parts_by_the_shape_of_their_labels_and_typed
     <https://w3id.org/p/c> skos:prefLabel "preferred"@de .
     <https://w3id.org/p/d> rdfs:label "English"@en ; skos:prefLabel "preferred"@de ;
         lp:LP_0000024 [ a lp:LP_0000509 ; lp:LP_0000344 "3"^^<http://www.w3.org/2001/XMLSchema#integer> ] .
+    <https://w3id.org/p/e> rdfs:label "English"@en ; skos:prefLabel "preferred"@en .  # none the closure reads
     """
 
     rows = answered(label_shape_count(SPARQL, RP, PLAN), turtle)
@@ -161,11 +162,12 @@ def test_the_count_query_counts_the_parts_by_the_shape_of_their_labels_and_typed
     assert {row["measure"]: int(row["count"]) for row in rows} == {
         "label_de": 1,
         "label_untagged": 1,
-        "label_other_language": 2,
+        "label_other_language": 3,  # beside a German label too: the shapes overlap
         "pref_label_only": 1,
         "typed_number": 1,
         "typed_hours": 1,
         "typed_grade": 1,
+        "no_label": 1,  # the one exclusive measure: titled by its IRI's tail
     }
 
 

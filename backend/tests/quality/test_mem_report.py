@@ -258,7 +258,7 @@ async def test_with_the_switch_the_endpoint_counts_the_label_shapes(
     assert len(asked) == 1
     assert report["endpoint"] == {
         "label_de": 7, "label_untagged": 0, "label_other_language": 0, "pref_label_only": 0,
-        "typed_number": 0, "typed_hours": 2, "typed_grade": 0,
+        "typed_number": 0, "typed_hours": 2, "typed_grade": 0, "no_label": 0,
     }  # fmt: skip
 
 

@@ -31,6 +31,16 @@ LABELS = (
 )
 
 
+def _label_read(node: str) -> str:
+    """The label the import reads of ``node``, bound as ?l: German, else untagged, else the preferred label
+    in either (Berlin names its parts with skos:prefLabel alone); unbound where it has none of these."""
+    return (
+        f"{LABELS.format(node=node)}"
+        f"  OPTIONAL {{ {node} skos:prefLabel ?pl . FILTER({GERMAN.format(var='?pl')}) }}\n"
+        "  BIND(COALESCE(?de, ?plain, ?pl) AS ?l)\n"
+    )
+
+
 def plan_count(sparql: MemSparql, graph: str, plan: str) -> str:
     """The number of the plan's types among a Land's Lehrplan and the KMK's Bildungsstandard - 0 once the
     graph holds the plan no more: the import asks before it reads a plan the catalogue named, which may
@@ -53,7 +63,6 @@ def closure_page(sparql: MemSparql, graph: str, plan: str, limit: int, offset: i
     """One page of the plan's parts, a row each: label (German, else untagged, else the preferred label),
     classes, description, grades, number, position, hours, the Land's page, and its ancestors among
     has-part's subjects."""
-    pref_label = GERMAN.format(var="?pl")
     return (
         f"{PREFIXES}"
         "SELECT ?n (MIN(?l) AS ?label)\n"
@@ -67,10 +76,7 @@ def closure_page(sparql: MemSparql, graph: str, plan: str, limit: int, offset: i
         "WHERE {\n"
         f"  {{ SELECT DISTINCT ?n WHERE {{ {mem_iri(plan)} obo:BFO_0000051+ ?n . }}"
         f" ORDER BY ?n LIMIT {int(limit)} OFFSET {int(offset)} }}\n"
-        # Berlin names its parts with skos:prefLabel alone
-        f"{LABELS.format(node='?n')}"
-        f"  OPTIONAL {{ ?n skos:prefLabel ?pl . FILTER({pref_label}) }}\n"
-        "  BIND(COALESCE(?de, ?plain, ?pl) AS ?l)\n"
+        f"{_label_read('?n')}"
         f'  OPTIONAL {{ ?n rdf:type ?t . FILTER(STRSTARTS(STR(?t), "{LP}")) }}\n'
         # the full text before a label: where a description has both, its label is a short preview
         "  OPTIONAL { ?n lp:LP_0030051 ?b .\n"
@@ -93,6 +99,7 @@ _TYPED = (
     '  FILTER(isLiteral(?v) && lang(?v) = "" && datatype(?v) != <http://www.w3.org/2001/XMLSchema#string>)\n'
 )
 # One branch a measure: the parts it holds for, bound as ?x
+_PLAN = "{plan}"  # where a branch names the plan
 LABEL_SHAPES = {
     "label_de": '?n rdfs:label ?l . FILTER(lang(?l) = "de")',
     "label_untagged": '?n rdfs:label ?l . FILTER(isLiteral(?l) && lang(?l) = "")',
@@ -101,6 +108,9 @@ LABEL_SHAPES = {
     "typed_number": f"?n lp:LP_0030057 ?v .\n{_TYPED}",
     "typed_hours": f"?n lp:LP_0000024 ?zs . ?zs a lp:LP_0000508 ; lp:LP_0000344 ?v .\n{_TYPED}",
     "typed_grade": f"?n lp:LP_0000026 ?v .\n{_TYPED}",
+    # exclusive: no label the closure's query reads (closure_page), so the part is titled by its IRI's tail;
+    # its own walk binds ?n, which a branch of OPTIONALs alone would leave unbound
+    "no_label": f"{_PLAN} obo:BFO_0000051+ ?n .\n{_label_read('?n')}  FILTER(!BOUND(?l))",
 }
 
 
@@ -108,9 +118,13 @@ def label_shape_count(sparql: MemSparql, graph: str, plan: str) -> str:
     """How many of the plan's parts carry each shape of label the closure's query reads (plan H-3, A10):
     an ``rdfs:label`` tagged ``@de``, one untagged, one in another language, a ``skos:prefLabel`` and no
     ``rdfs:label``; and how many state their number, hours or grades as a literal of a datatype - a row a
-    measure, a measure no part holds for absent. Asked only on the operator's word, never by an import."""
+    measure, a measure no part holds for absent. The label shapes overlap and do not add up: a part with a
+    German and an English label counts under both, ``pref_label_only`` takes a preferred label in any
+    language. ``no_label`` alone is exclusive: the parts the closure's query reads no label of
+    (``closure_page``, by the same patterns), which the import titles by their IRI's tail. Asked only on the
+    operator's word, never by an import."""
     branches = "\n  UNION\n".join(
-        f'  {{ {pattern}\n    BIND("{measure}" AS ?measure) BIND(?n AS ?x) }}'
+        f'  {{ {pattern.replace(_PLAN, mem_iri(plan))}\n    BIND("{measure}" AS ?measure) BIND(?n AS ?x) }}'
         for measure, pattern in LABEL_SHAPES.items()
     )
     return (
@@ -137,7 +151,6 @@ def reference_page(sparql: MemSparql, graph: str, plan: str, limit: int, offset:
     """One page of the references the plan's parts hold (``hat Verweis``): the holder, the reference,
     its label (as a part's), its classes, and everything it points at (``verweist auf``), joined as
     ``target``."""
-    pref_label = GERMAN.format(var="?pl")
     return (
         f"{PREFIXES}"
         "SELECT ?x ?v (MIN(?l) AS ?label)\n"
@@ -148,9 +161,7 @@ def reference_page(sparql: MemSparql, graph: str, plan: str, limit: int, offset:
         "  { SELECT DISTINCT ?x ?v WHERE {\n"
         f"      {{ SELECT DISTINCT ?x WHERE {{ {mem_iri(plan)} obo:BFO_0000051+ ?x . }} }}\n"
         f"      ?x lp:LP_0030071 ?v . }} ORDER BY ?x ?v LIMIT {int(limit)} OFFSET {int(offset)} }}\n"
-        f"{LABELS.format(node='?v')}"
-        f"  OPTIONAL {{ ?v skos:prefLabel ?pl . FILTER({pref_label}) }}\n"
-        "  BIND(COALESCE(?de, ?plain, ?pl) AS ?l)\n"
+        f"{_label_read('?v')}"
         f'  OPTIONAL {{ ?v rdf:type ?t . FILTER(STRSTARTS(STR(?t), "{LP}")) }}\n'
         "  OPTIONAL { ?v lp:LP_0030072 ?to . }\n"
         "}\n"
