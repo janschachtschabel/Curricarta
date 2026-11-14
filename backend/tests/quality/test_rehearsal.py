@@ -29,7 +29,7 @@ from tests.jobs.test_mem_import import a_job as an_import_job
 from tests.pipeline.test_run import Model, a_job, a_statement, block, context_of, rows, setup
 from tests.quality.gold_documents import owner
 from tests.quality.handout import COMMANDS
-from tests.quality.handout_runner import Operator
+from tests.quality.handout_runner import Operator, told
 from tests.sources.test_mem_fixtures import mem_synth
 from tests.support import make_settings
 
@@ -189,6 +189,8 @@ async def test_the_acceptance_runs_end_to_end_with_a_model_standing_in(
     assert "endpoint" not in mem_plain and mem_plain["hits"]["all"]["rows"]["searched"] == 9
     assert (mem_switch.returncode, mem_switch.stdout) == (1, b"")
     assert b"mem_refused" in mem_switch.stderr  # the switch asks the endpoint; without it nothing did
+    # and why: the pinned transport refused the address before it connected - no answer, nothing sent
+    assert b"resolves to the non-public address 127.0.0.1" in mem_switch.stderr, told(mem_switch.stderr)
 
     # 5. the sheets, judged and read in, and the reports
     samples = {"Aussagen-Stichprobe": str(statements["sample"]), "Block-Stichprobe": str(blocks["sample"])}
