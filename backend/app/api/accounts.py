@@ -132,7 +132,9 @@ async def get_account(account_id: UUID, request: Request, admin: Admin) -> Accou
 
 
 @router.get(
-    "/accounts/{account_id}/keys", summary="An account's API tokens, without them", responses=NO_ACCOUNT
+    "/accounts/{account_id}/keys",
+    summary="An account's API keys: label and dates, never a token",
+    responses=NO_ACCOUNT,
 )
 async def list_keys(account_id: UUID, request: Request, admin: Admin) -> list[KeyEntry]:
     async with request.app.state.pool.connection() as connection:
