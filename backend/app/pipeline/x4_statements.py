@@ -14,8 +14,9 @@ request refused for good as ``model_refused``, any other for the job's next atte
 answer never took its form, or answered for another unit, stays open while the others go on; the
 run then ends as failed (``model_unanswered``) and the next job asks it again. So does a unit whose
 answer was cut at the output cap, but the run ends as ``answer_cut`` - before ``model_unanswered`` -
-and its finding (``x4.answer_cut``) names the cap: no job asks the unit again under a cap no higher,
-whose answer would be cut and paid for again, and each ends as ``answer_cut``. Any other error - a
+and its finding (``x4.answer_cut``), written as soon as it is cut, names the cap: no job asks the
+unit again under a cap no higher, whose answer would be cut and paid for again, and each ends as
+``answer_cut``; read under a higher cap, the unit takes its finding along. Any other error - a
 lease lost, the database - ends every unit still asking; what was written stays. The run ends done
 once every unit is, under the lease and the document's lock: a run of X4 done meanwhile passes it
 over. Progress is reported as each unit is written.
@@ -29,7 +30,7 @@ import psycopg
 
 from app.conversion.base import Block
 from app.db.documents import Document
-from app.db.findings import Finding, add_findings, drop_rule_findings, rule_details
+from app.db.findings import Finding, add_findings, drop_findings_naming, drop_rule_findings, rule_details
 from app.db.runs import RunStart, done_stages, finish_run, lock_for_stage, stage_result, start_run
 from app.db.units import UnitTaken, done_units
 from app.jobs.context import JobContext
@@ -148,7 +149,7 @@ class _Units:
             self.broken = self.broken or error
             return
         except AnswerCut:
-            self.cut.append(unit.key)
+            await self._cut(unit)
             return
         except (Unanswered, WrongUnit):
             self.unanswered.append(unit.key)
@@ -165,27 +166,41 @@ class _Units:
                 )
             except UnitTaken:  # by a job beside this one: done all the same
                 self.taken += 1
+            async with connection.transaction():  # read now: an earlier cut is no longer true of it
+                await hold_lease(connection, job)
+                await drop_findings_naming(connection, document.id, "x4.answer_cut", unit.key)
             self.done += 1
             await report(connection, job, "extract_statements", done=self.done, total=self.total)
+
+    async def _cut(self, unit: WorkPackage) -> None:
+        """Name the unit whose answer was cut, with the cap, at once and on its own: a run that ends
+        before its end - a neighbour's error, a cancel, a worker stopped - must not leave it to be
+        asked and paid for again under the same cap."""
+        context, job, document = self.asking.context, self.asking.job, self.asking.document
+        message = "a unit whose answer was cut at the output cap: not read"
+        details = {"units": [unit.key], "cap": self.cap}
+        async with context.pool.connection() as connection, connection.transaction():
+            await hold_lease(connection, job)
+            await add_findings(
+                connection,
+                document.id,
+                self.asking.run_id,
+                [Finding("x4.answer_cut", "warning", document.id, message, None, details)],
+            )
+        self.cut.append(unit.key)
 
     async def _end(self) -> dict[str, Any]:
         context, job, document, run_id = (
             self.asking.context, self.asking.job, self.asking.document, self.asking.run_id,
         )  # fmt: skip
         keys = sorted(self.unanswered, key=_by_number)
-        cut = sorted(self.cut, key=_by_number)
-        findings = []
-        if keys:
+        cut = sorted(self.cut, key=_by_number)  # each named as it was cut (``_cut``)
+        if keys:  # committed before the run ends: it goes with the run, however that ends
             message = "units the model's answers never took the form of, or answered for another"
-            findings.append(Finding("x4.unanswered", "warning", document.id, message, None, {"units": keys}))
-        if cut:  # named once, by the run that met the cap: a run that held them back adds nothing
-            message = "units whose answer was cut at the output cap: not read"
-            details = {"units": cut, "cap": self.cap}
-            findings.append(Finding("x4.answer_cut", "warning", document.id, message, None, details))
-        if findings:  # committed before the run ends: they go with the run, however that ends
+            finding = Finding("x4.unanswered", "warning", document.id, message, None, {"units": keys})
             async with context.pool.connection() as connection, connection.transaction():
                 await hold_lease(connection, job)
-                await add_findings(connection, document.id, run_id, findings)
+                await add_findings(connection, document.id, run_id, [finding])
         if self.spent is not None:
             raise self.spent
         if self.broken is not None:

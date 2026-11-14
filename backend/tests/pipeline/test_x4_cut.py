@@ -12,10 +12,12 @@ from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai.usage import RequestUsage
 
 from app.jobs.outcome import PermanentError
+from app.pipeline import x4_statements
 from app.pipeline.run import extract_document
+from tests.pipeline.provider_support import usage_rows
 from tests.pipeline.test_run import Model, a_document, a_job, context_of, rows, setup
 from tests.pipeline.test_x3_frame import prompt_of
-from tests.pipeline.test_x4_statements import FIELDS, units_done, x4_runs
+from tests.pipeline.test_x4_statements import FIELDS, units_done, with_concurrency, x4_runs
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, shared with test_run
@@ -124,3 +126,57 @@ async def test_a_new_job_under_a_higher_cap_asks_the_cut_unit_and_the_finding_go
     assert [key for key, _, _ in await units_done(connection, document)] == ["E2", "E3", "E4"]
     assert [outcome for outcome, _ in await x4_runs(connection, document)] == ["failed", "done"]
     assert await x4_findings(connection, document) == []
+
+
+async def test_a_cut_is_named_at_once_and_no_next_attempt_pays_for_it_though_a_neighbour_s_write_broke(
+    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    model = Model()
+    write = x4_statements.write_unit
+
+    async def broken(connection: Any, job: Any, document: Any, unit: Any, *args: Any, **kwargs: Any) -> Any:
+        if unit.key == "E4":  # one at a time: after E3 was cut
+            raise RuntimeError("the write was refused (invented)")
+        return await write(connection, job, document, unit, *args, **kwargs)
+
+    monkeypatch.setattr(x4_statements, "write_unit", broken)
+    context = with_concurrency(
+        context_of(pool, tmp_path, cutting(model, "E3"), database_url), database_url, 1
+    )
+    with pytest.raises(RuntimeError):  # no answer_cut: the run passed its end by
+        await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    assert await x4_findings(connection, document) == [
+        ("x4.answer_cut", "warning", {"units": ["E3"], "cap": 4_000})
+    ]
+    monkeypatch.setattr(x4_statements, "write_unit", write)
+    again = await a_job(connection, document.id, document.owner_id)
+
+    with pytest.raises(PermanentError) as ended:
+        await extract_document(context, again)
+
+    assert ended.value.code == "answer_cut"
+    assert sorted(model.units) == ["E2", "E3", "E4", "E4"]  # E3 not asked again
+    assert await usage_rows(connection, again) == [(1, 1_100, False), ("held", 0)]  # E4's alone
+
+
+async def test_a_cut_unit_read_under_a_higher_cap_takes_its_finding_along_before_x4_is_done(
+    setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    model = Model(units={"E4": {"unitKey": "E9", "statements": [], "checkedAbsent": []}})
+    context = context_of(pool, tmp_path, cutting(model, "E3"), database_url)
+    with pytest.raises(PermanentError):
+        await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    higher = FunctionModel(model, settings={"max_tokens": 8_000})
+
+    with pytest.raises(PermanentError) as ended:  # E4 out of form again
+        await extract_document(
+            replace(context, model=lambda: higher), await a_job(connection, document.id, document.owner_id)
+        )
+
+    assert ended.value.code == "model_unanswered"
+    assert [key for key, _, _ in await units_done(connection, document)] == ["E2", "E3"]
+    assert [rule for rule, _, _ in await x4_findings(connection, document)] == ["x4.unanswered"] * 2
