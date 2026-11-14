@@ -24,6 +24,7 @@ jobs:
   # lint, format, types and the ontology, once; the tests run beside it in two parts
   backend:
     runs-on: ubuntu-24.04
+    # 3 minutes on a hosted runner (pull request 5, 2026-11-14); the limit allows more than twice that
     timeout-minutes: 15
     defaults:
       run:
@@ -47,12 +48,13 @@ jobs:
 
   # The tests in two parts at once, each with a database and an object store of its own, split by the
   # time their folders take: locally tests/pipeline and tests/db took 10 minutes, the rest 12; in CI the
-  # rest runs faster, its Docling tests skipped (2026-11-14). tests/deploy/test_ci.py holds that every
-  # folder and top-level test file runs in exactly one part.
+  # rest runs faster, its Docling tests skipped. tests/deploy/test_ci.py holds that every folder and
+  # top-level test file runs in exactly one part.
   backend-tests:
     runs-on: ubuntu-24.04
-    # the single job took 21-24 minutes, its tests 15-20 (2026-11-14); a part about half: the limit
-    # allows twice that, for a slower runner, without hiding a hang
+    # the parts took 10 and 9 minutes, their tests with coverage 9.6 and 8.3 (pull request 5,
+    # 2026-11-14; the single job before them 21-24); the limit allows more than twice the longer, for
+    # a slower runner, without hiding a hang
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -110,7 +112,8 @@ jobs:
       # each part keeps its data (.coverage.<host>.<pid>.<random>, the processes the tests start
       # theirs beside it); the floor holds for both together, in backend-coverage
       - run: .venv/bin/python -m coverage run --parallel-mode --source=app -m pytest ${{ matrix.paths }}
-      # file names and line numbers measured, nothing of the tests' data
+      # the files and lines measured and each measured process's command line (runner paths, the
+      # invented test credentials above): no secret
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: coverage-${{ matrix.part }}
@@ -123,6 +126,7 @@ jobs:
   backend-coverage:
     needs: backend-tests
     runs-on: ubuntu-24.04
+    # 12 seconds (pull request 5, 2026-11-14), most of it the setup
     timeout-minutes: 10
     defaults:
       run:
