@@ -18,6 +18,7 @@ from pydantic_ai.messages import (
     ModelMessage,
     ModelResponse,
     RetryPromptPart,
+    TextPart,
     ToolCallPart,
     ToolReturnPart,
 )
@@ -590,6 +591,44 @@ async def test_an_answer_cut_at_the_cap_is_booked_once_and_said_to_be_cut() -> N
     assert (len(seen), len(kept.answers)) == (1, 1)
     assert ledger.booked == [(1, Spent(input_tokens=100, output_tokens=2_000, requests=1))]
     assert answer.spent == Spent(input_tokens=100, output_tokens=2_000, requests=1)
+
+
+def answering(
+    parts: Callable[[AgentInfo], list[Any]], *, finish_reason: Any = "length", output_tokens: int = 2_000
+) -> tuple[StageAgent, list[list[ModelMessage]]]:
+    """A stage over a model that answers each request with ``parts`` and ``finish_reason``, reporting
+    ``output_tokens`` (the cap is 2 000)."""
+    seen: list[list[ModelMessage]] = []
+
+    def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        seen.append(messages)
+        usage = RequestUsage(input_tokens=100, output_tokens=output_tokens)
+        return ModelResponse(parts=parts(info), usage=usage, finish_reason=finish_reason)
+
+    model = FunctionModel(answer, settings={"max_tokens": 2_000})
+    return build_agent(model, schema=SCHEMA, name="titel", instructions="x"), seen
+
+
+async def test_an_answer_whole_at_the_cap_is_read() -> None:
+    # the cap met as the arguments closed: the answer is whole and paid for, not cut
+    built, seen = answering(lambda info: [ToolCallPart(info.output_tools[0].name, '{"title": "Zahlen"}')])
+    ledger = Ledger()
+
+    answer = await ask(built, "Text", meter=ledger)
+
+    assert (answer.output, answer.cut, len(seen)) == ({"title": "Zahlen"}, False, 1)
+    assert ledger.booked == [(1, Spent(input_tokens=100, output_tokens=2_000, requests=1))]
+
+
+@pytest.mark.parametrize("parts", ["text", "none"])
+async def test_an_answer_cut_at_the_cap_before_any_tool_call_is_cut(parts: str) -> None:
+    built, seen = answering(lambda _: [TextPart("Die Antwort lautet")] if parts == "text" else [])
+    ledger = Ledger()
+
+    answer = await ask(built, "Text", meter=ledger)
+
+    assert (answer.output, answer.cut, len(seen)) == (None, True, 1)
+    assert ledger.booked == [(1, Spent(input_tokens=100, output_tokens=2_000, requests=1))]
 
 
 async def test_an_answer_out_of_form_is_not_taken_for_cut() -> None:
