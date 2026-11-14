@@ -195,7 +195,8 @@ async function onSubmit(): Promise<void> {
 
 <template>
   <form class="decision-form" novalidate @submit.prevent="onSubmit">
-    <fieldset class="decision-form__choice">
+    <!-- radiogroup: aria-required needs a role that takes it; the legend says it in words -->
+    <fieldset class="decision-form__choice" role="radiogroup" aria-required="true">
       <legend>{{ requiredLabel(t("lexicon.termForm.legend")) }}</legend>
       <!-- one name: the arrow keys move between the three, and Tab passes them as one group -->
       <label v-for="choice in ['cue', 'document', 'error'] as const" :key="choice">

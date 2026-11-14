@@ -77,6 +77,8 @@ describe("the decision on a new term", () => {
     const wrapper = form();
 
     expect(wrapper.findAll("input[type=radio]").map((one) => one.element.getAttribute("value"))).toEqual(["cue", "document", "error"]);
+    // required as a group, not in its legend's words alone (UI review 1, finding 12)
+    expect(wrapper.get("fieldset.decision-form__choice").attributes()).toMatchObject({ role: "radiogroup", "aria-required": "true" });
     expect(wrapper.findAll("select")).toHaveLength(0);
     expect(targets).not.toHaveBeenCalled(); // read only once a new cue is asked for
   });

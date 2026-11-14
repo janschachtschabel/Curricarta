@@ -74,6 +74,10 @@ describe("the import of a MEM plan on an entry's page", () => {
     expect(found).toHaveBeenCalledWith({ region: "DE-SN", title: undefined, offset: 0 });
     expect(wrapper.get<HTMLSelectElement>("#mem-import-region").element.value).toBe("DE-SN");
     expect(wrapper.findAll("input[type=radio]")).toHaveLength(2);
+    // the plan to import is required: said in its legend and to the group (UI review 1, finding 12)
+    const plans = wrapper.get("fieldset.mem-import__plans");
+    expect(plans.get("legend").text()).toBe(t("forms.required", { label: t("mem.import.results") }));
+    expect(plans.attributes()).toMatchObject({ role: "radiogroup", "aria-required": "true" });
     expect(wrapper.get("[data-test=mem-shown]").text()).toBe(t("mem.import.shown", { shown: 2, total: 2 }));
     expect(await violations(wrapper.html())).toEqual([]);
   });

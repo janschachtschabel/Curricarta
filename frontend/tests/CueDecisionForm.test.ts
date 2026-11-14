@@ -62,6 +62,8 @@ describe("the decision on a research cue", () => {
     const wrapper = form();
 
     expect(wrapper.get("fieldset legend").text()).toBe(t("forms.required", { label: t("lexicon.cueForm.legend") }));
+    // required as a group, not in its legend's words alone (UI review 1, finding 12)
+    expect(wrapper.get("fieldset").attributes()).toMatchObject({ role: "radiogroup", "aria-required": "true" });
     expect(wrapper.findAll("select")).toHaveLength(0);
     await control(wrapper, t("lexicon.cueForm.confirmed")).setValue(true);
 

@@ -113,7 +113,8 @@ async function onSubmit(): Promise<void> {
 
 <template>
   <form class="decision-form" novalidate @submit.prevent="onSubmit">
-    <fieldset class="decision-form__choice">
+    <!-- radiogroup: aria-required needs a role that takes it; the legend says it in words -->
+    <fieldset class="decision-form__choice" role="radiogroup" aria-required="true">
       <legend>{{ requiredLabel(t("lexicon.cueForm.legend")) }}</legend>
       <label>
         <input

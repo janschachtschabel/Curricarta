@@ -18,6 +18,7 @@ import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import MemCatalog from "@/components/MemCatalog.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { requiredLabel } from "@/formWords";
 import { messages, momentFormat, t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { focusIsFree } from "@/focusRescue";
@@ -203,10 +204,12 @@ onMounted(() => {
           <fieldset
             v-else-if="plans.length > 0"
             class="mem-import__plans"
+            role="radiogroup"
+            aria-required="true"
             :aria-busy="searching || undefined"
             :aria-describedby="choiceMissing ? 'mem-import-choice-error' : undefined"
           >
-            <legend>{{ t("mem.import.results") }}</legend>
+            <legend>{{ requiredLabel(t("mem.import.results")) }}</legend>
             <p v-if="choiceMissing" id="mem-import-choice-error" class="field__error">
               <AppIcon name="warning" /> {{ t("mem.import.chooseMissing") }}
             </p>
