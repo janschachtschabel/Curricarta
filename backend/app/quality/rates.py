@@ -3,6 +3,7 @@ population when drawn, the Wilson interval of a pooled rate, recall over the jud
 replay would keep and lose of the judgements. A rate that cannot be said is None, never 0."""
 
 import math
+from collections import Counter
 from collections.abc import Collection, Mapping, Sequence
 from dataclasses import dataclass
 
@@ -72,9 +73,13 @@ def replayed(
 ) -> dict[str, int]:
     """What today's reader, read over the run's answers again, would do with the judged statements: keep
     one whose wording it reads at the same first block (whatever row it becomes), lose the rest - by
-    verdict; and how many it reads that the stored statements do not hold, which nobody judged."""
-    now, before = set(read_now), set(stored)
+    verdict; and how many it reads that the stored statements do not hold, which nobody judged.
+
+    A judgement follows its key, not a row: two judged items of one key are both kept where the reader
+    reads that key once - they are the same wording at the same place. The statements are counted as
+    many as there are: each one read beyond those of its key stored is new (the population grows by it)."""
+    now, before = Counter(read_now), Counter(stored)
     effect = {f"{fate}_{verdict}": 0 for fate in ("kept", "gone") for verdict in VERDICTS}
     for key, verdict in judged:
         effect[f"{'kept' if key in now else 'gone'}_{verdict}"] += 1
-    return effect | {"new_unjudged": len(now - before)}
+    return effect | {"new_unjudged": (now - before).total()}

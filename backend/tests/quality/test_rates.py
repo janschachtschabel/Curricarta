@@ -89,3 +89,17 @@ def test_what_a_replay_would_keep_and_lose_is_counted() -> None:
         "gone_correct": 1, "gone_imprecise": 1, "gone_wrong": 1,
         "new_unjudged": 1,
     }  # fmt: skip
+
+
+def test_a_wording_read_more_often_at_one_block_than_stored_counts_each_copy_as_new() -> None:
+    # a judgement follows the wording at its block, whichever row holds it: two judged items of one key
+    # are both kept where it is read once; but each statement read beyond those stored is one nobody judged
+    judged = [((H, "p1-b1"), "correct"), ((H, "p1-b1"), "correct")]
+
+    effect = replayed(
+        judged, stored=[(H, "p1-b1"), (H, "p1-b1")], read_now=[(H, "p1-b1")] + [(J, "p2-b1")] * 3
+    )
+
+    assert (effect["kept_correct"], effect["gone_correct"]) == (2, 0)
+    assert effect["new_unjudged"] == 3  # J three times, stored never
+    assert replayed([], stored=[(H, None)], read_now=[(H, None)] * 3)["new_unjudged"] == 2
