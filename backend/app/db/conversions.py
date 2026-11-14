@@ -67,7 +67,12 @@ _DONE = """
         pages = %(pages)s, printed_pages = %(printed)s, findings = %(findings)s, markdown = %(markdown)s,
         finished_at = now()
     WHERE id = %(id)s AND job_id = %(job)s AND status = 'pending'
+    RETURNING account_id
 """
+# After the conversion's row, as ledger.reserve takes the quota's row alone: no cycle. No row is a limit
+# of nothing, a row's NULL no limit
+_PAGE_LIMIT = "SELECT page_limit FROM quota WHERE account_id = %s FOR UPDATE"
+_PAGES_SPENT = "SELECT coalesce(sum(pages), 0) FROM conversion_usage WHERE account_id = %s AND billable"
 _BOOK = """
     INSERT INTO conversion_usage (conversion_id, account_id, engine, pages, billable)
     SELECT id, account_id, engine, %(pages)s, %(billable)s FROM conversion WHERE id = %(id)s
@@ -91,6 +96,10 @@ _RUNNING_ON = """
         AND page < %(page)s AND last_page >= %(page)s
     ORDER BY seq
 """
+
+
+class PagesSpent(Exception):
+    """The asker has fewer pages left of an engine that costs than the conversion holds: none is written."""
 
 
 @dataclass(frozen=True)
@@ -184,7 +193,9 @@ async def record_conversion(
     *,
     billable: bool,
 ) -> bool:
-    """Whether the conversion waited for ``job_id`` and is now done with these blocks."""
+    """Whether the conversion waited for ``job_id`` and is now done with these blocks. Pages ``billable``
+    are booked under the lock of the asker's quota row: PagesSpent, and nothing is written, where they
+    pass what is left - another conversion of the account may have booked its pages since this one began."""
     async with connection.transaction():
         cursor = await connection.execute(
             _DONE,
@@ -198,8 +209,11 @@ async def record_conversion(
                 "markdown": markdown,
             },
         )
-        if cursor.rowcount == 0:
+        done = await cursor.fetchone()
+        if done is None:
             return False
+        if billable:
+            await _hold_to_pages_left(connection, done[0], conversion.pages)
         await connection.execute("DELETE FROM document_block WHERE conversion_id = %s", (conversion_id,))
         async with connection.cursor() as blocks:
             await blocks.executemany(
@@ -210,6 +224,21 @@ async def record_conversion(
             _BOOK, {"id": conversion_id, "pages": conversion.pages, "billable": billable}
         )
     return True
+
+
+async def _hold_to_pages_left(
+    connection: psycopg.AsyncConnection, account_id: UUID | None, pages: int
+) -> None:
+    cursor = await connection.execute(_PAGE_LIMIT, (account_id,))
+    row = await cursor.fetchone()
+    limit = 0 if row is None else row[0]
+    if limit is None:
+        return
+    cursor = await connection.execute(_PAGES_SPENT, (account_id,))
+    spent = await cursor.fetchone()
+    assert spent is not None  # noqa: S101 - an aggregate always has its row
+    if int(spent[0]) + pages > limit:
+        raise PagesSpent(f"{pages} pages to book, {max(0, limit - int(spent[0]))} left")
 
 
 async def record_failure(

@@ -4,9 +4,9 @@ of the converter's image (app/jobs/handlers.py). Docling's pages are billed, pdf
 Docling conversion is held to the pages its asker has left as it starts - none left, or a file of more,
 ends it with ``no_pages`` before Docling reads it (a file over the service's limit too: ``too_many_pages``,
 split it); the API refused one with none left already, but the pages are booked when a conversion is
-done, and another of the same account may have spent them since. The hold reserves nothing: exact where
-one converter runs (Compose), two side by side may each take what is left - an account's overshoot is
-then up to one file each.
+done, and another of the same account may have spent them since. The hold reserves nothing: two converters
+side by side may each start on what is left, and the booking holds the pages to the limit once more, under
+the lock of the quota row - the one that would pass it ends ``no_pages``, its work thrown away.
 
 The job takes the file from the store, checks by its bytes that it is of the type its entry has - one the
 engine reads (app/conversion/readers.py), a job queued without one a PDF -, and converts it, written with
@@ -45,7 +45,7 @@ from app.conversion.runners import (
 from app.core.logging import current_request_id
 from app.core.metrics import observe_conversion
 from app.core.storage import ObjectNotFound
-from app.db.conversions import FailureCode, conversion_target, record_conversion, record_failure
+from app.db.conversions import FailureCode, PagesSpent, conversion_target, record_conversion, record_failure
 from app.jobs.context import JobContext
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, report_progress
@@ -142,10 +142,13 @@ async def convert_source(
     finally:
         shutil.rmtree(folder, ignore_errors=True)
     markdown = await asyncio.to_thread(markdown_of, conversion)  # a long document's text: off the loop
-    async with context.pool.connection() as connection:
-        recorded = await record_conversion(
-            connection, conversion_id, job.id, conversion, markdown, billable=engine in BILLABLE
-        )
+    try:
+        async with context.pool.connection() as connection:
+            recorded = await record_conversion(
+                connection, conversion_id, job.id, conversion, markdown, billable=engine in BILLABLE
+            )
+    except PagesSpent:  # another conversion of the account booked its pages meanwhile
+        await _fail(context, job, conversion_id, engine, "no_pages")
     if recorded:
         observe_conversion(engine, "done", conversion.pages)
     else:
