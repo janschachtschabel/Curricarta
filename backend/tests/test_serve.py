@@ -14,15 +14,19 @@ import warnings
 from collections.abc import Iterator
 from contextlib import contextmanager
 from dataclasses import dataclass
+from typing import Any
 from unittest import mock
 
 import pytest
+from fastapi import FastAPI
 from uvicorn.config import STARTUP_FAILURE
 
+from app import serve
 from app.core.logging import configure_logging
 from app.core.settings import Settings
 from app.db.migrate import migrate
 from app.serve import build_server, main
+from tests.llm.test_client import llm_settings
 from tests.support import FAKE_DATABASE_URL, FAKE_PEPPER, make_settings, without_settings_variables
 
 START_TIMEOUT_S = 10.0
@@ -194,3 +198,53 @@ def test_the_server_trusts_forwarded_headers_from_the_configured_proxies_only(re
 
     assert server.config.forwarded_allow_ips == "10.42.0.0/16"
     assert server.config.proxy_headers is True
+
+
+def cap_of(server: Any) -> int:
+    """The cap on a model's answer the server's API holds the repair's offer to."""
+    app = server.config.app
+    assert isinstance(app, FastAPI)
+    cap: int = app.state.output_cap
+    return cap
+
+
+def test_the_server_s_api_knows_the_cap_on_a_model_s_answer(restore_logging: None) -> None:
+    # the repair's offer and start hold back what a repair under the workers' cap would not ask
+    configure_logging("INFO", "json", stream=io.StringIO())
+    public_port, internal_port = two_free_ports()
+    settings = make_settings(host="127.0.0.1", public_port=public_port, internal_port=internal_port)
+
+    server, sockets = build_server(settings, llm_settings(llm_max_output_tokens=32_000))
+    for sock in sockets:
+        sock.close()
+
+    assert cap_of(server) == 32_000
+
+
+def test_main_hands_the_environment_s_cap_on_to_the_api(
+    restore_logging: None, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    caps: list[int] = []
+
+    def built(settings: Settings, *args: Any, **kwargs: Any) -> Any:
+        server, sockets = build_server(settings, *args, **kwargs)
+        for sock in sockets:
+            sock.close()
+        caps.append(cap_of(server))
+        raise SystemExit(STARTUP_FAILURE)  # not served: only what it was built with counts
+
+    monkeypatch.setattr(serve, "build_server", built)
+    monkeypatch.setattr(sys, "stdout", io.StringIO())
+    with without_settings_variables():
+        public_port, internal_port = two_free_ports()
+        invented = {
+            "DATABASE_URL": FAKE_DATABASE_URL,
+            "API_KEY_PEPPER": FAKE_PEPPER,
+            "PUBLIC_PORT": str(public_port),
+            "INTERNAL_PORT": str(internal_port),
+            "LLM_MAX_OUTPUT_TOKENS": "32000",
+        }
+        with mock.patch.dict(os.environ, invented), pytest.raises(SystemExit):
+            main()
+
+    assert caps == [32_000]
