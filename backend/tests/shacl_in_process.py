@@ -50,21 +50,21 @@ def parsed_once(paths: list[Path]) -> Graph:
     return _parsed_paths(tuple(paths))
 
 
-def _validated(graph: Graph, ontology_dir: Path, shapes: ShapeSet) -> list[ShaclResult]:
+def _validated(graph: Graph, ontology_dir: Path, shapes: ShapeSet, told: ChildLog) -> list[ShaclResult]:
     data = Graph().parse(data=graph.serialize(format="nt", encoding="utf-8"), format="nt")
     with _ONE_AT_A_TIME:
         try:
             return validate_graph(ontology_dir, data, shapes)
         except Exception as error:
-            return _as_the_child_answers(error)
+            return _as_the_child_answers(error, told)
 
 
-def _as_the_child_answers(error: Exception) -> list[ShaclResult]:
+def _as_the_child_answers(error: Exception, told: ChildLog) -> list[ShaclResult]:
     """The error as the child leaves it (shacl_child.run_child), read as the check reads a child's answer."""
     out = Path(tempfile.mkdtemp(prefix="shacl-in-process-"))
     try:
         write(out / "crashed.json", json.dumps({"error": type(error).__name__}))
-        return shacl._outcome(1, out)
+        return shacl._outcome(told, 1, out)
     finally:
         shutil.rmtree(out, ignore_errors=True)
 
@@ -75,6 +75,6 @@ async def shacl_in_process(
     """``shacl_check`` without its child: the same validation and results, in a thread."""
     try:
         async with asyncio.timeout(timeout_s):
-            return await asyncio.to_thread(_validated, graph, ontology_dir, shapes)
+            return await asyncio.to_thread(_validated, graph, ontology_dir, shapes, told)
     except TimeoutError:
         raise ShaclTimeout(f"the SHACL validation took longer than {timeout_s} s") from None
