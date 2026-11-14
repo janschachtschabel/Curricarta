@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { useRoute, useRouter } from "vue-router";
+import { RouterLink, useRoute, useRouter } from "vue-router";
 
 import { ApiError, checkToken, looksLikeToken, setToken } from "@/api";
+import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { RETURN_PARAM, returnTarget } from "@/returnTarget";
-import { setSession } from "@/session";
+import { session, setSession } from "@/session";
 
 const router = useRouter();
 const route = useRoute();
@@ -62,6 +63,11 @@ async function onSubmit(): Promise<void> {
     <section class="login__card card" aria-labelledby="login-heading">
       <h1 id="login-heading" class="login__heading">{{ t("login.heading") }}</h1>
       <p class="login__intro">{{ t("login.intro") }}</p>
+      <!-- reached while signed in: who that is, and the way on; the form stays for another account -->
+      <p v-if="session" class="login__intro" data-test="signed-in">
+        {{ t("login.signedIn", { name: isolate(session.name) }) }}
+        <RouterLink :to="{ name: 'start' }">{{ t("login.toStart") }}</RouterLink>
+      </p>
 
       <form class="login__form" novalidate @submit.prevent="onSubmit">
         <div class="field">

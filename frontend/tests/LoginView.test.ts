@@ -2,9 +2,10 @@ import { flushPromises, mount } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
+import { isolate } from "@/bidi";
 import { t } from "@/i18n/de";
 import { router } from "@/router";
-import { clearSession, session } from "@/session";
+import { clearSession, session, setSession } from "@/session";
 import LoginView from "@/views/LoginView.vue";
 
 const TOKEN = "curricarta_" + "t".repeat(43);
@@ -166,5 +167,26 @@ describe("the same refusal twice", () => {
 
     expect(wrapper.get("#login-error").element.textContent).not.toBe(first);
     expect(wrapper.get("#login-error").text()).toContain(t("login.errors.invalid"));
+  });
+});
+
+// the sign-in showed its form to a signed-in account as to a visitor (UI review, NIT)
+describe("the sign-in for an account signed in already", () => {
+  it("says who is signed in and leads to the start, the form there for another account", async () => {
+    setSession({ id: "0190-a", name: "Erste Redaktion", roles: ["redaktion"] });
+    const wrapper = mount(LoginView, { global: { plugins: [router] } });
+    await flushPromises();
+
+    const note = wrapper.get("[data-test=signed-in]");
+    expect(note.text()).toContain(t("login.signedIn", { name: isolate("Erste Redaktion") }));
+    expect(note.get("a").attributes("href")).toBe("/");
+    expect(wrapper.find("form").exists()).toBe(true);
+  });
+
+  it("says nothing of it to a visitor", async () => {
+    const wrapper = mount(LoginView, { global: { plugins: [router] } });
+    await flushPromises();
+
+    expect(wrapper.find("[data-test=signed-in]").exists()).toBe(false);
   });
 });

@@ -42,6 +42,9 @@ export const messages = {
   login: {
     heading: "Anmeldung",
     intro: "Gib das Zugangstoken ein, das dir die Administration gegeben hat.",
+    // reached while signed in (LoginView.vue)
+    signedIn: "Du bist schon als {name} angemeldet. Mit einem anderen Zugangstoken meldest du dich als anderes Konto an.",
+    toStart: "Zur Startseite",
     tokenLabel: "Zugangstoken",
     submit: "Anmelden",
     checking: "Wird geprüft …",
