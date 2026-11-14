@@ -607,7 +607,8 @@ bleibt die Einheit offen, und der Auftrag endet mit `answer_cut`. In einer Repar
 Paket, wie es ist, und der Auftrag endet `done`; das Paket wird nicht mehr zur Reparatur angeboten.
 Unter derselben oder einer kleineren Grenze fragt kein Auftrag diesen Teil noch einmal; erst nach
 dem Anheben von `LLM_MAX_OUTPUT_TOKENS` wird er wieder gefragt (und wieder zur Reparatur
-angeboten). Token zählt der Dienst
+angeboten). API und Worker brauchen denselben Wert und nach dem Anheben beide einen Neustart: Sonst
+bietet die Seite nichts an, oder sie bietet eine Reparatur an, die nichts fragt. Token zählt der Dienst
 lokal mit tiktoken (`o200k_base`): Die Datei liegt mit ihrem SHA-256 in `backend/app/llm/` und
 wird nie aus dem Netz geladen. Fehlt sie oder stimmt ihr Hash nicht, starten API und Worker nicht.
 

@@ -185,6 +185,8 @@ ein Test schlägt an, wenn sie veraltet.
   zwischen Server und Pooler.
 - `JOB_SHUTDOWN_GRACE_S` mindestens 8 s unter `terminationGracePeriodSeconds` des Workers: 2 s zum
   Aufräumen des Handlers, bis zu 5 s für zurückgegebene Reservierungen, 1 s Reserve.
+- `LLM_MAX_OUTPUT_TOKENS` für API und Worker gleich setzen und nach einer Änderung beide neu starten:
+  Die API bietet eine Reparatur nur an, wo die Worker unter diesem Wert fragen würden.
 - `IRI_BASE`: die Basis der IRIs, die ein Dokument beim Festschreiben bekommt (Werk, Dokument,
   Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der Dienst nichts fest
   (409 `no_iri_base`). Der Namensraum `w3id.org/wlo/` ist noch nicht registriert
