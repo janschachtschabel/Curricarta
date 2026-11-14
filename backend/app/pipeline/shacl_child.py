@@ -29,7 +29,7 @@ from typing import Any, NamedTuple
 
 from rdflib import RDF, BNode, Graph, Literal, Namespace, URIRef
 
-from app.core.child import ChildLog, stand_alone, write
+from app.core.child import ChildLog, log_peak, stand_alone, write
 from app.vocab.loader import MODEL_DIRS
 
 SH = Namespace("http://www.w3.org/ns/shacl#")
@@ -134,6 +134,14 @@ def run_child(ontology_dir: str, data: str, shapes: ShapeSet, told: ChildLog, ou
     # written twice - by the root's handler and once more, plain, by pyshacl's own on stderr
     quietest = max(logging.WARNING, logging.getLogger().level)
     logging.getLogger("pyshacl-validate").addFilter(lambda record: record.levelno >= quietest)
+    try:
+        _answer(ontology_dir, data, shapes, out)
+    finally:
+        log_peak()  # however it ends: the measure of CHILD_MEMORY_LIMIT_MB
+
+
+def _answer(ontology_dir: str, data: str, shapes: ShapeSet, out: str) -> None:
+    # MemoryError too - an allocation past CHILD_MEMORY_LIMIT_MB -: crashed, by its kind
     try:
         results = validate_graph(Path(ontology_dir), Graph().parse(Path(data), format="nt"), shapes)
     except Exception as error:

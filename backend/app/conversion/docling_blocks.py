@@ -41,7 +41,7 @@ from pdfminer.pdfpage import PDFPage
 from app.conversion.assemble import assemble
 from app.conversion.base import Conversion, EngineUnavailable
 from app.conversion.convert import MAX_PAGE_SIGNS
-from app.conversion.docling_flow import FLOW_SUFFIXES, ConvertBytes, flow_converter, read_flow
+from app.conversion.docling_flow import FLOW_SUFFIXES, ConvertBytes, checked_grid, flow_converter, read_flow
 from app.conversion.docling_images import pdfium_image_backend
 from app.conversion.docling_pages import DoclingItem, DoclingPage, DoclingTableCell, DoclingWord, raw_pages
 from app.conversion.flow import flow_conversion
@@ -279,7 +279,7 @@ def _pages_of(
             if prov.page_no not in heights:  # a page of another block: none came in Docling 2.117
                 continue
             box = _box(prov.bbox, heights[prov.page_no])
-            rows = _rows(item.data, heights[prov.page_no]) if label in _TABULAR else ()
+            rows = _rows(item.data, heights[prov.page_no], prov.page_no) if label in _TABULAR else ()
             items[prov.page_no].append(DoclingItem(label, box, rows))
     return [
         DoclingPage(number, heights[number], items[number], words[number], sure.get(number))
@@ -314,8 +314,9 @@ def _named(error: Any, part: str) -> str:
     return str(getattr(getattr(error, part, None), "value", "-"))
 
 
-def _rows(data: Any, height: float) -> tuple[tuple[DoclingTableCell | None, ...], ...]:
+def _rows(data: Any, height: float, page: int) -> tuple[tuple[DoclingTableCell | None, ...], ...]:
     """The table's grid, a cell at the first place it takes: None at the others a span covers."""
+    checked_grid(data, page)
     grid: list[list[DoclingTableCell | None]] = [[None] * data.num_cols for _ in range(data.num_rows)]
     for cell in data.table_cells:
         place = None if cell.bbox is None else _box(cell.bbox, height)

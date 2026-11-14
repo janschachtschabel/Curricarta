@@ -24,7 +24,7 @@ from app.conversion.base import DropReason
 from app.conversion.docx_hidden import clean_docx
 from app.conversion.flow import FlowCell, FlowItem
 from app.conversion.html_hidden import clean_html
-from app.conversion.text_layer import UnreadablePdf
+from app.conversion.text_layer import TooDense, UnreadablePdf
 
 # A file's bytes by its name, read by Docling: its result
 ConvertBytes = Callable[[str, bytes], Any]
@@ -47,6 +47,10 @@ _TEXT = frozenset(
 _NO_SPACE_BEFORE = tuple(".,;:!?)]}»“")
 _BREAK = "\ue000"  # Docling's sign for <br>, left in a list item's and a heading's text
 _DEEPEST = 64  # how far up an item's parents are looked through for a table
+# The places of a table's grid a file may state: a page holds a few thousand. The grid is laid out place by
+# place before its cells are read; a stated million by a million would take the child's memory whole
+# (audit 2026-11-14)
+MOST_GRID_CELLS = 200_000
 
 
 def flow_converter() -> tuple[ConvertBytes, Collection[Any]]:
@@ -227,8 +231,16 @@ def _marker(each: Any, numbered: defaultdict[str, int]) -> str:
     return f"{numbered[parent]}."
 
 
+def checked_grid(data: Any, page: int | None = None) -> None:
+    """TooDense where a table's stated grid holds more than MOST_GRID_CELLS places, before it is laid out."""
+    places = data.num_rows * data.num_cols
+    if places > MOST_GRID_CELLS:
+        raise TooDense(page, places, MOST_GRID_CELLS, what="places of a table")
+
+
 def _rows(data: Any) -> tuple[tuple[FlowCell | None, ...], ...]:
     """The table's grid, a cell at the first place it takes: None at the others a span covers."""
+    checked_grid(data)
     grid: list[list[FlowCell | None]] = [[None] * data.num_cols for _ in range(data.num_rows)]
     for cell in data.table_cells:
         grid[cell.start_row_offset_idx][cell.start_col_offset_idx] = FlowCell(

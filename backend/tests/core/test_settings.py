@@ -551,9 +551,21 @@ def test_x5_gives_its_anchors_ten_seconds_to_an_hour(value: float) -> None:
     assert make_settings(x5_anchor_budget_s=value).x5_anchor_budget_s == value
 
 
+def test_the_children_s_memory_is_not_bounded_by_default() -> None:
+    # opt-in: the containers' limits come first, and a guess too tight fails Docling's models
+    assert make_settings().child_memory_limit_mb is None
+
+
+@pytest.mark.parametrize("value", [256, 262144])
+def test_the_children_s_memory_is_bounded_from_256_mib_to_256_gib(value: int) -> None:
+    assert make_settings(child_memory_limit_mb=value).child_memory_limit_mb == value
+
+
 @pytest.mark.parametrize(
     ("variable", "value"),
     [
+        ("CHILD_MEMORY_LIMIT_MB", "255"),
+        ("CHILD_MEMORY_LIMIT_MB", "262145"),
         ("X5_ANCHOR_BUDGET_S", "9.9"),
         ("X5_ANCHOR_BUDGET_S", "3600.1"),
         ("MAX_JOBS_IN_FLIGHT", "0"),

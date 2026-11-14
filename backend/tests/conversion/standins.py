@@ -67,6 +67,12 @@ def exhausting(path: Path, engine: str, max_pages: int) -> Conversion:
     raise MemoryError
 
 
+def allocating(path: Path, engine: str, max_pages: int) -> Conversion:
+    """A conversion that takes two GiB at once: past a child's memory limit, the allocation fails."""
+    held = bytearray(2 * 1024 * 1024 * 1024)
+    return reading(path, engine, len(held))
+
+
 def unavailable(path: Path, engine: str, max_pages: int) -> Conversion:
     """An engine whose models do not load where it runs."""
     raise EngineUnavailable("Docling could not load its models: OSError")

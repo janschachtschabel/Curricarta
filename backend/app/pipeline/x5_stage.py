@@ -32,7 +32,6 @@ from time import monotonic
 from typing import Any
 
 from app.core.child import ChildLog
-from app.core.logging import current_request_id
 from app.db.anchors import (
     CheckedAnchor,
     UncheckedAnchor,
@@ -127,7 +126,7 @@ async def _checked(
         rows = await read_document(connection, document.id)
     graph = await asyncio.to_thread(kern_graph, rows)  # a second for a long document: beside the loop
     settings = context.settings
-    told = ChildLog(level=settings.log_level, format=settings.log_format, request_id=current_request_id())
+    told = ChildLog.of(settings)
     shacl = "done"
     try:
         results = await shacl_check(

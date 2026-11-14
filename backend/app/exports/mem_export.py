@@ -32,7 +32,6 @@ from pathlib import Path
 from uuid import UUID
 
 from app.core.child import ChildLog
-from app.core.logging import current_request_id
 from app.core.settings import Settings
 from app.core.storage_async import AsyncStorage
 from app.exports import mem_gate
@@ -133,11 +132,7 @@ class MemExporter:
         ontology_dir = self._settings.ontology_dir
         if self._model is None:  # parsing the chain takes a moment: once, beside the loop
             self._model = model_from(*await asyncio.to_thread(mem_files, ontology_dir))
-        told = ChildLog(
-            level=self._settings.log_level,
-            format=self._settings.log_format,
-            request_id=current_request_id(),
-        )
+        told = ChildLog.of(self._settings)
         try:
             async with asyncio.timeout_at(deadline):
                 await self._checks.acquire()

@@ -15,6 +15,7 @@ from app.conversion import docling_blocks
 from app.conversion.base import EngineUnavailable
 from app.conversion.convert import ConversionRefused, convert_file
 from app.conversion.docling_blocks import PAGES_AT_ONCE, DoclingEngine, read_blocks
+from app.conversion.docling_flow import MOST_GRID_CELLS
 from app.conversion.docling_pages import DoclingItem, DoclingTableCell, DoclingWord
 from app.conversion.text_layer import TooDense, UnreadablePdf
 
@@ -175,6 +176,34 @@ def test_a_table_is_its_grid_a_spanned_place_empty_a_cell_without_a_box_without_
             ),
         )
     ]
+
+
+class Unlaid:
+    """Cells of a table no test reads: a grid refused is never laid out."""
+
+    def __iter__(self) -> Any:
+        raise AssertionError("the grid was laid out")
+
+
+def test_a_table_that_states_a_grid_past_any_page_s_is_refused_before_it_is_laid_out() -> None:
+    # a million rows by a million columns, stated by the file: laid out, its rows would take all memory
+    vast = Shape(num_rows=10**6, num_cols=10**6, table_cells=Unlaid())
+    convert, _ = answering(result(range(1, 3), [item("table", (2, bbox(68, 744, 330, 700)), data=vast)]))
+
+    with pytest.raises(TooDense) as dense:
+        read_document_(convert, pages=2, max_signs=100, layers=LAYERS)
+
+    assert dense.value.page == 2
+    assert str(dense.value) == "page 2 holds 1000000000000 places of a table, more than the 200000 taken"
+
+
+def test_a_table_of_as_many_places_as_taken_is_read() -> None:
+    full = Shape(num_rows=1, num_cols=MOST_GRID_CELLS, table_cells=[])
+    convert, _ = answering(result(range(1, 2), [item("table", (1, bbox(68, 744, 330, 700)), data=full)]))
+
+    [page] = read_document_(convert, pages=1, max_signs=100, layers=LAYERS)
+
+    assert len(page.items[0].rows[0]) == MOST_GRID_CELLS
 
 
 def test_a_paragraph_docling_carried_over_a_page_is_an_item_on_each() -> None:

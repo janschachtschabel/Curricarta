@@ -11,9 +11,9 @@ from typing import Any
 
 import pytest
 
-from app.conversion.docling_flow import flow_items, read_flow
+from app.conversion.docling_flow import MOST_GRID_CELLS, flow_items, read_flow
 from app.conversion.flow import FlowCell, FlowItem
-from app.conversion.text_layer import UnreadablePdf
+from app.conversion.text_layer import TooDense, UnreadablePdf
 from tests.conversion.test_docx_hidden import docx, paragraph, run
 
 
@@ -194,6 +194,32 @@ def test_a_table_is_its_grid_its_header_row_marked_a_spanned_place_empty() -> No
             (FlowCell("Planen und Prüfen", False), None),
         ),
     )
+
+
+class Unlaid:
+    """Cells of a table no test reads: a grid refused is never laid out."""
+
+    def __iter__(self) -> Any:
+        raise AssertionError("the grid was laid out")
+
+
+def test_a_table_that_states_a_grid_past_any_page_s_is_refused_before_it_is_laid_out() -> None:
+    # a million rows by a million columns, stated by the file: laid out, its rows would take all memory
+    table = item("table", data=Shape(num_rows=10**6, num_cols=10**6, table_cells=Unlaid()))
+
+    with pytest.raises(TooDense) as dense:
+        flow_items(Document(table), LAYERS)
+
+    assert MOST_GRID_CELLS == 200_000
+    assert str(dense.value) == "the file holds 1000000000000 places of a table, more than the 200000 taken"
+
+
+def test_a_table_of_as_many_places_as_taken_is_read() -> None:
+    table = item("table", data=Shape(num_rows=MOST_GRID_CELLS, num_cols=1, table_cells=[]))
+
+    [read] = flow_items(Document(table), LAYERS)
+
+    assert len(read.rows) == MOST_GRID_CELLS
 
 
 def test_a_picture_is_no_item_its_caption_one() -> None:

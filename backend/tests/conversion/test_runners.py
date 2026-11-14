@@ -94,6 +94,16 @@ async def test_a_conversion_that_runs_out_of_memory_died_as_one_the_kernel_kille
         )
 
 
+@pytest.mark.skipif(sys.platform != "linux", reason="CHILD_MEMORY_LIMIT_MB is applied on Linux alone")
+async def test_a_conversion_past_its_memory_limit_died() -> None:
+    # the allocation past the limit fails in the child: died, as one the kernel killed for its memory
+    with pytest.raises(ConversionDied, match="memory"):
+        await convert_in_child(
+            FIXTURES / "prose.pdf", engine="stand-in", max_pages=9, convert=standins.allocating,
+            child_log=ChildLog(level="WARNING", format="text", request_id="-", memory_mb=512),
+        )  # fmt: skip
+
+
 def test_a_crash_is_logged_by_its_kind_and_frames_without_its_message(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

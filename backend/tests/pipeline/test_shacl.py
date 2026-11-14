@@ -17,9 +17,9 @@ from rdflib.plugins.sparql import parser, processor
 from app.core.child import ChildLog, run_in_child
 from app.exports.kern_rdf import kern_graph
 from app.exports.kern_rows import KernRows
-from app.pipeline import shacl
+from app.pipeline import shacl, shacl_child
 from app.pipeline.shacl import ShaclCrashed, ShaclTimeout, as_findings, shacl_check
-from app.pipeline.shacl_child import ShaclResult, validate_graph
+from app.pipeline.shacl_child import ShaclResult, ShapeSet, validate_graph
 
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 EXAMPLES = ONTOLOGY / "beispiele"
@@ -236,6 +236,26 @@ async def test_a_check_whose_child_ends_without_an_answer_comes_back_as_crashed(
     monkeypatch.setattr(shacl, "run_child", silent)
 
     with pytest.raises(ShaclCrashed, match="ended without an answer"):
+        await shacl_check(kern_graph(a_document([])), ontology_dir=ONTOLOGY, timeout_s=120, told=TOLD)
+
+
+def exhausting(ontology_dir: str, data: str, shapes: ShapeSet, told: ChildLog, out: str) -> None:
+    """The child's own run, its validation out of memory: as past CHILD_MEMORY_LIMIT_MB."""
+
+    def wanting(ontology_dir: Path, data: Graph, shapes: ShapeSet = "kern") -> list[ShaclResult]:
+        raise MemoryError
+
+    shacl_child.validate_graph = wanting
+    shacl_child.run_child(ontology_dir, data, shapes, told, out)
+
+
+async def test_a_check_out_of_memory_in_its_child_comes_back_as_crashed_by_its_kind(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # the operator tells it from a timeout and from an answer never given
+    monkeypatch.setattr(shacl, "run_child", exhausting)
+
+    with pytest.raises(ShaclCrashed, match=r"^the SHACL validation raised MemoryError in its process$"):
         await shacl_check(kern_graph(a_document([])), ontology_dir=ONTOLOGY, timeout_s=120, told=TOLD)
 
 

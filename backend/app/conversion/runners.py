@@ -33,7 +33,7 @@ from pathlib import Path
 
 from app.conversion.base import Conversion, EngineUnavailable, engine
 from app.conversion.convert import ConversionRefused, convert_file
-from app.core.child import KILLED, ChildLog, run_in_child, stand_alone, write
+from app.core.child import KILLED, ChildLog, log_peak, run_in_child, stand_alone, write
 from app.core.logging import current_request_id
 
 __all__ = [
@@ -124,8 +124,15 @@ def _outcome(exit_code: int | None, out: Path) -> Conversion:
 
 
 def _run(convert: Convert, path: str, name: str, max_pages: int, told: ChildLog, out: str) -> None:
-    """The child: convert, and leave the answer in ``out``."""
+    """The child: convert, leave the answer in ``out``, and say its peak memory however it ends."""
     stand_alone(told, LIBRARIES)
+    try:
+        _answer(convert, path, name, max_pages, out)
+    finally:
+        log_peak()
+
+
+def _answer(convert: Convert, path: str, name: str, max_pages: int, out: str) -> None:
     try:
         answer = convert(Path(path), name, max_pages).model_dump_json()
     except ConversionRefused as refused:

@@ -198,6 +198,11 @@ class Settings(BaseSettings):
     # past it no further batch begins, the rest stays unchecked with a finding, and the next check of
     # the document goes on with it - as long as the SHACL check may take
     x5_anchor_budget_s: Annotated[float, Field(ge=10, le=3600)] = 300.0
+    # The address space of each child process the service starts - the conversion, the SHACL check -
+    # in MiB, on Linux (app/core/child.py): opt-in, none by default, the containers' limits come first.
+    # RLIMIT_AS counts virtual memory: set it to twice the virtual peak the children log, never by RSS;
+    # too tight, and Docling's models fail to load (the conversion ends "died")
+    child_memory_limit_mb: Annotated[int, Field(ge=256, le=262144)] | None = None
     # Who the register's requests say they are (source.fetch, source.check): the product token
     # robots.txt knows us by, then where to reach the operators; printable ASCII, as a header
     # holds it - and no space at its end, which h11 refuses in a header's value

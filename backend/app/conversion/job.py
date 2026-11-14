@@ -42,7 +42,6 @@ from app.conversion.runners import (
     convert_in_child,
     convert_with_engine,
 )
-from app.core.logging import current_request_id
 from app.core.metrics import observe_conversion
 from app.core.storage import ObjectNotFound
 from app.db.conversion_pages import PagesSpent
@@ -113,7 +112,7 @@ async def convert_source(
     async with context.pool.connection() as connection:
         await report_progress(connection, job, "converting", {})
     settings = context.settings
-    told = ChildLog(level=settings.log_level, format=settings.log_format, request_id=current_request_id())
+    told = ChildLog.of(settings)
     # one mkdir, made here: in a thread, a cancel meanwhile would leave the folder behind
     folder = Path(tempfile.mkdtemp(prefix="source-"))
     try:

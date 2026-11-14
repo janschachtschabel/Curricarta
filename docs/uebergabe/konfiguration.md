@@ -48,6 +48,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `EXTRACT_CONCURRENCY` | Zahl ≥ 1, ≤ 16 | 4 | – | Dienst |
 | `SHACL_TIMEOUT_S` | Zahl ≥ 10, ≤ 1800 | 300 | – | Dienst |
 | `X5_ANCHOR_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |
+| `CHILD_MEMORY_LIMIT_MB` | Zahl ≥ 256, ≤ 262144 | – | – | Dienst |
 | `FETCH_USER_AGENT` | Text nach Muster `^[A-Za-z0-9._-]+(/[!-~]+)?( [ -~]*[!-~])?$`, höchstens 200 Zeichen | `Curricarta (+https://github.com/janschachtschabel/Curricarta)` | – | Dienst |
 | `CHECK_HOST_INTERVAL_S` | Zahl ≥ 0.5, ≤ 60 | 2 | – | Dienst |
 | `MEM_SEARCH_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |
@@ -131,7 +132,17 @@ ein Test schlägt an, wenn sie veraltet.
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel
   bei Speichermangel zuerst ihn (`oom_score_adj` 1000), nicht den Worker; die Konvertierung
-  endet dann mit `died`.
+  endet dann mit `died`. Eine Tabelle, die mehr als 200.000 Zellen angibt, lehnt die
+  Konvertierung mit `too_dense` ab, bevor sie das Raster anlegt.
+- Speichergrenze der Kindprozesse (`CHILD_MEMORY_LIMIT_MB`, ohne Standard): Die Grenzen der
+  Container sind die erste Linie. Zusätzlich begrenzt die Einstellung unter Linux den Adressraum
+  jedes Kindprozesses (Konvertierung, SHACL-Prüfung; `RLIMIT_AS`); auf anderen Systemen wird sie
+  mit einer Warnung übergangen. Eine Anforderung über der Grenze scheitert im Kind selbst: Die
+  Konvertierung endet mit `died`, die Prüfung mit `ShaclCrashed` (`MemoryError`). `RLIMIT_AS`
+  zählt virtuellen Speicher, nicht den belegten: Jedes Kind schreibt am Ende eine Zeile
+  `peak memory: rss=… MiB, virtual=… MiB` (INFO); die Grenze auf das Doppelte des gemessenen
+  `virtual` setzen, nie nach `rss`. Zu knapp, und die Konvertierung scheitert schon beim Laden
+  der Modelle.
 - Prüfung (X5): Gegen die SHACL-Formen prüft ein Kindprozess des Workers, mit derselben Regel für
   Speichermangel; seinen Speicherbedarf misst M6. Gemessen (CPU, ohne Last): rund 2 s für ein
   Dokument mit 100 Knoten und Aussagen (mit Fundstellen 200 Zeilen), 9 s mit 400, 43 s mit 1.200
