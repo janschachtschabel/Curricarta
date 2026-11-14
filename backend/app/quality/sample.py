@@ -152,7 +152,7 @@ async def _kept(
     return Drawn(sample_id, drawn_before, strata, sample.title_pages, sample.label, sample.size, call)
 
 
-def _matching(pattern: re.Pattern[str], what: str) -> Callable[[str], str]:
+def matching(pattern: re.Pattern[str], what: str) -> Callable[[str], str]:
     def check(value: str) -> str:
         if pattern.fullmatch(value) is None:
             raise argparse.ArgumentTypeError(f"{what} must match {pattern.pattern}")
@@ -171,10 +171,10 @@ def _parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="python -m app.quality.sample", description=__doc__.splitlines()[0])
     parser.add_argument("document", type=UUID)
     parser.add_argument("--kind", required=True, choices=get_args(SampleKind))
-    parser.add_argument("--label", required=True, type=_matching(LABEL, "a label"))
+    parser.add_argument("--label", required=True, type=matching(LABEL, "a label"))
     parser.add_argument("--account", required=True)
     parser.add_argument("--size", type=_size)
-    parser.add_argument("--seed", default=SEED, type=_matching(SEED_TEXT, "a seed"))
+    parser.add_argument("--seed", default=SEED, type=matching(SEED_TEXT, "a seed"))
     return parser
 
 
