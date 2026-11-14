@@ -39,6 +39,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `MAX_UPLOAD_MB` | Zahl ≥ 1, ≤ 500 | 50 | – | Dienst |
 | `UPLOADS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |
 | `MAX_CONCURRENT_UPLOADS` | Zahl ≥ 1, ≤ 64 | 2 | – | Dienst |
+| `UPLOAD_READ_TIMEOUT_S` | Zahl ≥ 5, ≤ 3600 | 120 | – | Dienst |
 | `THIRD_PARTY_MARKDOWN` | `hidden` \| `accounts` \| `public` | `hidden` | – | Dienst |
 | `URL_IMPORTS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |
 | `CONVERSIONS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |

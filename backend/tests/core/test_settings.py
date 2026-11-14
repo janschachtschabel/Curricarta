@@ -522,6 +522,29 @@ def test_a_replica_takes_one_to_sixty_four_uploads_at_once(value: int) -> None:
     assert make_settings(max_concurrent_uploads=value).max_concurrent_uploads == value
 
 
+def test_an_upload_s_form_is_read_for_two_minutes_at_most_by_default() -> None:
+    assert make_settings().upload_read_timeout_s == 120
+
+
+@pytest.mark.parametrize("value", [4, 3601])
+def test_the_time_an_upload_s_form_is_read_is_bounded(value: int) -> None:
+    # no 0 for off: an operator with slow uplinks raises it
+    with pytest.raises(ValueError, match="than or equal to"):
+        make_settings(upload_read_timeout_s=value)
+
+
+@pytest.mark.parametrize("value", [5, 3600])
+def test_an_upload_s_form_is_read_for_five_seconds_to_an_hour(value: int) -> None:
+    assert make_settings(upload_read_timeout_s=value).upload_read_timeout_s == value
+
+
+def test_the_time_an_upload_s_form_is_read_comes_from_its_variable(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", FAKE_URL)
+    monkeypatch.setenv("UPLOAD_READ_TIMEOUT_S", "300")
+
+    assert Settings().upload_read_timeout_s == 300
+
+
 def test_x4_asks_four_units_at_once_by_default() -> None:
     assert make_settings().extract_concurrency == 4
 

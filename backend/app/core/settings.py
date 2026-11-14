@@ -171,6 +171,10 @@ class Settings(BaseSettings):
     # Uploads one API process reads, checks and stores at once; one more waits up to 10 s, then
     # is answered 503 uploads_busy. Each holds up to MAX_UPLOAD_MB + 1 MiB in /tmp
     max_concurrent_uploads: Annotated[int, Field(ge=1, le=64)] = 2
+    # The longest one upload's form is read while it holds one of those slots, in seconds; past
+    # it, 408 upload_too_slow. Behind an edge that buffers bodies it never bites; it is what
+    # keeps a client that trickles its body from holding a slot when the edge streams them
+    upload_read_timeout_s: Annotated[int, Field(ge=5, le=3600)] = 120
     # Who gets the file (and later the blocks and Markdown) of an entry of no account - seed,
     # research - beside the editors and admins: nobody, every account, or anyone (visitors only
     # where PUBLIC_ACCESS is not off)
