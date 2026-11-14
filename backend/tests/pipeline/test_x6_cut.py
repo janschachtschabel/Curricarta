@@ -139,3 +139,23 @@ async def test_a_repair_s_cut_is_named_though_a_cancel_comes_as_its_finding_is_w
         await asyncio.sleep(0.01)
 
     assert await x6_cuts(connection) == [({"unit": "E3", "cap": 4_000},)]
+
+
+async def test_a_package_cut_under_a_higher_cap_is_not_asked_under_a_lower_one(
+    setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    pool, connection = setup
+    document = await extracted(setup, tmp_path, database_url, invent=("E3",))
+    first = Quoting()
+    context = context_of(pool, tmp_path, cutting(first, "E3"), database_url)
+    higher = FunctionModel(cutting(first, "E3"), settings={"max_tokens": 8_000})
+    await x6_repair.repair_document(
+        replace(context, model=lambda: higher), await a_repair(connection, document)
+    )
+    fixer = Quoting()
+
+    made = await x6_repair.repair_document(
+        context_of(pool, tmp_path, fixer, database_url), await a_repair(connection, document)
+    )
+
+    assert (fixer.units, made["units"]) == ([], 0)  # 4 000 is no higher than 8 000

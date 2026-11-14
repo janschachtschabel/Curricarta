@@ -190,18 +190,25 @@ async def test_a_provider_that_never_answered_in_time_lets_those_asking_beside_i
 
 
 async def test_a_second_provider_error_among_the_units_asking_is_dropped_and_said(
-    setup: Any, tmp_path: Path, database_url: str, waited: list[float], caplog: pytest.LogCaptureFixture
+    setup: Any,
+    tmp_path: Path,
+    database_url: str,
+    waited: list[float],
+    provider_failed: asyncio.Event,
+    caplog: pytest.LogCaptureFixture,
 ) -> None:
+    # E2 refused for good first, E3 busy after it: the run ends by the first, not the later
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
     job = await a_job(connection, document.id, document.owner_id)
     model = Model()
-    both = asyncio.Barrier(2)
 
     async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        if asks(messages, "E2") or asks(messages, "E3"):
-            await both.wait()  # both asking before either fails: the second meets the first's word
+        if asks(messages, "E2"):
             raise refusal(400)
+        if asks(messages, "E3"):
+            await asyncio.wait_for(provider_failed.wait(), 10)
+            raise refusal(503)
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
@@ -215,7 +222,7 @@ async def test_a_second_provider_error_among_the_units_asking_is_dropped_and_sai
     assert model.units == []  # E4 never asked
     dropped = [record.getMessage() for record in caplog.records if "dropped" in record.getMessage()]
     assert dropped == ["a further provider error was dropped: ModelHTTPError"]
-    assert await usage_rows(connection, job) == [(1, 0, False), (1, 0, False), ("held", 0)]
+    assert await usage_rows(connection, job) == [(1, 0, False)] * 4 + [("held", 0)]  # E3 asked thrice
 
 
 async def test_the_next_attempt_after_a_provider_s_error_asks_only_the_units_not_written(

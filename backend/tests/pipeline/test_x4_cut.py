@@ -14,6 +14,7 @@ from pydantic_ai.usage import RequestUsage
 
 from app.db.findings import add_findings
 from app.jobs.outcome import PermanentError
+from app.jobs.queue import LeaseLost
 from app.pipeline import x4_statements
 from app.pipeline.run import extract_document
 from app.pipeline.x4_unit import write_unit
@@ -240,3 +241,24 @@ async def test_a_cut_is_named_though_a_cancel_comes_as_its_finding_is_written(
     assert await x4_findings(connection, document) == [
         ("x4.answer_cut", "warning", {"units": ["E3"], "cap": 4_000})
     ]
+
+
+async def test_a_cut_is_named_under_the_lease_only(setup: Any, tmp_path: Path, database_url: str) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+    cut = cutting(model, "E3")
+
+    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if "=== EINHEIT ===\nE3 " in prompt_of(messages):  # the lease goes as E3 is answered, cut
+            await connection.execute(
+                "UPDATE job SET lease_expires_at = now() - interval '1 second' WHERE id = %s", (job.id,)
+            )
+        return cut(messages, info)  # type: ignore[no-any-return]
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 1)
+    with pytest.raises(LeaseLost):
+        await extract_document(context, job)
+
+    assert await x4_findings(connection, document) == []
