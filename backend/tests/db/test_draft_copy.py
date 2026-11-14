@@ -37,8 +37,8 @@ LEFT_OUT = {
     "statement_addressee": set(), "anchor_block": set(), "document_profile": set(),
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
-# units and findings
-NOT_COPIED = {"extraction_run", "extraction_unit", "validation_finding"}
+# units and findings; the gold standard's samples, drawn of the revision they name
+NOT_COPIED = {"extraction_run", "extraction_unit", "validation_finding", "gold_sample"}
 MEM = "https://lp-sachsen.org/resource/"
 LP = "https://w3id.org/lehrplan/ontology/"
 _NAMING = """
