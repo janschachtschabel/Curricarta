@@ -20,16 +20,25 @@ from app.db.source_queries import Reader, get_source, ownerless_source
 EDITORS = frozenset({"redaktion", "admin"})
 
 
+def visitors_may_read(settings: Settings) -> bool:
+    """Whether a visitor may read any entry's content; where not, the routes refuse one before
+    they take a database connection."""
+    return settings.third_party_markdown == "public" and settings.public_access != "off"
+
+
+def refuse_visitor() -> HTTPException:
+    return HTTPException(401, "A token is needed.", headers={"WWW-Authenticate": "Bearer"})
+
+
 async def content_row(
     connection: psycopg.AsyncConnection, who: Principal, settings: Settings, source_id: UUID
 ) -> dict[str, Any]:
     """The entry, where ``who`` may read its content; 401, 404 or 403 ``file_hidden`` otherwise."""
     opened_to = settings.third_party_markdown
     if who.anonymous:
-        to_visitors = opened_to == "public" and settings.public_access != "off"
-        row = await ownerless_source(connection, source_id) if to_visitors else None
+        row = await ownerless_source(connection, source_id) if visitors_may_read(settings) else None
         if row is None:
-            raise HTTPException(401, "A token is needed.", headers={"WWW-Authenticate": "Bearer"})
+            raise refuse_visitor()
         return row
     assert who.account_id is not None  # noqa: S101 - a principal of no account is anonymous
     found = await get_source(connection, Reader(who.account_id, bool(who.roles & EDITORS)), source_id)

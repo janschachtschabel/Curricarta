@@ -21,7 +21,7 @@ from app.api.deps import principal, require_account
 from app.api.downloads import ObjectDownload
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.source_checks import CheckOut
-from app.api.source_content import EDITORS, content_row
+from app.api.source_content import EDITORS, content_row, refuse_visitor, visitors_may_read
 from app.api.sources import MAX_TITLE_SIGNS, SourceFileOut
 from app.conversion.base import EngineName, offered_engines
 from app.conversion.readers import readers
@@ -326,6 +326,8 @@ async def get_register_file(
 ) -> ObjectDownload:
     """Its owner and the editors get it, and whom THIRD_PARTY_MARKDOWN names for an entry of no
     account (app/api/source_content.py)."""
+    if who.anonymous and not visitors_may_read(request.app.state.settings):
+        raise refuse_visitor()
     async with request.app.state.pool.connection() as connection:
         row = await content_row(connection, who, request.app.state.settings, source_id)
     if row["storage_key"] is None:

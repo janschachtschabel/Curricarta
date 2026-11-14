@@ -391,6 +391,28 @@ def test_two_asking_at_once_start_one_conversion(
     assert found == (1,)
 
 
+@pytest.mark.parametrize(
+    "opened",
+    [
+        {},
+        {"third_party_markdown": "accounts", "public_access": "search"},
+        {"third_party_markdown": "public", "public_access": "off"},
+    ],
+    ids=["defaults", "accounts-only", "public-access-off"],
+)
+@pytest.mark.parametrize("route", ["file", "conversion", "conversion/blocks?page=1"])
+def test_a_visitor_is_refused_before_the_database_where_nothing_is_open_to_visitors(
+    tmp_path: Path, opened: dict[str, str], route: str
+) -> None:
+    # the pool reaches no server: a refusal that asked the database would wait for it and answer 503
+    app = create_app(make_settings(storage_dir=tmp_path, db_pool_timeout_s=1, **opened))
+    with selector_client(app, base_url=PUBLIC) as client:
+        refused = client.get(f"/api/v1/sources/{new_id()}/{route}")
+
+    assert refused.status_code == 401
+    assert refused.headers["WWW-Authenticate"] == "Bearer"
+
+
 def test_a_visitor_asks_for_no_conversion(client: TestClient, migrated: str, tmp_path: Path) -> None:
     source_id = ownerless(migrated, tmp_path)
 

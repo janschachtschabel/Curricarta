@@ -19,6 +19,7 @@ from fastapi.testclient import TestClient
 from starlette.types import Message, Receive, Send
 
 from app.api.app import create_app
+from app.core.ids import new_id
 from app.core.storage import FileSystemStorage, ObjectStream
 from app.core.storage_async import AsyncStorage
 from app.db.migrate import migrate
@@ -153,6 +154,36 @@ def test_a_send_that_fails_lets_the_object_go(entry: Any) -> None:
     drive(client, path, header, "2.4", waiting, failing)
 
     assert [stream.closed for stream in store.opened] == [True]
+
+
+def test_a_visitor_still_reads_what_public_opens(database_url: str, tmp_path: Path) -> None:
+    # refused before the database only where nothing is open to visitors: here the file of an
+    # entry of no account is, and the visitor gets it
+    migrate(database_url)
+    source_id, file_id = new_id(), new_id()
+    FileSystemStorage(tmp_path / "store").put(KEY, BIG)
+    with psycopg.connect(database_url, autocommit=True) as connection:
+        connection.execute(
+            "INSERT INTO source_file (id, sha256, size_bytes, storage_key) VALUES (%s, %s, %s, %s)",
+            (file_id, b"\x08" * 32, len(BIG), KEY),
+        )
+        connection.execute("INSERT INTO entity (id, kind) VALUES (%s, 'source')", (source_id,))
+        connection.execute(
+            "INSERT INTO source (id, provenance, title, file_id, file_name, mime, register_status)"
+            " VALUES (%s, 'laenderrecherche', 'Bildungsplan', %s, 'plan.pdf', 'application/pdf', 'acquired')",
+            (source_id, file_id),
+        )
+    settings = make_settings(
+        database_url=database_url,
+        storage_dir=tmp_path / "store",
+        third_party_markdown="public",
+        public_access="lookup",
+    )
+    with selector_client(create_app(settings), base_url=PUBLIC) as client:
+        answer = client.get(f"/api/v1/sources/{source_id}/file")
+
+    assert answer.status_code == 200
+    assert answer.content == BIG
 
 
 def test_a_download_read_to_its_end_lets_the_object_go(entry: Any) -> None:

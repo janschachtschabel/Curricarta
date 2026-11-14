@@ -29,7 +29,7 @@ from pydantic import BaseModel, ConfigDict
 from app.api.deps import principal, require_account
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.limits import admit_pages, within_limit
-from app.api.source_content import content_row
+from app.api.source_content import content_row, refuse_visitor, visitors_may_read
 from app.conversion.base import Block, Cell, EngineName, offered_engines
 from app.conversion.job import BILLABLE, KIND, READS_SCANS, kind_of
 from app.conversion.readers import ENDINGS, READS, readers
@@ -201,6 +201,8 @@ async def ask_conversion(
 async def get_conversion(
     source_id: UUID, request: Request, who: Caller, engine: EngineName | None = None
 ) -> ConversionOut:
+    if who.anonymous and not visitors_may_read(request.app.state.settings):
+        raise refuse_visitor()
     async with request.app.state.pool.connection() as connection:
         state = await _conversion(connection, who, request, source_id, engine)
     return _out(state, who)
@@ -226,6 +228,8 @@ async def get_blocks(
     page: Annotated[int, Query(ge=1, le=100_000)],
     engine: EngineName | None = None,
 ) -> PageOut:
+    if who.anonymous and not visitors_may_read(request.app.state.settings):
+        raise refuse_visitor()
     async with request.app.state.pool.connection() as connection:
         state = await _conversion(connection, who, request, source_id, engine)
         if state.status != "done" or state.pages is None or state.printed_pages is None:
