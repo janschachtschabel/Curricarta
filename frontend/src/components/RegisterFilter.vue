@@ -5,6 +5,7 @@
  * looks at - and how far the register has come with an entry. Each change hands on a new value;
  * the page reads the register again with it. The search goes when sent, not at each sign typed:
  * each value is a reading of the register, and the address's filter replaced (not a step of the history).
+ * Emptied by the field's own clear button, it goes at once.
  */
 import { computed, ref, watch } from "vue";
 
@@ -45,7 +46,8 @@ function search(): void {
     <form class="register-filter__search" role="search" @submit.prevent="search">
       <div class="field">
         <label for="register-search">{{ t("sources.filter.search") }}</label>
-        <input id="register-search" v-model="typed" type="search" :maxlength="MAX_SEARCH_SIGNS" />
+        <!-- `search`: Chromium and Safari say so when the field's own "×" empties it, which searches at once -->
+        <input id="register-search" v-model="typed" type="search" :maxlength="MAX_SEARCH_SIGNS" @search="search" />
       </div>
       <button type="submit" class="btn secondary">{{ t("sources.filter.searchButton") }}</button>
     </form>

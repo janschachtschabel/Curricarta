@@ -93,6 +93,20 @@ describe("the register's search and Land", () => {
     expect(wrapper.emitted("update:modelValue")).toEqual([[{ ...NONE, q: "Physik" }]]);
   });
 
+  // the field's own "×" emptied the field but left the list filtered until sent (browser check 2, defect 5);
+  // Chromium and Safari say it by a `search` event, elsewhere it stays as it was
+  it("hands on an empty search at once when the field's own clear button empties it", async () => {
+    const wrapper = mount(RegisterFilter, { props: { modelValue: { ...NONE, q: "Chemie" } } });
+    const field = wrapper.get<HTMLInputElement>("input[type=search]");
+
+    field.element.value = "";
+    await field.trigger("input");
+    expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    await field.trigger("search");
+
+    expect(wrapper.emitted("update:modelValue")).toEqual([[NONE]]);
+  });
+
   it("hands on a Land chosen", async () => {
     const wrapper = mount(RegisterFilter, { props: { modelValue: NONE } });
 
