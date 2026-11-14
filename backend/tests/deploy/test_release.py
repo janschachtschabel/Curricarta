@@ -204,6 +204,14 @@ def test_a_tag_that_is_not_the_package_s_version_stops_the_release() -> None:
     assert read.stdout.strip() == VERSION
 
 
+def test_the_job_that_may_write_packages_runs_no_install_script_and_takes_no_cache() -> None:
+    node = next(step for step in _jobs()["images"]["steps"] if "setup-node@" in step.get("uses", ""))
+
+    # the SPA builds the same without its dependencies' install scripts; a cache other runs wrote stays out
+    assert re.findall(r"npm ci[^\n&]*", _code()) == ["npm ci --ignore-scripts "]
+    assert node["with"] == {"node-version": "22"}
+
+
 def test_a_tag_s_run_releases_only_a_commit_of_main() -> None:
     steps = _jobs()["images"]["steps"]
     [on_main] = [index for index, step in enumerate(steps) if "merge-base" in str(step.get("run", ""))]

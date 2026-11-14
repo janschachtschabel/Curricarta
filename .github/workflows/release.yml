@@ -79,13 +79,13 @@ jobs:
             echo "VERSION=$version"
             echo "TAGS=$tags"
           } >> "$GITHUB_ENV"
+      # no cache in the job that may write packages: one other runs wrote would come into it
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: "22"
-          cache: npm
-          cache-dependency-path: frontend/package-lock.json
+      # no dependency runs an install script here: the SPA builds the same without them
       - name: Build the SPA for the web image
-        run: cd frontend && npm ci && npm run build
+        run: cd frontend && npm ci --ignore-scripts && npm run build
       # the revision goes in where the Dockerfile declares the argument, the image reporting its build
       - name: Build the images
         run: |
