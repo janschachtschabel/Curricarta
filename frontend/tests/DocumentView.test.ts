@@ -124,6 +124,25 @@ describe("a document's page", () => {
     ]);
   });
 
+  // the next step was an inline link among the facts, with no way back and no map of ten sections (UI review m10)
+  it("offers opening its tree as its first action, the way back to its entry, and a way to each section", async () => {
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    const wrapper = await open();
+
+    const tree = wrapper.get("[data-test=open-tree]");
+    expect(tree.classes()).toEqual(expect.arrayContaining(["btn", "primary"]));
+    expect(tree.attributes("href")).toBe("/dokumente/d1/baum");
+    expect(wrapper.get("[data-test=document-back]").attributes("href")).toBe("/quellen/s1");
+    const nav = wrapper.get("nav[data-test=document-sections]");
+    expect(nav.attributes("aria-label")).toBe(t("documents.page.sections"));
+    const targets = nav.findAll("a").map((link) => link.attributes("href") ?? "");
+    expect(targets).toContain("#document-facts");
+    expect(targets).toContain("#document-findings");
+    for (const target of targets) expect(wrapper.find(target).exists(), target).toBe(true);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
   it("offers no way to an entry the account does not see: its facts say so", async () => {
     vi.spyOn(api, "getDocument").mockResolvedValue(document_());
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);
@@ -1185,6 +1204,16 @@ describe("the page of a document imported from a MEM plan", () => {
     const wrapper = await open();
 
     expect(wrapper.find("[data-test=import-restart]").exists()).toBe(false);
+    expect(extraction(wrapper).text()).toContain(t("mem.job.imported"));
+  });
+
+  // "Noch keine Extraktion." stood above "Der Import hat den Baum geschrieben" (UI review m10)
+  it("says no missing extraction of an import that wrote its tree", async () => {
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_({ mem: MEM, extraction: null }));
+    vi.spyOn(api, "getRuns").mockResolvedValue(IM_DONE);
+    const wrapper = await open();
+
+    expect(extraction(wrapper).text()).not.toContain(t("documents.page.none"));
     expect(extraction(wrapper).text()).toContain(t("mem.job.imported"));
   });
 

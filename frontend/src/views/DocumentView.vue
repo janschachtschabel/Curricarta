@@ -27,6 +27,7 @@ import DocumentRuns from "@/components/DocumentRuns.vue";
 import DocumentSource from "@/components/DocumentSource.vue";
 import DocumentMemOrigin from "@/components/DocumentMemOrigin.vue";
 import DocumentUnits from "@/components/DocumentUnits.vue";
+import DocumentWays from "@/components/DocumentWays.vue";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
@@ -163,8 +164,18 @@ watch(
 
 <template>
   <div class="page document">
+    <p v-if="document_" class="document__back">
+      <RouterLink v-if="sourceHidden" data-test="document-back" :to="{ name: 'sources' }">
+        {{ t("documents.page.backToRegister") }}
+      </RouterLink>
+      <RouterLink v-else data-test="document-back" :to="{ name: 'source', params: { id: document_.source_id } }">
+        {{ t("documents.page.back") }}
+      </RouterLink>
+    </p>
     <h1 v-if="document_"><bdi class="document__title">{{ heading }}</bdi></h1>
     <h1 v-else>{{ t("app.titles.document") }}</h1>
+    <!-- the main next step and the page's sections, ahead of its ten sections -->
+    <DocumentWays v-if="document_ && !missing" :document="document_" />
 
     <LoadingState v-if="loading && !document_" />
     <EmptyState
@@ -277,5 +288,9 @@ watch(
 
 .document__section {
   margin-block-start: var(--space-4);
+}
+
+.document__back {
+  margin: 0 0 var(--space-2);
 }
 </style>

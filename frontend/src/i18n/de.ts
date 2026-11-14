@@ -63,6 +63,7 @@ export const messages = {
       "Hier entsteht die Wissenslandkarte der Lehrpläne: erfassen, an Kompetenz- und " +
       "Niveauschemata andocken, vernetzen. Unter „Quellen“ legst du die Lehrplandokumente an; " +
       "weitere Werkzeuge folgen.",
+    toSources: "Zu den Quellen",
     about: "Curricarta erfasst Lehrpläne aller Bildungsbereiche und verbindet sie zu einer Wissenslandkarte.",
     // What PUBLIC_ACCESS opens to a visitor without an account.
     visitor: {
@@ -863,6 +864,7 @@ export const messages = {
       imported: "Der Import hat den Baum geschrieben; prüfen und bearbeiten lässt er sich im Baum.",
       notEditor: "Einen Import starten die Redaktion und die Administration erneut.",
       following: "Der Stand wird weiter abgefragt, bis der Import endet.",
+      none: "Noch kein Import.",
     },
     // where an imported document came from (DocumentMemOrigin.vue)
     origin: {
@@ -1258,6 +1260,10 @@ export const messages = {
       loadFailed: "Das Dokument wurde nicht geladen.",
       notFoundTitle: "Dieses Dokument gibt es nicht",
       notFoundBody: "Oder dein Konto sieht es nicht. Deine Dokumente findest du auf den Seiten ihrer Registereinträge.",
+      // under the heading: the way back, the first action, the page's sections (DocumentView.vue)
+      back: "Zurück zum Eintrag",
+      backToRegister: "Zurück zum Register",
+      sections: "Abschnitte dieser Seite",
       facts: {
         heading: "Angaben",
         sector: "Bildungsbereich",

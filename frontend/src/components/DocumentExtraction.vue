@@ -96,7 +96,8 @@ watch(followed, () => {
 const label = computed(() => jobLabel(started.value ? startedKind.value : (latest.value?.kind ?? "")));
 /** How the last job ended, and why where it failed: the document names the code to every reader. */
 const lastLine = computed(() => {
-  if (!latest.value) return t("documents.page.none");
+  // an import has no extraction: none said of it, and nothing above the words that it wrote its tree
+  if (!latest.value) return props.document.mem ? (props.imported ? "" : t("mem.job.none")) : t("documents.page.none");
   const line = lastStatus(latest.value);
   return latest.value.status === "failed" ? `${line}. ${jobFailureText(latest.value.error_code)}` : line;
 });
@@ -247,7 +248,7 @@ onUnmounted(() => asking?.stop());
       @progress="onProgress"
     />
     <template v-else>
-      <p class="extraction__note" data-test="extraction-last">{{ lastLine }}</p>
+      <p v-if="lastLine" class="extraction__note" data-test="extraction-last">{{ lastLine }}</p>
       <p v-if="unfollowed" class="extraction__note">
         {{ document.mem ? t("mem.job.following") : t("documents.page.following") }}
       </p>

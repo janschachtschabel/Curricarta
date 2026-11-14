@@ -77,6 +77,17 @@ describe("the start page for an account", () => {
     expect(wrapper.get("h1").text()).toBe(t("start.welcome", { name: "Lehrkraft" }));
     expect(asked).not.toHaveBeenCalled();
   });
+
+  // "Unter „Quellen“ legst du … an" without a way there (UI review m10)
+  it("leads to the sources it speaks of", async () => {
+    setSession({ id: "0190-a", name: "Lehrkraft", roles: ["nutzer"] });
+
+    const wrapper = await render();
+
+    const link = wrapper.get("[data-test=to-sources]");
+    expect(link.attributes("href")).toBe("/quellen");
+    expect(link.text()).toBe(t("start.toSources"));
+  });
 });
 
 

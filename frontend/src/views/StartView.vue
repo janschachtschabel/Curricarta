@@ -48,6 +48,9 @@ onMounted(load);
     <template v-if="session">
       <h1>{{ t("start.welcome", { name: session.name }) }}</h1>
       <p class="start__lead">{{ t("start.intro") }}</p>
+      <p>
+        <RouterLink class="btn primary" data-test="to-sources" :to="{ name: 'sources' }">{{ t("start.toSources") }}</RouterLink>
+      </p>
     </template>
     <template v-else>
       <h1>{{ t("app.title") }}</h1>
