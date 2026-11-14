@@ -17,9 +17,9 @@ pytestmark = pytest.mark.pg
 BACKEND = Path(__file__).resolve().parents[2]
 
 
-def run_migrate(database_url: str) -> subprocess.CompletedProcess[str]:
+def run_migrate(empty_database_url: str) -> subprocess.CompletedProcess[str]:
     with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": database_url, "LOG_FORMAT": "json"}
+        environment = {**os.environ, "DATABASE_URL": empty_database_url, "LOG_FORMAT": "json"}
     return subprocess.run(
         [sys.executable, "-m", "app.db.migrate"],
         cwd=BACKEND,
@@ -31,31 +31,31 @@ def run_migrate(database_url: str) -> subprocess.CompletedProcess[str]:
     )
 
 
-def test_the_packaged_migrations_are_applied_once(database_url: str) -> None:
-    first = run_migrate(database_url)
-    second = run_migrate(database_url)
+def test_the_packaged_migrations_are_applied_once(empty_database_url: str) -> None:
+    first = run_migrate(empty_database_url)
+    second = run_migrate(empty_database_url)
 
     assert first.returncode == 0, first.stderr
     assert second.returncode == 0, second.stderr
     assert first.stdout == second.stdout == ""
-    with psycopg.connect(database_url) as connection:
+    with psycopg.connect(empty_database_url) as connection:
         count = connection.execute("SELECT count(*) FROM schema_migration").fetchone()
     assert count == (len(load_migrations()),)
     assert "0 migration(s) applied" in second.stderr
 
 
-def test_a_refused_run_ends_with_1_and_names_no_password(database_url: str) -> None:
-    assert run_migrate(database_url).returncode == 0
-    with psycopg.connect(database_url) as connection:
+def test_a_refused_run_ends_with_1_and_names_no_password(empty_database_url: str) -> None:
+    assert run_migrate(empty_database_url).returncode == 0
+    with psycopg.connect(empty_database_url) as connection:
         connection.execute(
             "INSERT INTO schema_migration (version, name, checksum) VALUES (999, '0999_future.sql', %s)",
             ("0" * 64,),
         )
 
-    refused = run_migrate(database_url)
+    refused = run_migrate(empty_database_url)
 
     assert refused.returncode == 1
     assert "newer" in refused.stderr
-    password = conninfo_to_dict(database_url).get("password")
+    password = conninfo_to_dict(empty_database_url).get("password")
     assert password
     assert str(password) not in refused.stderr

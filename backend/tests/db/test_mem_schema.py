@@ -162,21 +162,23 @@ def test_a_mem_iri_at_a_row_is_a_web_iri(connection: psycopg.Connection) -> None
         add_node(connection, document, mem_iri="urn:uuid:" + str(uuid.uuid4()))
 
 
-def test_rows_written_before_the_migration_hold_nothing_of_mem(database_url: str, tmp_path: Path) -> None:
+def test_rows_written_before_the_migration_hold_nothing_of_mem(
+    empty_database_url: str, tmp_path: Path
+) -> None:
     before = tmp_path / "migrations"
     before.mkdir()
     for migration in MIGRATIONS.iterdir():
         if migration.name.endswith(".sql") and migration.name < "0030":
             shutil.copyfile(str(migration), before / migration.name)
-    migrate(database_url, before)
-    with psycopg.connect(database_url, autocommit=True) as connection:
+    migrate(empty_database_url, before)
+    with psycopg.connect(empty_database_url, autocommit=True) as connection:
         seed_vocabulary(connection)
         made = add_conversion(connection)
         documents = [add_document(connection, made), add_document(connection, made)]  # one conversion
         node = add_node(connection, documents[0])
         add_statement(connection, documents[0], node)
 
-        migrate(database_url)
+        migrate(empty_database_url)
 
         kept = connection.execute(
             "SELECT count(*) FILTER (WHERE mem_iri IS NULL AND mem_subjects = '{}') FROM document"
@@ -243,15 +245,15 @@ def test_a_frozen_import_takes_a_new_licence_and_nothing_else(
 
 
 def test_documents_imported_before_the_migration_take_their_plan_s_land_and_class(
-    database_url: str, tmp_path: Path
+    empty_database_url: str, tmp_path: Path
 ) -> None:
     before = tmp_path / "migrations"
     before.mkdir()
     for migration in MIGRATIONS.iterdir():
         if migration.name.endswith(".sql") and migration.name < "0031":
             shutil.copyfile(str(migration), before / migration.name)
-    migrate(database_url, before)
-    with psycopg.connect(database_url, autocommit=True) as connection:
+    migrate(empty_database_url, before)
+    with psycopg.connect(empty_database_url, autocommit=True) as connection:
         seed_vocabulary(connection)
         a_plan(connection)
         draft = add_document(connection, add_conversion(connection), mem_iri=PLAN)
@@ -266,7 +268,7 @@ def test_documents_imported_before_the_migration_take_their_plan_s_land_and_clas
             connection, add_conversion(connection, digest=bytes([4]) * 32), mem_iri=PLAN + "-alt"
         )
 
-        migrate(database_url)
+        migrate(empty_database_url)
 
         kept = connection.execute(
             "SELECT id, mem_land_iri, mem_class_iri FROM document ORDER BY id"

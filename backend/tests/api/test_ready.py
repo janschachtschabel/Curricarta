@@ -40,15 +40,15 @@ def test_health_does_not_need_the_database() -> None:
 
 
 @pytest.mark.pg
-def test_an_empty_database_is_not_ready(database_url: str) -> None:
-    assert ready(database_url) == (503, {"status": "unavailable", "reason": "migration"})
+def test_an_empty_database_is_not_ready(empty_database_url: str) -> None:
+    assert ready(empty_database_url) == (503, {"status": "unavailable", "reason": "migration"})
 
 
 @pytest.mark.pg
-def test_a_migrated_database_is_ready(database_url: str) -> None:
-    migrate(database_url)
+def test_a_migrated_database_is_ready(empty_database_url: str) -> None:
+    migrate(empty_database_url)
 
-    assert ready(database_url) == (200, {"status": "ready"})
+    assert ready(empty_database_url) == (200, {"status": "ready"})
 
 
 @pytest.mark.pg

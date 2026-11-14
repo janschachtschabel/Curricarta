@@ -4,12 +4,14 @@ import asyncio
 import os
 import uuid
 from collections.abc import Iterator
+from contextlib import contextmanager
 
 import psycopg
 import pytest
 from psycopg import sql
 from psycopg.conninfo import make_conninfo
 
+from app.db.migrate import migrate
 from tests.support import kept_logging
 
 
@@ -38,21 +40,59 @@ def restore_logging() -> Iterator[None]:
 ADMIN_URL_VARIABLE = "CURRICARTA_TEST_DATABASE_URL"
 
 
-@pytest.fixture
-def database_url() -> Iterator[str]:
+def _admin_url() -> str:
     admin = os.environ.get(ADMIN_URL_VARIABLE)
     if not admin:
         if os.environ.get("CURRICARTA_REQUIRE_PG") or os.environ.get("CI"):
             pytest.fail(f"{ADMIN_URL_VARIABLE} is not set, but the database tests are required")
         pytest.skip(f"{ADMIN_URL_VARIABLE} is not set")
-    name = f"curricarta_t_{uuid.uuid4().hex[:12]}"
+    return admin
+
+
+@contextmanager
+def _database(admin: str, template: str, prefix: str = "curricarta_t") -> Iterator[str]:
+    """A new database copied from ``template``, dropped afterwards - also when its user left
+    connections open. The name is random: test runs of other developers or CI jobs may share the server."""
+    name = f"{prefix}_{uuid.uuid4().hex[:12]}"
     with psycopg.connect(admin, autocommit=True) as connection:
-        connection.execute(sql.SQL("CREATE DATABASE {} TEMPLATE template0").format(sql.Identifier(name)))
+        connection.execute(
+            sql.SQL("CREATE DATABASE {} TEMPLATE {}").format(sql.Identifier(name), sql.Identifier(template))
+        )
     try:
-        yield make_conninfo(admin, dbname=name)
+        yield name
     finally:
         with psycopg.connect(admin, autocommit=True) as connection:
             connection.execute(sql.SQL("DROP DATABASE {} WITH (FORCE)").format(sql.Identifier(name)))
+
+
+@pytest.fixture(scope="session")
+def migrated_template() -> Iterator[str]:
+    """One database per test session with every migration applied, the template of database_url:
+    running all migrations for each of thousands of tests took most of the suite's time. Copying needs
+    the template without sessions, so it is migrated and closed before the first copy, and no test
+    connects to it."""
+    admin = _admin_url()
+    with _database(admin, "template0", prefix="curricarta_tpl") as name:
+        migrate(make_conninfo(admin, dbname=name))
+        yield name
+
+
+@pytest.fixture
+def database_url(migrated_template: str) -> Iterator[str]:
+    """A fresh database with every migration applied: a test's own migrate() call finds nothing to do.
+    A test of the migrations themselves takes empty_database_url."""
+    admin = _admin_url()
+    with _database(admin, migrated_template) as name:
+        yield make_conninfo(admin, dbname=name)
+
+
+@pytest.fixture
+def empty_database_url() -> Iterator[str]:
+    """A fresh database without any migration, for the tests of the runner, of single migrations
+    over older data, and of what an unmigrated database answers."""
+    admin = _admin_url()
+    with _database(admin, "template0") as name:
+        yield make_conninfo(admin, dbname=name)
 
 
 @pytest.fixture

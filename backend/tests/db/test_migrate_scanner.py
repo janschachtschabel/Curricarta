@@ -56,7 +56,7 @@ def test_legitimate_sql_is_not_taken_for_transaction_control(tmp_path: Path, sql
 
 @pytest.mark.pg
 def test_a_file_that_ended_the_transaction_anyway_fails_loudly(
-    database_url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    empty_database_url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # the last guard, should the scanner ever miss one: the runner checks its transaction is open
     monkeypatch.setattr(runner, "_transaction_control", lambda sql: None)
@@ -64,7 +64,7 @@ def test_a_file_that_ended_the_transaction_anyway_fails_loudly(
     (tmp_path / "m" / "0001_slipped.sql").write_text("CREATE TABLE a (id int);\nCOMMIT;", encoding="utf-8")
 
     with pytest.raises(MigrationError, match="transaction"):
-        migrate(database_url, tmp_path / "m")
+        migrate(empty_database_url, tmp_path / "m")
 
-    with psycopg.connect(database_url) as connection:
+    with psycopg.connect(empty_database_url) as connection:
         assert connection.execute("SELECT count(*) FROM schema_migration").fetchone() == (0,)

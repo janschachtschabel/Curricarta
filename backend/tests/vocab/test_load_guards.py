@@ -136,10 +136,12 @@ def test_the_load_command_refuses_a_missing_ontology_folder_and_retires_nothing(
     assert fetch(migrated, "SELECT count(*) FROM vocab_concept WHERE retired_in IS NULL") == [(1,)]
 
 
-def test_the_load_command_on_an_unmigrated_database_ends_with_1(database_url: str, tmp_path: Path) -> None:
+def test_the_load_command_on_an_unmigrated_database_ends_with_1(
+    empty_database_url: str, tmp_path: Path
+) -> None:
     root = write_model(tmp_path, COLOURS + RED_R)
 
-    refused = run_load_command(database_url, str(root))
+    refused = run_load_command(empty_database_url, str(root))
 
     assert refused.returncode == 1
     assert "vocabulary not loaded" in refused.stderr

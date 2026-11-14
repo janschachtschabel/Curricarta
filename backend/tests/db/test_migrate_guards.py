@@ -59,14 +59,14 @@ $$;
 
 
 def test_a_run_waiting_for_the_lock_says_so(
-    database_url: str, tmp_path: Path, caplog: pytest.LogCaptureFixture
+    empty_database_url: str, tmp_path: Path, caplog: pytest.LogCaptureFixture
 ) -> None:
     directory = write(tmp_path / "m", {"0001_first.sql": "CREATE TABLE first (id int);"})
-    with psycopg.connect(database_url, autocommit=True) as holder:
+    with psycopg.connect(empty_database_url, autocommit=True) as holder:
         holder.execute("SELECT pg_advisory_lock(%s)", (LOCK_KEY,))
         caplog.set_level(logging.INFO, logger="app.db.migrate")
         result: list[list[int]] = []
-        thread = threading.Thread(target=lambda: result.append(migrate(database_url, directory)))
+        thread = threading.Thread(target=lambda: result.append(migrate(empty_database_url, directory)))
         thread.start()
         deadline = time.monotonic() + 10
         while "waiting for the migration lock" not in caplog.text and time.monotonic() < deadline:
@@ -79,22 +79,22 @@ def test_a_run_waiting_for_the_lock_says_so(
 
 
 def test_a_migration_blocked_by_a_table_lock_gives_up(
-    database_url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    empty_database_url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # waiting behind a long transaction, an ALTER would block all traffic on the table
-    migrate(database_url, write(tmp_path / "m", {"0001_first.sql": "CREATE TABLE first (id int);"}))
+    migrate(empty_database_url, write(tmp_path / "m", {"0001_first.sql": "CREATE TABLE first (id int);"}))
     write(tmp_path / "m", {"0002_alter.sql": "ALTER TABLE first ADD COLUMN name text;"})
     monkeypatch.setattr(runner, "LOCK_TIMEOUT", "300ms")
     with (
-        lock_held(database_url, "LOCK TABLE first IN ACCESS SHARE MODE", at_most_s=5),
+        lock_held(empty_database_url, "LOCK TABLE first IN ACCESS SHARE MODE", at_most_s=5),
         pytest.raises(MigrationError, match=re.escape("0002_alter.sql")),
     ):
-        migrate(database_url, tmp_path / "m")
+        migrate(empty_database_url, tmp_path / "m")
 
 
-def run_migrate(database_url: str, log_format: str = "json") -> subprocess.CompletedProcess[str]:
+def run_migrate(empty_database_url: str, log_format: str = "json") -> subprocess.CompletedProcess[str]:
     with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": database_url, "LOG_FORMAT": log_format}
+        environment = {**os.environ, "DATABASE_URL": empty_database_url, "LOG_FORMAT": log_format}
     return subprocess.run(
         [sys.executable, "-m", "app.db.migrate"],
         cwd=BACKEND,
@@ -109,10 +109,10 @@ def run_migrate(database_url: str, log_format: str = "json") -> subprocess.Compl
 @pytest.mark.parametrize("log_format", ["json", "text"])
 @pytest.mark.parametrize("target", ["wrong-password", "no-server"])
 def test_a_database_the_command_cannot_reach_ends_in_one_log_line(
-    database_url: str, target: str, log_format: str
+    empty_database_url: str, target: str, log_format: str
 ) -> None:
     url = (
-        make_conninfo(database_url, password="wrong-invented")  # noqa: S106 - an invented wrong one
+        make_conninfo(empty_database_url, password="wrong-invented")  # noqa: S106 - an invented wrong one
         if target == "wrong-password"
         else "postgresql://curricarta:fake@127.0.0.1:1/curricarta"
     )
@@ -134,20 +134,20 @@ SLEEPING = (
 )
 
 
-def test_a_connection_lost_mid_run_names_its_cause(database_url: str, tmp_path: Path) -> None:
+def test_a_connection_lost_mid_run_names_its_cause(empty_database_url: str, tmp_path: Path) -> None:
     # releasing the lock on the dead connection must not hide why the run stopped
     directory = write(tmp_path / "m", {"0001_slow.sql": "SELECT pg_sleep(30);"})
     outcome: list[BaseException] = []
 
     def run() -> None:
         try:
-            migrate(database_url, directory)
+            migrate(empty_database_url, directory)
         except BaseException as error:  # reported below
             outcome.append(error)
 
     thread = threading.Thread(target=run)
     thread.start()
-    with psycopg.connect(database_url, autocommit=True) as admin:
+    with psycopg.connect(empty_database_url, autocommit=True) as admin:
         deadline = time.monotonic() + 10
         while not admin.execute(SLEEPING).fetchone()[0]:  # type: ignore[index]
             assert time.monotonic() < deadline, "the migration did not start"

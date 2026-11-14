@@ -37,23 +37,23 @@ TWO = {
 }
 
 
-def test_a_fresh_database_gets_every_file_in_order(database_url: str, tmp_path: Path) -> None:
-    applied = migrate(database_url, write(tmp_path / "m", TWO))
+def test_a_fresh_database_gets_every_file_in_order(empty_database_url: str, tmp_path: Path) -> None:
+    applied = migrate(empty_database_url, write(tmp_path / "m", TWO))
 
     assert applied == [1, 2]
-    assert applied_rows(database_url) == [(1, "0001_first.sql"), (2, "0002_second.sql")]
-    assert table_exists(database_url, "second")
+    assert applied_rows(empty_database_url) == [(1, "0001_first.sql"), (2, "0002_second.sql")]
+    assert table_exists(empty_database_url, "second")
 
 
-def test_a_second_run_applies_nothing(database_url: str, tmp_path: Path) -> None:
+def test_a_second_run_applies_nothing(empty_database_url: str, tmp_path: Path) -> None:
     directory = write(tmp_path / "m", TWO)
-    migrate(database_url, directory)
+    migrate(empty_database_url, directory)
 
-    assert migrate(database_url, directory) == []
-    assert len(applied_rows(database_url)) == 2
+    assert migrate(empty_database_url, directory) == []
+    assert len(applied_rows(empty_database_url)) == 2
 
 
-def test_two_runs_at_once_apply_each_file_exactly_once(database_url: str, tmp_path: Path) -> None:
+def test_two_runs_at_once_apply_each_file_exactly_once(empty_database_url: str, tmp_path: Path) -> None:
     directory = write(
         tmp_path / "m",
         {
@@ -69,7 +69,7 @@ def test_two_runs_at_once_apply_each_file_exactly_once(database_url: str, tmp_pa
     def run() -> None:
         start.wait()
         try:
-            results.append(migrate(database_url, directory))
+            results.append(migrate(empty_database_url, directory))
         except BaseException as error:  # reported below, not lost in the thread
             errors.append(error)
 
@@ -81,29 +81,29 @@ def test_two_runs_at_once_apply_each_file_exactly_once(database_url: str, tmp_pa
 
     assert errors == []
     assert sorted(version for result in results for version in result) == [1, 2]
-    with psycopg.connect(database_url) as connection:
+    with psycopg.connect(empty_database_url) as connection:
         assert connection.execute("SELECT n FROM hits ORDER BY n").fetchall() == [(1,), (2,)]
 
 
-def test_a_database_newer_than_the_code_is_refused(database_url: str, tmp_path: Path) -> None:
-    migrate(database_url, write(tmp_path / "new", TWO))
+def test_a_database_newer_than_the_code_is_refused(empty_database_url: str, tmp_path: Path) -> None:
+    migrate(empty_database_url, write(tmp_path / "new", TWO))
     older = write(tmp_path / "old", {"0001_first.sql": TWO["0001_first.sql"]})
 
     with pytest.raises(MigrationError, match="newer"):
-        migrate(database_url, older)
+        migrate(empty_database_url, older)
 
 
-def test_a_file_changed_after_it_was_applied_is_refused(database_url: str, tmp_path: Path) -> None:
+def test_a_file_changed_after_it_was_applied_is_refused(empty_database_url: str, tmp_path: Path) -> None:
     directory = write(tmp_path / "m", TWO)
-    migrate(database_url, directory)
+    migrate(empty_database_url, directory)
     (directory / "0001_first.sql").write_text("CREATE TABLE first (id bigint PRIMARY KEY);", encoding="utf-8")
 
     with pytest.raises(MigrationError, match=re.escape("0001_first.sql")):
-        migrate(database_url, directory)
+        migrate(empty_database_url, directory)
 
 
 def test_a_failing_file_keeps_the_earlier_ones_and_nothing_of_itself(
-    database_url: str, tmp_path: Path
+    empty_database_url: str, tmp_path: Path
 ) -> None:
     directory = write(
         tmp_path / "m",
@@ -114,10 +114,10 @@ def test_a_failing_file_keeps_the_earlier_ones_and_nothing_of_itself(
     )
 
     with pytest.raises(MigrationError, match=re.escape("0002_broken.sql")):
-        migrate(database_url, directory)
+        migrate(empty_database_url, directory)
 
-    assert applied_rows(database_url) == [(1, "0001_first.sql")]
-    assert not table_exists(database_url, "half")
+    assert applied_rows(empty_database_url) == [(1, "0001_first.sql")]
+    assert not table_exists(empty_database_url, "half")
 
 
 @pytest.mark.parametrize(
@@ -157,16 +157,18 @@ def test_a_file_s_checksum_is_the_same_whatever_its_line_endings(tmp_path: Path)
     assert load_migrations(unix)[0].checksum == load_migrations(windows)[0].checksum
 
 
-def test_a_database_migrated_from_one_checkout_takes_the_other(database_url: str, tmp_path: Path) -> None:
+def test_a_database_migrated_from_one_checkout_takes_the_other(
+    empty_database_url: str, tmp_path: Path
+) -> None:
     directory = tmp_path / "m"
     directory.mkdir()
     (directory / "0001_first.sql").write_bytes(b"CREATE TABLE first (\n    id integer PRIMARY KEY\n);\n")
-    migrate(database_url, directory)
+    migrate(empty_database_url, directory)
     (directory / "0001_first.sql").write_bytes(
         b"CREATE TABLE first (\r\n    id integer PRIMARY KEY\r\n);\r\n"
     )
 
-    assert migrate(database_url, directory) == []
+    assert migrate(empty_database_url, directory) == []
 
 
 def test_no_shipped_migration_changed_after_it_was_released() -> None:

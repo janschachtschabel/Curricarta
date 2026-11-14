@@ -188,15 +188,15 @@ def test_a_node_or_statement_iri_names_one_row_of_its_document(connection: psyco
         add_node(connection, document, position=3, iri="urn:uuid:" + str(uuid.uuid4()))
 
 
-def test_a_statement_written_by_hand_before_keeps_that_mark(database_url: str, tmp_path: Path) -> None:
+def test_a_statement_written_by_hand_before_keeps_that_mark(empty_database_url: str, tmp_path: Path) -> None:
     # by origin and run, as drop_or_reject_statement told them apart before (app/db/statement_editing.py)
     before = tmp_path / "migrations"
     before.mkdir()
     for migration in MIGRATIONS.iterdir():
         if migration.name.endswith(".sql") and migration.name < "0022":
             shutil.copyfile(str(migration), before / migration.name)
-    migrate(database_url, before)
-    with psycopg.connect(database_url, autocommit=True) as connection:
+    migrate(empty_database_url, before)
+    with psycopg.connect(empty_database_url, autocommit=True) as connection:
         seed_vocabulary(connection)
         made = add_conversion(connection)
         document = add_document(connection, made)
@@ -208,7 +208,7 @@ def test_a_statement_written_by_hand_before_keeps_that_mark(database_url: str, t
         )
         modelled = add_statement(connection, document, node, position=3, origin_iri=CV + "orig_model")
 
-        migrate(database_url)
+        migrate(empty_database_url)
 
         rows = connection.execute("SELECT id, by_hand FROM statement").fetchall()
     assert dict(rows) == {by_hand: True, edited: False, modelled: False}

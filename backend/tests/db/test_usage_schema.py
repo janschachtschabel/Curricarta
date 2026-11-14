@@ -368,14 +368,14 @@ def test_a_writer_of_the_release_before_writes_on_through_the_rollout(connection
     assert charged(connection, "llm_usage", booked[0]) == 1_500
 
 
-def test_what_was_booked_before_weights_is_charged_as_it_was(database_url: str, tmp_path: Path) -> None:
+def test_what_was_booked_before_weights_is_charged_as_it_was(empty_database_url: str, tmp_path: Path) -> None:
     before = tmp_path / "migrations"
     before.mkdir()
     for migration in MIGRATIONS.iterdir():
         if migration.name.endswith(".sql") and migration.name < "0029":
             shutil.copyfile(str(migration), before / migration.name)
-    migrate(database_url, before)
-    with psycopg.connect(database_url, autocommit=True) as connection:
+    migrate(empty_database_url, before)
+    with psycopg.connect(empty_database_url, autocommit=True) as connection:
         account = add_account(connection)
         booked = insert(connection, "llm_usage", {
             "account_id": account, "purpose": "x1", "model": "gpt-6-luna", "input_tokens": 1_200,
@@ -387,7 +387,7 @@ def test_what_was_booked_before_weights_is_charged_as_it_was(database_url: str, 
             "model": "gpt-6-luna", "input_tokens": 1_320, "output_tokens": 16_000,
         })  # fmt: skip
 
-        migrate(database_url)
+        migrate(empty_database_url)
 
         assert charged(connection, "llm_usage", booked) == 1_500
         assert charged(connection, "usage_reservation", held) == 17_320

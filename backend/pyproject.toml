@@ -98,6 +98,9 @@ markers = [
     "s3: needs the S3 test container (CURRICARTA_TEST_S3_URL)",
 ]
 addopts = "-ra --strict-markers --import-mode=importlib"
+# A test past five minutes dumps every thread's stack and goes on: a hang names itself in the log
+# instead of running silently into the CI job's limit. No test comes near it.
+faulthandler_timeout = 300
 
 [tool.coverage.run]
 # the bootstrap, the vocabulary load, the migration and the worker run as processes of their own
