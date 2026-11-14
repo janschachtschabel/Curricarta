@@ -5,7 +5,8 @@ The upload route has no body parameter on purpose: FastAPI reads such a body bef
 the token, so the form is read here, after it. BodyLimit (app/api/body_limit.py) bounds the body
 before anything reads it; the form parser spools the file in pieces and counts it, and a file
 past MAX_UPLOAD_MB is refused by that count before any of it is read. The spooled file is then
-examined and stored a piece at a time, never held whole in memory. A process takes
+examined and stored a piece at a time, never held whole: under 10 MiB of memory an upload, whatever
+its size (examine_file says what it holds). A process takes
 MAX_CONCURRENT_UPLOADS uploads at once (audit 2026-11-14), each from before its form is read to
 after its file is stored: one more waits UPLOAD_WAIT_S, holding no connection, then is told to
 come back.

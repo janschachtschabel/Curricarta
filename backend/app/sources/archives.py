@@ -8,6 +8,7 @@ far below all three bounds.
 
 import copy
 import io
+import struct
 import sys
 import zipfile
 import zlib
@@ -25,6 +26,18 @@ _ENCRYPTED = 0x1  # general-purpose bit 0
 _MEASURING_BLOCK = 2**16
 _DIRECTORY_ENTRY = b"PK\x01\x02"  # the signature each part's entry in the central directory starts with
 COUNTING_PIECE = 2**20  # the signatures are counted a piece at a time, never in the whole file
+# zipfile reads the central directory whole, by the size the end record states, and makes an object
+# of each entry. An entry is 46 bytes and the part's name, extra field and comment; a document's
+# names are short (an OOXML part's longest, "word/glossary/stylesWithEffects.xml", is 36 bytes), its
+# extra fields a few dozen bytes, and it has no comments: 512 bytes a part is a fivefold margin on
+# about 100. So the directory of MAX_ARCHIVE_ENTRIES parts is 5,000 x 512 B = 2.44 MiB at most -
+# a real DOCX's has some 20 to 200 parts, a few KiB to 20 KiB.
+MAX_DIRECTORY_BYTES = MAX_ARCHIVE_ENTRIES * 512
+# A document's archive carries no comment of its own; zipfile reads up to 64 KiB of one
+MAX_ARCHIVE_COMMENT = 2**10
+_END = b"PK\x05\x06"  # the end record's signature; the record is 22 bytes and the comment
+_END_RECORD = struct.Struct("<4s4H2IH")
+_ZIP64_LOCATOR = b"PK\x06\x07"  # 20 bytes right before the end record of a ZIP64 archive
 
 
 class ArchiveUnreadable(ValueError):
@@ -41,8 +54,9 @@ def check_archive(data: bytes) -> None:
 
 
 def check_archive_file(source: BinaryIO) -> None:
-    """Refuse a ZIP, read from ``source`` from where it stands, whose parts would expand past the
-    bounds above; ``source`` is left where it stood.
+    """Refuse a ZIP whose parts would expand past the bounds above. The archive is ``source``
+    whole (zipfile reads it from its end), so ``source`` must stand at its start, and is left
+    there; ValueError if not.
 
     The central directory first: how many parts, the sizes they state, the bomb ratio, how
     they are packed. Then every part unpacked in blocks and counted, for those sizes are the
@@ -55,18 +69,23 @@ def check_archive_file(source: BinaryIO) -> None:
     Before all that, the parts are counted by their signature in the bytes: zipfile reads the
     whole directory into objects first, and 50 MiB naming 1.1 million parts took 4.3 s and
     330 MiB. The count is at least the true one, as packed bytes may hold the signature too.
+    Then the end record: zipfile reads the directory whole by the size it states, so a directory
+    past MAX_DIRECTORY_BYTES, a comment past MAX_ARCHIVE_COMMENT and a ZIP64 archive (whose sizes
+    and counts are past every bound here, and which no document needs) are refused before it.
     """
-    start = source.tell()
+    if source.tell() != 0:
+        raise ValueError("an archive is read whole: the source must stand at its start")
     try:
-        _check(source, start)
+        _check(source)
     finally:
-        source.seek(start)
+        source.seek(0)
 
 
-def _check(source: BinaryIO, start: int) -> None:
+def _check(source: BinaryIO) -> None:
     if _signatures(source) > MAX_ARCHIVE_ENTRIES:
         raise ArchiveTooLarge(f"more than {MAX_ARCHIVE_ENTRIES} parts")
-    source.seek(start)
+    _check_end_record(source)
+    source.seek(0)
     try:
         archive = zipfile.ZipFile(source)
     except (zipfile.BadZipFile, ValueError) as error:
@@ -89,6 +108,32 @@ def _check(source: BinaryIO, start: int) -> None:
         for part in parts:
             if _unpacks_past_its_size(archive, part):
                 raise ArchiveTooLarge("a part unpacks past the size it states")
+
+
+def _check_end_record(source: BinaryIO) -> None:
+    """Refuse an archive whose end record states a directory or a comment past its bound, or that
+    is a ZIP64 archive. An archive without an end record is left to zipfile to refuse."""
+    size = source.seek(0, io.SEEK_END)
+    tail_start = max(0, size - _END_RECORD.size - 0xFFFF)
+    source.seek(tail_start)
+    tail = source.read()
+    at = tail.rfind(_END)
+    if at < 0 or len(tail) - at < _END_RECORD.size:
+        return
+    *_, entries, directory_size, directory_offset, comment = _END_RECORD.unpack_from(tail, at)
+    if comment > MAX_ARCHIVE_COMMENT or len(tail) - at - _END_RECORD.size > MAX_ARCHIVE_COMMENT:
+        raise ArchiveTooLarge("the archive's comment is longer than a document's")
+    zip64 = tail_start + at >= len(_ZIP64_LOCATOR) + 16 and _locator_before(source, tail_start + at)
+    if zip64 or entries == 0xFFFF or 0xFFFFFFFF in (directory_size, directory_offset):
+        raise ArchiveTooLarge("a ZIP64 archive: past every bound a document keeps to")
+    if directory_size > MAX_DIRECTORY_BYTES:
+        raise ArchiveTooLarge("the archive's directory is larger than a document's")
+
+
+def _locator_before(source: BinaryIO, end: int) -> bool:
+    """Whether a ZIP64 end locator stands right before the end record at ``end``."""
+    source.seek(end - 20)
+    return source.read(len(_ZIP64_LOCATOR)) == _ZIP64_LOCATOR
 
 
 def _signatures(source: BinaryIO) -> int:

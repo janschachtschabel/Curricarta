@@ -6,9 +6,7 @@ it for stored.
 """
 
 import hashlib
-import tempfile
 import threading
-import tracemalloc
 from collections.abc import Iterator
 from typing import Any, BinaryIO
 from uuid import UUID
@@ -16,12 +14,10 @@ from uuid import UUID
 import pytest
 from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
-from starlette.datastructures import UploadFile
 from starlette.types import Message
 
-from app.api import sources
 from app.api.app import create_app
-from tests.api.test_sources_upload import PDF, PUBLIC, migrated, owner, rows, upload
+from tests.api.test_sources_upload import PUBLIC, migrated, owner, rows, upload
 from tests.api.test_sources_upload_slots import HEAD, drive
 from tests.api.upload_stores import UploadStore, upload_store
 from tests.support import make_settings, seed_account, selector_client
@@ -60,27 +56,6 @@ def test_an_upload_is_stored_under_the_checksum_its_row_names(
     assert answer.status_code == 201
     assert answer.json()["file"]["sha256"] == hashlib.sha256(FILE).hexdigest()
     assert stored_as_its_row_says(migrated, upload_store)
-
-
-def test_an_upload_is_never_held_whole_in_memory(upload_store: UploadStore) -> None:
-    # examined and stored from the file the form parser spooled, a piece at a time (audit 2026-11-14)
-    size = 8 * 2**20
-    with tempfile.SpooledTemporaryFile(max_size=2**20) as spooled:  # as the form parser spools it
-        spooled.write(PDF + b"x" * (size - len(PDF)))
-        spooled.seek(0)
-        upload_file = UploadFile(spooled, size=size, filename="lehrplan.pdf")  # type: ignore[arg-type]
-
-        tracemalloc.start()
-        try:
-            detected, digest, examined = sources._examined(upload_file, 50 * 2**20)
-            upload_store.storage.put_file("sources/big", upload_file.file, examined)
-            peak = tracemalloc.get_traced_memory()[1]
-        finally:
-            tracemalloc.stop()
-
-    assert (detected.mime, examined) == ("application/pdf", size)
-    assert hashlib.sha256(upload_store.storage.get("sources/big")).digest() == digest
-    assert peak < 3 * 2**20
 
 
 def test_an_upload_whose_client_goes_leaves_nothing(

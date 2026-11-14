@@ -11,7 +11,13 @@ import pytest
 from app.sources import archives
 from app.sources.archives import ArchiveTooLarge, ArchiveUnreadable
 from app.sources.filetype import UnsupportedType, examine, examine_file
-from tests.sources.zip_helpers import directory_only, directory_says, make_zip
+from tests.sources.zip_helpers import (
+    commented_parts,
+    directory_only,
+    directory_says,
+    make_zip,
+    with_zip64_locator,
+)
 
 UTF8_ACROSS = ("a" + "ä" * 2**19).encode()  # 1 MiB and a byte: the last sign split over two pieces
 TEXTS = ("lp.md", "page.html", "note.txt", "lp.ttl")
@@ -82,3 +88,64 @@ def test_a_directory_signature_split_over_two_pieces_is_counted(monkeypatch: pyt
 def test_text_that_stops_being_utf8_in_a_later_piece_is_no_text() -> None:
     with pytest.raises(UnsupportedType):
         examine_file("lehrplan.txt", io.BytesIO(b"a" * (3 * 2**20) + b"\xff"))
+
+
+# --- an archive's central directory, bounded before zipfile reads it whole (review of audit 2026-11-14)
+
+
+def unread(*args: object, **kwargs: object) -> NoReturn:
+    raise AssertionError("the directory was read")
+
+
+def with_comment(data: bytes, comment: bytes) -> bytes:
+    with zipfile.ZipFile(buffer := io.BytesIO(data), "a") as archive:
+        archive.comment = comment
+    return buffer.getvalue()
+
+
+def test_a_directory_past_its_bound_is_refused_before_it_is_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    # few parts, under every other bound, but with long entry comments: zipfile would read it whole
+    heavy = commented_parts(100, comment=archives.MAX_DIRECTORY_BYTES // 100)
+    monkeypatch.setattr(zipfile, "ZipFile", unread)
+
+    with pytest.raises(ArchiveTooLarge):
+        archives.check_archive_file(io.BytesIO(heavy))
+
+
+def test_an_archive_comment_past_its_bound_is_refused_before_the_directory_is_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    commented = with_comment(
+        make_zip({"word/document.xml": b"<w/>"}), b"c" * (archives.MAX_ARCHIVE_COMMENT + 1)
+    )
+    monkeypatch.setattr(zipfile, "ZipFile", unread)
+
+    with pytest.raises(ArchiveTooLarge):
+        archives.check_archive_file(io.BytesIO(commented))
+
+
+def test_an_archive_comment_within_its_bound_is_taken() -> None:
+    archives.check_archive_file(
+        io.BytesIO(with_comment(make_zip({"w.xml": b"<w/>"}), b"c" * archives.MAX_ARCHIVE_COMMENT))
+    )
+
+
+def test_a_directory_within_its_bound_is_read() -> None:
+    archives.check_archive_file(io.BytesIO(commented_parts(4900, comment=400)))
+
+
+def test_a_zip64_archive_is_refused_before_its_directory_is_read(monkeypatch: pytest.MonkeyPatch) -> None:
+    # a ZIP64 end record states counts and sizes past every bound here; no document needs one
+    zip64 = with_zip64_locator(make_zip({"word/document.xml": b"<w/>"}))
+    monkeypatch.setattr(zipfile, "ZipFile", unread)
+
+    with pytest.raises(ArchiveTooLarge):
+        archives.check_archive_file(io.BytesIO(zip64))
+
+
+def test_an_archive_is_taken_whole_from_its_start() -> None:
+    source = io.BytesIO(b"head" + make_zip({"word/document.xml": b"<w/>"}))
+    source.seek(4)
+
+    with pytest.raises(ValueError, match="start"):
+        archives.check_archive_file(source)

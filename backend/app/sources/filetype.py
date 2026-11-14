@@ -121,10 +121,15 @@ def examine(filename: str | None, data: bytes) -> tuple[DetectedType, bytes]:
 
 
 def examine_file(filename: str | None, source: BinaryIO) -> tuple[DetectedType, bytes, int]:
-    """``examine`` of the rest of ``source``, read a piece at a time and never held whole (an
-    upload's spooled file): the type, the SHA-256 and the size. The same refusals as ``examine``;
-    ``source`` is left where it stood, for the store to read it from there. Blocks: callers on the
-    event loop run it in a thread."""
+    """``examine`` of the rest of ``source`` (an upload's spooled file), read a piece at a time: the
+    type, the SHA-256 and the size. The same refusals as ``examine``; ``source`` is left where it
+    stood, for the store to read it from there. A ZIP is checked whole, so it must stand at 0.
+
+    The file is never held whole. At once it holds two pieces of READ_PIECE; for a text also the
+    decoder's output for one piece (CPython sizes it at four bytes a sign: 4 MiB); for a ZIP the
+    central directory zipfile reads (at most MAX_DIRECTORY_BYTES) with an object per entry - under
+    10 MiB in each case, whatever the file's size (tests/api/test_sources_upload_memory.py).
+    Blocks: callers on the event loop run it in a thread."""
     start = source.tell()
     try:
         piece = source.read(READ_PIECE)  # the head, which a signature is in

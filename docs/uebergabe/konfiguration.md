@@ -106,9 +106,13 @@ ein Test schlägt an, wenn sie veraltet.
 - `FORWARDED_ALLOW_IPS`: die Adressen oder Netze des Ingress, nie `*` und nie ein Netz `/0`.
 - Uploads: Das Formular eines Uploads liegt ab 1 MiB als temporäre Datei in `/tmp` (bzw.
   `TMPDIR`), bis zu `MAX_UPLOAD_MB` + 1 MiB; aus dieser Datei prüft die API sie und legt sie ab,
-  stückweise, ohne sie ganz in den Arbeitsspeicher zu laden (gemessen bei 8 MiB: rund 2 MiB, mit
-  beiden Speichern). Je gleichzeitigem Upload braucht eine API-Replica also bis zu
-  `MAX_UPLOAD_MB` + 1 MiB in `/tmp`. Gleichzeitig nimmt ein API-Prozess höchstens
+  stückweise, ohne sie ganz in den Arbeitsspeicher zu laden. Ein Upload braucht dabei unter
+  10 MiB Arbeitsspeicher, unabhängig von seiner Größe (gemessen bei 8 MiB mit beiden Speichern:
+  PDF 2 MiB, Text aus 4-Byte-Zeichen 6 MiB, DOCX mit dem größten erlaubten Verzeichnis 7 MiB; das
+  Verzeichnis eines Archivs ist auf 2,44 MiB begrenzt, ein größeres lehnt die API mit
+  `archive_too_large` ab). Je gleichzeitigem Upload braucht eine API-Replica also bis zu
+  `MAX_UPLOAD_MB` + 1 MiB in `/tmp` und bis zu 10 MiB mehr Arbeitsspeicher. Unter Compose ist
+  `/tmp` ein tmpfs: Dort zählt die temporäre Datei ebenfalls zum Arbeitsspeicher. Gleichzeitig nimmt ein API-Prozess höchstens
   `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer wartet bis zu 10 s auf einen
   freien Platz und bekommt dann 503 `uploads_busy` mit `Retry-After`. `/tmp` braucht daher
   mindestens `MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard:

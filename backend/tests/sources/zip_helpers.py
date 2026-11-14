@@ -3,6 +3,7 @@ flags a ZIP's central directory states are the uploader's to choose, and zipfile
 Taken over from curriculum-extractor (tests/zip_helpers.py)."""
 
 import io
+import os
 import struct
 import zipfile
 
@@ -15,6 +16,29 @@ def make_zip(entries: dict[str, bytes], method: int = zipfile.ZIP_DEFLATED) -> b
         for name, content in entries.items():
             archive.writestr(name, content)
     return buffer.getvalue()
+
+
+def commented_parts(parts: int, comment: int, padding: int = 0) -> bytes:
+    """A ZIP of ``parts`` tiny parts, each with an entry comment of ``comment`` bytes - a central
+    directory of about ``parts`` x (60 + ``comment``) bytes - and, where given, a stored part of
+    ``padding`` bytes that do not pack."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for index in range(parts):
+            info = zipfile.ZipInfo(f"p/{index:05}.xml")
+            info.comment = b"c" * comment
+            archive.writestr(info, b"<p/>")
+        if padding:
+            archive.writestr(zipfile.ZipInfo("media/fill.bin"), os.urandom(padding), zipfile.ZIP_STORED)
+    return buffer.getvalue()
+
+
+def with_zip64_locator(data: bytes) -> bytes:
+    """``data`` with a ZIP64 end locator before its end record, as a ZIP64 archive has: the record
+    of the true counts and sizes is elsewhere, past what the end record states."""
+    end = data.rindex(b"PK\x05\x06")
+    locator = struct.pack("<4sIQI", b"PK\x06\x07", 0, 0, 1)
+    return data[:end] + locator + data[end:]
 
 
 def directory_only(entries: int) -> bytes:
