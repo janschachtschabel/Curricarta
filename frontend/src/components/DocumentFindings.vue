@@ -24,6 +24,7 @@ import { ROW_PARAM } from "@/documentTree";
 import { findingRow, findingText, focusText, SEVERITIES, SEVERITY_TONES } from "@/findingWords";
 import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
+import { useOverflowing } from "@/overflowing";
 import { useSectionReading } from "@/sectionReading";
 
 const props = withDefaults(
@@ -44,6 +45,9 @@ const {
 } = useSectionReading<FindingsPage>(() => getFindings(props.documentId), t("documents.findings.loadFailed"), heading);
 // a repair started here, until the page follows its job
 let startedHere = false;
+// the table's box is a tab stop only while it scrolls sideways; stacked on a narrow screen it does not (overflowing.ts)
+const box = ref<HTMLElement | null>(null);
+const overflowing = useOverflowing(box, () => page.value);
 
 const total = computed(() => SEVERITIES.reduce((sum, severity) => sum + (page.value?.counts[severity] ?? 0), 0));
 const rows = computed(() =>
@@ -113,8 +117,14 @@ watch(() => props.refresh, load);
       <p v-if="page.truncated" class="findings__note" data-test="findings-truncated">
         {{ t("documents.findings.truncated", { shown: page.findings.length, total }) }}
       </p>
-      <!-- scrolled on its own where wider than a phone, by the keyboard too; a name of its own -->
-      <div class="findings" tabindex="0" role="region" :aria-label="t('documents.findings.table')">
+      <!-- scrolled on its own where wider than a phone, by the keyboard too while it does; a name of its own -->
+      <div
+        ref="box"
+        class="findings"
+        :tabindex="overflowing ? 0 : undefined"
+        role="region"
+        :aria-label="t('documents.findings.table')"
+      >
         <!-- roles said outright: stacked on a narrow screen, display: block drops them in some engines -->
         <table role="table">
           <thead role="rowgroup" class="visually-hidden-narrow">

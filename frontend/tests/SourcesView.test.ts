@@ -127,6 +127,34 @@ describe("the register page", () => {
     wrapper.unmount();
   });
 
+  // a change of the box's width but not the window's - a font, the rail - was not measured (UI review 1, finding 14)
+  it("measures the table's box again as the box changes, not only the window", async () => {
+    const observed: (() => void)[] = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          observed.push(callback);
+        }
+        observe(): void {}
+        disconnect(): void {}
+      },
+    );
+    vi.spyOn(api, "listSources").mockResolvedValue(page([entry("a", "Lehrplan Physik")]));
+    const wrapper = mount(SourcesView, { global: { plugins: [router] }, attachTo: document.body });
+    await flushPromises();
+    const box = wrapper.get("[role=region]");
+
+    Object.defineProperty(box.element, "scrollWidth", { value: 710, configurable: true });
+    Object.defineProperty(box.element, "clientWidth", { value: 270, configurable: true });
+    for (const callback of observed) callback();
+    await flushPromises();
+
+    expect(box.attributes("tabindex")).toBe("0");
+    wrapper.unmount();
+    vi.unstubAllGlobals();
+  });
+
   it("says the register is empty, and how to fill it", async () => {
     vi.spyOn(api, "listSources").mockResolvedValue(page([]));
     const wrapper = mount(SourcesView, { global: { plugins: [router] } });

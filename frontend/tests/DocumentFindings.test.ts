@@ -93,6 +93,35 @@ afterEach(() => {
 });
 
 describe("a document's findings", () => {
+  // stacked on a narrow screen it scrolls no more, but stayed a tab stop (UI review 1, finding 14)
+  it("makes its box a tab stop only while it scrolls sideways, measured as the box changes", async () => {
+    const observed: (() => void)[] = [];
+    vi.stubGlobal(
+      "ResizeObserver",
+      class {
+        constructor(callback: () => void) {
+          observed.push(callback);
+        }
+        observe(): void {}
+        disconnect(): void {}
+      },
+    );
+    vi.spyOn(api, "getFindings").mockResolvedValue(page({ counts: { violation: 1, warning: 2, info: 1 } }));
+    const wrapper = open();
+    await flushPromises();
+    const box = wrapper.get("[role=region]");
+    expect(box.attributes("tabindex")).toBeUndefined();
+
+    // jsdom lays nothing out: the widths a wide table in a narrow box gives stand in
+    Object.defineProperty(box.element, "scrollWidth", { value: 710, configurable: true });
+    Object.defineProperty(box.element, "clientWidth", { value: 270, configurable: true });
+    for (const callback of observed) callback();
+    await flushPromises();
+
+    expect(box.attributes("tabindex")).toBe("0");
+    vi.unstubAllGlobals();
+  });
+
   it("lists them gravest first, counted by severity, each with what it is about", async () => {
     const asked = vi.spyOn(api, "getFindings").mockResolvedValue(page({ counts: { violation: 1, warning: 2, info: 1 } }));
 
@@ -106,9 +135,9 @@ describe("a document's findings", () => {
       [t("documents.findings.counts.warning", { count: 2 }), ["status-badge", "warning"]],
       [t("documents.findings.counts.info", { count: 1 }), ["status-badge", "neutral"]],
     ]);
-    // scrolled on its own, by the keyboard too, named (axe in jsdom does not judge a scroll region)
+    // named (axe in jsdom does not judge a scroll region); a tab stop only while it scrolls (below)
     const region = wrapper.get("[role=region]");
-    expect([region.attributes("tabindex"), region.attributes("aria-label")]).toEqual(["0", t("documents.findings.table")]);
+    expect([region.attributes("tabindex"), region.attributes("aria-label")]).toEqual([undefined, t("documents.findings.table")]);
     expect(rows(wrapper)).toEqual([
       [t("documents.findings.severities.violation"), findingText(WRONG).text, focusText(WRONG)],
       [t("documents.findings.severities.warning"), findingText(LOST).text, focusText(LOST)],

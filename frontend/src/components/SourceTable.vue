@@ -4,11 +4,12 @@
  * far the register has come with it and on what terms it may be used - and how
  * many of all there are it shows, with the way to the next page.
  */
-import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
+import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
 import type { RegisterStatus, SourceEntry } from "@/api";
 import { LOCALE, messages, t } from "@/i18n/de";
+import { useOverflowing } from "@/overflowing";
 import { readableAddress } from "@/readableAddress";
 import { entryName, word } from "@/registerWords";
 
@@ -28,25 +29,9 @@ function row(index: number): HTMLTableRowElement | undefined {
 
 defineExpose({ row });
 
-// The box is a tab stop only while it scrolls sideways - a keyboard can only scroll what it can reach, and a stop
-// with nothing to scroll is a stop for nothing. Measured again as the window or the entries change.
+// The box is a tab stop only while it scrolls sideways (overflowing.ts), measured again as the entries change too
 const scroller = ref<HTMLElement | null>(null);
-const overflowing = ref(false);
-
-function measure(): void {
-  const box = scroller.value;
-  overflowing.value = box !== null && box.scrollWidth > box.clientWidth;
-}
-
-onMounted(() => {
-  measure();
-  window.addEventListener("resize", measure);
-});
-onUnmounted(() => window.removeEventListener("resize", measure));
-watch(
-  () => props.entries,
-  () => void nextTick(measure),
-);
+const overflowing = useOverflowing(scroller, () => props.entries);
 
 // The pill by what the state means (style.css, .status-badge); the word in it carries the meaning
 const TONE: Record<RegisterStatus, string> = {
