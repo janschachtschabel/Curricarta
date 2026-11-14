@@ -25,7 +25,7 @@ from app.domain.wording import text_hash
 from app.quality.sample import Drawn, Refused, Request, draw
 from app.vocab.store import load_vocabulary
 from tests.db.document_of import document_of
-from tests.support import ontology_vocabulary
+from tests.support import ontology_vocabulary, waiting_on_a_lock
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
@@ -315,14 +315,17 @@ async def test_two_draws_at_once_keep_one_sample(
 ) -> None:
     document = await a_reviewed_document(connection)
     request = Request(document.id, "statement", "pilot-1", await owner(connection, document))
+    async with await psycopg.AsyncConnection.connect(database_url) as first:  # its draw not yet committed
+        held = await draw(first, request)
+        async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as second:
+            # the second finds no sample yet, draws, and its insert waits for the first's
+            drawing = asyncio.create_task(draw(second, request))
+            await waiting_on_a_lock(connection, second.info.backend_pid)
+            await first.commit()
+            later = await drawing
 
-    async def drawing() -> Drawn:
-        async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as own:
-            return await draw(own, request)
-
-    first, second = await asyncio.gather(drawing(), drawing())
-
-    assert first.sample == second.sample
+    assert later.sample == held.sample
+    assert not later.drawn_before  # it drew, and kept the one the first wrote
     assert (await count(connection, "gold_sample"), await count(connection, "gold_item")) == (1, 4)
 
 
