@@ -9,13 +9,13 @@
  * extraction may have filled it meanwhile -, an entry not yet saved stays; saved, a field still holding what was sent
  * takes what the server stored, one typed on meanwhile keeps it.
  */
-import { computed, nextTick, ref, useId, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 
 import type { CurriculumDocument, MetaFields } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { metaChanges, saveMeta, type MetaDraft } from "@/documentMeta";
-import { focusIsFree } from "@/focusRescue";
+import { useFieldFaults } from "@/fieldFaults";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import type { Notice } from "@/notice";
@@ -38,8 +38,7 @@ const base = ref(props.document);
 const draft = ref(draftOf(props.document));
 const busy = ref(false);
 const status = ref("");
-// a field's problem, said at the field; or one of the whole form, above the button
-const fieldError = ref<{ field: Field; text: string } | null>(null);
+// one of the whole form, above the button; a field's problem stands at the field (below)
 const failure = ref<Notice | null>(null);
 const submit = ref<HTMLElement | null>(null);
 
@@ -89,23 +88,21 @@ watch(
   (now) => rebase(now),
 );
 
+// A field's problem at the field (fieldFaults.ts): the keyboard goes there from the button or from nothing - the field
+// reads the problem with its name -; resting elsewhere, or on the field already, it stays and the problem is said
+const { faults, faultsAt, clear } = useFieldFaults<Field>({
+  control: (field) => `${id}-${field}`,
+  submit,
+  say: (field, problem) => {
+    const label = inputs.value.find((input) => input.key === field)?.label ?? "";
+    status.value = sayAnew(status.value, t("documents.page.edition.fieldProblem", { field: label, problem }));
+  },
+});
+
 /** The field's hint, and its error where it has one. */
 function describedBy(field: Field): string {
   const hint = `${id}-${field}-hint`;
-  return fieldError.value?.field === field ? `${hint} ${id}-${field}-error` : hint;
-}
-
-// A field's problem at the field. The keyboard goes there from the button or from nothing - the field reads the
-// problem with its name -; resting elsewhere, or on the field already, it stays and the problem is said
-async function faultAt(field: Field, text: string): Promise<void> {
-  fieldError.value = { field, text };
-  await nextTick();
-  if (document.activeElement === submit.value || focusIsFree()) {
-    document.getElementById(`${id}-${field}`)?.focus();
-    return;
-  }
-  const label = inputs.value.find((input) => input.key === field)?.label ?? "";
-  status.value = sayAnew(status.value, t("documents.page.edition.fieldProblem", { field: label, problem: text }));
+  return faults.value[field] ? `${hint} ${id}-${field}-error` : hint;
 }
 
 function refuse(text: string): void {
@@ -116,7 +113,7 @@ async function onSubmit(): Promise<void> {
   if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
   const changes = metaChanges(base.value, draft.value);
   failure.value = null;
-  fieldError.value = null;
+  clear();
   if (!Object.keys(changes).length) {
     status.value = sayAnew(status.value, t("documents.page.edition.unchanged"));
     return;
@@ -131,7 +128,7 @@ async function onSubmit(): Promise<void> {
     emit("changed");
   } else if (done.outcome === "invalid") {
     const field = FIELDS.find((one) => one === done.field);
-    if (field) await faultAt(field, done.problem);
+    if (field) await faultsAt([[field, done.problem]]);
     else refuse(done.problem);
   } else if (done.outcome === "failed") {
     failure.value = done.problem;
@@ -154,11 +151,11 @@ async function onSubmit(): Promise<void> {
         :maxlength="input.max"
         :autocomplete="input.autocomplete"
         :readonly="input.locked"
-        :aria-invalid="fieldError?.field === input.key || undefined"
+        :aria-invalid="faults[input.key] !== undefined || undefined"
         :aria-describedby="describedBy(input.key)"
       />
-      <p v-if="fieldError?.field === input.key" :id="`${id}-${input.key}-error`" class="field__error">
-        <AppIcon name="warning" /> {{ fieldError.text }}
+      <p v-if="faults[input.key] !== undefined" :id="`${id}-${input.key}-error`" class="field__error">
+        <AppIcon name="warning" /> {{ faults[input.key] }}
       </p>
       <p :id="`${id}-${input.key}-hint`" class="field__hint">{{ input.hint }}</p>
     </div>
