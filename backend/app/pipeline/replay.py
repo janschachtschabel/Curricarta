@@ -17,9 +17,16 @@ answers of every answered X4 run are read - and now: the reader reads with X3's 
 lexicon as they stand, so a replay after a change of the vocabularies measures both. The question's own
 findings (``x4.pattern_timeout``) and ``x4.unanswered`` are the run's, never the reader's.
 
-Read only, in one snapshot of the database (app/db/snapshot.py): nothing is written to the document, the
-store or a file. An output that is not counts and codes alone is refused (``report_not_closed``). Exit code
-1 for a document that is not there or has no kept answer of X4, or a refused output; 2 for a call amiss."""
+Two limits to read the counts by. The database is one snapshot (app/db/snapshot.py), the store is not: a
+job writing meanwhile can keep answers the snapshot's ledger has not booked yet (``beyond_ledger``, read all
+the same) and write units the snapshot does not show - replay a document no job is working on. And the
+choice of a unit's answer rests on what is kept today: where its own answer is gone, unreadable or out of
+form today, a single stray naming it in the run that wrote it - another unit's answer, thrown away by the
+run - is taken for its own; only two are told apart (``ambiguous``).
+
+Read only, in one snapshot of the database: nothing is written to the document, the store or a file. An
+output that is not counts and codes alone is refused (``report_not_closed``). Exit code 1 for a document
+that is not there or has no kept answer of X4, or a refused output; 2 for a call amiss."""
 
 import argparse
 import asyncio
