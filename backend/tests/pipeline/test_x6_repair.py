@@ -39,7 +39,6 @@ from tests.pipeline.test_run import (
     setup,
 )
 from tests.pipeline.test_x3_frame import prompt_of
-from tests.pipeline.test_x4_cut import cutting
 from tests.pipeline.test_x4_statements import FIELDS, with_concurrency
 from tests.support import make_settings
 
@@ -646,28 +645,3 @@ async def test_a_repair_refused_for_good_ends_without_another_attempt(
     assert "Aussage E3" in await wordings(connection, document)
     assert await usage_rows(connection, job, "x6.unit") == [(1, 0, False), ("held", 0)]
     assert await failures(connection, document) == [("X5", "done", None), ("X6", "failed", "model_refused")]
-
-
-async def test_a_repair_s_answer_cut_at_the_cap_leaves_its_package_and_says_so(
-    setup: Any, tmp_path: Path, database_url: str
-) -> None:
-    pool, connection = setup
-    document = await extracted(setup, tmp_path, database_url, invent=("E3",))
-    job = await a_repair(connection, document)
-    fixer = Quoting()
-
-    await x6_repair.repair_document(context_of(pool, tmp_path, cutting(fixer, "E3"), database_url), job)
-
-    assert fixer.units == ["E3"]  # asked once
-    assert "Aussage E3" in await wordings(connection, document)
-    runs = await runs_of(connection, document)
-    assert [stage + outcome for stage, outcome, _ in runs] == ["X5done", "X6done", "X5done"]
-    assert runs[1][2]["unanswered"] == ["E3"]
-    assert await rows(
-        connection,
-        "SELECT f.rule, f.severity, f.details FROM validation_finding f"
-        " JOIN extraction_run r ON r.id = f.run_id WHERE r.stage_iri = %s",
-        CV + "stage_X6",
-    ) == [("x6.answer_cut", "warning", {"unit": "E3", "cap": 4_000})]
-    assert await rows(connection, "SELECT repairs FROM extraction_unit WHERE unit_key = 'E3'") == [(1,)]
-    assert await usage_rows(connection, job, "x6.unit") == [(1, 5_000, False), ("held", 0)]

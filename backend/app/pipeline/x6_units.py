@@ -5,9 +5,12 @@ not repaired twice already (extraction_unit.repairs).
 Wrong is a violation on a statement X4 or X6 wrote that nobody has touched since - origin model,
 proposed, its first revision - such as a wording its blocks do not hold, or a warning of reading the
 model's answer for the package (``details.unit``): the answer lost a statement or a value. A lexicon
-pattern that ran out of time is no fault of the answer. Hints, SHACL's warnings (plausibility, the
-profiles' rules - the editors' to weigh, and those of L2 certain in M1), findings on nodes, frame parts
-or the document (X1 to X3), and packages X4 has not done (extract.run asks them) are no cause.
+pattern that ran out of time is no fault of the answer, nor is an answer cut at the output cap
+(``x6.answer_cut``), which changed nothing: a repair under a cap no higher leaves the package out
+(``cut_under``), one under a higher cap asks it for the defects it had. Hints, SHACL's warnings
+(plausibility, the profiles' rules - the editors' to weigh, and those of L2 certain in M1), findings on
+nodes, frame parts or the document (X1 to X3), and packages X4 has not done (extract.run asks them) are
+no cause.
 
 A statement is the package's whose part of the node holds its position (app/pipeline/x4_unit.py,
 PART); under X4's own node of a package without a heading, that package's. The statements of the
@@ -21,6 +24,7 @@ from uuid import UUID
 
 import psycopg
 
+from app.db.findings import rule_details
 from app.db.runs import stage_iri, stage_result
 from app.db.units import UnitDone, done_units
 from app.pipeline.x2_segments import WorkPackage
@@ -49,6 +53,7 @@ FROM validation_finding f
 JOIN extraction_run r ON r.id = f.run_id
 WHERE f.document_id = %(document)s AND f.severity IN ('violation', 'warning')
     AND r.stage_iri = ANY(%(written)s) AND f.details ? 'unit' AND f.rule NOT LIKE '%%.pattern_timeout'
+    AND f.rule NOT LIKE '%%.answer_cut'
 ORDER BY f.rule, f.path, f.created_at
 """
 # the packages a repair job's runs of X6 wrote anew, or named in a finding (answered out of form)
@@ -125,6 +130,13 @@ async def repairable_units(connection: psycopg.AsyncConnection, document_id: UUI
         for item in packages
         if item.key in defects and places.repairable(item)
     ]
+
+
+async def cut_under(connection: psycopg.AsyncConnection, document_id: UUID, cap: int | None) -> set[str]:
+    """The packages whose repair's answer was cut at a cap no lower than ``cap``: asked again under it,
+    the answer would be cut and paid for again."""
+    found = await rule_details(connection, document_id, "x6.answer_cut")
+    return {details["unit"] for details in found if cap is not None and details.get("cap", 0) >= cap}
 
 
 async def asked_by(connection: psycopg.AsyncConnection, document_id: UUID, job_id: UUID) -> set[str]:

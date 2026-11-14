@@ -2,15 +2,16 @@
 nur fehlerhafte Einheiten erneut | 0-2 | wie X4").
 
 X6 asks the model again for the work packages whose statements X5 or the reading of the answer found
-wrong (app/pipeline/x6_units.py) - each once a job, twice at most in all -, with X4's question behind the
-same prefix and the defects named (prompts/x6.py), side by side as X4 asks, and writes each anew as soon
-as it is answered (app/pipeline/x6_unit.py). An answer out of form leaves its package as it was: it is
-counted as a repair, and its finding (``x6.unanswered``) asks for one more; so does an answer cut at
-the output cap (``x6.answer_cut``, with the cap), and an answer of no statement for a package that
-has some (``x6.empty_answer``). A budget spent lets no further package begin, as in X4, nor does a
-provider's error, which ends the run as in X4. Then X5 checks the document again, its findings
-replacing the ones before (app/pipeline/x5_stage.py) - also where the budget ended X6, before the job
-ends with it.
+wrong (app/pipeline/x6_units.py) - each once a job, twice at most in all -, with X4's question behind
+the same prefix and the defects named (prompts/x6.py), side by side as X4 asks, and writes each anew as
+soon as it is answered (app/pipeline/x6_unit.py). An answer out of form leaves its package as it was: it
+is counted as a repair, and its finding (``x6.unanswered``) asks for one more; so does an answer of no
+statement for a package that has some (``x6.empty_answer``). An answer cut at the output cap leaves it
+too, but counts no repair and asks for none: no repair under a cap no higher asks the package again
+(``x6.answer_cut``, with the cap). A budget spent lets no further package begin, as in X4, nor does a
+provider's error, which ends the run as in X4. Then X5 checks the document again, its findings replacing
+the ones before (app/pipeline/x5_stage.py) - also where the budget ended X6, before the job ends with
+it.
 
 A document is repaired once X5 has checked it, every package done then; one not checked yet goes on
 with extract.run (``document_not_checked``). With nothing to repair - the editors took it meanwhile -
@@ -32,7 +33,7 @@ from app.db.units import count_repair
 from app.jobs.context import JobContext
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, hold_lease
-from app.llm.calls import StageAgent
+from app.llm.calls import StageAgent, output_cap
 from app.llm.metering import BudgetExhausted
 from app.llm.raw import RawResponses
 from app.pipeline.asking import AnswerCut, Asking, Unanswered, ended, model_of
@@ -47,7 +48,7 @@ from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
 from app.pipeline.x5_stage import run_x5
 from app.pipeline.x6_unit import EmptyAnswer, rewrite_unit
-from app.pipeline.x6_units import RepairUnit, asked_by, repairable_units
+from app.pipeline.x6_units import RepairUnit, asked_by, cut_under, repairable_units
 
 PROMPT_VERSION = x6.PROMPT_VERSION
 
@@ -93,8 +94,11 @@ async def run_x6(
     assert context.llm is not None  # noqa: S101 - the stage has its model (model_of)
     async with context.pool.connection() as connection:
         asked = await asked_by(connection, document.id, job.id)
+        cut = await cut_under(connection, document.id, output_cap(model))
         units = [
-            unit for unit in await repairable_units(connection, document.id) if unit.package.key not in asked
+            unit
+            for unit in await repairable_units(connection, document.id)
+            if unit.package.key not in asked and unit.package.key not in cut
         ]
         if not units:
             return {"units": 0}
@@ -161,9 +165,8 @@ class _Repairs:
         except AnswerCut:
             message = "the answer was cut at the output cap: the unit stays as it was"
             of_unit = {"unit": unit.package.key, "cap": stage.output_tokens}
-            await self._left(
-                [Finding("x6.answer_cut", "warning", self.asking.document.id, message, None, of_unit)]
-            )
+            cut = Finding("x6.answer_cut", "warning", self.asking.document.id, message, None, of_unit)
+            await self._left([cut], repaired=False)
             return
         except (Unanswered, WrongUnit):
             message = "the model's answer never took the form of the unit, or answered for another"
@@ -192,16 +195,18 @@ class _Repairs:
             empty = Finding("x6.empty_answer", "warning", document.id, message, None, {"unit": key})
             await self._left([*read.findings, empty])
 
-    async def _left(self, findings: Sequence[Finding]) -> None:
+    async def _left(self, findings: Sequence[Finding], *, repaired: bool = True) -> None:
         """The package the last of the findings names stays as it was; its repair is counted (it was
-        paid for), and the findings kept."""
+        paid for) where ``repaired`` - not for an answer cut at the cap, which changed nothing and is
+        not asked again under that cap -, and the findings kept."""
         context, job, document = self.asking.context, self.asking.job, self.asking.document
         key = findings[-1].details["unit"]
         self.unanswered.append(key)
         async with context.pool.connection() as connection:
             async with connection.transaction():
                 await hold_lease(connection, job)
-                await count_repair(connection, document.id, key)
+                if repaired:
+                    await count_repair(connection, document.id, key)
                 await add_findings(connection, document.id, self.asking.run_id, findings)
             self.done += 1
             await report(connection, job, "repair_units", done=self.done, total=self.total)
