@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
 import { ApiError } from "@/api";
-import { copy, freeze, missingWords, revisionsOf } from "@/documentRevision";
+import { copy, freeze, missingWords, revisionsOf, slugs } from "@/documentRevision";
 import { t } from "@/i18n/de";
 
 import { documentOf } from "./documentFixtures";
@@ -12,6 +12,24 @@ const refusal = (code: string, details: Record<string, unknown> = {}) =>
 
 beforeEach(() => {
   vi.restoreAllMocks();
+});
+
+// as the server's slug() (backend app/domain/iris.py): an IRI part needs an ASCII letter or digit
+describe("whether a text makes a part of an IRI", () => {
+  it.each([
+    ["MSB NRW", true],
+    ["2019", true],
+    ["Ä", true],
+    ["ß", true],
+    ["é", true],
+    ["–", false],
+    ["α", false],
+    ["  ", false],
+    ["", false],
+    [null, false],
+  ])("%j: %s", (text, made) => {
+    expect(slugs(text)).toBe(made);
+  });
 });
 
 describe("freezing a document", () => {

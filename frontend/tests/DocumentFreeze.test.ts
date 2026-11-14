@@ -148,6 +148,7 @@ describe("freezing a document", () => {
 
   it("says what is missing when pressed, without asking the irreversible question", async () => {
     const sent = vi.spyOn(api, "freezeDocument");
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...BARE }));
     const wrapper = section(BARE);
 
     await freezeButton(wrapper).trigger("click");
@@ -162,6 +163,83 @@ describe("freezing a document", () => {
     ]);
     expect(wrapper.get("[role=alert]").text()).toContain(t("documents.page.freeze.incomplete", { missing }));
     expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  // "Herausgeber: gesetzt" stood beside "fehlt noch: der Herausgeber" (UI review 1, findings 6 and 9)
+  it("takes an issuer or edition of no ASCII letter or digit for missing, as the server's slug does", async () => {
+    const sent = vi.spyOn(api, "freezeDocument");
+    const odd = { ...DOCUMENT, issuer: "–", edition: "α" };
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...odd }));
+    const wrapper = section(odd);
+
+    const items = wrapper.findAll("[data-test=freeze-check]").map((item) => item.text());
+    expect(items.slice(3)).toEqual([
+      t("documents.page.freeze.check.missing", { what: t("documents.page.freeze.part.issuer") }),
+      t("documents.page.freeze.check.missing", { what: t("documents.page.freeze.part.edition") }),
+    ]);
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find("[role=dialog]").exists()).toBe(false);
+    expect(sent).not.toHaveBeenCalled();
+    const missing = new Intl.ListFormat("de-DE").format([
+      t("documents.page.freeze.missing.issuer"),
+      t("documents.page.freeze.missing.edition"),
+    ]);
+    expect(wrapper.get("[role=alert]").text()).toContain(t("documents.page.freeze.incomplete", { missing }));
+  });
+
+  it("reads the document again before it says a part is missing: set meanwhile, it asks", async () => {
+    const read = vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...DOCUMENT }));
+    const wrapper = section({ ...DOCUMENT, edition: null });
+
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+
+    expect(read).toHaveBeenCalledWith("d1");
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
+    expect(dialog(wrapper).text()).toContain(t("documents.page.freeze.title"));
+    // the page reads it, so the list says what the server holds
+    expect(wrapper.emitted("changed")).toHaveLength(1);
+  });
+
+  it("takes its words back once the parts change", async () => {
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...BARE }));
+    const wrapper = section(BARE);
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+    expect(wrapper.find("[role=alert]").exists()).toBe(true);
+
+    await wrapper.setProps({ document: DOCUMENT });
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
+  });
+
+  it("has the document read again where the server finds a part missing the page holds as set", async () => {
+    vi.spyOn(api, "freezeDocument").mockRejectedValue(
+      new ApiError("server", 409, "incomplete", "Incomplete.", { missing: ["issuer"] }),
+    );
+    const wrapper = section();
+
+    await confirmFreeze(wrapper);
+
+    expect(wrapper.emitted("changed")).toHaveLength(1);
+    // read again as the server found it, the page keeps its words
+    await wrapper.setProps({ document: { ...DOCUMENT, issuer: null } });
+    expect(wrapper.get("[role=alert]").text()).toContain(t("documents.page.freeze.missing.issuer"));
+  });
+
+  it("keeps its words where the page reads the document as it was read again for them", async () => {
+    const fresh = { ...DOCUMENT, edition: null };
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...fresh }));
+    const wrapper = section({ ...DOCUMENT, issuer: null, edition: null });
+
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+    expect(wrapper.emitted("changed")).toHaveLength(1);
+    await wrapper.setProps({ document: fresh });
+
+    const missing = t("documents.page.freeze.incomplete", { missing: t("documents.page.freeze.missing.edition") });
+    expect(wrapper.get("[role=alert]").text()).toContain(missing);
   });
 
   it("names what is missing for the IRI, item by item", async () => {

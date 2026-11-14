@@ -6,15 +6,15 @@
  * named item by item; a check owed is said with the way to the tree, where it is checked; a document closed
  * meanwhile is said and read again (`changed`); another refusal said. While it freezes nothing more is asked.
  */
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
-import type { CurriculumDocument } from "@/api";
+import { getDocument, type CurriculumDocument } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import FreezeDialog from "@/components/FreezeDialog.vue";
 import NoticeText from "@/components/NoticeText.vue";
-import { freeze, freezeParts, missingWords, partState } from "@/documentRevision";
+import { freeze, freezeParts, missingParts, missingWords, partState, type IriPart } from "@/documentRevision";
 import { LOCALE, t } from "@/i18n/de";
 import type { Notice } from "@/notice";
 import { refusalText } from "@/refusals";
@@ -33,6 +33,18 @@ const owed = ref(false);
 const offered = computed(() => isEditor() && props.document.frozen_at === null);
 // what its IRI is made of, as the document shows it: what is missing is said on pressing, not asked about
 const parts = computed(() => freezeParts(props.document));
+// The words of a press are of the parts in the state they were said of - the document read again, or as the server
+// found it -: once the page shows the parts otherwise, they go. The page reading it as they were said keeps them.
+const stateOf = (list: readonly { part: IriPart; set: boolean }[]) => list.map(({ part, set }) => `${part}:${set}`).join(" ");
+let saidOf = "";
+watch(
+  () => stateOf(parts.value),
+  (now) => {
+    if (now === saidOf) return;
+    problem.value = null;
+    owed.value = false;
+  },
+);
 
 function incomplete(missing: readonly string[]): Notice {
   const words = missingWords(missing);
@@ -42,9 +54,20 @@ function incomplete(missing: readonly string[]): Notice {
   return { text, failed: true };
 }
 
-function ask(): void {
+// A part missing on the page may be set already in another tab: the document is read again before the press is
+// refused, and the page asked to read it too (`changed`) where it differs; a reading that fails refuses on what the
+// page holds. Never the other way: the irreversible question is asked only of a document found complete.
+async function ask(): Promise<void> {
   if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
-  const missing = parts.value.filter(({ set }) => !set).map(({ part }) => part);
+  let missing = missingParts(props.document);
+  if (missing.length) {
+    busy.value = true;
+    const fresh = await getDocument(props.document.id).catch(() => null);
+    busy.value = false;
+    if (fresh) missing = missingParts(fresh);
+    saidOf = stateOf(freezeParts(fresh ?? props.document));
+    if (fresh && saidOf !== stateOf(parts.value)) emit("changed");
+  }
   if (missing.length) {
     owed.value = false;
     problem.value = incomplete(missing);
@@ -58,6 +81,7 @@ async function run(acceptViolations: boolean): Promise<void> {
   busy.value = true;
   problem.value = null;
   owed.value = false;
+  saidOf = stateOf(parts.value);
   const done = await freeze(props.document.id, acceptViolations);
   busy.value = false;
   switch (done.outcome) {
@@ -70,6 +94,9 @@ async function run(acceptViolations: boolean): Promise<void> {
       return;
     case "incomplete":
       problem.value = incomplete(done.missing);
+      // the page held a part as set the server does not: its list is read anew, the words kept for what it shows
+      saidOf = stateOf(parts.value.map(({ part, set }) => ({ part, set: set && !done.missing.includes(part) })));
+      if (saidOf !== stateOf(parts.value)) emit("changed");
       return;
     case "owed":
       owed.value = true;

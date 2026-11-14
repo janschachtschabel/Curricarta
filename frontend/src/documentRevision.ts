@@ -51,18 +51,39 @@ export function missingWords(missing: readonly string[]): string[] {
 }
 
 /**
+ * Whether `text` makes a part of an IRI, as the server's slug() has it (backend app/domain/iris.py): it holds an
+ * ASCII letter or digit once lowercased, the German letters spelt out and the rest decomposed ("é" gives "e"); a
+ * dash or a Greek letter alone does not.
+ */
+export function slugs(text: string | null | undefined): boolean {
+  if (!text) return false;
+  const composed = text.normalize("NFC").toLowerCase().replace(/[äöüß]/g, (letter) => SPELT_OUT[letter]);
+  return /[a-z0-9]/.test(composed.normalize("NFKD"));
+}
+
+const SPELT_OUT: Readonly<Record<string, string>> = { ä: "ae", ö: "oe", ü: "ue", ß: "ss" };
+
+/**
  * What the document's IRI is made of, as the page can tell from the document it holds, each with whether it is
  * set - in the server's order and on its terms (backend app/db/freezing.py: the work's land and short title asked
- * for only once there is a work). A value the server finds names no part of an IRI (a Greek letter alone) reads as
- * set here; the server says so on freezing, as it says a check owed and violations, which the document does not show.
+ * for only once there is a work; an issuer and an edition only where they make a slug). The work's land and short
+ * title the database checks as they are written; a check owed and violations, which the document does not show,
+ * the server says on freezing.
  */
 export function freezeParts(document: CurriculumDocument): { part: IriPart; set: boolean }[] {
   const named = (text: string | null | undefined) => Boolean(text?.trim());
   const { work } = document;
   const parts: { part: IriPart; set: boolean }[] = [{ part: "work", set: work !== null }];
   if (work) parts.push({ part: "region", set: named(work.region) }, { part: "short_title", set: named(work.short_title) });
-  parts.push({ part: "issuer", set: named(document.issuer) }, { part: "edition", set: named(document.edition) });
+  parts.push({ part: "issuer", set: slugs(document.issuer) }, { part: "edition", set: slugs(document.edition) });
   return parts;
+}
+
+/** The parts of the document's IRI not set. */
+export function missingParts(document: CurriculumDocument): IriPart[] {
+  return freezeParts(document)
+    .filter(({ set }) => !set)
+    .map(({ part }) => part);
 }
 
 export type IriPart = "work" | "region" | "short_title" | "issuer" | "edition";
