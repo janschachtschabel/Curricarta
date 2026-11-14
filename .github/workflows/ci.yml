@@ -46,8 +46,9 @@ jobs:
       - run: .venv/bin/python -m mypy app tests ../deploy/make-secrets.py
 
   # The tests in two parts at once, each with a database and an object store of its own, split by the
-  # time their folders took locally (2026-11-14: about 11 minutes each); tests/deploy/test_ci.py holds
-  # that every folder and top-level test file runs in exactly one part.
+  # time their folders take: locally tests/pipeline and tests/db took 10 minutes, the rest 12; in CI the
+  # rest runs faster, its Docling tests skipped (2026-11-14). tests/deploy/test_ci.py holds that every
+  # folder and top-level test file runs in exactly one part.
   backend-tests:
     runs-on: ubuntu-24.04
     # the single job took 21-24 minutes, its tests 15-20 (2026-11-14); a part about half: the limit
@@ -58,13 +59,13 @@ jobs:
       matrix:
         include:
           - part: 1
-            paths: >-
-              tests/pipeline tests/db tests/sources tests/lexicon tests/domain tests/usage tests/llm
-              tests/test_support.py tests/test_serve.py tests/test_preloaded_vocabulary_guard.py
+            paths: tests/pipeline tests/db
           - part: 2
             paths: >-
               tests/api tests/jobs tests/core tests/vocab tests/conversion tests/exports tests/deploy
-              tests/test_bootstrap.py tests/test_version.py
+              tests/sources tests/lexicon tests/domain tests/usage tests/llm tests/test_bootstrap.py
+              tests/test_version.py tests/test_support.py tests/test_serve.py
+              tests/test_preloaded_vocabulary_guard.py
     services:
       postgres:
         image: pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f
