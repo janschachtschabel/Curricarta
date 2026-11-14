@@ -19,7 +19,9 @@ NGINX_FILES = ("nginx.conf", "nginx-api.conf", "nginx-api-off.conf")
 def streams_bodies(nginx: str) -> bool:
     """Whether an nginx configuration turns request buffering off anywhere (comments aside)."""
     lines = (line.split("#", 1)[0] for line in nginx.splitlines())
-    return any(re.search(r"\bproxy_request_buffering\s+off\b", line) for line in lines)
+    return any(
+        re.search(r"\bproxy_request_buffering\s+([\"']?)off\1\s*;", line, re.IGNORECASE) for line in lines
+    )
 
 
 def test_the_compose_web_server_buffers_request_bodies() -> None:
@@ -36,4 +38,8 @@ def test_the_helm_example_s_ingress_buffers_request_bodies() -> None:
 
 def test_a_server_that_streams_bodies_is_told_apart() -> None:
     assert streams_bodies("location /api/ {\n    proxy_request_buffering  off;\n}")
+    # nginx reads on and off in any case, and a value may be quoted
+    for written in ("OFF", "Off", '"off"', "'OFF'"):
+        assert streams_bodies(f"Proxy_Request_Buffering {written};"), written
     assert not streams_bodies("# proxy_request_buffering off;\nproxy_request_buffering on;")
+    assert not streams_bodies('proxy_request_buffering "on";')

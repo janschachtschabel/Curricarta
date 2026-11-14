@@ -112,12 +112,12 @@ ein Test schlägt an, wenn sie veraltet.
   Verzeichnis eines Archivs ist auf 2,44 MiB begrenzt, ein größeres lehnt die API mit
   `archive_too_large` ab). Je gleichzeitigem Upload braucht eine API-Replica also bis zu
   `MAX_UPLOAD_MB` + 1 MiB in `/tmp` und bis zu 10 MiB mehr Arbeitsspeicher. Unter Compose ist
-  `/tmp` ein tmpfs: Dort zählt die temporäre Datei ebenfalls zum Arbeitsspeicher. Gleichzeitig nimmt ein API-Prozess höchstens
-  `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer wartet bis zu 10 s auf einen
-  freien Platz und bekommt dann 503 `uploads_busy` mit `Retry-After`. `/tmp` braucht daher
-  mindestens `MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard:
-  2 × 51 = 102 MiB). `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto kann alle Plätze einer
-  Replica belegen.
+  `/tmp` ein tmpfs: Dort zählt die temporäre Datei ebenfalls zum Arbeitsspeicher. Gleichzeitig
+  nimmt ein API-Prozess höchstens `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer
+  wartet bis zu 10 s auf einen freien Platz und bekommt dann 503 `uploads_busy` mit
+  `Retry-After`. `/tmp` braucht daher mindestens `MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1)
+  MiB je API-Prozess (Standard: 2 × 51 = 102 MiB). `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto
+  kann alle Plätze einer Replica belegen.
 - Der Rand vor der API (Proxy, Ingress) muss den Body einer Anfrage ganz puffern, bevor er ihn
   weitergibt: Ein Upload hält seinen Platz, während sein Body ankommt, und ein Client, der
   langsam sendet, hielte ihn sonst in seinem Tempo. nginx und ingress-nginx puffern von sich aus;
