@@ -16,7 +16,14 @@ from app.llm.budget import count_tokens
 from app.llm.calls import StageAgent
 from app.llm.metering import FULL, Spent, Weights
 from app.pipeline.ground import ground_of
-from app.pipeline.reckoned import EXPECTED_ANSWER_TOKENS, Request, expected_charge, owed_requests, request_of
+from app.pipeline.reckoned import (
+    EXPECTED_ANSWER_TOKENS,
+    Request,
+    expected_charge,
+    owed_requests,
+    request_of,
+    room_for,
+)
 from app.pipeline.run import extract_document
 from app.pipeline.side_by_side import at_once
 from tests.pipeline.test_estimate import Reserved, reserved
@@ -90,6 +97,28 @@ def test_the_units_at_once_are_the_gate_x4_asks_by() -> None:
     assert at_once(make_settings(extract_concurrency=4)) == 4
     assert at_once(make_settings(extract_concurrency=4, db_pool_max_size=3)) == 2  # the pool leaves two
     assert at_once(make_settings(extract_concurrency=4, db_pool_max_size=1)) == 1
+
+
+def test_the_room_is_the_most_a_request_read_from_the_cache_holds_beyond_its_charge() -> None:
+    # six units, two at once: each holds 1,100 + 16,000 x 5 = 81,100 while it waits; the first two of the
+    # prefix are expected whole (1,600), the others from the cache (610) - and those hold the most beyond
+    units = [a_request(1_100, 1_000)] * 6
+
+    room = room_for(units, LUNA, at_once=2, units=6, answer_tokens=100)
+
+    assert room == 2 * (81_100 - 610) == 160_980
+
+
+def test_a_frame_owed_alone_has_the_room_of_its_own_reservation() -> None:
+    # no unit left, or one: X3's request alone waits, and its reservation must fit beside the rest
+    frame = a_request(1_100, 1_000, purpose="x3.frame")
+
+    assert room_for([frame], LUNA, at_once=4, units=0) == 81_100 - (1_100 + 5_500) == 74_500
+    assert room_for([frame], LUNA, at_once=4, units=1) == 74_500
+
+
+def test_nothing_owed_needs_no_room() -> None:
+    assert room_for([], LUNA, at_once=4, units=0) == 0
 
 
 def test_the_shared_part_is_read_from_the_cache_after_the_first_requests() -> None:
