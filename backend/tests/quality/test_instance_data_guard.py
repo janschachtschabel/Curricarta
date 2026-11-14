@@ -7,6 +7,8 @@ import io
 import subprocess
 from pathlib import Path
 
+import pytest
+
 from app.quality.sheet import LOCAL_FOLDER, encoded
 from app.quality.sheet_read import read_sheet
 from tests.sources.test_mem_fixtures import mem_synth
@@ -41,14 +43,53 @@ def test_the_local_gold_folder_stays_out_of_the_images() -> None:
     assert [rule for rule in rules if rule.startswith("!data")] == ["!data/seed"]
 
 
+_WIDTHS = ((b"\xef\xbb\xbf", "utf-8-sig"), (b"\xff\xfe", "utf-16-le"), (b"\xfe\xff", "utf-16-be"))
+SHOWN = {"wording", "quote", "verdict"}  # what a sheet shows of the document, or asks of its judge
+
+
 def _is_a_sheet(path: Path) -> bool:
-    """Whether the file's first line is a judging sheet's header, in whatever order and separator."""
+    """Whether one of the file's first lines is a judging sheet's header - ``item`` and ``mark`` with a
+    column that shows a wording or asks for a verdict -, whatever the encoding its BOM names (UTF-8,
+    UTF-16), the line ends, the order and the separator."""
     with path.open("rb") as opened:
-        first = opened.readline(4096)
-    text = first.decode("utf-8", errors="ignore").lstrip("\N{ZERO WIDTH NO-BREAK SPACE}")
-    names = {name.strip() for name in next(csv.reader(io.StringIO(text), delimiter=";"), [])}
-    names |= {name.strip() for name in next(csv.reader(io.StringIO(text), delimiter=","), [])}
-    return {"item", "mark", "verdict"} <= names
+        start = opened.read(16_384)
+    encoding = next((name for bom, name in _WIDTHS if start.startswith(bom)), "utf-8")
+    text = start.decode(encoding, errors="ignore").removeprefix(BOM)
+    for line in text.splitlines()[:5]:
+        for separator in (";", ",", "\t"):
+            names = {name.strip().strip('"') for name in line.split(separator)}
+            if {"item", "mark"} <= names and names & SHOWN:
+                return True
+    return False
+
+
+HEADER = "item;mark;stratum;page;path;kind;wording;lead_in;quote;link;verdict;reasons;expected;note"
+BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"
+
+
+@pytest.mark.parametrize(
+    ("data", "sheet"),
+    [
+        (b"item;mark;stratum;wording;expected\r\n1;p3-b3;t2:text;x;\r\n", True),  # verdict deleted
+        (f"{BOM}Bogen pilot-1\r\n{HEADER}\r\n".encode(), True),  # a title row above the header
+        (f"{BOM}{HEADER}\n1;m0\n".encode("utf-16-le"), True),  # UTF-16, LF
+        (f"{BOM}{HEADER}\r\n1;m0\r\n".encode("utf-16-le"), True),  # what PowerShell 5.1 writes on >
+        (f"{BOM}{HEADER}\r\n".encode("utf-16-be"), True),
+        (f"{HEADER}\r1;m0\r".encode(), True),  # CR alone
+        (HEADER.replace(";", ",").encode(), True),
+        (HEADER.replace(";", "\t").encode(), True),
+        (b"item;mark;stratum\r\n", False),  # nothing a sheet shows or asks
+        (b"name;value\r\nitem;mark\r\n", False),
+        (b"\xff\xfe\x00", False),  # a broken sign: no error, no sheet
+    ],
+    ids=["no-verdict", "title-row", "utf-16-lf", "utf-16-crlf", "utf-16-be", "cr", "commas", "tabs",
+         "no-shown-column", "other", "broken"],
+)  # fmt: skip
+def test_a_sheet_is_known_however_it_was_saved(tmp_path: Path, data: bytes, sheet: bool) -> None:
+    saved = tmp_path / "saved.csv"
+    saved.write_bytes(data)
+
+    assert _is_a_sheet(saved) is sheet
 
 
 def test_no_judging_sheet_lies_in_the_tree(tmp_path: Path) -> None:

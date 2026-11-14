@@ -1,12 +1,16 @@
-"""``python -m app.quality.sheet --sample <id> --base-url <url> > data/gold-local/<label>-<kind>.csv``: the
-judging sheet of a gold sample (plan H-3 §3.3) - one row per item with its wording and where to look, the
-cells to judge (``verdict``, ``reasons``, ``expected``, ``note``) empty, ``n/a`` where a cell is not asked:
-a block is judged by a count, a statement or anchor by a verdict. ``python -m app.quality.judge`` reads it
-back.
+"""``python -m app.quality.sheet --sample <id> --base-url <url> > ../data/gold-local/<label>-<kind>.csv``
+(run from ``backend/``; the folder lies at the repository's root): the judging sheet of a gold sample (plan
+H-3 §3.3) - one row per item with its wording and where to look, the cells to judge (``verdict``,
+``reasons``, ``expected``, ``note``) empty, ``n/a`` where a cell is not asked: a block is judged by a count,
+a statement or anchor by a verdict. ``python -m app.quality.judge`` reads it back.
 
-The sheet holds the document's wordings: it is written to stdout alone, and refused where stdout is a file
-of this repository outside ``data/gold-local/`` (ignored by git and the images). UTF-8 with a BOM, ``;``
-between the cells, CRLF: as a spreadsheet opens it. A cell that starts like a formula is written as text."""
+The sheet holds the document's wordings: it is written to stdout alone. Where the code lies in a working
+tree and stdout is a file, the file must lie under ``data/gold-local/`` (ignored by git and the images) -
+any other file, in the repository or outside it, is refused. That sees a direct redirection only: behind
+``docker compose exec``, a pipe or ``tee`` the shell writes the file where it is told, and the bar there is
+the tree guard (``tests/quality/test_instance_data_guard.py``: no sheet lies in the repository). UTF-8
+with a BOM, ``;`` between the cells, CRLF: as a spreadsheet opens it. A cell that starts like a formula is
+written as text."""
 
 import argparse
 import asyncio
@@ -37,6 +41,7 @@ SHEET_HEADER = (
     "verdict", "reasons", "expected", "note",
 )  # fmt: skip
 NOT_ASKED = "n/a"  # in a judging cell the item's kind does not ask for
+BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"  # by name: an invisible literal is lost without a diff
 LOCAL_FOLDER = Path("data") / "gold-local"
 WARNING = "the sheet holds the document's wordings: keep it under data/gold-local/, never in the repository"
 _FORMULA = ("=", "+", "-", "@", "\t", "\r")  # what a spreadsheet would read as the start of a formula
@@ -133,7 +138,7 @@ def encoded(rows: Sequence[Row]) -> bytes:
     writer = csv.writer(out, delimiter=";", lineterminator="\r\n")
     writer.writerow(SHEET_HEADER)
     writer.writerows([_as_text(row[column]) for column in SHEET_HEADER] for row in rows)
-    return ("﻿" + out.getvalue()).encode("utf-8")
+    return (BOM + out.getvalue()).encode("utf-8")
 
 
 def repository() -> Path | None:
