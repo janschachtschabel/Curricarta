@@ -10,13 +10,14 @@ import psycopg
 from app.db.runs import STAGE_PREFIX
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
-# The statements not rejected whose anchors name the block, each once - live: a replay or a review since
-# changes them without a new judgement
+# The model's statements whose anchors name the block, each once, however reviewed since - the statement
+# sample's population (app/db/measures.py); an editor's rewording makes one the editor's. Live: a replay
+# since changes them without a new judgement
 _FOUND = """
 SELECT ab.block_id, count(DISTINCT s.id) FROM anchor a
 JOIN anchor_block ab ON ab.anchor_id = a.id
 JOIN statement s ON s.id = a.statement_id
-WHERE a.document_id = %s AND ab.block_id = ANY (%s) AND s.review_status_iri <> %s
+WHERE a.document_id = %s AND ab.block_id = ANY (%s) AND s.origin_iri = %s
 GROUP BY ab.block_id
 """
 _DOCUMENT = """
@@ -51,8 +52,9 @@ class Head:
 async def found_in_blocks(
     connection: psycopg.AsyncConnection, document_id: UUID, blocks: Collection[str]
 ) -> dict[str, int]:
-    """How many statements not rejected each block holds now, by its anchors; a block without any absent."""
-    cursor = await connection.execute(_FOUND, (document_id, list(blocks), CV + "rev_rejected"))
+    """How many of the model's statements each block holds now, by their anchors; a block without any
+    absent."""
+    cursor = await connection.execute(_FOUND, (document_id, list(blocks), CV + "orig_model"))
     return {block: int(found) for block, found in await cursor.fetchall()}
 
 

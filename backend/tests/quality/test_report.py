@@ -13,12 +13,16 @@ import pytest
 from app.db.documents import Document
 from app.db.gold import Item, Judgement, SampleKind, items_of, judge
 from app.db.nodes import write_subtree
+from app.db.review import ReviewItem, set_review
+from app.db.source_queries import Reader
+from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft
 from app.quality.report import LEAF, Refused, closed, report
 from app.quality.sample import Request, draw
 from tests.db.document_of import document_of
 from tests.quality.gold_documents import (
     CV,
+    HUMAN,
     IMPORTED,
     LONG,
     MODEL,
@@ -30,8 +34,8 @@ from tests.quality.gold_documents import (
     connection,
     done,
     owner,
-    reject,
     statement,
+    statement_id,
     with_contents,
 )
 
@@ -124,7 +128,8 @@ async def test_a_stratum_nobody_judged_leaves_the_report_s_weighted_rate_unsaid(
 
 
 async def blocks_with_statements(connection: psycopg.AsyncConnection) -> Document:
-    """The with_contents blocks, three statements anchored in p3-b3 and one in p5-b1."""
+    """The with_contents blocks: three of the model's statements and an editor's own in p3-b3, two of the
+    model's in p5-b1 (one of them in both)."""
     document = await document_of(connection, with_contents())
     root = NodeDraft(
         function=CV + "fn_area", origin=MODEL, review_status=PROPOSED, original_title=f"1 {PART} 1",
@@ -134,6 +139,7 @@ async def blocks_with_statements(connection: psycopg.AsyncConnection) -> Documen
             statement(WORDS["confirmed"], ("p3-b3",)),
             statement(WORDS["rejected"], ("p3-b3", "p5-b1")),
             statement(WORDS["content"], ("p5-b1",)),
+            statement(WORDS["own"], ("p3-b3",), origin=HUMAN),
         ),
     )  # fmt: skip
     await write_subtree(connection, document.id, root)
@@ -141,24 +147,30 @@ async def blocks_with_statements(connection: psycopg.AsyncConnection) -> Documen
     return document
 
 
-async def test_statements_rejected_since_are_not_found(connection: psycopg.AsyncConnection) -> None:
+async def test_the_model_s_statements_are_found_however_reviewed_but_an_editor_s_are_not(
+    connection: psycopg.AsyncConnection,
+) -> None:
     document = await blocks_with_statements(connection)
     sample = await drawn(connection, document, "block")
     blocks = {item.block_id: item for item in await items_of(connection, sample)}
-    await judge(connection, blocks["p3-b3"].id, document.owner_id, Judgement(None, (), 2, None))
+    await judge(connection, blocks["p3-b3"].id, document.owner_id, Judgement(None, (), 3, None))
     await judge(connection, blocks["p5-b1"].id, document.owner_id, Judgement(None, (), 0, None))
     found = await report(connection, [sample])
-    await reject(connection, WORDS["rejected"])
+    rejected = await statement_id(connection, WORDS["rejected"])
+    await set_review(connection, document.id, CV + "rev_rejected", [ReviewItem("statement", rejected, 1)])
+    reworded = await statement_id(connection, WORDS["confirmed"])
+    reader = Reader(document.owner_id, sees_all=False)
+    assert await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["new"]}) == 2
 
     after = await report(connection, [sample])
 
-    # p3-b3: 3 found of 2 expected; p5-b1: 2 found where none is expected
+    # p3-b3: the model's three, not the editor's own; p5-b1: two where none is expected
     assert found["documents"][0]["block"] == {
         "sample": sample, "title_pages": "left_out", "judged": 2, "open": 0,
-        "expected": 2, "found": 2, "recall": 1.0, "missed_blocks": 0, "surplus_blocks": 1, "surplus": 3,
+        "expected": 3, "found": 3, "recall": 1.0, "missed_blocks": 0, "surplus_blocks": 1, "surplus": 2,
     }  # fmt: skip
-    # the rejected one is found in neither block now: 2 of 2 in p3-b3, 1 where none is expected
-    assert after["documents"][0]["block"] == found["documents"][0]["block"] | {"surplus": 1}
+    # rejected since: still the model's, still found; reworded: the editor's now, found no more
+    assert after["documents"][0]["block"] == found["documents"][0]["block"] | {"found": 2, "recall": 0.6667}
 
 
 async def test_two_samples_of_one_document_are_one_entry(connection: psycopg.AsyncConnection) -> None:

@@ -5,9 +5,9 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
   wrong, unjudged; the reasons; precision strict and lenient and the wrong rate weighted by each stratum's
   share of the frame kept when drawn (``by: frame_when_drawn``; null while a stratum has no judged item),
   beside the pooled rates over the judged items (``by: item``) with their Wilson intervals (95 %).
-- ``block``: recall - Σ min(found, expected) / Σ expected over the judged blocks, ``found`` the statements
-  not rejected whose anchors name the block now -, the blocks missed, those expected empty but holding
-  statements (apart), the surplus.
+- ``block``: recall - Σ min(found, expected) / Σ expected over the judged blocks, ``found`` the model's
+  statements whose anchors name the block now, however reviewed -, the blocks missed, those expected
+  empty but holding statements (apart), the surplus.
 - ``anchor``: as statements, over all strata and again without the title pages' (``front:*``), beside
   ``title_pages`` as kept when drawn; ``missed``, the not-found rows whose wording is there.
 
