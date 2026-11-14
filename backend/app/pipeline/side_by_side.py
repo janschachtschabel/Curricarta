@@ -1,15 +1,16 @@
 """The units of a stage asked side by side (X4, app/pipeline/x4_statements.py; X6, x6_repair.py).
 
-At most EXTRACT_CONCURRENCY are asked at once, and never more than the database's pool leaves beside
-the worker's own work: each unit asking holds one connection at a time. An error a unit raises ends
-every unit still asking - a lease lost, a cancel, the database - and is raised as itself, its cause
-and the error it was raised in handling its own. A provider's error is not one of them (audit
-2026-11-14): the unit keeps the first (``PROVIDER_ERRORS``) and returns, no unit begins after it,
-those asking are answered and written - cut off, each would be booked at its full reservation - and
-the run ends by it once they are (``fail_by_provider``).
+At most EXTRACT_CONCURRENCY are asked at once, and never more than the database's pool leaves beside the
+worker's own work: each unit asking holds one connection at a time. An error a unit raises ends every
+unit still asking - a lease lost, a cancel, the database - and is raised as itself, its cause and the
+error it was raised in handling its own. A provider's error is not one of them (audit 2026-11-14): the
+unit keeps the first (``PROVIDER_ERRORS``, ``first_of``) and returns, no unit begins after it, those
+asking are answered and written - cut off, each would be booked at its full reservation - and the run
+ends by it once they are (``fail_by_provider``).
 """
 
 import asyncio
+import logging
 from collections.abc import Awaitable, Callable, Sequence
 from typing import NoReturn
 
@@ -18,6 +19,8 @@ from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedMode
 from app.core.settings import Settings
 from app.jobs.outcome import PermanentError
 from app.llm.calls import quota_spent
+
+log = logging.getLogger(__name__)
 
 # a refusal (an HTTP error), a provider never reached or that never answered (a timeout), and an
 # answer no model could read - a proxy's page in its place (app/llm/calls.py raises it as the
@@ -47,6 +50,15 @@ async def ask_side_by_side[T](
     if failed is not None:
         # raised outside the handler: its cause and the error it was raised in handling stay its own
         raise failed
+
+
+def first_of(kept: Exception | None, error: Exception) -> Exception:
+    """The provider's error a run keeps: the first its units met; a further one is dropped and said,
+    by its kind alone."""
+    if kept is None:
+        return error
+    log.warning("a further provider error was dropped: %s", type(error).__name__)
+    return kept
 
 
 def fail_by_provider(error: Exception) -> NoReturn:

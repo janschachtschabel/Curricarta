@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic_ai.exceptions import ModelHTTPError, UnexpectedModelBehavior
+from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
 from pydantic_ai.messages import ModelMessage, ModelResponse
 from pydantic_ai.models.function import AgentInfo
 
@@ -161,3 +161,86 @@ async def test_a_quota_spent_at_the_provider_ends_the_job_for_good(
     assert [(outcome, result["failure"]) for outcome, result in await x4_runs(connection, document)] == [
         ("failed", "model_refused")
     ]
+
+
+async def test_a_provider_that_never_answered_in_time_lets_those_asking_beside_it_finish(
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float], provider_failed: asyncio.Event
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+
+    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2"):
+            raise ModelAPIError("gpt-6-luna", "Request timed out (invented)")
+        if asks(messages, "E3"):
+            await provider_failed.wait()
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
+    with pytest.raises(ModelAPIError):  # for the job's next attempt
+        await extract_document(context, job)
+
+    assert waited == []  # a request sent and never answered is not asked again at once
+    assert [key for key, _, _ in await units_done(connection, document)] == ["E3"]
+    assert model.units == ["E3"]
+    # the stand-in sent nothing over the wire: E2's reservation is handed back, not estimated
+    assert await usage_rows(connection, job) == [(1, 1_100, False), ("held", 0)]
+
+
+async def test_a_second_provider_error_among_the_units_asking_is_dropped_and_said(
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float], caplog: pytest.LogCaptureFixture
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+    both = asyncio.Barrier(2)
+
+    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2") or asks(messages, "E3"):
+            await both.wait()  # both asking before either fails: the second meets the first's word
+            raise refusal(400)
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
+    with (
+        caplog.at_level("WARNING", logger="app.pipeline.side_by_side"),
+        pytest.raises(PermanentError) as ended,
+    ):
+        await extract_document(context, job)
+
+    assert ended.value.code == "model_refused"  # by the first
+    assert model.units == []  # E4 never asked
+    dropped = [record.getMessage() for record in caplog.records if "dropped" in record.getMessage()]
+    assert dropped == ["a further provider error was dropped: ModelHTTPError"]
+    assert await usage_rows(connection, job) == [(1, 0, False), (1, 0, False), ("held", 0)]
+
+
+async def test_the_next_attempt_after_a_provider_s_error_asks_only_the_units_not_written(
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float], provider_failed: asyncio.Event
+) -> None:
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    model = Model()
+
+    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2"):
+            raise refusal(503)
+        if asks(messages, "E3"):
+            await provider_failed.wait()
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
+    with pytest.raises(ModelHTTPError):
+        await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    again, after = await a_job(connection, document.id, document.owner_id), Model()
+
+    await extract_document(
+        with_concurrency(context_of(pool, tmp_path, after, database_url), database_url, 2), again
+    )
+
+    assert sorted(after.units) == ["E2", "E4"]  # the one that failed and the one never begun
+    assert [key for key, _, _ in await units_done(connection, document)] == ["E2", "E3", "E4"]
+    assert await usage_rows(connection, again) == [(1, 1_100, False), (1, 1_100, False), ("held", 0)]

@@ -42,7 +42,7 @@ from app.pipeline.extraction import document_in
 from app.pipeline.ground import ground_of
 from app.pipeline.progress import report
 from app.pipeline.prompts import x6
-from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider
+from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider, first_of
 from app.pipeline.x2_segments import WorkPackage
 from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
@@ -161,7 +161,7 @@ class _Repairs:
             self.spent = spent
             return
         except PROVIDER_ERRORS as error:
-            self.broken = self.broken or error
+            self.broken = first_of(self.broken, error)
             return
         except AnswerCut:
             message = "the answer was cut at the output cap: the unit stays as it was"

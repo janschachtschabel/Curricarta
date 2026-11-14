@@ -42,7 +42,7 @@ from app.pipeline.asking import AnswerCut, Asking, Superseded, Unanswered, ended
 from app.pipeline.ground import ground_of
 from app.pipeline.progress import report
 from app.pipeline.prompts import x4
-from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider
+from app.pipeline.side_by_side import PROVIDER_ERRORS, ask_side_by_side, fail_by_provider, first_of
 from app.pipeline.x2_segments import WorkPackage
 from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
@@ -146,7 +146,7 @@ class _Units:
             self.spent = spent
             return
         except PROVIDER_ERRORS as error:
-            self.broken = self.broken or error
+            self.broken = first_of(self.broken, error)
             return
         except AnswerCut:
             await self._cut(unit)
