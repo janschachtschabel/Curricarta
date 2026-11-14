@@ -13,7 +13,7 @@ describe("a document's runs", () => {
   // a tab stop with nothing to scroll (browser check 2, NIT 8), as the findings' box was
   it("makes its box a tab stop only while it scrolls sideways", async () => {
     const resized = observeResizes();
-    const run = { stage: "X1", attempt: 1, state: "succeeded", started_at: "2026-11-01T10:00:00Z", finished_at: null, failure: null } as const;
+    const run = { stage: "X1", attempt: 1, state: "done", started_at: "2026-11-01T10:00:00Z", finished_at: null, failure: null } as const;
     const wrapper = mount(DocumentRuns, { props: { runs: [run] }, attachTo: document.body });
     await flushPromises();
     const box = wrapper.get("[role=region]");
