@@ -23,6 +23,8 @@ def test_no_image_is_taken_by_a_tag_someone_can_move(part: str, name: str) -> No
 
     assert re.fullmatch(rf"ghcr\.io/[^/]+/{name}", image["repository"]), image
     assert re.fullmatch(r"\d+\.\d+\.\d+|sha-[0-9a-f]{12}", image["tag"]), image
+    # the place for the digest production takes the image by; empty in the example
+    assert re.fullmatch(r"(sha256:[0-9a-f]{64})?", image["digest"]), image
     assert "latest" not in str(image)
 
 
