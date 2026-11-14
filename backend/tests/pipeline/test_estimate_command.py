@@ -12,7 +12,7 @@ from typing import Any
 import pytest
 
 from app.llm.metering import Weights
-from app.pipeline.reckoned import Request, expected_charge
+from app.pipeline.reckoned import Request, expected_charge, room_for
 from tests.pipeline.test_estimate import after_x2
 from tests.pipeline.test_run import a_document, setup
 from tests.support import without_settings_variables
@@ -64,7 +64,7 @@ async def test_the_command_prints_the_reckoning_by_purpose(setup: Any, database_
 async def test_the_command_prints_what_the_run_is_expected_to_charge(
     setup: Any, tmp_path: Path, database_url: str
 ) -> None:
-    # before X2 the units are not counted: no expectation; after it X3 and each unit, the cache read
+    # before X2 the units are not counted: no expectation, no room; after it X3 and each unit, the cache read
     # after the first requests of each prefix (EXTRACT_CONCURRENCY), each answer at the measured mean
     _, connection = setup
     before = json.loads(estimate(database_url, str((await a_document(connection)).id)).stdout)
@@ -76,10 +76,12 @@ async def test_the_command_prints_what_the_run_is_expected_to_charge(
     printed = json.loads(done.stdout)
     requests = [Request(**request) for request in printed["requests"]]
     weights = Weights(Decimal(printed["weights"]["cached_input"]), Decimal(printed["weights"]["output"]))
-    assert before["charged_expected"] is None
+    assert (before["charged_expected"], before["room"]) == (None, None)
     assert printed["unreckoned"] == {}
     assert printed["charged_expected"] == expected_charge(requests, weights, uncached_first=4)
     assert 0 < printed["charged_expected"] <= printed["charged_at_most"]
+    # beside it what the units asked at once hold beyond their expectation: two units, each its cap at five
+    assert printed["room"] == room_for(requests, weights, at_once=4, units=2) == 2 * (16_000 - 1_100) * 5
 
 
 async def test_a_document_that_is_not_there_is_said_in_one_line(setup: Any, database_url: str) -> None:

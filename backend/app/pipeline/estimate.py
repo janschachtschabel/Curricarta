@@ -69,6 +69,7 @@ from app.pipeline.reckoned import (
     owed_requests,
     prefix_tokens,
     request_of,
+    room_for,
     stage_agent,
     statement_units,
 )
@@ -201,7 +202,11 @@ def summary(
     cap, ``charged_at_most`` what the budget must hold for them, weighed by ``weights`` - for the run,
     only where the reckoning is exact (the module says where it is not) and nothing is unreckoned;
     ``charged_expected`` what they are expected to charge, the first ``uncached_first`` of each prefix whole
-    (app/pipeline/reckoned.py, expected_charge) - None while X3 or X4 is unreckoned."""
+    (app/pipeline/reckoned.py, expected_charge), ``room`` what the ``uncached_first`` asked at once hold
+    beyond it (room_for) - both None while X3 or X4 is unreckoned: the watch after X2 lets a run pass
+    where their sum is left."""
+    unreckoned = bool({"X3", "X4"} & set(reckoning.unreckoned))
+    requests, units = reckoning.requests, reckoning.units or 0
     by_purpose: dict[str, dict[str, int]] = {}
     for request in reckoning.requests:
         sums = by_purpose.setdefault(
@@ -229,8 +234,9 @@ def summary(
             weights.held(request.input_tokens, request.output_tokens) for request in reckoning.requests
         ),
         "charged_expected": None
-        if {"X3", "X4"} & set(reckoning.unreckoned)
-        else expected_charge(reckoning.requests, weights, uncached_first=uncached_first),
+        if unreckoned
+        else expected_charge(requests, weights, uncached_first=uncached_first),
+        "room": None if unreckoned else room_for(requests, weights, at_once=uncached_first, units=units),
         "requests": [asdict(request) for request in reckoning.requests],
     }
 

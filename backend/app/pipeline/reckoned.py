@@ -34,11 +34,12 @@ from app.llm.metering import MARGIN, Spent, Weights, estimate_input
 from app.llm.schema import SCHEMA_DIR, load_schema
 from app.llm.settings import LLMSettings
 from app.pipeline.ground import Ground
+from app.pipeline.prefix import PrefixPlan
 from app.pipeline.prompts import x3, x4
 from app.pipeline.unit_question import prefix_at, prefix_plan
 from app.pipeline.x2_segments import WorkPackage
-from app.pipeline.x3_stage import frame_question
-from app.pipeline.x4_question import unit_questions
+from app.pipeline.x3_stage import FrameQuestion, frame_question
+from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_statements import units_asked
 
 EXPECTED_ANSWER_TOKENS = 1_100
@@ -110,6 +111,27 @@ def expected_charges(
     return charges
 
 
+def room_for(
+    requests: Sequence[Request],
+    weights: Weights,
+    *,
+    at_once: int,
+    units: int,
+    answer_tokens: int = EXPECTED_ANSWER_TOKENS,
+) -> int:
+    """What the requests asked at once hold beyond what they are expected to charge: a request reserves
+    its input and its whole cap at the output weight (``Weights.held``) and books about a tenth of it,
+    and X4 lets no unit begin once one reservation is refused. So a run needs this room beside its
+    expectation: ``min(at_once, units or 1)`` times the most any of ``requests`` holds beyond its
+    expected charge (``expected_charges``, the first ``at_once`` of each prefix whole)."""
+    charges = expected_charges(requests, weights, uncached_first=at_once, answer_tokens=answer_tokens)
+    beyond = (
+        weights.held(request.input_tokens, request.output_tokens) - charge
+        for request, charge in zip(requests, charges, strict=True)
+    )
+    return min(at_once, units or 1) * max(beyond, default=0)
+
+
 async def statement_units(
     connection: psycopg.AsyncConnection, document: Document, model: Model
 ) -> list[WorkPackage]:
@@ -119,6 +141,65 @@ async def statement_units(
     units = [item for item in packages if item.job == "statements"]
     asked, _ = await units_asked(connection, document, units, output_cap(model))
     return asked
+
+
+@dataclass(frozen=True)
+class Owing:
+    """What X3 and X4 still owe a document, read from the store (``owed_questions``); its requests are
+    counted by ``requests`` without it - CPU work, in threads, as X4 counts its units' prefixes."""
+
+    frame: FrameQuestion | None  # X3's question, where X3 is open
+    questions: UnitQuestions | None  # X4's, where X4 is open
+    units: list[WorkPackage]  # those X4 would ask (``statement_units``)
+    x3_plan: PrefixPlan  # X3's prefix, for ``prefix_tokens``
+
+    async def requests(self, model: Model, ontology_dir: Path) -> list[Request]:
+        """X3's request first, then each unit's, counted as the meter counts them; PermanentError
+        (prefix_too_long) where a unit's question fits no window."""
+        prompts: list[tuple[str, str | list[UserContent], ModuleType, str]] = []
+        if self.frame is not None:
+            prompts.append(("x3.frame", self.frame.prompt, x3, ""))
+        if self.questions is not None:
+            for unit in self.units:
+                asked = await self.questions.question(unit)
+                prompts.append(("x4.unit", asked.prompt, x4, asked.window))
+        agents = {
+            module: stage_agent(model, ontology_dir, module) for module in {item[2] for item in prompts}
+        }
+        return await asyncio.to_thread(
+            lambda: [
+                request_of(purpose, prompt, agents[module], window=window)
+                for purpose, prompt, module, window in prompts
+            ]
+        )
+
+    async def prefix_tokens(self) -> int:
+        """X3's prefix - the document as every request of the run sends it first -, counted plainly."""
+        return count_tokens((await asyncio.to_thread(prefix_at, self.x3_plan, 0)).text)
+
+
+async def owed_questions(
+    connection: psycopg.AsyncConnection,
+    llm: LLMSettings,
+    document: Document,
+    blocks: Sequence[Block],
+    printed: Sequence[str | None],
+    ground: Ground,
+    model: Model,
+) -> Owing:
+    """What ``document`` - X2 done on it - still owes X3 (where open) and X4 (each unit it would ask),
+    read as the stages read it. X4's prefix lacks the choice lists X3 writes while X3 is open.
+    PermanentError (prefix_too_long) where X3's question fits no window."""
+    done = await done_stages(connection, document.id)
+    units = await statement_units(connection, document, model)
+    frame = None
+    if "X3" not in done:
+        frame = await frame_question(connection, llm, document, blocks, printed, ground, model)
+    questions = None
+    if "X4" not in done:
+        questions = await unit_questions(connection, llm, document, blocks, printed, ground, model)
+    plan = await prefix_plan(connection, llm, document.id, blocks, printed, lists="")
+    return Owing(frame, questions, units, plan)
 
 
 async def owed_requests(
@@ -132,28 +213,11 @@ async def owed_requests(
     ontology_dir: Path,
 ) -> tuple[list[Request], int]:
     """The requests ``document`` - X2 done on it - still owes X3 (where open) and X4 (each unit it
-    would ask), counted as the stages send them, X3's first; and the number of those units. X4's
-    prefix lacks the choice lists X3 writes while X3 is open. PermanentError (prefix_too_long) where
-    a stage's question fits no window: the stage ends the job before it asks."""
-    done = await done_stages(connection, document.id)
-    units = await statement_units(connection, document, model)
-    prompts: list[tuple[str, str | list[UserContent], ModuleType, str]] = []
-    if "X3" not in done:
-        question = await frame_question(connection, llm, document, blocks, printed, ground, model)
-        prompts.append(("x3.frame", question.prompt, x3, ""))
-    if "X4" not in done:
-        questions = await unit_questions(connection, llm, document, blocks, printed, ground, model)
-        for unit in units:
-            asked = await questions.question(unit)
-            prompts.append(("x4.unit", asked.prompt, x4, asked.window))
-    agents = {module: stage_agent(model, ontology_dir, module) for module in {item[2] for item in prompts}}
-    requests = await asyncio.to_thread(
-        lambda: [
-            request_of(purpose, prompt, agents[module], window=window)
-            for purpose, prompt, module, window in prompts
-        ]
-    )
-    return requests, len(units)
+    would ask), counted as the stages send them, X3's first; and the number of those units.
+    PermanentError (prefix_too_long) where a stage's question fits no window: the stage ends the job
+    before it asks."""
+    owing = await owed_questions(connection, llm, document, blocks, printed, ground, model)
+    return await owing.requests(model, ontology_dir), len(owing.units)
 
 
 async def prefix_tokens(

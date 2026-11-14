@@ -667,6 +667,12 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
     einem Dokument, das in Fenstern gelesen wird, jedes Fenster. Die Antwort zählt mit 1.100 Token (in
     der Abnahme rund 1.050), höchstens mit ihrer Obergrenze. `null`, solange X3 oder X4 in
     `unreckoned` steht. Das ist keine Obergrenze: Wiederholungen und ein verlorener Cache kosten mehr.
+  - `room`: was die Anfragen, die gleichzeitig laufen, über ihre Erwartung hinaus reserviert halten,
+    während sie warten: so viele, wie X4 gleichzeitig fragt (höchstens die Zahl der Pakete, mindestens
+    eine), mal dem Größten, was eine Anfrage über ihre Erwartung hinaus hält (Eingabe plus ganze
+    Obergrenze mal Ausgabegewicht, abzüglich ihrer Erwartung). Ein Lauf braucht `charged_expected +
+    room`: Scheitert eine Reservierung, beginnt X4 kein Paket mehr, und der Lauf endet mit
+    `budget_exhausted`, teils bezahlt. `null` wie `charged_expected`.
   Für den ganzen Lauf gelten diese Zahlen nur, wo die Zählung genau ist und `unreckoned` leer ist.
   - Vor X1 rechnet er X1 und nennt das Präfix von X3 (`prefix_tokens`, noch ohne Profil und Baum,
     also zu niedrig). Die Gliederung zählt er ohne die Spezifikationen, die X1 findet, und nach dem
@@ -686,15 +692,18 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   - Geldbeträge nennt die App nicht, nur die Gewichte. Exit-Code 1: kein solches Dokument oder ein
     anderer Fehler (die Meldung steht auf stderr); 2: falscher Aufruf.
 - Wacht nach X2: Sind die Pakete geschnitten, rechnet der Job vor der ersten Anfrage von X3 oder X4,
-  was der Rest voraussichtlich bucht (wie `charged_expected`). Übersteigt das den Rest der Quote
+  was der Rest braucht: was er voraussichtlich bucht und den Raum für die gleichzeitigen
+  Reservierungen (wie `charged_expected` und `room`). Übersteigt die Summe den Rest der Quote
   (Grenze minus Verbrauch minus Reserviertes aller Jobs des Kontos), endet er mit `run_over_budget`.
   Dann ist nichts von X3 und X4 gefragt oder gebucht; X1 und X2 bleiben, und ein neuer Start mit
-  mehr Budget setzt bei X3 fort. Eine Logzeile nennt Pakete, Präfix, Erwartung, Grenze und Rest.
+  mehr Budget setzt bei X3 fort. Eine Logzeile nennt Pakete, Präfix, Erwartung, Raum, Grenze und
+  Rest; die Meldung des Jobs nennt dieselben Zahlen außer der Grenze.
   Die Wacht ist ein Blick in einem Moment, keine Reservierung: Andere Jobs des Kontos können
-  inzwischen verbrauchen, und ein Lauf kann mehr buchen als erwartet. Er kann also weiter mit
-  `budget_exhausted` enden und behält dann seine fertigen Pakete. `EXTRACT_BUDGET_WATCH=false`
-  schaltet die Wacht ab; ein Konto ohne Grenze wird nicht bewacht. Soll ein Lauf nach X2 anhalten,
-  setzt der Betreiber die Grenze knapp über das, was X1 und X2 verbraucht haben.
+  inzwischen verbrauchen, und ein Lauf kann mehr buchen als erwartet (Wiederholungen, verlorener
+  Cache, längere Antworten). Er kann also weiter mit `budget_exhausted` enden und behält dann seine
+  fertigen Pakete. `EXTRACT_BUDGET_WATCH=false` schaltet die Wacht ab; ein Konto ohne Grenze wird
+  nicht bewacht. Soll ein Lauf nach X2 anhalten, setzt der Betreiber die Grenze knapp über das, was
+  X1 und X2 verbraucht haben.
 - Einen Modelljob darf ein Konto nur starten, solange es seine Grenze nicht verbraucht hat, sonst
   403 `no_budget`; was laufende Aufrufe reserviert halten, zählt dabei nicht. Höchstens
   `MAX_JOBS_IN_FLIGHT` (Standard 20) dürfen warten oder laufen, sonst 429 `too_many_jobs` mit
