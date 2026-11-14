@@ -2,12 +2,14 @@
 (tests/quality/handout.py, tests/quality/test_rehearsal.py): its fenced command lines are the handout's, in
 its order, word for word - a command changed in one place and not in the other is told here."""
 
+import re
 from pathlib import Path
 
 from app.quality.sheet import LOCAL_FOLDER
 from tests.quality.handout import COMMANDS
 
-README = Path(__file__).resolve().parents[3] / "README.md"
+ROOT = Path(__file__).resolve().parents[3]
+README = ROOT / "README.md"
 SECTION = "### Güte messen"
 
 
@@ -40,3 +42,23 @@ def test_the_readme_says_where_the_sheets_lie() -> None:
 
     assert f"`{LOCAL_FOLDER.as_posix()}/`" in text
     assert "--endpoint-counts" in text
+
+
+# a command of the app run in a container: "docker compose [-f file] exec [flags] <service> python -m app.…"
+_EXEC = re.compile(r"docker compose(?: -f \S+)? exec ((?:-\S+ )*)[\w-]+ python -m (app\.[\w.]+)")
+
+
+def test_every_command_of_the_app_run_by_exec_takes_no_terminal() -> None:
+    # with a terminal the command's words to the operator (stderr) merge into its data (stdout): a
+    # redirected sheet, report or export would hold log lines. None of these commands asks the operator
+    # anything at a terminal, so none is excepted.
+    files = [README, *ROOT.glob("docs/**/*.md"), *(ROOT / "backend" / "app").rglob("*.py")]
+    found = [
+        (path.relative_to(ROOT).as_posix(), match[2], match[1].split())
+        for path in files
+        for match in _EXEC.finditer(re.sub(r"\s+", " ", path.read_text(encoding="utf-8")))
+    ]
+
+    assert [(path, module) for path, module, flags in found if "-T" not in flags] == []
+    assert ("README.md", "app.pipeline.estimate") in [(path, module) for path, module, _ in found]
+    assert ("backend/app/pipeline/estimate.py", "app.pipeline.estimate") in [(p, m) for p, m, _ in found]
