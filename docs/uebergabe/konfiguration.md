@@ -150,7 +150,11 @@ ein Test schlägt an, wenn sie veraltet.
   Speichermangel; seinen Speicherbedarf misst M6. Gemessen (CPU, ohne Last): rund 2 s für ein
   Dokument mit 100 Knoten und Aussagen (mit Fundstellen 200 Zeilen), 9 s mit 400, 43 s mit 1.200
   (300 Knoten, 900 Aussagen); `SHACL_TIMEOUT_S` (Standard 300 s) begrenzt ihn, danach bleibt das
-  Tor mit dem Befund `x5.shacl_timeout` zu. Ein neuer Start der Extraktion prüft ein Dokument,
+  Tor mit dem Befund `x5.shacl_timeout` zu. Die Fundstellen prüft X5 in Stapeln innerhalb
+  `X5_ANCHOR_BUDGET_S` (Standard 300 s); was die Frist nicht erreicht, bleibt ungeprüft, und X5 endet
+  fertig mit dem Verstoß `x5.anchors_unchecked`. Ein neuer Start der Extraktion setzt diese Prüfung
+  nicht fort, „Erneut prüfen“ (`POST /api/v1/documents/{id}/check`) prüft die übrigen. Ein neuer
+  Start der Extraktion prüft ein Dokument,
   dessen X5 fertig ist, nur dann erneut, wenn seither eine Reparatur oder eine Bearbeitung eine
   Prüfung schuldet: Eine höhere Frist gilt also für Dokumente, deren X5 noch aussteht, und für die
   Prüfung nach einer Reparatur (`extract.repair`) oder einer Bearbeitung (`extract.check` oder ein

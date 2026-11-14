@@ -149,6 +149,9 @@ async def _checked(
         if await lock_for_stage(connection, document.id, "X5") and not again:
             raise Superseded
         if again:
+            # x5.anchors_unchecked of a run before goes here, with the run's end, not with the last
+            # batch: a check again that wrote the last anchors and then failed (its SHACL child) leaves it
+            # standing though none is unchecked - meant: it sends the editors to check again, which clears it
             await drop_stage_findings(connection, document.id, "X5", keep_run=run_id)
         await add_findings(connection, document.id, run_id, findings)
         await finish_run(connection, run_id, "done", result)

@@ -492,7 +492,11 @@ ungültig.
   Curriculum-Kerns und der Profile, in einem eigenen Prozess mit der Frist `SHACL_TIMEOUT_S`
   (Standard 300 s, 10–1800). Die Befunde stehen in `validation_finding` (Verstoß, Warnung,
   Hinweis): ein Wortlaut, den seine Blöcke nicht enthalten, ist ein Verstoß, eine überschrittene
-  Frist der Verstoß `x5.shacl_timeout`; X5 endet in beiden Fällen fertig. Ein neuer Start der
+  Frist der Verstoß `x5.shacl_timeout`; X5 endet in beiden Fällen fertig. Die Wortlaute prüft X5 in
+  Stapeln innerhalb `X5_ANCHOR_BUDGET_S` (Standard 300 s); was die Frist nicht erreicht, bleibt
+  ungeprüft, und X5 endet fertig mit dem Verstoß `x5.anchors_unchecked`. Ein neuer Start der
+  Extraktion setzt diese Prüfung nicht fort, „Erneut prüfen“ (`POST /api/v1/documents/{id}/check`)
+  prüft die übrigen Fundstellen. Ein neuer Start der
   Extraktion prüft ein Dokument, dessen X5 fertig ist, nicht erneut; das tut erst eine Reparatur,
   die Arbeitspakete neu schreibt, dann mit der geltenden Frist. Stirbt der Prüfprozess
   (Speichermangel) oder bricht
