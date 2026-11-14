@@ -132,21 +132,36 @@ ein Test schlägt an, wenn sie veraltet.
   das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress von
   mindestens 60 s voraus. Den Speicher der API bei zwei gleichzeitigen Prüfungen misst M6. Die
   Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
-- Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`). Eine
+- Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`), hinter denen
+  eines `options=` aus `DATABASE_URL` (das bleibt; beim selben Parameter gilt der Wert des Dienstes). Eine
   Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der
-  Server; ihre Sperren werden frei, auch die Zeile des Jobs eines hängenden Workers. Eine Anweisung, die
-  länger als `DB_STATEMENT_TIMEOUT_S` läuft (Standard aus; Compose und die Helm-Werte setzen 60 s für die
-  API allein), bricht er ab, das Warten auf eine Sperre eingeschlossen: Die Anfrage antwortet 500. Dazu
-  kommen die Keepalives des Servers (`tcp_keepalives_idle=30`, `tcp_keepalives_interval=10`,
-  `tcp_keepalives_count=3`): Ein Client ohne Lebenszeichen fällt ihm nach rund 60 s auf. Gemessen mit
-  `backend/tools/measure_sessions.py` neben den Datenbanktests: längste Pause in einer Transaktion 2 s,
-  längste Anweisung der API 2 s. Die Kommandos (Migration, Bootstrap, Vokabular, Lizenznachtrag) setzen
-  keine: Eine Migration wartet auf die Sperre einer anderen, solange diese läuft.
-  Hinter PgBouncer kann der Verbindungsaufbau mit `options` scheitern („unsupported startup
-  parameter“). Dann dort `ignore_startup_parameters = options` setzen und dieselben Werte an der
-  Datenbank festlegen, etwa `ALTER ROLE <Rolle> SET idle_in_transaction_session_timeout = '300s'` (für
-  eine eigene Rolle der API auch `statement_timeout = '60s'`); die Keepalives des Servers wirken dann
-  zwischen Server und PgBouncer.
+  Server; ihre Sperren werden frei, auch die Zeile des Jobs eines hängenden Workers. Die Anfrage der API
+  antwortet dann 500; ein Job-Schritt endet mit `handler_error` und wird wiederholt, und seine Anfragen an
+  das Sprachmodell können dabei ein zweites Mal kosten. Eine Anweisung, die länger als
+  `DB_STATEMENT_TIMEOUT_S` läuft (Standard aus; Compose und die Helm-Werte setzen 60 s für die API), bricht
+  er ab, das Warten auf eine Sperre eingeschlossen: Die Anfrage antwortet 500. Im Worker gilt diese Frist
+  nie, auch wenn die Variable dort gesetzt ist: Sie bräche einen Herzschlag ab, der hinter der Lease
+  wartet, und eine Buchung, die auf die Zeile der Quote wartet - jedes Mal ein bezahlter neuer Versuch.
+  Dazu kommen die Keepalives des Servers (`tcp_keepalives_idle=30`, `tcp_keepalives_interval=10`,
+  `tcp_keepalives_count=3`): Ein Client ohne Lebenszeichen fällt ihm nach rund 60 s auf. Die Kommandos
+  (Migration, Bootstrap, Vokabular, Lizenznachtrag) setzen nichts davon: Eine Migration wartet auf die
+  Sperre einer anderen, solange diese läuft.
+  Gemessen wurde mit `backend/tools/measure_sessions.py` neben den Datenbanktests, auf deren synthetischen
+  Daten, mit Platzhaltern für Sprachmodell und Konverter: längste Pause in einer Transaktion 2 s, längste
+  Anweisung der API 2 s, beides Sperren, die ein Test absichtlich hält. Das sagt nichts über echte Last
+  und echte Dokumente; die Frage nach der längsten Transaktion des Workers beantwortet es nicht (der größte
+  Testplan hat 58 Teile; bei 2.400 Teilen läge die Schreibtransaktion des MEM-Imports linear geschätzt
+  bei rund 27 s). Bevor man den 60 s traut: langsame Anweisungen der Rolle der API beobachten
+  (`log_min_duration_statement` oder `pg_stat_statements`), 500er mit `QueryCanceled` (57014) im Log der
+  API und Jobs, die nach `IdleInTransactionSessionTimeout` wiederholt werden.
+  Hinter einem Pooler wie PgBouncer, der `options` beim Verbindungsaufbau ablehnt („unsupported startup
+  parameter“): beide Fristen auf 0 setzen, dann schickt der Dienst keine `options` (die Keepalives des
+  Clients bleiben), und dieselben Werte an der Datenbank festlegen:
+  `ALTER ROLE <Rolle> SET idle_in_transaction_session_timeout = '300s';`,
+  `ALTER ROLE <Rolle> SET tcp_keepalives_idle = 30;` (ebenso `tcp_keepalives_interval = 10`,
+  `tcp_keepalives_count = 3`) und nur für eine eigene Rolle der API
+  `ALTER ROLE <Rolle der API> SET statement_timeout = '60s';`. Die Keepalives des Servers wirken dann
+  zwischen Server und Pooler.
 - `JOB_SHUTDOWN_GRACE_S` mindestens 5 s unter `terminationGracePeriodSeconds` des Workers.
 - `IRI_BASE`: die Basis der IRIs, die ein Dokument beim Festschreiben bekommt (Werk, Dokument,
   Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der Dienst nichts fest

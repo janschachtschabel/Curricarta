@@ -10,9 +10,10 @@ from contextlib import asynccontextmanager
 
 import psycopg
 import pytest
+from psycopg.conninfo import make_conninfo
 from psycopg_pool import AsyncConnectionPool
 
-from app.db.pool import CONNECTION_OPTIONS, create_pool
+from app.db.pool import CONNECTION_OPTIONS, create_pool, worker_pool
 from app.jobs.queue import Job, claim, enqueue, hold_lease, requeue_expired
 from app.jobs.worker import Worker
 from tests.support import make_settings
@@ -84,6 +85,57 @@ def test_the_migration_s_connection_keeps_waiting_for_its_lock() -> None:
     # the commands connect with CONNECTION_OPTIONS: a migration waits for the lock of another as long as it
     # runs (tests/db/test_migrate.py), and no session timeout of the pool's may end it meanwhile
     assert "options" not in CONNECTION_OPTIONS
+
+
+async def settings_of(pool: AsyncConnectionPool, *names: str) -> tuple[str, ...]:
+    async with pool.connection() as connection:
+        cursor = await connection.execute(
+            "SELECT array_agg(current_setting(n) ORDER BY o)"
+            " FROM unnest(%s::text[]) WITH ORDINALITY AS t(n, o)",
+            (list(names),),
+        )
+        found = await cursor.fetchone()
+    assert found is not None
+    return tuple(found[0])
+
+
+async def test_the_options_of_the_database_url_stay_beside_the_pool_s(url: str) -> None:
+    # an operator's own (a schema of its own on a shared server): the commands keep them, so must the pool
+    own = make_conninfo(url, options="-c search_path=elsewhere,public -c statement_timeout=9000")
+    async with pool_of(own, db_statement_timeout_s=1) as pool:
+        found = await settings_of(
+            pool, "search_path", "statement_timeout", "idle_in_transaction_session_timeout"
+        )
+
+    # the pool's come after the URL's: on the same parameter the pool's win
+    assert found == ("elsewhere,public", "1s", "5min")
+
+
+async def test_without_timeouts_the_pool_sends_no_options_of_its_own(url: str) -> None:
+    # the way behind a pooler that refuses options at the start of a session: the values come from the role
+    plain = create_pool(make_settings(database_url=url, db_idle_in_transaction_timeout_s=0))
+    own = make_conninfo(url, options="-c search_path=elsewhere,public")
+    async with pool_of(own, db_idle_in_transaction_timeout_s=0) as kept:
+        found = await settings_of(kept, "search_path", "tcp_keepalives_idle")
+
+    assert isinstance(plain.kwargs, dict) and "options" not in plain.kwargs
+    assert found[0] == "elsewhere,public"
+    assert found[1] != "30"  # the server's own keepalives, none of the pool's
+
+
+async def test_the_worker_s_pool_never_cancels_a_statement(url: str) -> None:
+    # set for every container by mistake, the statement timeout would cancel a heartbeat waiting behind the
+    # lease and a booking waiting for the quota row: each a paid retry
+    pool = worker_pool(make_settings(database_url=url, db_statement_timeout_s=1))
+    await pool.open(wait=True)
+    try:
+        found = await settings_of(
+            pool, "statement_timeout", "idle_in_transaction_session_timeout", "application_name"
+        )
+    finally:
+        await pool.close()
+
+    assert found == ("0", "5min", "curricarta-worker")
 
 
 async def test_a_dead_worker_s_job_is_handed_back_once_its_session_is_ended(url: str) -> None:
