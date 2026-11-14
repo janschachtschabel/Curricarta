@@ -16,7 +16,7 @@ from pydantic_ai.models.function import AgentInfo
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import LeaseLost
 from app.llm.schema import load_schema
-from app.pipeline import x4_statements
+from app.pipeline import run, x4_statements
 from app.pipeline.run import extract_document
 from tests.llm.test_client import llm_settings
 from tests.pipeline.provider_support import asks
@@ -63,6 +63,35 @@ async def test_a_unit_no_window_fits_ends_the_job_before_x3_or_any_unit_is_asked
     assert await x3_run(connection, document) == []
     assert (model.units, await x4_runs(connection, document)) == ([], [])  # none asked, no run begun
     assert "frame" not in model.asked
+
+
+async def test_a_run_going_on_after_x3_checks_its_units_windows_before_it_asks_one(
+    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # X3 done by a first job under a wide context: the check before X3 is behind the run, and X4's own
+    # check is what stands - without it the units beside the long one would be asked, cut off and paid for
+    pool, connection = setup
+    document = await a_document(connection, blocks=LONG)
+    model = Model()
+    context = context_of(pool, tmp_path, model, database_url)
+
+    async def stopped(*_: Any) -> Any:
+        raise RuntimeError("the worker stopped before X4")
+
+    with monkeypatch.context() as patched:
+        patched.setattr(run, "run_x4", stopped)
+        with pytest.raises(RuntimeError):
+            await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    assert [outcome for outcome, _ in await x3_run(connection, document)] == ["done"]
+    small = llm_settings(llm_context_tokens=21_000, llm_max_output_tokens=1_000)
+
+    with pytest.raises(PermanentError) as ended:
+        await extract_document(
+            replace(context, llm=small), await a_job(connection, document.id, document.owner_id)
+        )
+
+    assert ended.value.code == "prefix_too_long"
+    assert (model.units, await x4_runs(connection, document)) == ([], [])  # none asked, no run begun
 
 
 async def test_an_error_in_one_unit_ends_those_asking_beside_it_and_nothing_of_them_is_written(
