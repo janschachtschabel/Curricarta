@@ -144,8 +144,9 @@ ein Test schlägt an, wenn sie veraltet.
   endet die Konvertierung mit `unreadable` oder `crashed` oder als wiederholter Handler-Fehler.
   `RLIMIT_AS` zählt virtuellen Speicher, nicht den belegten: Jedes Kind schreibt am Ende eine Zeile
   `peak memory: rss=… MiB, virtual=… MiB` (INFO); die Grenze auf das Doppelte des gemessenen
-  `virtual` setzen, nie nach `rss`. Zu knapp, und jede Konvertierung endet schon beim Laden der
-  Modelle mit `died`.
+  `virtual` setzen, nie nach `rss`. Zu knapp, und eine Konvertierung mit Docling endet meist schon
+  beim Laden seiner Modelle mit `died` (pdfplumber lädt keine); scheitert das Laden anders als in
+  Python, wird der Job wiederholt.
 - Prüfung (X5): Gegen die SHACL-Formen prüft ein Kindprozess des Workers, mit derselben Regel für
   Speichermangel; seinen Speicherbedarf misst M6. Gemessen (CPU, ohne Last): rund 2 s für ein
   Dokument mit 100 Knoten und Aussagen (mit Fundstellen 200 Zeilen), 9 s mit 400, 43 s mit 1.200

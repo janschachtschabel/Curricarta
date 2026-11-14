@@ -117,7 +117,9 @@ async def test_a_conversion_out_of_memory_whose_peak_cannot_be_read_still_died()
 
 @pytest.mark.skipif(sys.platform != "linux", reason="CHILD_MEMORY_LIMIT_MB is applied on Linux alone")
 async def test_a_conversion_grown_to_its_memory_limit_died() -> None:
-    # a MiB at a time, every piece held: the heap is still full as the child says its peak
+    # a MiB at a time, every piece held: the heap is still full as the child says its peak. The real path,
+    # not a pin of the peak's fix - it passes on the old log_peak whenever the status read succeeds; the
+    # pin is test_a_conversion_out_of_memory_whose_peak_cannot_be_read_still_died
     with pytest.raises(ConversionDied, match="memory"):
         await convert_in_child(
             FIXTURES / "prose.pdf", engine="stand-in", max_pages=9, convert=standins.growing,

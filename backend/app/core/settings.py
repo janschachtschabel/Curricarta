@@ -201,8 +201,9 @@ class Settings(BaseSettings):
     # The address space of each child process the service starts - the conversion, the SHACL check -
     # in MiB, on Linux (app/core/child.py): opt-in, none by default, the containers' limits come first.
     # RLIMIT_AS counts virtual memory: set it to twice the virtual peak the children log, never by RSS;
-    # an allocation past it that fails in Python ends the conversion "died" - its models' load too -,
-    # one a library fails otherwise (an allocator's RuntimeError, a signal) "unreadable" or "crashed"
+    # an allocation past it that fails in Python ends the conversion "died" - Docling's models' load
+    # too -; one a library fails otherwise ends it "unreadable" or "crashed" (an allocator's
+    # RuntimeError, a signal), or as a handler error asked again (a model load failing otherwise)
     child_memory_limit_mb: Annotated[int, Field(ge=256, le=262144)] | None = None
     # Who the register's requests say they are (source.fetch, source.check): the product token
     # robots.txt knows us by, then where to reach the operators; printable ASCII, as a header
