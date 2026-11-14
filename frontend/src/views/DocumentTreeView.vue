@@ -17,7 +17,8 @@
  * side stand side by side. Reached at a row - a finding's link, a bookmark, back or a reload -, the tree's first
  * reading brings that row into sight with the keyboard, where that rests nowhere else; a row it does not hold
  * is said above the tree and the panel and by a region the page holds from the start, and leaves the address
- * (Paket 9d3 Q1, Q2).
+ * (Paket 9d3 Q1, Q2). Wide, the side scrolls on its own beside the tree; a button after the tree leads to the
+ * panel, and the side leads back to the row and on to the source (UI review M1).
  */
 import { computed, nextTick, onMounted, ref, toRef, watch } from "vue";
 import { RouterLink, useRoute } from "vue-router";
@@ -122,9 +123,26 @@ watch(tree, async (now, before) => {
     said.value = t("documents.tree.notHeld"); // emptied in between: said again for another document
   } else if (focusIsFree()) treeView.value?.focusRow(selectedRow.value.key);
 });
+const side = ref<HTMLElement | null>(null);
 watch(selected, (key) => {
   if (key) forgetNotHeld();
+  // wide, the side scrolls on its own: another row is read from its panel's top, not where the last one was left
+  if (side.value) side.value.scrollTop = 0;
 });
+
+// A long tree puts the panel and the source far from the row chosen, narrow one under the other: ways between
+// them, the tree keeping its one tab stop and its keys
+function toPanel(): void {
+  panel.value?.focus();
+}
+
+function toRow(): void {
+  if (selected.value) treeView.value?.focusRow(selected.value);
+}
+
+function showSource(): void {
+  source.value?.focus();
+}
 
 onMounted(() => void load());
 watch(
@@ -181,8 +199,18 @@ watch([heading, () => route.fullPath], ([name]) => {
           <!-- keyed by the document: a check of the one before is not followed here -->
           <TreeTools :key="id" :tree="tree" :document-id="id" @create-top="createAtTop" @changed="load()" />
           <TreeView ref="treeView" v-model:selected="selected" :rows="rows" :form="form" :counts="tree.counts" />
+          <!-- the next tab stop after the tree, and in sight at the screen's foot while the tree is -->
+          <p v-if="selectedRow" class="document-tree__jump">
+            <button type="button" class="btn secondary btn-sm" @click="toPanel">{{ t("documents.tree.jump.toPanel") }}</button>
+          </p>
         </section>
-        <div class="document-tree__side">
+        <div ref="side" class="document-tree__side">
+          <p class="document-tree__ways">
+            <button v-if="selectedRow" type="button" class="btn link" @click="toRow">
+              {{ t("documents.tree.jump.toRow") }}
+            </button>
+            <button type="button" class="btn link" @click="showSource">{{ t("documents.tree.jump.toSource") }}</button>
+          </p>
           <RowPanel
             ref="panel"
             :row="selectedRow"
@@ -226,8 +254,24 @@ watch([heading, () => route.fullPath], ([name]) => {
 
 <style scoped>
 .document-tree__back,
-.document-tree__not-held {
+.document-tree__not-held,
+.document-tree__ways {
   margin: 0;
+}
+
+.document-tree__ways {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+}
+
+/* At the screen's foot while the tree is in sight: a row chosen far down still shows the way to its panel. */
+.document-tree__jump {
+  position: sticky;
+  bottom: 0;
+  margin: 0;
+  padding-block: var(--space-1);
+  background: var(--bg);
 }
 
 .document-tree__panes {
@@ -243,10 +287,36 @@ watch([heading, () => route.fullPath], ([name]) => {
   min-width: 0;
 }
 
-/* Wide, the tree beside what it chose; narrow, one under the other in that order. */
+/* Wide, the tree beside what it chose; narrow, one under the other in that order. Wide, the side scrolls on its
+   own and stays in sight however far down the tree the row was chosen. */
 @media (min-width: 60rem) {
   .document-tree__panes {
     grid-template-columns: minmax(18rem, 2fr) minmax(0, 3fr);
+  }
+
+  .document-tree__side {
+    position: sticky;
+    top: 0;
+    max-height: 100dvh;
+    overflow-y: auto;
+    padding-inline-end: var(--space-1);
+  }
+}
+
+/* Wider still, the source beside the form, so wording and source are read side by side. */
+@media (min-width: 100rem) {
+  .document-tree__side {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+
+  .document-tree__ways {
+    grid-column: 1 / -1;
+  }
+
+  .document-tree__side > .source {
+    position: sticky;
+    top: 0;
+    align-self: start;
   }
 }
 </style>

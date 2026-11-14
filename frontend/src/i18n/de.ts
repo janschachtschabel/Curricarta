@@ -1414,6 +1414,12 @@ export const messages = {
       heading: "Baum: {title}",
       back: "Zum Dokument",
       treeHeading: "Knoten und Aussagen",
+      // ways between the row chosen, its panel and the source on a long page (DocumentTreeView.vue)
+      jump: {
+        toPanel: "Zur Auswahl",
+        toRow: "Zurück zur Zeile im Baum",
+        toSource: "Zur Quelle",
+      },
       detail: {
         heading: "Auswahl",
         none: "Wähle im Baum eine Zeile: Hier stehen dann ihre Felder und Fundstellen, darunter ihre Stelle in der Quelle.",

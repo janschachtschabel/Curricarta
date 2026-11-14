@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { RouterView } from "vue-router";
@@ -22,6 +25,7 @@ import { block } from "./conversions";
 import { job } from "./registerEntries";
 import { CV, form_, node_, statement_, tree_ } from "./treeFixtures";
 import { documentOf } from "./documentFixtures";
+import { SRC, cssRules, stylesOf } from "./sources";
 
 let shown: VueWrapper | null = null;
 
@@ -1347,5 +1351,78 @@ describe("a document's tree page", () => {
     await flushPromises();
 
     expect(wrapper.findAll("[role=treeitem]")).toHaveLength(3);
+  });
+});
+
+// A long tree puts the panel and the source far from the row chosen (UI review M1): ways between them
+describe("the ways between the row, its panel and the source", () => {
+  function jump(wrapper: VueWrapper, key: "toPanel" | "toRow" | "toSource") {
+    return wrapper.findAll("button").find((one) => one.text() === t(`documents.tree.jump.${key}`));
+  }
+
+  it("offers the way to the panel only once a row is chosen, and the panel takes the keyboard", async () => {
+    const wrapper = await open();
+    expect(jump(wrapper, "toPanel")).toBeUndefined();
+
+    await wrapper.get("[data-key='statement:s1']").trigger("click");
+    await flushPromises();
+    await jump(wrapper, "toPanel")?.trigger("click");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(wrapper.get(".row-panel h2").element);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("leads from the panel back to the row chosen, the tree's keyboard model unchanged", async () => {
+    const wrapper = await open({ zeile: "statement:s2" });
+
+    await jump(wrapper, "toRow")?.trigger("click");
+    await flushPromises();
+
+    const row = wrapper.get("[data-key='statement:s2']");
+    expect(document.activeElement).toBe(row.element);
+    expect(row.attributes("tabindex")).toBe("0");
+  });
+
+  it("offers no way back to a row while none is chosen", async () => {
+    const wrapper = await open();
+
+    expect(jump(wrapper, "toRow")).toBeUndefined();
+  });
+
+  it("leads from the panel to the source", async () => {
+    const wrapper = await open({ zeile: "node:a" });
+
+    await jump(wrapper, "toSource")?.trigger("click");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(wrapper.get(".source h2").element);
+  });
+
+  it("shows another row chosen from the side's top, however far the side was scrolled", async () => {
+    const wrapper = await open({ zeile: "node:a" });
+    const side = wrapper.get(".document-tree__side").element;
+    // jsdom keeps no scroll position of its own: a plain property stands in for it
+    Object.defineProperty(side, "scrollTop", { value: 900, writable: true });
+
+    await wrapper.get("[data-key='statement:s1']").trigger("click");
+    await flushPromises();
+
+    expect(side.scrollTop).toBe(0);
+  });
+
+  it("gives the side its own scrolling beside the tree on wide screens, and the jump to the panel a place in sight", () => {
+    // jsdom lays nothing out: the rules are read from the component's styles
+    const source = readFileSync(join(SRC, "views", "DocumentTreeView.vue"), "utf8");
+    const rules = cssRules(stylesOf(source));
+    const sticky = rules.find((rule) => rule.selectors.includes(".document-tree__side") && /position:\s*sticky/.test(rule.body));
+    expect(sticky, "a sticky rule for the side").toBeDefined();
+    expect(sticky?.body).toMatch(/max-height:\s*100dvh/);
+    expect(sticky?.body).toMatch(/overflow-y:\s*auto/);
+    // the side is sticky only inside the wide media query, where it stands beside the tree
+    expect(source).toMatch(/@media \(min-width: 60rem\) \{[^@]*\.document-tree__side \{[^}]*position:\s*sticky/);
+    const jumpRule = rules.find((rule) => rule.selectors.includes(".document-tree__jump"));
+    expect(jumpRule?.body).toMatch(/position:\s*sticky/);
+    expect(jumpRule?.body).toMatch(/bottom:\s*0/);
   });
 });

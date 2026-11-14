@@ -157,7 +157,8 @@ function addAnchor(code: string): AnchorTaking {
   return (creator.value ?? editor.value)?.addAnchor(code) ?? "refused";
 }
 
-defineExpose({ addAnchor });
+// the page's way to the panel from a row far above it
+defineExpose({ addAnchor, focus: toHeading });
 </script>
 
 <template>
