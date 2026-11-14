@@ -36,15 +36,22 @@ const items = computed(() => list.value?.items ?? []);
 // the cues of a Bildungsbereich and a Land, a page at a time
 const choice = ref<CueChoice>(ANY_CUE);
 const inChoice = computed(() => items.value.filter((item) => chosen(item, choice.value)));
-const { openOnly, open, listed, dirty } = useOpenEntries(
-  () => inChoice.value,
+const open = computed(() => inChoice.value.filter((item) => item.decision === null).length);
+const { openOnly, listed, dirty, held } = useOpenEntries(
+  () => items.value,
   (item) => item.iri,
   (item) => item.decision !== null,
   (now) => emit("dirty", now),
 );
+// a cue whose form holds input is never taken from under the keyboard: not by the choice, not by the page's end
+const shown = computed(() => listed.value.filter((item) => chosen(item, choice.value) || held(item.iri)));
 const pageEnd = ref(SAMPLE_PAGE);
-const paged = computed(() => listed.value.slice(0, pageEnd.value));
-watch([choice, openOnly], () => (pageEnd.value = SAMPLE_PAGE));
+const paged = computed(() => shown.value.slice(0, pageEnd.value));
+watch([choice, openOnly], () => {
+  const lastHeld = shown.value.reduce((last, item, index) => (held(item.iri) ? index : last), -1);
+  pageEnd.value = Math.max(SAMPLE_PAGE, lastHeld + 1);
+});
+
 
 const itemsBox = ref<HTMLElement | null>(null);
 
@@ -129,7 +136,7 @@ onMounted(load);
         <p data-test="open-count">{{ t("lexicon.list.openCount", { open, total: inChoice.length }) }}</p>
       </div>
       <p v-if="items.length && !inChoice.length">{{ t("lexicon.sample.filter.none") }}</p>
-      <p v-else-if="openOnly && !listed.length">{{ t("lexicon.list.allDecided") }}</p>
+      <p v-else-if="openOnly && !shown.length">{{ t("lexicon.list.allDecided") }}</p>
       <div ref="itemsBox" class="lexicon-sample__items">
         <LexiconCueItem
           v-for="item in paged"
@@ -141,9 +148,9 @@ onMounted(load);
           @dirty="dirty(item.iri, $event)"
         />
       </div>
-      <div v-if="listed.length > SAMPLE_PAGE" class="lexicon-sample__tools">
-        <p data-test="shown-count">{{ t("lexicon.sample.shownCount", { shown: paged.length, total: listed.length }) }}</p>
-        <button v-if="paged.length < listed.length" type="button" class="btn secondary" data-test="more-cues" @click="more">
+      <div v-if="shown.length > SAMPLE_PAGE" class="lexicon-sample__tools">
+        <p data-test="shown-count">{{ t("lexicon.sample.shownCount", { shown: paged.length, total: shown.length }) }}</p>
+        <button v-if="paged.length < shown.length" type="button" class="btn secondary" data-test="more-cues" @click="more">
           {{ t("lexicon.sample.more") }}
         </button>
       </div>

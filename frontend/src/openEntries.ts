@@ -13,6 +13,9 @@ export interface OpenEntries<T> {
   listed: ComputedRef<T[]>;
   /** Whether the form of the entry of this key holds what is not saved. */
   dirty: (key: string, now: boolean) => void;
+  /** Whether the form of the entry of this key holds what is not saved: a page that narrows or cuts the list
+   * further (LexiconSample's choice and pages) keeps such an entry, as `listed` does. */
+  held: (key: string) => boolean;
 }
 
 /** `entries` reads the list's entries, `key` tells them apart, `decided` says whether one is; `unsavedAny` hears
@@ -46,5 +49,5 @@ export function useOpenEntries<T>(
     (now) => unsavedAny(now),
   );
 
-  return { openOnly, open, listed, dirty };
+  return { openOnly, open, listed, dirty, held: (which) => unsaved.has(which) };
 }

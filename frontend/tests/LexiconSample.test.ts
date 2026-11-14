@@ -325,6 +325,46 @@ describe("a long sample", () => {
     expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE);
   });
 
+  // a form's input went without a question when the choice left its cue out (UI review 1, finding 1)
+  it("keeps a cue whose form holds input in sight whatever the choice", async () => {
+    const items = [
+      reviewCue({ iri: `${SCHOOL}a`, surface_form: "Inhaltsfeld", regions: [REGION + "DE-NW"] }),
+      reviewCue({ iri: `${SCHOOL}b`, surface_form: "Lernfeld", sector: "vocational", regions: [REGION + "DE-BY"] }),
+    ];
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items })));
+    const wrapper = await section();
+    const held = wrapper.findAll("article")[1];
+    await held.get("[data-test=decide]").trigger("click");
+    await held.get("textarea").setValue("noch prüfen");
+
+    await wrapper.get("#lexicon-sector").setValue("school");
+
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+    expect(wrapper.get("textarea").element.value).toBe("noch prüfen");
+    expect(wrapper.emitted("dirty")).toEqual([[true]]);
+
+    // once left, the next choice takes it out
+    await wrapper.get("[data-test=decision-cancel]").trigger("click");
+    await wrapper.get("#lexicon-region").setValue(REGION + "DE-NW");
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+  });
+
+  it("keeps the page down to a cue whose form holds input when only the open ones are asked for", async () => {
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items: many(SAMPLE_PAGE * 2) })));
+    const wrapper = await section();
+    await wrapper.get("[data-test=more-cues]").trigger("click");
+    await flushPromises();
+    const held = wrapper.findAll("article")[SAMPLE_PAGE + 10];
+    await held.get("[data-test=decide]").trigger("click");
+    await held.get("textarea").setValue("noch prüfen");
+
+    await filter(wrapper).trigger("click");
+
+    expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE + 11);
+    expect(wrapper.get("textarea").element.value).toBe("noch prüfen");
+    expect(wrapper.emitted("dirty")).toEqual([[true]]);
+  });
+
   it("names each button to decide by its cue", async () => {
     const wrapper = await section();
 
