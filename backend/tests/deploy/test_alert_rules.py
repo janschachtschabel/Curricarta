@@ -8,8 +8,9 @@ import re
 from pathlib import Path
 from typing import Any, get_args
 
+import pytest
 import yaml  # type: ignore[import-untyped]
-from prometheus_client import REGISTRY
+from prometheus_client import REGISTRY, CollectorRegistry, Info
 
 from app.api.internal import QUEUE_READ_EVERY_S
 from app.core import metrics
@@ -36,14 +37,25 @@ SET_BY_THE_CODE = {
 }
 
 
-def exported() -> dict[str, str]:
+def exported(registry: CollectorRegistry = REGISTRY) -> dict[str, str]:
     """Each series the service exports, by its name in a query, with its metric's type."""
     series = {}
-    for family in REGISTRY.collect():
+    for family in registry.collect():
         if family.name.startswith("curricarta_"):
+            assert family.type in SUFFIXES, (
+                f"{family.name} is of type {family.type!r}: say in SUFFIXES which series it exports"
+            )
             for suffix in SUFFIXES[family.type]:
                 series[family.name + suffix] = family.type
     return series
+
+
+def test_a_metric_of_a_type_the_check_does_not_know_is_named_not_a_crash() -> None:
+    registry = CollectorRegistry()
+    Info("curricarta_made_up", "A metric of a type SUFFIXES does not list", registry=registry)
+
+    with pytest.raises(AssertionError, match=r"curricarta_made_up.*'info'.*SUFFIXES"):
+        exported(registry)
 
 
 def test_every_rule_reads_only_series_the_service_exports() -> None:
