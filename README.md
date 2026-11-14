@@ -599,7 +599,10 @@ Modell den Aufwand laut seinem Profil nicht an (gpt-6-luna kein `minimal`), star
 Worker nicht. Ohne Schlüssel starten beide, nur Aufrufe des Modells scheitern.
 `LLM_MAX_OUTPUT_TOKENS` (Standard 16.000, mindestens 1.000) begrenzt die Ausgabe jeder Anfrage,
 Reasoning eingeschlossen. Lässt sie im Kontextfenster neben den 17.000 Token, die eine Anfrage
-außer dem Dokument braucht, keinen Platz, starten API und Worker nicht. Token zählt der Dienst
+außer dem Dokument braucht, keinen Platz, starten API und Worker nicht. Wird eine Antwort an dieser
+Grenze abgeschnitten, endet der Auftrag mit `answer_cut`, und der Befund `answer_cut` nennt den
+Teil mit der Grenze. Unter derselben oder einer kleineren Grenze fragt kein Auftrag diesen Teil
+noch einmal; erst nach dem Anheben von `LLM_MAX_OUTPUT_TOKENS` wird er wieder gefragt. Token zählt der Dienst
 lokal mit tiktoken (`o200k_base`): Die Datei liegt mit ihrem SHA-256 in `backend/app/llm/` und
 wird nie aus dem Netz geladen. Fehlt sie oder stimmt ihr Hash nicht, starten API und Worker nicht.
 
