@@ -3,6 +3,7 @@ seed, the one there; two draws at once, one sample; a document, account or stage
 
 import asyncio
 from typing import Any
+from uuid import uuid4
 
 import psycopg
 import pytest
@@ -119,3 +120,22 @@ async def test_a_document_taken_away_while_drawn_is_refused(
 
     assert refused.value.code == "unknown_document"
     assert await count(connection, "gold_sample") == 0
+
+
+async def test_an_account_taken_away_while_drawn_is_no_missing_document(
+    connection: psycopg.AsyncConnection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    document = await a_reviewed_document(connection)
+    await connection.execute("INSERT INTO account (id, name) VALUES (%s, 'gold-auswertung')", (uuid4(),))
+
+    async def after_it_went(opened: psycopg.AsyncConnection, *args: Any) -> int:
+        await connection.execute("DELETE FROM account WHERE name = 'gold-auswertung'")
+        return await add_sample(opened, *args)
+
+    monkeypatch.setattr("app.quality.sample.add_sample", after_it_went)
+
+    # only the document's foreign key is a document gone: another stays the error it is
+    with pytest.raises(psycopg.errors.ForeignKeyViolation) as failed:
+        await draw(connection, Request(document.id, "statement", "pilot-1", "gold-auswertung"))
+
+    assert failed.value.diag.constraint_name == "gold_sample_drawn_by_fkey"

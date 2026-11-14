@@ -48,6 +48,7 @@ NEEDS: dict[SampleKind, Stage] = {"statement": "X4", "block": "X4", "anchor": "I
 LABEL = re.compile(r"[a-z0-9][a-z0-9-]{0,39}")  # as migration gold checks it
 SEED_TEXT = re.compile(r"[A-Za-z0-9._-]{1,100}")
 _BY_NAME = "SELECT id FROM account WHERE name = %s"
+_OF_DOCUMENT = "gold_sample_document_id_fkey"  # the foreign key a document taken away violates
 
 Call = Literal["same", "differs"]
 RefusalCode = Literal["unknown_document", "unknown_account", "extraction_not_done", "nothing_to_draw"]
@@ -118,10 +119,15 @@ async def draw(connection: psycopg.AsyncConnection, request: Request) -> Drawn:
         drawn_by=account[0],
         title_pages=found.title_pages,
     )
+    gone = Refused("unknown_document", f"no document {request.document_id}")
     try:
         sample = await add_sample(connection, draft, picked)
-    except (psycopg.errors.ForeignKeyViolation, LookupError):  # the document taken away meanwhile
-        raise Refused("unknown_document", f"no document {request.document_id}") from None
+    except psycopg.errors.ForeignKeyViolation as violated:  # the document taken away meanwhile, else as it is
+        if violated.diag.constraint_name != _OF_DOCUMENT:
+            raise
+        raise gone from None
+    except LookupError:  # taken away with the sample another draw had written
+        raise gone from None
     return await _kept(connection, sample, request, drawn_before=False)
 
 
