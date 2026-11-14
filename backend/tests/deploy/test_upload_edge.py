@@ -17,11 +17,10 @@ NGINX_FILES = ("nginx.conf", "nginx-api.conf", "nginx-api-off.conf")
 
 
 def streams_bodies(nginx: str) -> bool:
-    """Whether an nginx configuration turns request buffering off anywhere (comments aside)."""
-    lines = (line.split("#", 1)[0] for line in nginx.splitlines())
-    return any(
-        re.search(r"\bproxy_request_buffering\s+([\"']?)off\1\s*;", line, re.IGNORECASE) for line in lines
-    )
+    """Whether an nginx configuration turns request buffering off anywhere: comments taken out, a
+    directive read across lines, as nginx reads it."""
+    text = "\n".join(line.split("#", 1)[0] for line in nginx.splitlines())
+    return re.search(r"\bproxy_request_buffering\s+([\"']?)off\1\s*;", text, re.IGNORECASE) is not None
 
 
 def test_the_compose_web_server_buffers_request_bodies() -> None:
@@ -41,5 +40,8 @@ def test_a_server_that_streams_bodies_is_told_apart() -> None:
     # nginx reads on and off in any case, and a value may be quoted
     for written in ("OFF", "Off", '"off"', "'OFF'"):
         assert streams_bodies(f"Proxy_Request_Buffering {written};"), written
+    # a directive may run over lines, and a comment may stand between its words
+    assert streams_bodies("proxy_request_buffering\n    off;")
+    assert streams_bodies("proxy_request_buffering  # streamed\n\toff ;")
     assert not streams_bodies("# proxy_request_buffering off;\nproxy_request_buffering on;")
     assert not streams_bodies('proxy_request_buffering "on";')
