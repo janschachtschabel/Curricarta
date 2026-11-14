@@ -69,7 +69,8 @@ jobs:
       - name: Install the tests' tools
         working-directory: backend
         run: uv sync --frozen --only-group dev
-      # the tests beside the image's code, in the converter's environment: no HOME of their own
+      # the tests beside the image's code, in the converter's environment: no HOME of their own; -rA
+      # shows what passing tests print - the converter child's peak memory, CHILD_MEMORY_LIMIT_MB's measure
       - name: Docling's tests in the image, as the converter runs it
         run: >-
           docker run --rm --network none --read-only --tmpfs /tmp --cap-drop ALL
@@ -80,7 +81,7 @@ jobs:
           -v "$PWD/backend/pyproject.toml:/srv/backend/pyproject.toml:ro"
           -e PYTHONPATH=/testlibs -e CURRICARTA_REQUIRE_DOCLING=1
           curricarta-convert:local
-          python -m pytest tests/conversion/test_docling_e2e.py -p no:cacheprovider
+          python -m pytest tests/conversion/test_docling_e2e.py -p no:cacheprovider -rA
       - name: Start the service with the converter
         run: |
           docker compose -f deploy/docker-compose.yml -f deploy/docker-compose.converter.yml up -d

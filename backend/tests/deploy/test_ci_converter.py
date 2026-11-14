@@ -94,6 +94,11 @@ def test_docling_s_tests_run_in_the_image_as_the_converter_runs_and_may_not_be_s
         assert flag in run, flag
 
 
+def test_docling_s_tests_show_the_child_s_peak_memory_they_print() -> None:
+    # the numbers CHILD_MEMORY_LIMIT_MB is sized by stand in the workflow's log (audit 2026-11-14)
+    assert re.search(r"test_docling_e2e\.py -p no:cacheprovider -rA$", _command(re.escape(E2E)).strip())
+
+
 def test_docling_s_tests_run_the_image_s_code_in_the_converter_s_environment() -> None:
     run = _command(re.escape(E2E))
 

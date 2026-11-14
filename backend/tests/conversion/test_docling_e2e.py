@@ -5,6 +5,7 @@ What the engine makes of Docling's result is tested without it (test_docling_pag
 test_docling_blocks.py)."""
 
 import os
+import re
 from importlib.metadata import version
 from importlib.util import find_spec
 from pathlib import Path
@@ -12,8 +13,9 @@ from pathlib import Path
 import pytest
 
 from app.conversion.base import Conversion, Engine, engine
-from app.conversion.convert import convert_file
+from app.conversion.convert import ConversionRefused, convert_file
 from app.conversion.models import MODELS_DIR, missing
+from app.conversion.runners import ChildLog, convert_in_child
 from app.conversion.text_layer import UnreadablePdf
 from tests.conversion.raw_pdf import SENTENCE, pages_pdf
 from tests.conversion.test_pdfplumber_blocks import SEEN, SENTENCE_READ, turned_pdf
@@ -453,3 +455,46 @@ def test_a_table_within_a_docx_cell_is_read_as_a_table_of_its_own(docling: Engin
 
     texts = " ".join(cell.text for block in conversion.blocks for cell in block.cells)
     assert all(f"Innen {row}{column}" in texts for row in range(2) for column in range(2))
+
+
+# --- the child's memory (audit 2026-11-14): the numbers CHILD_MEMORY_LIMIT_MB is sized by ---------------
+
+PEAK = re.compile(r"peak memory: rss=(?P<rss>\d+) MiB, virtual=(?P<virtual>\d+) MiB")
+
+
+@pytest.mark.anyio
+@pytest.mark.parametrize("name", ["prose.pdf", "scan.pdf"])  # Docling's layout models; and EasyOCR's too
+async def test_a_conversion_in_its_child_says_its_peak_memory(
+    name: str, capfd: pytest.CaptureFixture[str]
+) -> None:
+    # as the job converts: in a child of its own, which logs at INFO; its two numbers printed for the
+    # workflow's log (-rA), where the limit's guidance - twice the virtual peak - reads them
+    logged = ChildLog(level="INFO", format="text", request_id="-")
+
+    await convert_in_child(FIXTURES / name, engine="docling", max_pages=800, child_log=logged)
+
+    lines = [line for line in capfd.readouterr().err.splitlines() if "peak memory" in line]
+    assert len(lines) == 1, lines
+    found = PEAK.search(lines[0])
+    assert found is not None, lines[0]
+    print(f"docling child peak for {name}: rss={found['rss']} MiB, virtual={found['virtual']} MiB")
+
+
+@pytest.mark.anyio
+async def test_an_html_table_that_states_a_vast_grid_is_refused_before_docling_lays_it_out(
+    tmp_path: Path,
+) -> None:
+    # Docling's own HTML backend reads the spans: the cap holds only if it hands the grid's size over
+    # before it lays the grid out. In a child under a bound: should Docling lay it out first, the test
+    # ends died (ConversionDied), not the workflow's runner out of memory
+    path = tmp_path / "raster.html"
+    path.write_text(
+        '<html><body><table><tr><td colspan="1000000" rowspan="1000000">x</td></tr></table></body></html>',
+        encoding="utf-8",
+    )
+    bounded = ChildLog(level="WARNING", format="text", request_id="-", memory_mb=8192)
+
+    with pytest.raises(ConversionRefused) as refused:
+        await convert_in_child(path, engine="docling", max_pages=800, child_log=bounded)
+
+    assert refused.value.code == "too_dense"
