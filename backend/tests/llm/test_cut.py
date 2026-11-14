@@ -102,10 +102,12 @@ async def test_an_answer_at_the_cap_whose_reason_is_unknown_and_arguments_cut_is
 
 
 @pytest.mark.parametrize(
-    ("args", "output_tokens"), [('{"title": "Zah', 1_999), ('{"title": "Zahlen"}', 2_000)]
+    ("args", "output_tokens", "output", "requests"),
+    [('{"title": "Zah', 1_999, None, 3), ('{"title": "Zahlen"}', 2_000, {"title": "Zahlen"}, 1)],
+    ids=["cut-below-the-cap", "whole-at-the-cap"],
 )
 async def test_an_answer_with_one_sign_of_a_cut_alone_is_not_taken_for_cut(
-    args: str, output_tokens: int
+    args: str, output_tokens: int, output: dict[str, Any] | None, requests: int
 ) -> None:
     # arguments cut below the cap are an answer out of form, asked again; the cap reached with whole
     # arguments is an answer read
@@ -117,8 +119,7 @@ async def test_an_answer_with_one_sign_of_a_cut_alone_is_not_taken_for_cut(
 
     answer = await ask(built, "Text", meter=Ledger())
 
-    assert answer.cut is False
-    assert len(seen) == (3 if answer.output is None else 1)
+    assert (answer.output, answer.cut, len(seen)) == (output, False, requests)
 
 
 async def test_an_answer_out_of_form_is_not_taken_for_cut() -> None:
