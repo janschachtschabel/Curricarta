@@ -63,6 +63,11 @@ describe("the refusals the page says in its own words", () => {
     expect(refusalText("not_extractable")).toMatch(/Starte den Import erneut/);
   });
 
+  it("tell an upload the replica has no room for to come back in a few seconds", () => {
+    expect(backendCodes()).toContain("uploads_busy");
+    expect(refusalText("uploads_busy")).toMatch(/in ein paar Sekunden/);
+  });
+
   it("send a lasting failure of the export to the administration", () => {
     expect(refusalText("export_unavailable")).toMatch(/Administration/);
     expect(refusalText("export_invalid")).toMatch(/nicht nachtragen/);

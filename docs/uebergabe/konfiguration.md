@@ -38,6 +38,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `JOB_SHUTDOWN_GRACE_S` | Zahl ≥ 0, ≤ 3600 | 20 | – | Dienst |
 | `MAX_UPLOAD_MB` | Zahl ≥ 1, ≤ 500 | 50 | – | Dienst |
 | `UPLOADS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |
+| `MAX_CONCURRENT_UPLOADS` | Zahl ≥ 1, ≤ 64 | 2 | – | Dienst |
 | `THIRD_PARTY_MARKDOWN` | `hidden` \| `accounts` \| `public` | `hidden` | – | Dienst |
 | `URL_IMPORTS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |
 | `CONVERSIONS_PER_MINUTE` | Zahl ≥ 1 | 20 | – | Dienst |
@@ -107,9 +108,11 @@ ein Test schlägt an, wenn sie veraltet.
   `TMPDIR`), bis zu `MAX_UPLOAD_MB` + 1 MiB; danach hält die API die Datei einmal im
   Arbeitsspeicher, solange sie sie prüft und ablegt. Je gleichzeitigem Upload braucht eine
   API-Replica also bis zu `MAX_UPLOAD_MB` + 1 MiB in `/tmp` und rund `MAX_UPLOAD_MB` mehr
-  Arbeitsspeicher (bei 50 MB und vier Uploads zugleich rund 204 MiB `/tmp` und 200 MiB RAM).
-  Eine Grenze für gleichzeitige Uploads je Replica gibt es nicht; `UPLOADS_PER_MINUTE` zählt je
-  Konto.
+  Arbeitsspeicher. Gleichzeitig nimmt ein API-Prozess höchstens `MAX_CONCURRENT_UPLOADS` Uploads
+  an (Standard 2); ein weiterer wartet bis zu 10 s auf einen freien Platz und bekommt dann 503
+  `uploads_busy` mit `Retry-After`. `/tmp` braucht daher mindestens `MAX_CONCURRENT_UPLOADS` ×
+  (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard: 2 × 51 = 102 MiB).
+  `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto kann alle Plätze einer Replica belegen.
 - Konvertierung: Der Worker legt die Datei für die Dauer der Umwandlung in `/tmp` ab (bis
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel

@@ -507,6 +507,16 @@ def test_model_jobs_are_limited_by_default() -> None:
     assert (settings.max_jobs_in_flight, settings.model_starts_per_minute) == (20, 10)
 
 
+def test_a_replica_takes_two_uploads_at_once_by_default() -> None:
+    assert make_settings().max_concurrent_uploads == 2
+
+
+@pytest.mark.parametrize("value", [0, 65])
+def test_the_uploads_a_replica_takes_at_once_are_bounded(value: int) -> None:
+    with pytest.raises(ValueError):
+        make_settings(max_concurrent_uploads=value)
+
+
 def test_x4_asks_four_units_at_once_by_default() -> None:
     assert make_settings().extract_concurrency == 4
 

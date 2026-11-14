@@ -723,6 +723,7 @@ export const messages = {
       "und enthält keine Zugangsdaten.",
     too_many_uploads: "Du hast gerade viele Dateien hochgeladen. Warte eine Minute und versuch es dann noch einmal.",
     too_many_imports: "Du hast gerade viele Adressen abgerufen. Warte eine Minute und versuch es dann noch einmal.",
+    uploads_busy: "Gerade laden viele gleichzeitig hoch. Versuch es in ein paar Sekunden noch einmal.",
     too_many_conversions:
       "Du hast gerade viele Umwandlungen gestartet. Warte eine Minute und versuch es dann noch einmal.",
     no_pages:

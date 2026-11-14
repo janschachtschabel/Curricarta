@@ -168,6 +168,9 @@ class Settings(BaseSettings):
     max_upload_mb: Annotated[int, Field(ge=1, le=500)] = 50
     # Uploads an account may make per minute; more are answered 429
     uploads_per_minute: Annotated[int, Field(ge=1)] = 20
+    # Uploads one API process reads, checks and stores at once; one more waits up to 10 s, then
+    # is answered 503 uploads_busy. Each holds up to MAX_UPLOAD_MB + 1 MiB in /tmp
+    max_concurrent_uploads: Annotated[int, Field(ge=1, le=64)] = 2
     # Who gets the file (and later the blocks and Markdown) of an entry of no account - seed,
     # research - beside the editors and admins: nobody, every account, or anyone (visitors only
     # where PUBLIC_ACCESS is not off)

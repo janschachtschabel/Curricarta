@@ -4,10 +4,15 @@
 The upload route has no body parameter on purpose: FastAPI reads such a body before it checks
 the token, so the form is read here, after it. BodyLimit (app/api/body_limit.py) bounds the body
 before anything reads it; the form parser spools the file in pieces and counts it, and a file
-past MAX_UPLOAD_MB is refused by that count before it is read into memory, once.
+past MAX_UPLOAD_MB is refused by that count before it is read into memory, once. A process takes
+MAX_CONCURRENT_UPLOADS uploads at once (audit 2026-11-14), each from before its form is read to
+after its file is stored: one more waits UPLOAD_WAIT_S, holding no connection, then is told to
+come back.
 """
 
 import asyncio
+from collections.abc import AsyncIterator
+from contextlib import asynccontextmanager
 from pathlib import PurePosixPath
 from typing import Annotated, Any
 from urllib.parse import urlsplit
@@ -43,6 +48,7 @@ router = APIRouter(prefix="/api/v1", tags=["sources"], responses=AUTH_RESPONSES)
 Account = Annotated[Principal, Depends(require_account)]
 UPLOAD_PATH = "/api/v1/sources"
 MAX_TITLE_SIGNS = 500
+UPLOAD_WAIT_S = 10.0  # how long an upload waits for a slot of the process before it is sent back
 
 
 def _limit_refusal(code: str, actions: str) -> dict[str, Any]:
@@ -59,6 +65,10 @@ UPLOAD_REFUSALS: dict[int | str, dict[str, Any]] = {
     413: {"model": ErrorBody, "description": "The file, or the archive it is, is too large"},
     415: {"model": ErrorBody, "description": "No type a conversion reads"},
     429: _limit_refusal("too_many_uploads", "uploads"),
+    503: {
+        "model": ErrorBody,
+        "description": "uploads_busy: the process takes no more uploads now (Retry-After)",
+    },
 }
 # The form as the route reads it itself: a body parameter would be read before the token check
 UPLOAD_FORM = {
@@ -128,22 +138,23 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
         await within_limit(
             connection, who.account_id, "source.upload", settings.uploads_per_minute, "too_many_uploads"
         )
-    async with request.form(max_files=1, max_fields=2) as form:
-        upload = form.get("file")
-        if not isinstance(upload, UploadFile):
-            raise Refusal(422, "file_missing", "The form holds no file.")
-        given_title = form.get("title")
-        data = await _read(upload, settings.max_upload_mb * MIB)
-        received = upload.filename or ""
-    detected, digest = await asyncio.to_thread(_examine, received, data)
-    file_name = stored_name(received, detected)
-    title = _title(given_title if isinstance(given_title, str) else None, file_name)
-    stored = StoredFile(
-        sha256=digest, size=len(data), mime=detected.mime, storage_key=f"sources/{digest.hex()}"
-    )
-    storage = request.app.state.storage
-    if not await storage.exists(stored.storage_key):  # the same bytes are stored once
-        await storage.put(stored.storage_key, data)
+    async with _upload_slot(request.app.state.upload_slots):
+        async with request.form(max_files=1, max_fields=2) as form:
+            upload = form.get("file")
+            if not isinstance(upload, UploadFile):
+                raise Refusal(422, "file_missing", "The form holds no file.")
+            given_title = form.get("title")
+            data = await _read(upload, settings.max_upload_mb * MIB)
+            received = upload.filename or ""
+        detected, digest = await asyncio.to_thread(_examine, received, data)
+        file_name = stored_name(received, detected)
+        title = _title(given_title if isinstance(given_title, str) else None, file_name)
+        stored = StoredFile(
+            sha256=digest, size=len(data), mime=detected.mime, storage_key=f"sources/{digest.hex()}"
+        )
+        storage = request.app.state.storage
+        if not await storage.exists(stored.storage_key):  # the same bytes are stored once
+            await storage.put(stored.storage_key, data)
     async with request.app.state.pool.connection() as connection, connection.transaction():
         source_id = await record_upload(
             connection,
@@ -218,6 +229,23 @@ async def import_source(body: ImportIn, request: Request, who: Account) -> Impor
         file=None,
     )
     return ImportOut(source=source, job_id=job_id)
+
+
+@asynccontextmanager
+async def _upload_slot(slots: asyncio.Semaphore) -> AsyncIterator[None]:
+    """One of the process's upload slots, held for the block and given back however it ends; a
+    wait past ``UPLOAD_WAIT_S`` is refused before anything of the body is read."""
+    try:
+        async with asyncio.timeout(UPLOAD_WAIT_S):
+            await slots.acquire()
+    except TimeoutError:
+        raise Refusal(
+            503, "uploads_busy", "The service takes no more uploads now: try again.", {"Retry-After": "5"}
+        ) from None
+    try:
+        yield
+    finally:
+        slots.release()
 
 
 async def _read(upload: UploadFile, limit: int) -> bytes:

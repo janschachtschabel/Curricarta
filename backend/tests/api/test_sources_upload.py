@@ -317,7 +317,8 @@ def test_the_spec_names_the_upload_form_and_its_refusals() -> None:
     # its account's uploads of the minute, or the address's failed sign-ins
     assert "too_many_uploads" in responses["429"]["description"]
     assert "failed sign-ins" in responses["429"]["description"]
-    assert {"400", "413", "415", "422"} <= set(responses)
+    assert {"400", "413", "415", "422", "503"} <= set(responses)
+    assert "uploads_busy" in responses["503"]["description"]
 
 
 def test_uploads_past_the_account_s_limit_wait(

@@ -556,6 +556,8 @@ ungültig.
   Uploads, URL-Importe bzw. gestartete Konvertierungen je Konto und Minute, gezählt in
   PostgreSQL für alle Replicas; darüber 429 mit `Retry-After`. Eine Konvertierung, die wartet
   oder fertig ist, noch einmal anzufragen, startet und zählt nichts.
+- `MAX_CONCURRENT_UPLOADS` (Standard 2, höchstens 64): Uploads, die ein API-Prozess zugleich
+  annimmt; ein weiterer wartet bis zu 10 s und bekommt dann 503 `uploads_busy` mit `Retry-After`.
 - `FETCH_USER_AGENT`: so stellen sich URL-Import und Prüfjob den Servern vor. Vorn steht das
   Produktkürzel, unter dem robots.txt uns kennt (`Curricarta`), dahinter, wo die
   Betreiber zu erreichen sind – hier den eigenen Kontakt eintragen (öffentliche Seite oder

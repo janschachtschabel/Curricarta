@@ -90,6 +90,8 @@ def create_app(settings: Settings) -> FastAPI:
         # (S3's head_bucket), so it runs in a thread
         app.state.storage = AsyncStorage(await asyncio.to_thread(open_storage, settings))
         app.state.mem_exporter = MemExporter(app.state.storage, settings)  # its kept exports, its checks
+        # the uploads this process takes at once: each spools its file to /tmp (app/api/sources.py)
+        app.state.upload_slots = asyncio.Semaphore(settings.max_concurrent_uploads)
         # Opened without waiting: the process starts and answers /health while the database
         # is away; /ready says so
         pool = create_pool(settings, name="curricarta-api", statement_timeout=True)
