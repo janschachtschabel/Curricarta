@@ -2,18 +2,18 @@
 and services/usage.py).
 
 A stage's agent answers in its schema's form (``StructuredDict``, checked against the schema,
-app/llm/schema.py) and asks again where the answer is out of form, twice at most - but not where
-it was cut at the cap: asked again under the same cap, it would be cut again (``Answer.cut``). ``ask`` walks
-the agent's run node by node: before each request it reserves the request's tokens - reckoned
-input and the answer's cap - and after the answer it books what the answer reports, which takes
-the reservation's place. A retry of the agent is a request like any other, reserved anew. A
-refused request (an HTTP error) is booked as a request without tokens; one sent and never
-answered - timed out, cut off, cancelled in flight - as its reservation, an estimate, since the
-provider may have charged for it; so is an answer that reports no usage, and one no model could
-read, which fails the call. A request that never went out (no connection) costs nothing, nor does
-one cancelled while its reservation was made: it is handed back once made. A 429,
-a 5xx or a provider not reached is waited on and asked again, twice at most; the SDK does not
-ask again on its own (app/llm/client.py).
+app/llm/schema.py) and asks again where the answer is out of form, twice at most - but not where it
+was cut at the cap: asked again under the same cap, it would be cut again (``Answer.cut``). ``ask``
+walks the agent's run node by node: before each request it reserves the request's tokens - reckoned
+input and the answer's cap - and after the answer it books what the answer reports, which takes the
+reservation's place (app/llm/booking.py). A retry of the agent is a request like any other,
+reserved anew. A refused request (an HTTP error) is booked as a request without tokens; one sent
+and never answered - timed out, cut off, cancelled in flight - as its reservation, an estimate,
+since the provider may have charged for it; so is an answer that reports no usage, and one no model
+could read, which fails the call. A request that never went out (no connection) costs nothing, nor
+does one cancelled while its reservation was made: it is handed back once made. A 429, a 5xx or a
+provider not reached is waited on and asked again, twice at most; the SDK does not ask again on its
+own (app/llm/client.py).
 """
 
 import asyncio
@@ -26,19 +26,14 @@ from typing import Any, Protocol
 
 from pydantic_ai import Agent, ModelRetry
 from pydantic_ai.exceptions import ModelHTTPError, OutputTokenLimitExceeded, UnexpectedModelBehavior
-from pydantic_ai.messages import (
-    CachePoint,
-    ModelMessagesTypeAdapter,
-    ModelResponse,
-    ToolCallPart,
-    UserContent,
-)
+from pydantic_ai.messages import CachePoint, ModelMessagesTypeAdapter, UserContent
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIChatModel, OpenAIResponsesModelSettings
 from pydantic_ai.output import StructuredDict
 
 from app.core.metrics import observe_llm_request
 from app.llm.attempts import Attempts, never_sent
+from app.llm.booking import OpenRequest, answered, book_cut_off, cut_at_cap, reserve
 from app.llm.metering import Meter, Spent, estimate_input
 from app.llm.schema import schema_errors, storable
 
@@ -203,17 +198,6 @@ class _NotSent(Exception):
         self.spent = spent
 
 
-@dataclass
-class _Open:
-    """A request reserved and not yet booked: its input as reckoned, the requests sent before it,
-    and what its answer reported once one came."""
-
-    reservation: Any
-    estimate: int
-    sent_before: int
-    answered: Spent | None = None
-
-
 async def _attempt(
     stage: StageAgent, content: str | Sequence[UserContent], meter: Meter, raw: RawSink | None
 ) -> tuple[dict[str, Any] | None, Spent, str | None, bool]:
@@ -222,7 +206,7 @@ async def _attempt(
     at the cap."""
     spent = Spent()
     attempts = Attempts()
-    open_: _Open | None = None
+    open_: OpenRequest | None = None
     try:
         with attempts.counted():
             async with stage.agent.iter(content, model_settings=breakpoint_settings(content)) as run:
@@ -237,18 +221,18 @@ async def _attempt(
                             instructions=stage.instructions,
                             schema=stage.schema,
                         )
-                        open_ = _Open(
-                            await _reserve(meter, estimate, stage.output_tokens), estimate, attempts.sent
+                        open_ = OpenRequest(
+                            await reserve(meter, estimate, stage.output_tokens), estimate, attempts.sent
                         )
                     elif Agent.is_call_tools_node(node) and open_ is not None:
-                        open_.answered = _answered(node.model_response, open_.estimate, stage.output_tokens)
+                        open_.answered = answered(node.model_response, open_.estimate, stage.output_tokens)
                         await meter.book(open_.reservation, open_.answered)
                         spent += open_.answered
                         open_ = None
                         # kept before the next node checks it against the schema
                         if raw is not None:
                             await raw.keep(ModelMessagesTypeAdapter.dump_json([node.model_response]))
-                        if _cut(node.model_response):
+                        if cut_at_cap(node.model_response):
                             failure = f"an answer was cut at the output cap ({stage.output_tokens} tokens)"
                             log.warning("a stage's answer took no form: %s", failure)
                             return None, spent, failure, True
@@ -256,7 +240,7 @@ async def _attempt(
                 return run.result.output, spent, None, False
     except UnexpectedModelBehavior as error:
         if open_ is not None:  # raised by the request: an answer no model could read
-            await _book_cut_off(meter, open_, stage, sent=attempts.sent > open_.sent_before)
+            await book_cut_off(meter, open_, stage.output_tokens, sent=attempts.sent > open_.sent_before)
             raise
         # every answer came and is booked: none took the schema's form, or the run stopped at one
         log.warning("a stage's answer took no form: %s", error.message)
@@ -273,81 +257,8 @@ async def _attempt(
         if unsent:
             observe_llm_request("unsent")
         if open_ is not None:
-            await _book_cut_off(meter, open_, stage, sent=attempts.sent > open_.sent_before and not unsent)
+            sent = attempts.sent > open_.sent_before and not unsent
+            await book_cut_off(meter, open_, stage.output_tokens, sent=sent)
         if isinstance(error, Exception) and unsent:
             raise _NotSent(error, spent) from error
         raise
-
-
-async def _reserve(meter: Meter, input_tokens: int, output_tokens: int) -> Any:
-    """The meter's reservation, made whole however a cancel comes: one that came while it was made -
-    its row may stand, the commit's answer not yet come - is waited for and handed back unspent, as
-    no request went out; left standing, the job's end would book it as abandoned, an estimate."""
-    reserving = asyncio.ensure_future(meter.reserve(input_tokens, output_tokens))
-    try:
-        return await asyncio.shield(reserving)
-    except asyncio.CancelledError:
-        try:
-            reservation = await asyncio.shield(reserving)
-        except Exception:  # noqa: S110 - none was made: nothing to hand back, the cancel goes on
-            pass
-        else:
-            await asyncio.shield(meter.book(reservation, Spent()))
-        raise
-
-
-async def _book_cut_off(meter: Meter, open_: _Open, stage: StageAgent, *, sent: bool) -> None:
-    """Book a request its run left unbooked: what its answer reported, where one came and its
-    booking failed - the meter takes a reservation once - else what was held for it where it went
-    out, the provider may have charged for it; nothing where it never did. Shielded: a cancel must
-    not take the booking of a request that may be paid for along."""
-    if open_.answered is not None:
-        cost = open_.answered
-    elif sent:
-        observe_llm_request("unanswered", estimated_tokens=open_.estimate + stage.output_tokens)
-        cost = Spent(
-            input_tokens=open_.estimate,
-            output_tokens=stage.output_tokens,
-            unanswered_requests=1,
-            estimated=True,
-        )
-    else:
-        cost = Spent()
-    await asyncio.shield(meter.book(open_.reservation, cost))
-
-
-def _cut(response: ModelResponse) -> bool:
-    """Whether the answer stopped at the cap before its output was whole - no tool call, or one whose
-    arguments are no JSON object yet. pydantic-ai would ask again twice before it says so
-    (IncompleteToolCall), each request paid for and cut alike under the same cap."""
-    if response.finish_reason != "length":
-        return False
-    last = response.parts[-1] if response.parts else None
-    if not isinstance(last, ToolCallPart):
-        return True
-    try:
-        last.args_as_dict(raise_if_invalid=True)
-    except (ValueError, AssertionError):
-        return True
-    return False
-
-
-def _answered(response: ModelResponse, estimate: int, output_tokens: int) -> Spent:
-    """What an answer cost, as it reports it - or, where it reports no input at all (a gateway that
-    counts nothing), what was held for it, as an estimate; counted."""
-    usage = response.usage
-    if usage.input_tokens == 0:
-        observe_llm_request("answered", estimated_tokens=estimate + output_tokens)
-        return Spent(input_tokens=estimate, output_tokens=output_tokens, requests=1, estimated=True)
-    observe_llm_request(
-        "answered",
-        input_tokens=usage.input_tokens,
-        cached_input_tokens=usage.cache_read_tokens,
-        output_tokens=usage.output_tokens,
-    )
-    return Spent(
-        input_tokens=usage.input_tokens,
-        cached_input_tokens=usage.cache_read_tokens,
-        output_tokens=usage.output_tokens,
-        requests=1,
-    )

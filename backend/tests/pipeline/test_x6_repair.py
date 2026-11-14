@@ -24,6 +24,7 @@ from app.pipeline.run import extract_document
 from app.pipeline.x5_stage import run_x5
 from app.usage.admission import MODEL_JOB_KINDS
 from app.usage.ledger import usage_of
+from tests.pipeline.provider_support import asks, refusal, usage_rows, waited
 from tests.pipeline.test_run import (
     BODY,
     CV,
@@ -38,12 +39,11 @@ from tests.pipeline.test_run import (
     setup,
 )
 from tests.pipeline.test_x3_frame import prompt_of
-from tests.pipeline.test_x4_hardening import asks, refused, usage_rows, waited
 from tests.pipeline.test_x4_statements import FIELDS, cutting, with_concurrency
 from tests.support import make_settings
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["setup", "waited"]  # the fixtures, shared with test_run and test_x4_hardening
+__all__ = ["setup", "waited"]  # the fixtures, shared with test_run and provider_support
 
 
 class Quoting(Model):
@@ -611,7 +611,7 @@ async def test_a_provider_s_error_in_one_package_lets_the_others_finish(
     async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
         if asks(messages, "E2"):
             e2_asked.append(1)
-            raise refused(503)
+            raise refusal(503)
         if asks(messages, "E3"):
             while len(e2_asked) < 3:  # E2 given up on while E3 is asked
                 await asyncio.sleep(0.01)
@@ -639,7 +639,7 @@ async def test_a_repair_refused_for_good_ends_without_another_attempt(
     job = await a_repair(connection, document)
 
     def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        raise refused(403)
+        raise refusal(403)
 
     with pytest.raises(PermanentError) as ended:
         await x6_repair.repair_document(context_of(pool, tmp_path, answer, database_url), job)
