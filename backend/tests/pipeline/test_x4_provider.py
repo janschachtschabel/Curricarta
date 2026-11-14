@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import Any
 
 import pytest
-from pydantic_ai.exceptions import ModelHTTPError
+from pydantic_ai.exceptions import ModelHTTPError, UnexpectedModelBehavior
 from pydantic_ai.messages import ModelMessage, ModelResponse
 from pydantic_ai.models.function import AgentInfo
 
@@ -106,4 +106,58 @@ async def test_a_rate_limit_that_outlasts_its_waits_is_left_to_the_job_s_next_at
     assert await usage_rows(connection, job) == [(1, 0, False)] * 3 + [("held", 0)]
     assert [(outcome, result["failure"]) for outcome, result in await x4_runs(connection, document)] == [
         ("failed", "ModelHTTPError")
+    ]
+
+
+async def test_an_answer_no_model_could_read_lets_those_asking_beside_it_finish(
+    setup: Any, tmp_path: Path, database_url: str, provider_failed: asyncio.Event
+) -> None:
+    # a proxy's page in place of an answer is the provider's fault as a refusal is
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+
+    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2"):
+            raise UnexpectedModelBehavior("an answer no model could read (invented)")
+        if asks(messages, "E3"):
+            await provider_failed.wait()
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
+    with pytest.raises(UnexpectedModelBehavior):  # the job's next attempt asks again
+        await extract_document(context, job)
+
+    assert [key for key, _, _ in await units_done(connection, document)] == ["E3"]
+    assert model.units == ["E3"]
+    assert await usage_rows(connection, job) == [(1, 1_100, False), ("held", 0)]
+    assert [(outcome, result["failure"]) for outcome, result in await x4_runs(connection, document)] == [
+        ("failed", "UnexpectedModelBehavior")
+    ]
+
+
+async def test_a_quota_spent_at_the_provider_ends_the_job_for_good(
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float]
+) -> None:
+    # a 429 that says so is not waited on; the job's attempts would meet it again
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+
+    def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2"):
+            raise refusal(429, code="insufficient_quota")
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 1)
+    with pytest.raises(PermanentError) as ended:
+        await extract_document(context, job)
+
+    assert ended.value.code == "model_refused"
+    assert (waited, model.units) == ([], [])
+    assert await usage_rows(connection, job) == [(1, 0, False), ("held", 0)]
+    assert [(outcome, result["failure"]) for outcome, result in await x4_runs(connection, document)] == [
+        ("failed", "model_refused")
     ]

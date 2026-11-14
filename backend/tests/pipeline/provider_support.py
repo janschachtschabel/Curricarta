@@ -54,9 +54,9 @@ def provider_failed(monkeypatch: pytest.MonkeyPatch) -> asyncio.Event:
     return failed
 
 
-def refusal(status: int) -> ModelHTTPError:
-    """The provider's refusal with ``status``."""
-    return ModelHTTPError(status, "gpt-6-luna", body={"error": {"message": "x", "type": "server_error"}})
+def refusal(status: int, *, code: str = "server_error") -> ModelHTTPError:
+    """The provider's refusal with ``status``, its error of the type and code ``code``."""
+    return ModelHTTPError(status, "gpt-6-luna", body={"error": {"message": "x", "type": code, "code": code}})
 
 
 async def usage_rows(connection: Any, job: Any, purpose: str = "x4.unit") -> list[tuple[Any, ...]]:

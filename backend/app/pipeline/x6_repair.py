@@ -23,8 +23,6 @@ from collections.abc import Sequence
 from dataclasses import dataclass, field, replace
 from typing import Any
 
-from pydantic_ai.exceptions import ModelAPIError
-
 from app.conversion.base import Block
 from app.db.conversions import all_blocks, printed_pages
 from app.db.documents import Document, document_for_job
@@ -135,7 +133,7 @@ class _Repairs:
     written: int = 0
     dropped: int = 0
     spent: BudgetExhausted | None = None  # once set, no further package begins
-    broken: ModelAPIError | None = None  # the provider's first error; as spent
+    broken: Exception | None = None  # the provider's first error (PROVIDER_ERRORS); as spent
     unanswered: list[str] = field(default_factory=list)
 
     async def run(self, units: Sequence[RepairUnit]) -> dict[str, Any]:

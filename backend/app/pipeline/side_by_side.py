@@ -13,13 +13,16 @@ import asyncio
 from collections.abc import Awaitable, Callable, Sequence
 from typing import NoReturn
 
-from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError
+from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
 
 from app.core.settings import Settings
 from app.jobs.outcome import PermanentError
+from app.llm.calls import quota_spent
 
-# a refusal (an HTTP error), or a provider never reached or that never answered (a timeout)
-PROVIDER_ERRORS = (ModelHTTPError, ModelAPIError)
+# a refusal (an HTTP error), a provider never reached or that never answered (a timeout), and an
+# answer no model could read - a proxy's page in its place (app/llm/calls.py raises it as the
+# request's)
+PROVIDER_ERRORS = (ModelHTTPError, ModelAPIError, UnexpectedModelBehavior)
 # a 4xx that is no refusal for good: a request that timed out, a rate limit
 _PASSING = (408, 429)
 
@@ -46,14 +49,13 @@ async def ask_side_by_side[T](
         raise failed
 
 
-def fail_by_provider(error: ModelAPIError) -> NoReturn:
+def fail_by_provider(error: Exception) -> NoReturn:
     """End a run by the provider's error that one of its units met: a request refused for good - a 4xx
-    but 408 and 429, a key, a model's name or a request the provider does not take - as
-    ``model_refused``, which no new attempt mends; any other as itself, for the job's next attempt."""
-    if (
-        isinstance(error, ModelHTTPError)
-        and 400 <= error.status_code < 500
-        and error.status_code not in _PASSING
+    but 408 and 429, a key, a model's name or a request the provider does not take, and a 429 that
+    says the quota at the provider is spent - as ``model_refused``, which no new attempt mends; any
+    other as itself, for the job's next attempt."""
+    if isinstance(error, ModelHTTPError) and (
+        (400 <= error.status_code < 500 and error.status_code not in _PASSING) or quota_spent(error)
     ):
         raise PermanentError("model_refused", "the provider refused the request for good") from error
     raise error

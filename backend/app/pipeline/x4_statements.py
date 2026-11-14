@@ -26,7 +26,6 @@ from dataclasses import dataclass, field, replace
 from typing import Any
 
 import psycopg
-from pydantic_ai.exceptions import ModelAPIError
 
 from app.conversion.base import Block
 from app.db.documents import Document
@@ -125,7 +124,7 @@ class _Units:
     cap: int | None  # on an answer, as the model sends it
     held: list[str]  # open, and cut before under a cap no lower: not asked
     spent: BudgetExhausted | None = None  # once set, no further unit begins
-    broken: ModelAPIError | None = None  # the provider's first error; as spent
+    broken: Exception | None = None  # the provider's first error (PROVIDER_ERRORS); as spent
     unanswered: list[str] = field(default_factory=list)
     cut: list[str] = field(default_factory=list)
     taken: int = 0

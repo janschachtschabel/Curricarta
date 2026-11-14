@@ -139,9 +139,14 @@ def wait_after(refused: ModelHTTPError, attempt: int) -> float | None:
     provider's Retry-After where it gives one (``_wait``)."""
     if refused.status_code != 429 and refused.status_code < 500:
         return None
-    if "insufficient_quota" in str(refused.body):
+    if quota_spent(refused):
         return None
     return _wait(attempt, refused.retry_after)
+
+
+def quota_spent(refused: ModelHTTPError) -> bool:
+    """Whether the refusal says the account's quota at the provider is spent (a 429 too)."""
+    return "insufficient_quota" in str(refused.body)
 
 
 def _wait(attempt: int, after: float | None = None) -> float | None:
