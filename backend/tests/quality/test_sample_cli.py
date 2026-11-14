@@ -48,6 +48,7 @@ async def test_the_command_prints_the_sample_and_its_strata(
     printed = json.loads(first.stdout)
     assert printed == {
         "sample": printed["sample"], "kind": "statement", "seed": SEED, "drawn_before": False,
+        "title_pages": None,
         "strata": {"content": {"frame": 1, "drawn": 1}, "learningOutcome": {"frame": 1, "drawn": 1}},
     }  # fmt: skip
     assert isinstance(printed["sample"], int)

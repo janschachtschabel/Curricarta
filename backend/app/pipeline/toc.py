@@ -88,6 +88,12 @@ class Contents:
     paged: bool = True  # whether that run's pages lie within the document: else no entry moves the end
 
 
+def title_page_blocks(blocks: Sequence[Block], front_end: int | None) -> frozenset[str] | None:
+    """The ids of the blocks on the title pages: those before ``front_end``; None where the contents ended
+    none, so that no title pages are known."""
+    return None if front_end is None else frozenset(block.id for block in blocks[:front_end])
+
+
 def leading_number(text: str) -> str | None:
     """The numbering a title begins with ("1.2" of "1.2 Ziele", "IV" of "IV. Anhang", "6.2.4" of
     "6 .2 .4 Regeln"), or None."""

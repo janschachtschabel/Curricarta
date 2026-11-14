@@ -35,7 +35,6 @@ from app.db.documents import Document, DocumentError, document_for_job
 from app.db.mem_plans import MemPlan, plan_by_iri
 from app.db.nodes import write_subtree
 from app.db.runs import RunStart, done_stages, finish_run, lock_for_stage, start_run, x5_owed
-from app.domain.lexicon import active_cues
 from app.jobs.context import JobContext
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, check_lease, hold_lease
@@ -43,11 +42,9 @@ from app.llm.raw import RawResponses
 from app.pipeline.anchor_search import search_text
 from app.pipeline.asking import Superseded, ended
 from app.pipeline.extraction import document_in
-from app.pipeline.ground import ground_of
-from app.pipeline.patterns import PatternSearch
+from app.pipeline.ground import contents_of, ground_of
 from app.pipeline.progress import report
-from app.pipeline.skeleton import IN_CONTENTS
-from app.pipeline.toc import find_contents
+from app.pipeline.toc import title_page_blocks
 from app.pipeline.x5_stage import run_x5
 from app.sources.mem.anchoring import Anchored, anchor_rows
 from app.sources.mem.classes import RULES
@@ -113,11 +110,7 @@ async def _run_im(context: JobContext, job: Job, document: Document, plan: MemPl
         async with context.pool.connection() as connection:
             await report(connection, job, "mem_anchor")
             blocks = await all_blocks(connection, document.conversion_id)
-        typed = active_cues(
-            ground.cues, ground.regions, document.document_type_iri, None, wider_regions=ground.wider
-        )
-        toc = [found.cue for found in typed if IN_CONTENTS in found.cue.maps_to]
-        contents = await asyncio.to_thread(find_contents, blocks, toc, PatternSearch())
+        contents = await asyncio.to_thread(contents_of, ground, blocks, document.document_type_iri)
         searched = search_text(blocks, contents.positions)
         rows = rows_in_order(tree, rules, plan.iri, plan.title)
         anchored = await anchor_rows(rows, searched, context.settings.mem_search_budget_s)
@@ -156,9 +149,9 @@ def _front(
 ) -> dict[str, dict[str, int]] | None:
     """How many rows of nodes and of statements were found on the title pages, by stage; None where the
     document's contents were not found, so that no title pages are known."""
-    if front_end is None:
+    before = title_page_blocks(blocks, front_end)
+    if before is None:
         return None
-    before = {block.id for block in blocks[:front_end]}
     counted: dict[str, Counter[str]] = {}
     for row in rows:
         first = anchored.anchors[row.key].block_ids[:1]

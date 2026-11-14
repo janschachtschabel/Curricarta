@@ -18,14 +18,15 @@ from psycopg.types.json import Jsonb
 # As migration gold lists them (tests/db/test_gold_schema.py)
 SampleKind = Literal["statement", "block", "anchor"]
 Verdict = Literal["correct", "imprecise", "wrong"]
+TitlePages = Literal["left_out", "unknown"]
 Reason = Literal[
     "not_a_statement", "not_in_document", "node", "boundary", "kind", "fields", "wrong_place", "missed"
 ]
 
 # The first draw under a document's kind and seed writes it; one at the same time, or after, finds it
 _ADD = """
-INSERT INTO gold_sample (kind, document_id, label, seed, size, frame, drawn_by)
-VALUES (%(kind)s, %(document)s, %(label)s, %(seed)s, %(size)s, %(frame)s, %(drawn_by)s)
+INSERT INTO gold_sample (kind, document_id, label, seed, size, frame, drawn_by, title_pages)
+VALUES (%(kind)s, %(document)s, %(label)s, %(seed)s, %(size)s, %(frame)s, %(drawn_by)s, %(title_pages)s)
 ON CONFLICT (document_id, kind, seed) DO NOTHING
 RETURNING id
 """
@@ -35,7 +36,8 @@ INSERT INTO gold_item (sample_id, stratum, place, statement_id, node_id, block_i
 VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
 """
 _SAMPLE = """
-SELECT id, kind, document_id, label, seed, size, frame, drawn_by, drawn_at FROM gold_sample WHERE id = %s
+SELECT id, kind, document_id, label, seed, size, frame, drawn_by, title_pages, drawn_at
+FROM gold_sample WHERE id = %s
 """
 _ITEMS = """
 SELECT id, sample_id, stratum, place, statement_id, node_id, block_id, text_hash, first_block
@@ -65,6 +67,9 @@ class SampleDraft:
     size: int  # asked for
     frame: Mapping[str, int]  # the population of each stratum when drawn
     drawn_by: UUID  # the account
+    # a block's or anchor's sample: whether the title pages were found (blocks on them left out, anchors on
+    # them a stratum apart) or unknown; None for statements
+    title_pages: TitlePages | None
 
 
 @dataclass(frozen=True)
@@ -116,6 +121,7 @@ async def add_sample(
         "size": draft.size,
         "frame": Jsonb(dict(draft.frame)),
         "drawn_by": draft.drawn_by,
+        "title_pages": draft.title_pages,
     }
     async with connection.transaction():
         cursor = await connection.execute(_ADD, values)

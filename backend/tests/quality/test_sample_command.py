@@ -161,6 +161,10 @@ async def test_blocks_of_the_contents_the_title_pages_and_the_headers_are_not_dr
     assert [(item.stratum, item.block_id) for item in items] == [("t2:text", "p3-b3"), ("t3:text", "p5-b1")]
     assert all(item.text_hash is None and item.first_block is None for item in items)
     assert drawn.title_pages == "left_out"
+    again = await draw(
+        connection, Request(document.id, "block", "pilot-1", await owner(connection, document))
+    )
+    assert (again.drawn_before, again.title_pages) == (True, "left_out")  # as kept, not found anew
 
 
 async def test_without_contents_the_title_pages_are_unknown_and_drawn(
@@ -177,6 +181,12 @@ async def test_without_contents_the_title_pages_are_unknown_and_drawn(
 
     assert drawn.strata == {"t1:text": (1, 1), "t2:text": (1, 1), "t3:text": (1, 1)}
     assert drawn.title_pages == "unknown"
+    cursor = await connection.execute("SELECT title_pages FROM gold_sample WHERE id = %s", (drawn.sample,))
+    assert await cursor.fetchall() == [("unknown",)]
+    again = await draw(
+        connection, Request(document.id, "block", "pilot-1", await owner(connection, document))
+    )
+    assert (again.drawn_before, again.title_pages) == (True, "unknown")
 
 
 async def test_an_import_s_anchors_are_drawn_by_how_they_were_found(
@@ -212,6 +222,35 @@ async def test_an_import_s_anchors_are_drawn_by_how_they_were_found(
         ("notFound:statement", text_hash(WORDS["content"]), None, True),
         ("whitespace:statement", text_hash(WORDS["outcome"]), "p1-b2", True),
     ]
+    assert drawn.title_pages == "unknown"  # no contents: nothing set apart
+
+
+async def test_an_import_s_anchors_on_the_title_pages_are_a_stratum_apart(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    document = await document_of(connection, with_contents())
+    on_cover = AnchorDraft(("p1-b1",), page_start=1, match_kind=CV + "match_whitespace")
+    in_body = AnchorDraft(("p3-b3",), page_start=3, match_kind=CV + "match_exact")
+    root = NodeDraft(
+        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title="1 Teil 1",
+        anchors=(AnchorDraft(("p3-b2",), page_start=3, match_kind=CV + "match_exact"),),
+        statements=(
+            *(statement(f"{WORDS['outcome']} {n}", origin=IMPORTED, anchors=(on_cover,)) for n in range(6)),
+            *(statement(f"{WORDS['content']} {n}", origin=IMPORTED, anchors=(in_body,)) for n in range(30)),
+        ),
+    )  # fmt: skip
+    await write_subtree(connection, document.id, root)
+    await done(connection, document, "IM")
+    account = await owner(connection, document)
+
+    drawn = await draw(connection, Request(document.id, "anchor", "mem-1", account, size=20))
+
+    # the node's one, five of each other; the nine left by share of 30 and 6: 7.5 and 1.5, the cover's one
+    # all it has left, the one over to the tie's first
+    assert drawn.strata == {"exact:node": (1, 1), "exact:statement": (30, 13), "front:statement": (6, 6)}
+    assert drawn.title_pages == "left_out"
+    items = await items_of(connection, drawn.sample)
+    assert {item.first_block for item in items if item.stratum == "front:statement"} == {"p1-b1"}
 
 
 async def test_a_sample_drawn_again_is_the_one_there(connection: psycopg.AsyncConnection) -> None:

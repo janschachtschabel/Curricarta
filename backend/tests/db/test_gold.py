@@ -2,6 +2,7 @@
 back; an account's judgement of an item made again over its own; the latest judgement of each item."""
 
 from collections.abc import AsyncIterator
+from dataclasses import replace
 from typing import Any
 from uuid import UUID
 
@@ -56,6 +57,7 @@ def draft(made: dict[str, Any]) -> SampleDraft:
         size=40,
         frame={"learningOutcome": 12, "content": 3},
         drawn_by=made["owner"],
+        title_pages=None,
     )
 
 
@@ -82,7 +84,7 @@ async def test_a_sample_is_read_back_with_its_items_in_their_order(
         sample, "statement", made["document"], "pilot-1", "curricarta-h3", 40
     )  # fmt: skip
     assert found.frame == {"learningOutcome": 12, "content": 3}
-    assert found.drawn_by == made["owner"]
+    assert (found.drawn_by, found.title_pages) == (made["owner"], None)
     assert [
         (item.sample_id, item.place, item.stratum, item.statement_id, item.first_block) for item in items
     ] == [
@@ -91,6 +93,17 @@ async def test_a_sample_is_read_back_with_its_items_in_their_order(
     ]
     assert await sample_by_id(connection, sample + 1) is None
     assert await items_of(connection, sample + 1) == []
+
+
+async def test_a_block_sample_keeps_whether_its_title_pages_were_known(
+    connection: psycopg.AsyncConnection, made: dict[str, Any]
+) -> None:
+    blocks = replace(draft(made), kind="block", frame={"t1:text": 1}, title_pages="unknown")
+
+    sample = await add_sample(connection, blocks, [ItemDraft(stratum="t1:text", block_id="p1-b1")])
+
+    found = await sample_by_id(connection, sample)
+    assert found is not None and found.title_pages == "unknown"
 
 
 async def test_a_sample_drawn_again_under_its_seed_is_the_one_there(

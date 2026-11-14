@@ -12,7 +12,7 @@ import pytest
 from psycopg import errors
 from psycopg.types.json import Jsonb
 
-from app.db.gold import Reason, SampleKind, Verdict
+from app.db.gold import Reason, SampleKind, TitlePages, Verdict
 from app.db.migrate import MIGRATIONS, migrate
 from tests.db.l1 import add_conversion, add_document, listed_values, seed_vocabulary
 
@@ -81,13 +81,14 @@ def test_the_kinds_verdicts_and_reasons_are_the_listed_ones(connection: psycopg.
     assert listed_values(connection, "gold_sample", "kind") == set(get_args(SampleKind))
     assert listed_values(connection, "gold_judgement", "verdict") == set(get_args(Verdict))
     assert listed_values(connection, "gold_judgement", "reasons") == set(get_args(Reason))
+    assert listed_values(connection, "gold_sample", "title_pages") == set(get_args(TitlePages))
 
 
 def test_a_sample_is_one_per_document_kind_and_seed(
     connection: psycopg.Connection, made: dict[str, Any]
 ) -> None:
     a_sample(connection, made)
-    a_sample(connection, made, kind="block")  # another kind
+    a_sample(connection, made, kind="block", title_pages="left_out")  # another kind
     a_sample(connection, made, seed="another-seed")  # another seed
 
     with pytest.raises(errors.UniqueViolation) as refused:
@@ -168,7 +169,7 @@ def test_a_reason_outside_the_list_is_refused(connection: psycopg.Connection, ma
 def test_a_block_is_judged_by_a_count_alone(
     connection: psycopg.Connection, made: dict[str, Any], columns: dict[str, Any], constraint: str
 ) -> None:
-    sample = a_sample(connection, made, kind="block")
+    sample = a_sample(connection, made, kind="block", title_pages="unknown")
     item = an_item(connection, sample, statement_id=None, block_id="p1-b1", text_hash=None, first_block=None)
 
     with pytest.raises(errors.CheckViolation) as refused:
@@ -177,6 +178,24 @@ def test_a_block_is_judged_by_a_count_alone(
 
     assert refused.value.diag.constraint_name == constraint
     assert connection.execute("SELECT verdict, expected FROM gold_judgement").fetchall() == [(None, 0)]
+
+
+@pytest.mark.parametrize(
+    ("kind", "title_pages"),
+    [("block", None), ("anchor", None), ("statement", "left_out"), ("statement", "unknown")],
+    ids=["block-without", "anchor-without", "statement-left-out", "statement-unknown"],
+)
+def test_the_title_pages_are_told_for_the_kinds_that_know_them_alone(
+    connection: psycopg.Connection, made: dict[str, Any], kind: str, title_pages: str | None
+) -> None:
+    # whether the title pages were found, and so set apart, is kept with the blocks' and anchors' samples
+    a_sample(connection, made, kind="block", title_pages="unknown", seed="b")
+    a_sample(connection, made, kind="anchor", title_pages="left_out", seed="a")
+
+    with pytest.raises(errors.CheckViolation) as refused:
+        a_sample(connection, made, kind=kind, title_pages=title_pages)
+
+    assert refused.value.diag.constraint_name == "gold_sample_title_pages_of_kind"
 
 
 @pytest.mark.parametrize("label", ["pilot 1", " pilot", "Pilot-1", "-pilot", "p" * 41])
