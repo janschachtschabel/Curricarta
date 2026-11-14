@@ -267,6 +267,10 @@ def _unwind(job: Job, handler: asyncio.Task[Any]) -> None:
     handler.add_done_callback(lambda finished: _report_unwinding(job, finished))
 
 
+# how long a stopping worker waits for reservations handed back (app/llm/booking.py)
+HAND_BACKS_WAIT_S = 5.0
+
+
 def _report_unwinding(job: Job, handler: asyncio.Task[Any]) -> None:
     if handler.cancelled() or handler.exception() is None:
         return
@@ -289,6 +293,7 @@ async def _serve() -> int:
     from app.jobs.context import JobContext
     from app.jobs.handlers import handlers_for
     from app.jobs.probes import probe_server, start_serving
+    from app.llm.booking import hand_backs_done
     from app.llm.client import LazyModel
     from app.llm.settings import LLMSettings
 
@@ -329,7 +334,11 @@ async def _serve() -> int:
         try:
             await model.close()
         finally:
-            await pool.close()  # whatever the model's client did on closing
+            try:  # a reservation a cancel came upon is handed back on the pool: a while for it, then on
+                if left := await hand_backs_done(within=HAND_BACKS_WAIT_S):
+                    log.warning("%d reservation hand-backs left to the sweeper", left)
+            finally:
+                await pool.close()  # whatever the model's client did on closing
     # a supervisor restarts a worker that ended with an error
     return 1 if worker.broken else 0
 

@@ -4,6 +4,7 @@ left unbooked booked by what is known of it, and whether an answer was cut at th
 """
 
 import asyncio
+import logging
 from dataclasses import dataclass
 from typing import Any
 
@@ -11,6 +12,8 @@ from pydantic_ai.messages import ModelResponse, ToolCallPart
 
 from app.core.metrics import observe_llm_request
 from app.llm.metering import Meter, Spent
+
+log = logging.getLogger(__name__)
 
 
 @dataclass
@@ -28,20 +31,39 @@ async def reserve(meter: Meter, input_tokens: int, output_tokens: int) -> Any:
     """The meter's reservation, made whole however a cancel comes: one that came while it was made -
     its row may stand, the commit's answer not yet come - is waited for and handed back unspent, as
     no request went out; left standing, the job's end would book it as abandoned, an estimate. The
-    hand-back runs in a task of its own, kept until it is done: a second cancel does not stop it."""
+    hand-back runs in a task of its own, kept until it is done: a second cancel does not stop it, and
+    the worker waits for those under way a bounded while before it closes its pool
+    (``hand_backs_done``). For a process that dies meanwhile the sweeper stays the fallback: it books
+    the reservation as abandoned (app/usage/ledger.py, ``book_left_behind``)."""
     reserving = asyncio.ensure_future(meter.reserve(input_tokens, output_tokens))
     try:
         return await asyncio.shield(reserving)
     except asyncio.CancelledError:
         handing = asyncio.ensure_future(_hand_back(meter, reserving))
         _HANDING_BACK.add(handing)
-        handing.add_done_callback(_HANDING_BACK.discard)
+        handing.add_done_callback(_handed_back)
         await asyncio.shield(handing)
         raise
 
 
 # the hand-backs under way: the loop keeps a task by a weak reference only
 _HANDING_BACK: set[asyncio.Future[None]] = set()
+
+
+def _handed_back(handing: asyncio.Future[None]) -> None:
+    """A hand-back done: no longer under way; an error of it said by its kind - no caller may be left
+    to receive it, and its words could name what it was about."""
+    _HANDING_BACK.discard(handing)
+    if not handing.cancelled() and (error := handing.exception()) is not None:
+        log.warning("a reservation's hand-back failed: %s", type(error).__name__)
+
+
+async def hand_backs_done(*, within: float) -> int:
+    """Wait at most ``within`` seconds for the hand-backs under way; how many are still under way."""
+    if not _HANDING_BACK:
+        return 0
+    _, left = await asyncio.wait(set(_HANDING_BACK), timeout=within)
+    return len(left)
 
 
 async def _hand_back(meter: Meter, reserving: asyncio.Future[Any]) -> None:
