@@ -513,7 +513,8 @@ ungültig.
   nicht für X3 und X4; nichts davon wurde gefragt, siehe „Wacht nach X2“ unter „Kosten des
   Modells“), `model_unanswered` (keine Antwort im Schema; in X4 bleiben nur solche
   Pakete offen), `model_not_configured` (kein `OPENAI_API_KEY` im Worker), `prefix_too_long`
-  (nicht einmal ein Abschnitt passt neben Titelei und Rahmenteilen ins Kontextfenster),
+  (nicht einmal ein Abschnitt passt neben Titelei und Rahmenteilen ins Kontextfenster; passt das
+  Fenster eines Pakets von X4 nicht, endet der Job schon vor X3, der sonst umsonst bezahlt wäre),
   `document_gone` oder `document_has_tree` (Knoten oder Spezifikationen stehen schon, aber keine
   Extraktion schrieb sie). Der Worker startet auch ohne
   Schlüssel; das Modell entsteht beim ersten Job, der es braucht.
@@ -686,7 +687,8 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
     einmal; es zählt nicht mit. Solange X3 offen ist, fehlen dem Präfix von
     X4 die Wahllisten von X3; das liegt etwas zu niedrig.
   - Was er nicht rechnen kann, nennt `unreckoned` mit Grund: `before_x2`; `prefix_too_long` oder
-    `document_has_tree`, wo die Stufe den Job beendet, bevor sie fragt.
+    `document_has_tree`, wo der Job endet, bevor die Stufe fragt. Passt ein Paket von X4 in kein
+    Fenster, endet der Job vor X3; dann stehen X3 und X4 dort mit `prefix_too_long`.
   - Gerechnet wird mit dem Modell der Einstellungen, ohne dessen Schlüssel. Wiederholungen nach
     einer Antwort außer Form kommen hinzu.
   - Geldbeträge nennt die App nicht, nur die Gewichte. Exit-Code 1: kein solches Dokument oder ein

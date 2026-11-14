@@ -28,6 +28,7 @@ from app.pipeline.watch import watch_budget
 from app.usage.ledger import usage_of
 from tests.llm.test_client import llm_settings
 from tests.pipeline.test_run import Model, a_document, a_job, context_of, is_profile, rows, setup
+from tests.pipeline.test_x4_hardening import LONG
 from tests.pipeline.test_x4_statements import with_concurrency
 from tests.support import unwatched
 
@@ -35,6 +36,8 @@ pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, shared with test_run
 
 AT_ONCE = 4  # the units X4 asks at once: EXTRACT_CONCURRENCY, the pool leaving room for it
+# a context in which X3's window fits and that of "Inhaltsfeld 3" of LONG does not (test_x4_hardening)
+SMALL = llm_settings(llm_context_tokens=21_000, llm_max_output_tokens=1_000)
 
 
 def tightening(connection: psycopg.AsyncConnection, document: Document, model: Model) -> Any:
@@ -405,3 +408,26 @@ async def test_a_prefix_no_window_fits_stays_the_stage_s_refusal(
 
     assert ended.value.code == "prefix_too_long"
     assert await done_stages(connection, document.id) == {"X1", "X2"}
+
+
+@pytest.mark.parametrize("account", ["watched", "without_limit", "watch_off"])
+async def test_a_unit_no_window_fits_ends_the_job_before_x3_asks_in_any_run(
+    setup: Any, tmp_path: Path, database_url: str, account: str
+) -> None:
+    # X3's window fits, one unit's does not: X4 would end the job before it asked a unit - so X3, asked
+    # first, would be paid for nothing; every run checks the units' windows before X3 asks, watched or not
+    pool, connection = setup
+    document = await a_document(connection, blocks=LONG, token_limit=None)
+    model = Model()
+    answer = tightening(connection, document, model) if account == "watched" else model
+    context = replace(context_of(pool, tmp_path, answer, database_url), llm=SMALL)
+    if account == "watch_off":
+        context = replace(unwatched(context, database_url), llm=SMALL)
+
+    with pytest.raises(PermanentError) as ended:
+        await extract_document(context, await a_job(connection, document.id, document.owner_id))
+
+    assert ended.value.code == "prefix_too_long"
+    assert await done_stages(connection, document.id) == {"X1", "X2"}
+    assert (model.asked, model.units) == (["profile", "outline"], [])
+    assert await booked_rest(connection, document) == []

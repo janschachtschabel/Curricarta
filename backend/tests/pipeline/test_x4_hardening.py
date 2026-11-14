@@ -44,7 +44,7 @@ __all__ = ["setup"]  # the fixture, shared with test_run
 LONG = [*FIELDS[:-1], block("p3-b4", " ".join([BODY] * 120))]
 
 
-async def test_a_unit_no_window_fits_ends_the_job_before_any_unit_is_asked(
+async def test_a_unit_no_window_fits_ends_the_job_before_x3_or_any_unit_is_asked(
     setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
@@ -59,8 +59,10 @@ async def test_a_unit_no_window_fits_ends_the_job_before_any_unit_is_asked(
         )
 
     assert ended.value.code == "prefix_too_long"
-    assert [outcome for outcome, _ in await x3_run(connection, document)] == ["done"]
+    # checked before X3 asks, which would be paid for nothing (tests/pipeline/test_watch.py)
+    assert await x3_run(connection, document) == []
     assert (model.units, await x4_runs(connection, document)) == ([], [])  # none asked, no run begun
+    assert "frame" not in model.asked
 
 
 async def test_an_error_in_one_unit_ends_those_asking_beside_it_and_nothing_of_them_is_written(

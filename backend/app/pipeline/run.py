@@ -32,7 +32,7 @@ from app.jobs.queue import Job, hold_lease
 from app.pipeline.extraction import KIND as KIND
 from app.pipeline.extraction import document_in
 from app.pipeline.progress import report
-from app.pipeline.watch import watch_budget
+from app.pipeline.watch import check_windows, watch_budget
 from app.pipeline.x1_stage import run_x1
 from app.pipeline.x2_segments import work_packages
 from app.pipeline.x3_stage import run_x3
@@ -61,8 +61,11 @@ async def extract_document(context: JobContext, job: Job) -> dict[str, Any]:
         async with context.pool.connection() as connection:
             made = await stage_result(connection, document.id, "X2")
         packages = len((made or {}).get("packages", []))
-    if not {"X3", "X4"} <= done:  # before X3 or X4 asks: does the budget hold the rest?
-        await watch_budget(context, job, await _current(context, document.id), blocks, printed)
+    if not {"X3", "X4"} <= done:  # before X3 or X4 asks: does the budget hold the rest, do the units fit?
+        current = await _current(context, document.id)
+        watched = await watch_budget(context, job, current, blocks, printed)
+        if watched is None and not {"X3", "X4"} & done:  # the watch, where it looked, checked them
+            await check_windows(context, current, blocks, printed)
     if "X3" not in done:
         await run_x3(context, job, await _current(context, document.id), blocks, printed)
     if "X4" not in done:

@@ -42,8 +42,9 @@ from app.jobs.queue import Job, hold_lease
 from app.llm.client import cost_weights
 from app.pipeline.asking import model_of
 from app.pipeline.ground import ground_of
-from app.pipeline.reckoned import expected_charge, owed_questions, room_for
+from app.pipeline.reckoned import expected_charge, owed_questions, room_for, statement_units
 from app.pipeline.side_by_side import at_once
+from app.pipeline.x4_question import unit_questions
 from app.usage.ledger import usage_of
 
 log = logging.getLogger("app.pipeline.watch")
@@ -100,3 +101,19 @@ async def watch_budget(
             f" {watched.left} are left ({units} units, prefix {prefix})",
         )
     return watched
+
+
+async def check_windows(
+    context: JobContext, document: Document, blocks: Sequence[Block], printed: Sequence[str | None]
+) -> None:
+    """PermanentError (prefix_too_long) where a unit X4 would ask fits no window - checked before X3
+    asks, in every run, so that a document whose units X4 would refuse pays for no frame. The watch,
+    where it looks, has checked them as it reckoned. X4's prefix lacks X3's choice lists here: X4
+    checks again before it asks."""
+    model, _ = model_of(context)
+    assert context.llm is not None  # noqa: S101 - the stage has its model (model_of)
+    async with context.pool.connection() as connection:
+        units = await statement_units(connection, document, model)
+        ground = await ground_of(connection, document)
+        questions = await unit_questions(connection, context.llm, document, blocks, printed, ground, model)
+    await questions.check(units)  # counted outside the pool, as X4 counts
