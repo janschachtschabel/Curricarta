@@ -60,7 +60,7 @@ api:
     preStop: { exec: { command: [sleep, "5"] } }   # the Service's endpoints follow SIGTERM late
   env:
     FORWARDED_ALLOW_IPS: <network of the ingress controller>   # never * and never /0
-    DB_STATEMENT_TIMEOUT_S: "60"   # a statement of a request past it is cancelled (500); 2 s the longest measured
+    DB_STATEMENT_TIMEOUT_S: "60"   # cancelled past it (500); 2 s the longest on synthetic test data
   secrets:                    # from a Secret, never in the values; mounted as files, read through *_FILE
     existingSecret: curricarta-secrets
     keys: [DATABASE_URL, API_KEY_PEPPER, S3_ACCESS_KEY, S3_SECRET_KEY]

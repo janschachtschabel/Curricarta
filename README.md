@@ -576,6 +576,11 @@ ungültig.
   jeder andere bekommt 401, ungezählt. Ein gültiges Token kommt immer durch.
 - `DB_POOL_TIMEOUT_S` (Standard 5 s): so lange wartet eine Anfrage auf eine Verbindung, dann
   antwortet sie 503 mit `Retry-After`.
+- `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` (Standard 300 s, 0 aus): eine Transaktion, die so lange nichts tut,
+  beendet der Server, ihre Sperren werden frei (API: 500; Job: wiederholt).
+- `DB_STATEMENT_TIMEOUT_S` (Standard aus; Compose und Helm setzen 60 s für die API, der Worker nimmt es
+  nie): eine längere Anweisung bricht der Server ab, das Warten auf eine Sperre eingeschlossen (500).
+  Beide auf 0 hinter einem Pooler, der `options` ablehnt (`docs/uebergabe/konfiguration.md`).
 
 Worker: `JOB_LEASE_S` (Standard 60 s; ein Worker ohne Lebenszeichen verliert seinen Job danach),
 `JOB_POLL_S` (Standard 1 s), `JOB_SHUTDOWN_GRACE_S` (Standard 20 s): Nach SIGTERM darf der
