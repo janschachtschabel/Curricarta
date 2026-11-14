@@ -771,12 +771,11 @@ ohne Netz fährt jeden dieser Befehle ab `python -m` Wort für Wort (`backend/te
    docker compose -f deploy/docker-compose.yml exec -T worker python -m app.pipeline.estimate <Dokument-ID>
    ```
 
-2. Budget in zwei Schritten (siehe „Wacht nach X2“): Grenze des Kontos mit
-   `PUT /api/v1/accounts/{id}/quota` auf den Verbrauch (`GET /api/v1/me/usage`) plus
-   `charged_at_most` aus der Schätzung setzen, den Lauf mit `POST /api/v1/documents/{id}/extraction`
-   starten; er endet nach X2 mit `run_over_budget`. Die Schätzung erneut laufen lassen, die Grenze um
-   `charged_expected` + `room` anheben und den Lauf neu starten: X3 bis X5 laufen zu Ende. Endet er
-   anders (`budget_exhausted`, eine Buchung weit über der Erwartung), anhalten und nicht nachlegen.
+2. Budget und Lauf in den zwei Schritten, die „Wacht nach X2“ unter „Kosten des Modells“ beschreibt
+   (mit ihren Voraussetzungen): Grenze setzen, den Lauf mit `POST /api/v1/documents/{id}/extraction`
+   starten, nach `run_over_budget` die Schätzung aus Schritt 1 erneut laufen lassen, die Grenze
+   anheben, neu starten. Endet er anders (`budget_exhausted`, eine Buchung weit über der Erwartung),
+   anhalten und nicht nachlegen.
 3. Was der Lauf gekostet hat, je Zweck, und ob die abgelegten Rohantworten dieselben Token melden wie
    die Buchung (`ledger_equals_raw`):
 
@@ -838,8 +837,11 @@ ohne Netz fährt jeden dieser Befehle ab `python -m` Wort für Wort (`backend/te
 
 Urteilsbögen halten Wortlaute des Dokuments. Sie und jede Arbeitsmappe, als die eine
 Tabellenkalkulation sie speichert, liegen nur unter `data/gold-local/`: Git und die Images lassen
-den Ordner aus, `app.quality.sheet` schreibt nur nach stdout und weist in einem Arbeitsbaum jede
-andere Datei ab, und ein Test lässt keinen Bogen im Repository zu. Alle anderen Befehle geben nur
+den Ordner aus, und `app.quality.sheet` schreibt nur nach stdout. Leitet man ohne Compose in einem
+Arbeitsbaum direkt in eine Datei um, weist er jede außerhalb des Ordners ab; hinter
+`docker compose … exec -T` ist stdout eine Leitung, dort schreibt die Shell, wohin sie soll. Das
+Repository schützt der Baumwächter (`backend/tests/quality/test_instance_data_guard.py`): Er lässt
+keinen Bogen und keine Arbeitsmappe im Repository zu. Alle anderen Befehle geben nur
 Zahlen, Raten, Kennungen und Codes aus, nie einen Wortlaut, ein Zitat oder eine Notiz; Nutzung,
 Bericht, Nachspielen und MEM-Bericht prüfen das vor der Ausgabe und verweigern sonst
 (`report_not_closed`). Exit-Code 1 heißt abgewiesen (die Meldung steht auf stderr), 2 falscher
