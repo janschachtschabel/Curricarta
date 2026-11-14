@@ -21,7 +21,7 @@ from app.api.app import create_app
 from app.api.internal import READY_TIMEOUT_S
 from app.core.ids import new_id
 from app.db.migrate import migrate
-from tests.support import lock_held, make_settings, selector_client
+from tests.support import FAKE_DATABASE_URL, lock_held, make_settings, selector_client
 
 PUBLIC = "http://testserver:8000"
 INTERNAL = "http://testserver:9000"
@@ -36,6 +36,9 @@ def sample(name: str, **labels: str) -> float:
 @pytest.fixture
 def app() -> FastAPI:
     application = create_app(make_settings())
+    # its database is unreachable: read just now, so a scrape here does not wait out the pool
+    # (test_an_unreachable_database_leaves_the_scrape_answering_in_time does)
+    application.state.queue_read_at = time.monotonic()
 
     async def item(item_id: int) -> dict[str, int]:
         return {"id": item_id}
@@ -262,6 +265,18 @@ def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_
     assert response.status_code == 200
     assert elapsed < 3
     assert sample(JOBS, kind="source.fetch", status="queued") == 1
+    assert sample(READS_FAILED) == failed + 1
+
+
+def test_an_unreachable_database_leaves_the_scrape_answering_in_time() -> None:
+    failed = sample(READS_FAILED)
+    with scraping(FAKE_DATABASE_URL) as client:
+        started = time.monotonic()
+        response = client.get("/metrics")
+        elapsed = time.monotonic() - started
+
+    assert response.status_code == 200
+    assert elapsed < 3
     assert sample(READS_FAILED) == failed + 1
 
 
