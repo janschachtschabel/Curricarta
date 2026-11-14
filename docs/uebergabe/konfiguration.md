@@ -186,8 +186,13 @@ ein Test schlägt an, wenn sie veraltet.
   `DB_IDLE_IN_TRANSACTION_TIMEOUT_S=0` - und damit die rund 60 s, nach denen der Server einen toten Worker
   bemerkt und die Zeile seines Jobs freigibt. Wer die Frist dort abschaltet, setzt die Keepalives an der
   Rolle (`ALTER ROLE … SET tcp_keepalives_idle = 30` usw., wie unten für den Pooler). Die Kommandos
-  (Migration, Bootstrap, Vokabular, Lizenznachtrag) setzen nichts davon: Eine Migration wartet auf die
-  Sperre einer anderen, solange diese läuft.
+  (Migration, Bootstrap, Vokabular, Lizenznachtrag, die Messbefehle unter `app.quality` und
+  `app.pipeline.estimate`/`replay`) setzen nichts davon: Eine Migration wartet auf die Sperre einer
+  anderen, solange diese läuft. Nutzungsbericht, Nachspielen, Goldbericht und MEM-Bericht halten für
+  ihren ganzen Lauf eine Transaktion offen (ein Schnappschuss, nur lesend), auch während sie den
+  Objektspeicher lesen und, mit `--endpoint-counts`, den Endpunkt fragen. Eine an der Rolle gesetzte
+  `idle_in_transaction_session_timeout` (der Weg hinter einem Pooler, unten) begrenzt die Pause
+  zwischen zwei Anweisungen eines solchen Berichts: Dauert eine länger, bricht der Bericht ab.
   Gemessen wurde mit `backend/tools/measure_sessions.py` neben den Datenbanktests, auf deren synthetischen
   Daten, mit Platzhaltern für Sprachmodell und Konverter: längste Pause in einer Transaktion 2 s, längste
   Anweisung der API 2 s, beides Sperren, die ein Test absichtlich hält. Das sagt nichts über echte Last
