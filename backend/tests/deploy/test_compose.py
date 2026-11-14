@@ -123,6 +123,15 @@ def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
     assert all("DB_STATEMENT_TIMEOUT_S" not in SERVICES[name].get("environment", {}) for name in others)
 
 
+@pytest.mark.parametrize("name", ["api", "worker"])
+def test_the_answer_limit_is_set_for_api_and_worker_alike(name: str) -> None:
+    # the API offers a repair only where the workers would ask under the same limit: a value for one
+    # of them alone leaves the page offering none, or one that asks nothing
+    shared = COMPOSE["x-app"]["environment"]
+
+    assert SERVICES[name]["environment"].get("LLM_MAX_OUTPUT_TOKENS") == shared.get("LLM_MAX_OUTPUT_TOKENS")
+
+
 def test_the_database_counts_as_healthy_once_it_listens_on_tcp() -> None:
     # On the first start the entrypoint runs a server on its socket only, to make the database:
     # pg_isready over the socket says healthy then, and the migration finds port 5432 closed

@@ -94,6 +94,16 @@ def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
     assert "DB_STATEMENT_TIMEOUT_S" not in VALUES["worker"]["env"]
 
 
+@pytest.mark.parametrize("part", ["api", "worker"])
+def test_the_answer_limit_is_set_for_api_and_worker_alike(part: str) -> None:
+    # the API offers a repair only where the workers would ask under the same limit: a value for one
+    # of them alone leaves the page offering none, or one that asks nothing
+    shared = VALUES["env"]
+    effective = {**shared, **VALUES[part].get("env", {})}
+
+    assert effective.get("LLM_MAX_OUTPUT_TOKENS") == shared.get("LLM_MAX_OUTPUT_TOKENS")
+
+
 def test_the_database_and_the_object_store_can_be_the_operators() -> None:
     assert VALUES["postgresql"]["enabled"] is False
     assert VALUES["objectStorage"]["env"]["STORAGE_BACKEND"] == "s3"

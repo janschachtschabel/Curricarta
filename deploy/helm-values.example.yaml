@@ -19,6 +19,7 @@ env:                          # for every container of the service
   LOG_FORMAT: json
   LOG_LEVEL: INFO
   PUBLIC_ACCESS: "off"
+  # LLM_MAX_OUTPUT_TOKENS: "16000"   # for API and worker alike, here and never under one of them
 
 podSpec:
   enableServiceLinks: false   # a Service named "internal" would set INTERNAL_PORT=tcp://... in every pod
