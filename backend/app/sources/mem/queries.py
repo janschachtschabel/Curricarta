@@ -93,7 +93,7 @@ _TYPED = (
     '  FILTER(isLiteral(?v) && lang(?v) = "" && datatype(?v) != <http://www.w3.org/2001/XMLSchema#string>)\n'
 )
 # One branch a measure: the parts it holds for, bound as ?x
-_SHAPES = {
+LABEL_SHAPES = {
     "label_de": '?n rdfs:label ?l . FILTER(lang(?l) = "de")',
     "label_untagged": '?n rdfs:label ?l . FILTER(isLiteral(?l) && lang(?l) = "")',
     "label_other_language": '?n rdfs:label ?l . FILTER(lang(?l) != "" && lang(?l) != "de")',
@@ -111,7 +111,7 @@ def label_shape_count(sparql: MemSparql, graph: str, plan: str) -> str:
     measure, a measure no part holds for absent. Asked only on the operator's word, never by an import."""
     branches = "\n  UNION\n".join(
         f'  {{ {pattern}\n    BIND("{measure}" AS ?measure) BIND(?n AS ?x) }}'
-        for measure, pattern in _SHAPES.items()
+        for measure, pattern in LABEL_SHAPES.items()
     )
     return (
         f"{PREFIXES}SELECT ?measure (COUNT(DISTINCT ?x) AS ?count)\n{sparql.from_clauses(graph)}\n"

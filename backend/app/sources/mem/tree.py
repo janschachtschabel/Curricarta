@@ -191,6 +191,9 @@ def _split(joined: str) -> tuple[str, ...]:
 def _label(raw: str | None, iri: str) -> str:
     """On one line: the store writes a heading and its lead-in as two lines of one label; without a NUL or a
     lone surrogate, which the database cannot hold in text."""
-    return " ".join(UNSTORABLE.sub("", raw or "").split()) or UNSTORABLE.sub(
-        "", iri.rstrip("/").rsplit("/", 1)[-1]
-    )
+    return " ".join(UNSTORABLE.sub("", raw or "").split()) or iri_tail(iri)
+
+
+def iri_tail(iri: str) -> str:
+    """What a part of no label is titled by: its IRI's last segment."""
+    return UNSTORABLE.sub("", iri.rstrip("/").rsplit("/", 1)[-1])

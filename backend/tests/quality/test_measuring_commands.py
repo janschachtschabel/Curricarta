@@ -1,6 +1,6 @@
-"""What the three measuring commands share - the usage report, the replay, the gold report: each reads
-through one snapshot that refuses every write (app/db/snapshot.py), and each checks its output before it
-prints, refusing what is not a count, rate or code (app/quality/closed.py)."""
+"""What the measuring commands share - the usage report, the replay, the gold report, the MEM import's
+report: each reads through one snapshot that refuses every write (app/db/snapshot.py), and each checks its
+output before it prints, refusing what is not a count, rate or code (app/quality/closed.py)."""
 
 import argparse
 from collections.abc import AsyncIterator, Awaitable, Callable
@@ -15,7 +15,7 @@ import pytest
 from app.db.migrate import migrate
 from app.db.snapshot import snapshot
 from app.pipeline import replay
-from app.quality import report, usage_report
+from app.quality import mem_report, report, usage_report
 from tests.llm.test_client import llm_settings
 from tests.support import kept_logging, make_settings, without_settings_variables
 
@@ -29,13 +29,18 @@ def calls(module: Any, database_url: str, store: Path) -> Callable[[], Awaitable
         return lambda: replay._replayed(settings, llm_settings(), NOWHERE)
     if module is report:
         return lambda: report._report(settings, [999_999], True)
+    if module is mem_report:
+        found = argparse.Namespace(document=NOWHERE, label="pilot-1", endpoint_counts=False)
+        return lambda: mem_report._report(settings, found)
     arguments = argparse.Namespace(document=NOWHERE, label="pilot-1", raw=True)
     return lambda: usage_report._report(settings, 16_000, arguments)
 
 
 @pytest.mark.pg
 @pytest.mark.anyio
-@pytest.mark.parametrize("module", [replay, report, usage_report], ids=["replay", "report", "usage"])
+@pytest.mark.parametrize(
+    "module", [replay, report, usage_report, mem_report], ids=["replay", "report", "usage", "mem"]
+)
 async def test_each_command_reads_through_a_snapshot_that_refuses_writes(
     module: Any, database_url: str, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -62,8 +67,9 @@ async def test_each_command_reads_through_a_snapshot_that_refuses_writes(
         (replay, [str(NOWHERE)]),
         (usage_report, [str(NOWHERE), "--label", "pilot-1"]),
         (report, ["--sample", "1"]),
+        (mem_report, [str(NOWHERE), "--label", "pilot-1"]),
     ],
-    ids=["replay", "usage", "report"],
+    ids=["replay", "usage", "report", "mem"],
 )
 def test_an_output_that_is_not_closed_is_refused_not_printed(
     module: Any,
