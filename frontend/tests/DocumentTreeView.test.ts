@@ -1377,8 +1377,12 @@ describe("the ways between the row, its panel and the source", () => {
 
   it("leads from the panel back to the row chosen, the tree's keyboard model unchanged", async () => {
     const wrapper = await open({ zeile: "statement:s2" });
+    // the first reading put the keyboard on the row already: from the button, as a reader pressing it is
+    const button = jump(wrapper, "toRow");
+    (button?.element as HTMLElement).focus();
+    expect(document.activeElement).toBe(button?.element);
 
-    await jump(wrapper, "toRow")?.trigger("click");
+    await button?.trigger("click");
     await flushPromises();
 
     const row = wrapper.get("[data-key='statement:s2']");
