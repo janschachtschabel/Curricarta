@@ -25,7 +25,7 @@ from app.exports import mem_export
 from app.exports.kern_rdf import kern_graph
 from app.exports.mem_ttl import mem_graph
 from app.pipeline import x5_stage
-from app.pipeline.shacl import shacl_check
+from app.pipeline.shacl import ShaclCrashed, shacl_check
 from app.pipeline.shacl_child import ShaclResult, ShapeSet
 from tests.exports.test_mem_gate import imported, model
 from tests.exports.test_mem_roundtrip import KMK, SAXONY, Kind
@@ -158,6 +158,25 @@ async def test_the_stand_in_answers_as_the_child_does_on_a_plan_as_its_import_ha
     else:  # the profile warns of a Regelstandard outside the KMK's standards
         regelstandards = [found for found in in_process if found.shape == "SchulRegelstandardShape"]
         assert regelstandards and {found.severity for found in regelstandards} == {"warning"}
+
+
+async def test_a_validation_that_breaks_comes_back_as_the_child_s_does(
+    in_process_shacl: None, tmp_path: Path
+) -> None:
+    # the shapes are missing: both ways refuse the path, by the error's kind and in the same words
+    asked: dict[str, Any] = {"ontology_dir": tmp_path, "timeout_s": 120, "told": TOLD}
+    data = a_sound_document()
+
+    with pytest.raises(ShaclCrashed) as child:
+        await shacl_check(data, **asked)
+    with pytest.raises(ShaclCrashed) as in_process:
+        await called_by("kern")(data, **asked)
+
+    assert (
+        str(in_process.value)
+        == str(child.value)
+        == "the SHACL validation raised FileNotFoundError in its process"
+    )
 
 
 TESTS = Path(__file__).resolve().parents[1]

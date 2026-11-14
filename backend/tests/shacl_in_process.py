@@ -5,20 +5,29 @@ seconds per test.
 ``shacl_in_process`` has ``shacl_check``'s signature and result type. It runs the function the child runs
 (``validate_graph``) with the same options, on the graph as the child reads it (N-Triples written and read
 back), in a thread - as the product writes the child's file, so the loop keeps turning - within the same
-deadline. Only the reading of the model and the shapes is kept for the session (``parsed_once``).
-tests/pipeline/test_shacl_in_process.py holds that both ways give the same results; tests/pipeline/
-test_shacl.py tests the check and its child.
+deadline. A validation that raises comes back as the child's does, through the check's own reading of a
+child's answer: ShaclCrashed, naming the error's kind. Only the reading of the model and the shapes is
+kept for the session (``parsed_once``). tests/pipeline/test_shacl_in_process.py holds that both ways give
+the same results; tests/pipeline/test_shacl.py tests the check and its child.
+
+Not covered, as no switched test relies on it: past its deadline the thread is not killed as the child
+is - it runs on, holding the lock and rdflib's swapped query method, until its validation ends; and the
+child's logging set-up is not made - pyshacl puts a handler of its own on its logger in the test's
+process, as test_shacl.py's in-process validations did before.
 """
 
 import asyncio
 import functools
+import json
+import shutil
+import tempfile
 import threading
 from pathlib import Path
 
 from rdflib import Graph
 
-from app.core.child import ChildLog
-from app.pipeline import shacl_child
+from app.core.child import ChildLog, write
+from app.pipeline import shacl, shacl_child
 from app.pipeline.shacl import ShaclTimeout
 from app.pipeline.shacl_child import ShaclResult, ShapeSet, validate_graph
 
@@ -44,7 +53,20 @@ def parsed_once(paths: list[Path]) -> Graph:
 def _validated(graph: Graph, ontology_dir: Path, shapes: ShapeSet) -> list[ShaclResult]:
     data = Graph().parse(data=graph.serialize(format="nt", encoding="utf-8"), format="nt")
     with _ONE_AT_A_TIME:
-        return validate_graph(ontology_dir, data, shapes)
+        try:
+            return validate_graph(ontology_dir, data, shapes)
+        except Exception as error:
+            return _as_the_child_answers(error)
+
+
+def _as_the_child_answers(error: Exception) -> list[ShaclResult]:
+    """The error as the child leaves it (shacl_child.run_child), read as the check reads a child's answer."""
+    out = Path(tempfile.mkdtemp(prefix="shacl-in-process-"))
+    try:
+        write(out / "crashed.json", json.dumps({"error": type(error).__name__}))
+        return shacl._outcome(1, out)
+    finally:
+        shutil.rmtree(out, ignore_errors=True)
 
 
 async def shacl_in_process(
