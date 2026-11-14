@@ -3,7 +3,8 @@ two conversions done at once each sum what the other booked, and one that would 
 (PagesSpent) with nothing written - not the conversion done, no block, no page."""
 
 import asyncio
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Sequence
+from typing import Any
 from uuid import UUID
 
 import psycopg
@@ -12,7 +13,8 @@ import pytest
 from app.conversion.base import Conversion
 from app.core.ids import new_id
 from app.db.accounts import create_account
-from app.db.conversions import PagesSpent, lock_conversion, record_conversion, start_conversion
+from app.db.conversion_pages import PagesSpent
+from app.db.conversions import lock_conversion, record_conversion, start_conversion
 from app.db.migrate import migrate
 from app.jobs.queue import enqueue
 from tests.db.test_conversions import a_file, converted
@@ -122,7 +124,7 @@ async def test_of_two_conversions_booked_at_once_past_the_pages_left_one_is_refu
 
 
 async def until_waiting_or_done(
-    look: psycopg.AsyncConnection, pids: list[int], tasks: list[asyncio.Task[bool | str]]
+    look: psycopg.AsyncConnection, pids: list[int], tasks: Sequence[asyncio.Task[Any]]
 ) -> None:
     """Until each backend ``pids`` waits on a lock or its task is done; AssertionError after 10 s."""
     for _ in range(200):
@@ -167,3 +169,54 @@ async def test_a_limit_of_none_books_any_number(connection: psycopg.AsyncConnect
     assert await record_conversion(connection, conversion_id, job_id, of_pages(5000), "", billable=True)
 
     assert await booked(connection, account) == 5000
+
+
+async def test_the_pages_left_to_the_last_one_are_booked_and_no_page_more(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    account = await an_account(connection, page_limit=10)
+    last, last_job = await started(connection, account)
+    more, more_job = await started(connection, account)
+
+    assert await record_conversion(connection, last, last_job, of_pages(10), "", billable=True)
+    with pytest.raises(PagesSpent):
+        await record_conversion(connection, more, more_job, of_pages(1), "", billable=True)
+
+    assert await booked(connection, account) == 10
+
+
+async def test_the_pages_are_held_to_the_quota_under_read_committed_alone(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    # under repeatable read the sum after the lock would be the snapshot's, blind to a booking just committed
+    account = await an_account(connection, page_limit=10)
+    conversion_id, job_id = await started(connection, account)
+    await connection.set_isolation_level(psycopg.IsolationLevel.REPEATABLE_READ)
+
+    with pytest.raises(psycopg.errors.InvalidTransactionState):
+        await record_conversion(connection, conversion_id, job_id, of_pages(1), "", billable=True)
+
+    await connection.set_isolation_level(None)
+    assert await written(connection, conversion_id) == ("pending", 0, 0)
+
+
+async def test_the_quota_row_is_not_held_while_the_blocks_are_written(
+    database_url: str, connection: psycopg.AsyncConnection
+) -> None:
+    # the account's model requests take the same row (ledger.reserve): a large conversion's blocks must not
+    # keep them waiting
+    account = await an_account(connection, page_limit=10)
+    conversion_id, job_id = await started(connection, account)
+
+    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as booking:
+        with lock_held(database_url, "LOCK TABLE document_block IN SHARE MODE", at_most_s=15):
+            writing = asyncio.create_task(
+                record_conversion(booking, conversion_id, job_id, of_pages(2), "", billable=True)
+            )
+            await until_waiting_or_done(connection, [booking.info.backend_pid], [writing])
+            async with connection.transaction():
+                cursor = await connection.execute("SELECT 1 FROM quota FOR UPDATE NOWAIT")
+                free = await cursor.fetchone()
+        assert await writing
+
+    assert free == (1,)

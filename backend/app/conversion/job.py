@@ -45,7 +45,8 @@ from app.conversion.runners import (
 from app.core.logging import current_request_id
 from app.core.metrics import observe_conversion
 from app.core.storage import ObjectNotFound
-from app.db.conversions import FailureCode, PagesSpent, conversion_target, record_conversion, record_failure
+from app.db.conversion_pages import PagesSpent
+from app.db.conversions import FailureCode, conversion_target, record_conversion, record_failure
 from app.jobs.context import JobContext
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, report_progress
