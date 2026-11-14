@@ -19,7 +19,7 @@ from app.jobs.outcome import PermanentError
 from app.llm.budget import count_tokens
 from app.llm.calls import StageAgent
 from app.llm.metering import FULL, Spent, Weights
-from app.pipeline import reckoned
+from app.pipeline import reckoned, run
 from app.pipeline.ground import ground_of
 from app.pipeline.prefix import Prefix
 from app.pipeline.reckoned import (
@@ -33,8 +33,9 @@ from app.pipeline.reckoned import (
 )
 from app.pipeline.run import extract_document
 from app.pipeline.side_by_side import at_once
+from tests.llm.test_client import llm_settings
 from tests.pipeline.test_estimate import Reserved, reserved
-from tests.pipeline.test_run import Model, a_document, a_job, context_of, setup
+from tests.pipeline.test_run import BODY, Model, a_document, a_job, block, context_of, setup
 from tests.pipeline.test_x4_cut import cutting
 from tests.pipeline.test_x4_statements import FIELDS
 from tests.support import make_settings
@@ -306,3 +307,39 @@ async def test_a_unit_held_back_after_a_cut_is_not_reckoned(
     assert ended.value.code == "answer_cut"
     assert owed == ([], 0)
     assert reserved == []  # the next job asked nothing either
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_a_document_read_in_windows_counts_each_unit_s_request_by_its_window(
+    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # two long sections: under a small context the whole no longer fits, each unit reads a window of
+    # its own - each a prefix whose cache its first requests miss
+    pool, connection = setup
+    long = " ".join([BODY] * 55)
+    blocks = [*FIELDS[:3], block("p2-b3", long), *FIELDS[4:7], block("p3-b4", long)]
+    document = await a_document(connection, blocks=blocks)
+    context = context_of(pool, tmp_path, Model(), database_url)
+
+    async def stopped(*_: Any) -> Any:
+        raise RuntimeError("the worker stopped before X3")
+
+    with monkeypatch.context() as patched:
+        patched.setattr(run, "run_x3", stopped)
+        with pytest.raises(RuntimeError):
+            await extract_document(context, await a_job(connection, document.id, document.owner_id))
+    current = await document_for_job(connection, document.id)
+    assert current is not None and context.model is not None
+    blocks_now = await all_blocks(connection, current.conversion_id)
+    printed = await printed_pages(connection, current.conversion_id)
+    ground = await ground_of(connection, current)
+    small = llm_settings(llm_context_tokens=21_000, llm_max_output_tokens=1_000)
+
+    requests, units = await owed_requests(
+        connection, small, current, blocks_now, printed, ground, context.model(), ONTOLOGY
+    )
+
+    windows = [request.window for request in requests if request.purpose == "x4.unit"]
+    assert units == len(windows) == 3
+    assert len(set(windows)) == 3 and "whole" not in windows
