@@ -55,7 +55,9 @@ uv sync --frozen
 der Gruppe `convert` (Docling für das Konverter-Image),
 `uv export --frozen --no-dev --group convert --format requirements-txt -o ../deploy/requirements-convert.txt`
 (Tests vergleichen sie mit dem Lock). torch und torchvision kommen ohne CUDA vom CPU-Index von
-PyTorch (`tool.uv.index` `pytorch-cpu`).
+PyTorch (`tool.uv.index` `pytorch-cpu`). Der Workflow `.github/workflows/audit.yml` prüft beide Exporte
+und `frontend/package-lock.json` wöchentlich, von Hand und in jedem Pull Request, der einen Lock ändert, auf
+bekannte Sicherheitslücken (Ausnahmen mit Begründung und Prüfdatum in `deploy/audit-allowlist.toml`).
 
 Datenbank-Tests (Marker `pg`) brauchen einen PostgreSQL-Server nur für Tests, etwa diesen
 Container (Daten nur im Arbeitsspeicher, Port nur lokal):

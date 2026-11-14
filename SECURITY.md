@@ -17,3 +17,5 @@ gains. You will get an answer as soon as the report has been read; there is no b
   Reports about reaching non-public addresses through it (SSRF) are in scope.
 - Uploaded and fetched documents are untrusted input to the converter (PDF, DOCX, HTML, archives).
 - Credentials are never part of this repository; `deploy/make-secrets.py` creates local ones.
+- The locked Python and npm dependencies are audited for known advisories weekly and on every pull request
+  that changes a lock (`.github/workflows/audit.yml`).

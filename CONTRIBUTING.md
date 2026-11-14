@@ -14,6 +14,23 @@ welcome. For larger changes, open an issue first so the direction can be agreed 
   `vitest run`.
 - The interface keeps to WCAG 2.2 AA: keyboard operation, visible focus, loading, empty and error states.
 
+## Dependencies
+
+- Lifting a backend package: change `backend/pyproject.toml` if its bound moves, run `uv lock` in
+  `backend/`, then write both exports again with the two `uv export` commands of the README (they stand in
+  the head of `deploy/requirements-api.txt` and `deploy/requirements-convert.txt`). The tests in
+  `backend/tests/deploy/` (above all `test_requirements_export.py`) keep the exports equal to the lock.
+  Frontend: change `frontend/package.json` and its lock, then `npm test`, `npm run lint`, `npm run build`.
+- `.github/workflows/audit.yml` audits both exports with `pip-audit` (OSV) and the npm lock with
+  `npm audit` (what ships from moderate on, the development tools from high on): weekly, by hand, and in
+  every pull request that changes a lock, an export or the allowlist.
+- An advisory that does not apply or cannot be lifted yet goes into `deploy/audit-allowlist.toml` with its
+  id, package, reason, the date it was added and a review date at most 90 days later; its id is passed to
+  `pip-audit` as `--ignore-vuln` in the workflow (a test keeps the two equal). Once the review date has
+  passed, a test fails: lift the package, or give a new reason and a new date.
+- Dependabot opens security pull requests for the backend only. They change `uv.lock` alone and stay red
+  on the export guard: check out the branch, run the two `uv export` commands, and push the exports to it.
+
 ## Data
 
 - No curriculum texts of third parties and no data fetched from MEM-Schule in the repository, an image
