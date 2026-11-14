@@ -656,10 +656,12 @@ export const messages = {
         "Eine Antwort des Sprachmodells war länger, als eine Antwort sein darf, und wurde abgeschnitten; " +
         "dieser Teil bleibt offen. Die Administration kann die Längengrenze für Antworten anheben.",
       model_not_configured: "Für das Sprachmodell ist kein Zugang eingerichtet. Melde das bitte der Administration.",
-      // the provider refused a request for good: a 4xx but 408 and 429 (backend app/pipeline/side_by_side.py)
+      // the provider refused a request for good: a 4xx but 408 and 429, or a 429 saying the credit at the
+      // provider is spent (backend app/pipeline/side_by_side.py)
       model_refused:
-        "Der Anbieter des Sprachmodells hat die Anfrage abgelehnt (Schlüssel, Modellname oder Anfrage). Das kann " +
-        "nur die Administration beheben; ein neuer Start hilft nicht.",
+        "Der Anbieter des Sprachmodells hat die Anfrage abgelehnt (Schlüssel, Modellname, Anfrage oder " +
+        "aufgebrauchtes Guthaben beim Anbieter). Das kann nur die Administration beheben; ein neuer Start " +
+        "hilft nicht.",
       // not even one section beside the title pages and the frame fits the model's context
       prefix_too_long:
         "Ein Abschnitt des Dokuments ist zu lang, als dass das Sprachmodell ihn zusammen mit Titelei und " +
@@ -1245,10 +1247,11 @@ export const messages = {
         target_elsewhere: "Ein Verweis auf Inhalt an einem anderen Knoten oder an keinem.",
         // a stage's own
         unanswered: "Das Sprachmodell gab keine Antwort in der verlangten Form.",
-        // X4's (a unit not yet read) and X6's (a package read before): the part stays as it was
+        // X4's (a unit not yet read) and X6's (a package read before): the part stays as it is, and is
+        // asked again - also offered for repair - only once the operator has raised the limit
         answer_cut:
           "Die Antwort des Sprachmodells wurde an der Längengrenze abgeschnitten und nicht übernommen; " +
-          "dieser Teil bleibt, wie er war.",
+          "dieser Teil bleibt, wie er ist. Die Administration kann die Grenze für Antworten anheben.",
         empty_answer: "Die Antwort enthielt keine neue lesbare Aussage, obwohl das Paket welche hat; es bleibt, wie es war.",
         pattern_timeout: "Ein Suchmuster des Lexikons brauchte zu lange und wurde übergangen.",
       },
