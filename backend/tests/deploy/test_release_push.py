@@ -19,6 +19,12 @@ def test_the_only_secret_it_reads_is_the_run_s_own_token() -> None:
     # (not the name of deploy/make-secrets.py)
     assert set(re.findall(r"(?<![\w/-])secrets\.(\w+)", text)) == {"GITHUB_TOKEN"}
     assert "github.token" not in text
+    # once per job that pushes, for its login, and never handed to an action
+    pushing = [job for job in _jobs().values() if job.get("permissions", {}).get("packages") == "write"]
+    assert len(re.findall(r"(?<![\w/-])secrets\.", text)) == len(pushing)
+    assert not any(
+        "secrets." in str(step.get("with", "")) for job in _jobs().values() for step in job["steps"]
+    )
     # to GitHub's registry, on stdin: never on the command line, where the process list and the log show it
     assert re.findall(r"[^\n]*docker login[^\n]*", text) == [f"          {LOGIN}"] * 2
     assert not any("docker login" in run for run in _runs("start"))
