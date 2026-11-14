@@ -120,6 +120,28 @@ describe("the decision on a research cue", () => {
     expect(sent).not.toHaveBeenCalled();
   });
 
+  // one problem a press took two presses more for a form of three (UI review m6)
+  it("says every missing field at one press, the keyboard at the first", async () => {
+    const wrapper = form();
+    await control(wrapper, t("lexicon.cueForm.confirmed")).setValue(true);
+
+    await press(wrapper);
+
+    expect(errorAt(wrapper, control(wrapper, t("lexicon.cueForm.strength")))).toContain(t("lexicon.cueForm.chooseStrength"));
+    const evidence = control(wrapper, t("lexicon.cueForm.evidence"));
+    expect(evidence.attributes("aria-invalid")).toBe("true");
+    expect(wrapper.get(`#${evidence.attributes("id")}-error`).text()).toContain(t("lexicon.cueForm.evidenceMissing"));
+  });
+
+  it("marks its required fields as required", async () => {
+    const wrapper = form();
+    await control(wrapper, t("lexicon.cueForm.confirmed")).setValue(true);
+
+    expect(control(wrapper, t("lexicon.cueForm.strength")).attributes("aria-required")).toBe("true");
+    expect(control(wrapper, t("lexicon.cueForm.evidence")).attributes("aria-required")).toBe("true");
+    expect(control(wrapper, t("lexicon.form.note")).attributes("aria-required")).toBeUndefined();
+  });
+
   it("says the problem where the keyboard stays, Enter pressed in another field", async () => {
     const wrapper = form();
     await control(wrapper, t("lexicon.cueForm.confirmed")).setValue(true);

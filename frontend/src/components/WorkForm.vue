@@ -9,13 +9,13 @@
  * section says it, and nothing more is sent meanwhile; the server's problem with a field stands at that field; a document named or frozen meanwhile is
  * said and read again (`changed`), another refusal said.
  */
-import { nextTick, onMounted, ref, useId } from "vue";
+import { onMounted, ref, useId } from "vue";
 
 import { listDocuments, type CurriculumDocument, type DocumentWork } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { knownWorks, saveWork, shortTitleOk, workWords } from "@/documentMeta";
-import { focusIsFree } from "@/focusRescue";
+import { useFieldFaults, type Fault } from "@/fieldFaults";
 import { messages, t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import type { Notice } from "@/notice";
@@ -38,8 +38,7 @@ const fresh = ref({ title: "", region: "", short_title: "" });
 const busy = ref(false);
 const status = ref("");
 const submit = ref<HTMLElement | null>(null);
-// a field's problem, said at the field; or one of the whole form, above the button
-const fieldError = ref<{ field: Field; text: string } | null>(null);
+// one of the whole form, above the button; a field's problem stands at the field (faults below)
 const failure = ref<Notice | null>(null);
 
 function regionWord(code: string): string {
@@ -48,7 +47,7 @@ function regionWord(code: string): string {
 
 /** The field's hint where it has one, and its error where it has one. */
 function describedBy(field: Field, hint = false): string | undefined {
-  const ids = [hint ? `${id}-${field}-hint` : "", fieldError.value?.field === field ? `${id}-${field}-error` : ""];
+  const ids = [hint ? `${id}-${field}-hint` : "", faults.value[field] ? `${id}-${field}-error` : ""];
   return ids.filter(Boolean).join(" ") || undefined;
 }
 
@@ -60,32 +59,35 @@ const LABELS: Readonly<Record<Field, () => string>> = {
   short_title: () => t("documents.page.edition.workShortTitle"),
 };
 
-// A field's problem at the field. The keyboard goes there from the button or from nothing - the field reads the
-// problem with its name -; resting elsewhere, or on the field already, it stays and the problem is said
-async function faultAt(field: Field, text: string): Promise<void> {
+// Every field's problem at its field (fieldFaults.ts); where the keyboard stays elsewhere, the first is said
+const { faults, faultsAt, clear } = useFieldFaults<Field>({
+  control: (field) => `${id}-${field}`,
+  submit,
+  say: (field, problem) => {
+    status.value = sayAnew(status.value, t("documents.page.edition.fieldProblem", { field: LABELS[field](), problem }));
+  },
+});
+
+async function faultAt(...found: Fault<Field>[]): Promise<void> {
   failure.value = null;
-  fieldError.value = { field, text };
-  await nextTick();
-  if (document.activeElement === submit.value || focusIsFree()) {
-    document.getElementById(`${id}-${field}`)?.focus();
-    return;
-  }
-  status.value = sayAnew(status.value, t("documents.page.edition.fieldProblem", { field: LABELS[field](), problem: text }));
+  await faultsAt(found);
 }
 
-/** What is missing or wrong before anything is sent; null where the form may go. */
-function unready(): [Field, string] | null {
-  if (mode.value === "existing") return chosen.value ? null : ["work_id", t("documents.page.edition.workChoose")];
-  if (!fresh.value.title.trim()) return ["title", t("documents.tree.problems.required")];
-  if (!fresh.value.region) return ["region", t("documents.page.edition.workRegionChoose")];
-  return shortTitleOk(fresh.value.short_title) ? null : ["short_title", t("documents.page.edition.workShortTitleBad")];
+/** What is missing or wrong before anything is sent, every field of it; none where the form may go. */
+function unready(): Fault<Field>[] {
+  if (mode.value === "existing") return chosen.value ? [] : [["work_id", t("documents.page.edition.workChoose")]];
+  const found: Fault<Field>[] = [];
+  if (!fresh.value.title.trim()) found.push(["title", t("documents.tree.problems.required")]);
+  if (!fresh.value.region) found.push(["region", t("documents.page.edition.workRegionChoose")]);
+  if (!shortTitleOk(fresh.value.short_title)) found.push(["short_title", t("documents.page.edition.workShortTitleBad")]);
+  return found;
 }
 
 async function onSubmit(): Promise<void> {
   if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
   const missing = unready();
-  if (missing) return faultAt(...missing);
-  fieldError.value = null;
+  if (missing.length) return faultAt(...missing);
+  clear();
   failure.value = null;
   busy.value = true;
   const work =
@@ -100,7 +102,7 @@ async function onSubmit(): Promise<void> {
   busy.value = false;
   if (done.outcome === "invalid") {
     const field = (["title", "region", "short_title"] as const).find((one) => one === done.field);
-    if (field) await faultAt(field, done.problem);
+    if (field) await faultAt([field, done.problem]);
     else failure.value = { text: done.problem, failed: true };
   } else if (done.outcome === "failed") {
     failure.value = done.problem;
@@ -139,15 +141,16 @@ onMounted(async () => {
         <label :for="`${id}-work_id`">{{ t("documents.page.edition.workChosen") }}</label>
         <select
           :id="`${id}-work_id`"
+          aria-required="true"
           v-model="chosen"
-          :aria-invalid="fieldError?.field === 'work_id' || undefined"
+          :aria-invalid="Boolean(faults.work_id) || undefined"
           :aria-describedby="describedBy('work_id')"
         >
           <option value="">{{ t("documents.page.edition.workChoosePlaceholder") }}</option>
           <option v-for="work in works" :key="work.id" :value="work.id">{{ workWords(work) }}</option>
         </select>
-        <p v-if="fieldError?.field === 'work_id'" :id="`${id}-work_id-error`" class="field__error">
-          <AppIcon name="warning" /> {{ fieldError.text }}
+        <p v-if="faults.work_id" :id="`${id}-work_id-error`" class="field__error">
+          <AppIcon name="warning" /> {{ faults.work_id }}
         </p>
       </div>
       <template v-else>
@@ -155,46 +158,49 @@ onMounted(async () => {
           <label :for="`${id}-title`">{{ t("documents.page.edition.workTitle") }}</label>
           <input
             :id="`${id}-title`"
+            aria-required="true"
             v-model="fresh.title"
             type="text"
             maxlength="1000"
             autocomplete="off"
-            :aria-invalid="fieldError?.field === 'title' || undefined"
+            :aria-invalid="Boolean(faults.title) || undefined"
             :aria-describedby="describedBy('title')"
           />
-          <p v-if="fieldError?.field === 'title'" :id="`${id}-title-error`" class="field__error">
-            <AppIcon name="warning" /> {{ fieldError.text }}
+          <p v-if="faults.title" :id="`${id}-title-error`" class="field__error">
+            <AppIcon name="warning" /> {{ faults.title }}
           </p>
         </div>
         <div class="field">
           <label :for="`${id}-region`">{{ t("documents.page.edition.workRegion") }}</label>
           <select
             :id="`${id}-region`"
+            aria-required="true"
             v-model="fresh.region"
-            :aria-invalid="fieldError?.field === 'region' || undefined"
+            :aria-invalid="Boolean(faults.region) || undefined"
             :aria-describedby="describedBy('region')"
           >
             <option value="">{{ t("documents.page.edition.workRegionPlaceholder") }}</option>
             <option v-for="code in REGIONS" :key="code" :value="code">{{ regionWord(code) }}</option>
           </select>
-          <p v-if="fieldError?.field === 'region'" :id="`${id}-region-error`" class="field__error">
-            <AppIcon name="warning" /> {{ fieldError.text }}
+          <p v-if="faults.region" :id="`${id}-region-error`" class="field__error">
+            <AppIcon name="warning" /> {{ faults.region }}
           </p>
         </div>
         <div class="field">
           <label :for="`${id}-short_title`">{{ t("documents.page.edition.workShortTitle") }}</label>
           <input
             :id="`${id}-short_title`"
+            aria-required="true"
             v-model="fresh.short_title"
             type="text"
             maxlength="200"
             autocomplete="off"
             spellcheck="false"
-            :aria-invalid="fieldError?.field === 'short_title' || undefined"
+            :aria-invalid="Boolean(faults.short_title) || undefined"
             :aria-describedby="describedBy('short_title', true)"
           />
-          <p v-if="fieldError?.field === 'short_title'" :id="`${id}-short_title-error`" class="field__error">
-            <AppIcon name="warning" /> {{ fieldError.text }}
+          <p v-if="faults.short_title" :id="`${id}-short_title-error`" class="field__error">
+            <AppIcon name="warning" /> {{ faults.short_title }}
           </p>
           <p :id="`${id}-short_title-hint`" class="field__hint">{{ t("documents.page.edition.workShortTitleHint") }}</p>
         </div>

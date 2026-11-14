@@ -72,6 +72,7 @@ defineExpose({ focus });
     <select
       v-if="field.kind === 'concept'"
       :id="id"
+      :aria-required="field.required || undefined"
       ref="control"
       v-model="model"
       :aria-invalid="error ? true : undefined"
@@ -86,6 +87,7 @@ defineExpose({ focus });
     <textarea
       v-else-if="field.kind === 'longtext'"
       :id="id"
+      :aria-required="field.required || undefined"
       ref="control"
       v-model="model"
       rows="4"
@@ -96,6 +98,7 @@ defineExpose({ focus });
     <input
       v-else
       :id="id"
+      :aria-required="field.required || undefined"
       ref="control"
       v-model="model"
       type="text"

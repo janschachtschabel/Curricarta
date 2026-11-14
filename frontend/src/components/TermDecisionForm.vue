@@ -8,7 +8,7 @@
  * the decision before, names what is missing at its field, tells the item a decision made (`decided`), offers to
  * read the list again where the term is gone (`reload`), and says whether anything was changed (`dirty`).
  */
-import { computed, nextTick, onMounted, ref, useId, watch } from "vue";
+import { computed, onMounted, ref, useId, watch } from "vue";
 
 import {
   ApiError,
@@ -21,7 +21,7 @@ import {
 } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
-import { focusIsFree } from "@/focusRescue";
+import { useFieldFaults, type Fault } from "@/fieldFaults";
 import { t } from "@/i18n/de";
 import { grouped, type Targets } from "@/lexiconTargets";
 import { skipReason, tooShort } from "@/lexiconWords";
@@ -104,7 +104,6 @@ const first = short ? "document" : "cue";
 
 const busy = ref(false);
 const submit = ref<HTMLElement | null>(null);
-const fieldError = ref<{ field: Field; text: string } | null>(null);
 const gone = ref(false);
 
 const LABELS: Readonly<Record<Field, () => string>> = {
@@ -112,6 +111,14 @@ const LABELS: Readonly<Record<Field, () => string>> = {
   target: () => t("lexicon.termForm.target"),
   role: () => t("lexicon.termForm.role"),
 };
+// Every field's problem at its field (fieldFaults.ts); where the keyboard stays elsewhere, the first is said
+const { faults, faultsAt, clear } = useFieldFaults<Field>({
+  control: (field) => `${id}-${field}`,
+  submit,
+  say: (field, problem) => {
+    status.value = sayAnew(status.value, t("lexicon.form.fieldProblem", { field: LABELS[field](), problem }));
+  },
+});
 
 // said as it appears - hung on the node type's field alone, it would be heard only there -, and taken back
 // with its reason
@@ -131,40 +138,35 @@ onMounted(wantTypes);
 
 /** The field's hints and its error where it has them. */
 function describedBy(field: Field, ...hints: string[]): string | undefined {
-  const ids = [...hints, fieldError.value?.field === field ? `${id}-${field}-error` : ""];
+  const ids = [...hints, faults.value[field] ? `${id}-${field}-error` : ""];
   return ids.filter(Boolean).join(" ") || undefined;
 }
 
-async function faultAt(field: Field, text: string): Promise<void> {
-  failure.value = null;
-  fieldError.value = { field, text };
-  await nextTick();
-  if (document.activeElement === submit.value || focusIsFree()) {
-    document.getElementById(`${id}-${field}`)?.focus();
-    return;
-  }
-  status.value = sayAnew(status.value, t("lexicon.form.fieldProblem", { field: LABELS[field](), problem: text }));
-}
-
-function unready(): [Field, string] | null {
-  if (!entered.value.decision) return ["decision", t("lexicon.termForm.chooseDecision")];
-  if (!cue.value) return null;
-  if (!entered.value.target) return ["target", t("lexicon.termForm.chooseTarget")];
-  return entered.value.role ? null : ["role", t("lexicon.termForm.chooseRole")];
+/** What is missing before anything is sent, every field of it; none where the form may go. */
+function unready(): Fault<Field>[] {
+  if (!entered.value.decision) return [["decision", t("lexicon.termForm.chooseDecision")]];
+  if (!cue.value) return [];
+  const found: Fault<Field>[] = [];
+  if (!entered.value.target) found.push(["target", t("lexicon.termForm.chooseTarget")]);
+  if (!entered.value.role) found.push(["role", t("lexicon.termForm.chooseRole")]);
+  return found;
 }
 
 async function onSubmit(): Promise<void> {
   if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
   if (cue.value && types.value === null) {
-    fieldError.value = null;
+    clear();
     typesMissing.value = true;
     const text = t(typesLoading.value ? "lexicon.termForm.targetsPending" : "lexicon.termForm.targetsMissing");
     failure.value = { text, failed: true };
     return;
   }
   const missing = unready();
-  if (missing) return faultAt(...missing);
-  fieldError.value = null;
+  if (missing.length) {
+    failure.value = null;
+    return faultsAt(missing);
+  }
+  clear();
   failure.value = null;
   gone.value = false;
   busy.value = true;
@@ -203,15 +205,15 @@ async function onSubmit(): Promise<void> {
           :name="`${id}-decision`"
           :value="choice"
           :disabled="choice === 'cue' && short"
-          :aria-invalid="fieldError?.field === 'decision' || undefined"
+          :aria-invalid="Boolean(faults.decision) || undefined"
           :aria-describedby="describedBy('decision', choice === 'cue' && short ? `${id}-short` : '')"
         />
         {{ t(`lexicon.termForm.${choice}`) }}
       </label>
     </fieldset>
     <p v-if="short" :id="`${id}-short`" class="field__hint">{{ t("refusals.too_short") }}</p>
-    <p v-if="fieldError?.field === 'decision'" :id="`${id}-decision-error`" class="field__error">
-      <AppIcon name="warning" /> {{ fieldError.text }}
+    <p v-if="faults.decision" :id="`${id}-decision-error`" class="field__error">
+      <AppIcon name="warning" /> {{ faults.decision }}
     </p>
     <template v-if="cue">
       <div v-if="typesFailed" class="field__error" data-test="targets-failed">
@@ -234,9 +236,10 @@ async function onSubmit(): Promise<void> {
           <label :for="`${id}-target`">{{ t("lexicon.termForm.target") }}</label>
           <select
             :id="`${id}-target`"
+            aria-required="true"
             ref="targetSelect"
             v-model="entered.target"
-            :aria-invalid="fieldError?.field === 'target' || undefined"
+            :aria-invalid="Boolean(faults.target) || undefined"
             :aria-describedby="describedBy('target', skipped ? `${id}-skipped` : '')"
           >
             <option value="">{{ t("lexicon.termForm.targetChoose") }}</option>
@@ -247,8 +250,8 @@ async function onSubmit(): Promise<void> {
               <option v-for="type in offered.others" :key="type.iri" :value="type.iri">{{ type.label }}</option>
             </optgroup>
           </select>
-          <p v-if="fieldError?.field === 'target'" :id="`${id}-target-error`" class="field__error">
-            <AppIcon name="warning" /> {{ fieldError.text }}
+          <p v-if="faults.target" :id="`${id}-target-error`" class="field__error">
+            <AppIcon name="warning" /> {{ faults.target }}
           </p>
           <p v-if="skipped" :id="`${id}-skipped`" class="field__hint" data-test="skipped">
             <AppIcon name="warning" /> {{ t(`lexicon.termForm.skipped.${skipped}`) }}
@@ -258,15 +261,16 @@ async function onSubmit(): Promise<void> {
           <label :for="`${id}-role`">{{ t("lexicon.termForm.role") }}</label>
           <select
             :id="`${id}-role`"
+            aria-required="true"
             v-model="entered.role"
-            :aria-invalid="fieldError?.field === 'role' || undefined"
+            :aria-invalid="Boolean(faults.role) || undefined"
             :aria-describedby="describedBy('role', `${id}-role-hint`)"
           >
             <option value="">{{ t("lexicon.termForm.roleChoose") }}</option>
             <option v-for="role in ROLES" :key="role" :value="role">{{ t(`lexicon.termForm.roles.${role}`) }}</option>
           </select>
-          <p v-if="fieldError?.field === 'role'" :id="`${id}-role-error`" class="field__error">
-            <AppIcon name="warning" /> {{ fieldError.text }}
+          <p v-if="faults.role" :id="`${id}-role-error`" class="field__error">
+            <AppIcon name="warning" /> {{ faults.role }}
           </p>
           <p :id="`${id}-role-hint`" class="field__hint">{{ t("lexicon.termForm.roleHint") }}</p>
         </div>

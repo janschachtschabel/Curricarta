@@ -117,6 +117,7 @@ async function onSubmit(): Promise<void> {
       <label for="upload-file">{{ t("sources.upload.fileLabel") }}</label>
       <input
         id="upload-file"
+        aria-required="true"
         ref="fileInput"
         type="file"
         :accept="ACCEPT"

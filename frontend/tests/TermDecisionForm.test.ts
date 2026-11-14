@@ -130,6 +130,21 @@ describe("the decision on a new term", () => {
     expect(await violations(wrapper.html())).toEqual([]);
   });
 
+  // one problem a press took a press more for each further one (UI review m6)
+  it("says a missing node type and role at one press, the keyboard at the first", async () => {
+    const wrapper = form();
+    await control(wrapper, t("lexicon.termForm.cue")).setValue(true);
+    await flushPromises();
+
+    await press(wrapper);
+
+    expect(errorAt(wrapper, control(wrapper, t("lexicon.termForm.target")))).toContain(t("lexicon.termForm.chooseTarget"));
+    const role = control(wrapper, t("lexicon.termForm.role"));
+    expect(role.attributes("aria-invalid")).toBe("true");
+    expect(wrapper.get(`#${role.attributes("id")}-error`).text()).toContain(t("lexicon.termForm.chooseRole"));
+    expect(role.attributes("aria-required")).toBe("true");
+  });
+
   it("makes the term a new cue to its node type with its role", async () => {
     const made = termDecision({ maps_to: FIELD.iri });
     const sent = vi.spyOn(api, "decideTerm").mockResolvedValue(made);

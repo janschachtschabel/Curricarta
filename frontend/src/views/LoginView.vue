@@ -70,6 +70,7 @@ async function onSubmit(): Promise<void> {
                the token to the next person; pasting it stays possible (WCAG 3.3.8) -->
           <input
             id="token"
+            aria-required="true"
             v-model="token"
             type="password"
             autocomplete="off"

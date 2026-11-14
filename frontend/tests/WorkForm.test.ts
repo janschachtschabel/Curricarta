@@ -151,6 +151,24 @@ describe("the form of a document's work", () => {
     expect(wrapper.get("button[type=submit]").attributes("aria-disabled")).toBe("true");
   });
 
+  // "Werk setzen" with three empty fields named one of them (UI review m6)
+  it("says every missing field of a new work at one press, the keyboard at the first", async () => {
+    const wrapper = await form();
+    await control(wrapper, t("documents.page.edition.workNew")).setValue(true);
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+
+    await save(wrapper);
+
+    expect(errorAt(wrapper, control(wrapper, t("documents.page.edition.workTitle")))).toContain(
+      t("documents.tree.problems.required"),
+    );
+    for (const label of ["workRegion", "workShortTitle"] as const) {
+      const input = control(wrapper, t(`documents.page.edition.${label}`));
+      expect(input.attributes("aria-invalid"), label).toBe("true");
+      expect(input.attributes("aria-required"), label).toBe("true");
+    }
+  });
+
   it("asks for the new work's title before it sends", async () => {
     const sent = vi.spyOn(api, "setWork");
     const wrapper = await form();

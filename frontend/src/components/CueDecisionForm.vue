@@ -8,12 +8,12 @@
  * decision; a cue gone meanwhile offers to read the list again (`reload`); another failure is said, what was
  * entered kept.
  */
-import { computed, nextTick, ref, useId, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 
 import { ApiError, decideCue, type CueDecision, type CueDecisionKind } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
-import { focusIsFree } from "@/focusRescue";
+import { useFieldFaults, type Fault } from "@/fieldFaults";
 import { t } from "@/i18n/de";
 import { STRENGTHS, strengthText } from "@/lexiconWords";
 import { sayAnew } from "@/liveRegion";
@@ -45,7 +45,6 @@ watch(dirty, (now) => emit("dirty", now));
 const busy = ref(false);
 const status = ref("");
 const submit = ref<HTMLElement | null>(null);
-const fieldError = ref<{ field: Field; text: string } | null>(null);
 const failure = ref<Notice | null>(null);
 // the cue gone meanwhile: the list is read again on the reader's word
 const gone = ref(false);
@@ -59,37 +58,38 @@ const LABELS: Readonly<Record<Field, () => string>> = {
 
 /** The field's hint where it has one, and its error where it has one. */
 function describedBy(field: Field, hint = false): string | undefined {
-  const ids = [hint ? `${id}-${field}-hint` : "", fieldError.value?.field === field ? `${id}-${field}-error` : ""];
+  const ids = [hint ? `${id}-${field}-hint` : "", faults.value[field] ? `${id}-${field}-error` : ""];
   return ids.filter(Boolean).join(" ") || undefined;
 }
 
-// A field's problem at the field. The keyboard goes there from the button or from nothing - the field reads the
-// problem with its name -; resting elsewhere, it stays and the problem is said
-async function faultAt(field: Field, text: string): Promise<void> {
-  failure.value = null;
-  fieldError.value = { field, text };
-  await nextTick();
-  if (document.activeElement === submit.value || focusIsFree()) {
-    document.getElementById(`${id}-${field}`)?.focus();
-    return;
-  }
-  status.value = sayAnew(status.value, t("lexicon.form.fieldProblem", { field: LABELS[field](), problem: text }));
-}
+// Every field's problem at its field (fieldFaults.ts); where the keyboard stays elsewhere, the first is said
+const { faults, faultsAt, clear } = useFieldFaults<Field>({
+  control: (field) => `${id}-${field}`,
+  submit,
+  say: (field, problem) => {
+    status.value = sayAnew(status.value, t("lexicon.form.fieldProblem", { field: LABELS[field](), problem }));
+  },
+});
 
-/** What is missing before anything is sent; null where the form may go. */
-function unready(): [Field, string] | null {
-  if (!entered.value.decision) return ["decision", t("lexicon.cueForm.chooseDecision")];
-  if (!confirming.value) return null;
-  if (!entered.value.strength) return ["strength", t("lexicon.cueForm.chooseStrength")];
-  return entered.value.evidence.trim() ? null : ["evidence", t("lexicon.cueForm.evidenceMissing")];
+/** What is missing before anything is sent, every field of it; none where the form may go. */
+function unready(): Fault<Field>[] {
+  if (!entered.value.decision) return [["decision", t("lexicon.cueForm.chooseDecision")]];
+  if (!confirming.value) return [];
+  const found: Fault<Field>[] = [];
+  if (!entered.value.strength) found.push(["strength", t("lexicon.cueForm.chooseStrength")]);
+  if (!entered.value.evidence.trim()) found.push(["evidence", t("lexicon.cueForm.evidenceMissing")]);
+  return found;
 }
 
 async function onSubmit(): Promise<void> {
   if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
   const missing = unready();
-  if (missing) return faultAt(...missing);
+  if (missing.length) {
+    failure.value = null;
+    return faultsAt(missing);
+  }
   const decision = entered.value.decision as CueDecisionKind;
-  fieldError.value = null;
+  clear();
   failure.value = null;
   gone.value = false;
   busy.value = true;
@@ -121,7 +121,7 @@ async function onSubmit(): Promise<void> {
           type="radio"
           :name="`${id}-decision`"
           value="confirmed"
-          :aria-invalid="fieldError?.field === 'decision' || undefined"
+          :aria-invalid="Boolean(faults.decision) || undefined"
           :aria-describedby="describedBy('decision')"
         />
         {{ t("lexicon.cueForm.confirmed") }}
@@ -133,29 +133,30 @@ async function onSubmit(): Promise<void> {
           type="radio"
           :name="`${id}-decision`"
           value="rejected"
-          :aria-invalid="fieldError?.field === 'decision' || undefined"
+          :aria-invalid="Boolean(faults.decision) || undefined"
           :aria-describedby="describedBy('decision')"
         />
         {{ t("lexicon.cueForm.rejected") }}
       </label>
     </fieldset>
-    <p v-if="fieldError?.field === 'decision'" :id="`${id}-decision-error`" class="field__error">
-      <AppIcon name="warning" /> {{ fieldError.text }}
+    <p v-if="faults.decision" :id="`${id}-decision-error`" class="field__error">
+      <AppIcon name="warning" /> {{ faults.decision }}
     </p>
     <template v-if="confirming">
       <div class="field">
         <label :for="`${id}-strength`">{{ t("lexicon.cueForm.strength") }}</label>
         <select
           :id="`${id}-strength`"
+          aria-required="true"
           v-model="entered.strength"
-          :aria-invalid="fieldError?.field === 'strength' || undefined"
+          :aria-invalid="Boolean(faults.strength) || undefined"
           :aria-describedby="describedBy('strength', true)"
         >
           <option value="">{{ t("lexicon.cueForm.strengthChoose") }}</option>
           <option v-for="one in STRENGTHS" :key="one" :value="one">{{ strengthText(one) }}</option>
         </select>
-        <p v-if="fieldError?.field === 'strength'" :id="`${id}-strength-error`" class="field__error">
-          <AppIcon name="warning" /> {{ fieldError.text }}
+        <p v-if="faults.strength" :id="`${id}-strength-error`" class="field__error">
+          <AppIcon name="warning" /> {{ faults.strength }}
         </p>
         <p :id="`${id}-strength-hint`" class="field__hint">{{ t("lexicon.cueForm.strengthHint") }}</p>
       </div>
@@ -163,15 +164,16 @@ async function onSubmit(): Promise<void> {
         <label :for="`${id}-evidence`">{{ t("lexicon.cueForm.evidence") }}</label>
         <input
           :id="`${id}-evidence`"
+          aria-required="true"
           v-model="entered.evidence"
           type="text"
           maxlength="500"
           autocomplete="off"
-          :aria-invalid="fieldError?.field === 'evidence' || undefined"
+          :aria-invalid="Boolean(faults.evidence) || undefined"
           :aria-describedby="describedBy('evidence', true)"
         />
-        <p v-if="fieldError?.field === 'evidence'" :id="`${id}-evidence-error`" class="field__error">
-          <AppIcon name="warning" /> {{ fieldError.text }}
+        <p v-if="faults.evidence" :id="`${id}-evidence-error`" class="field__error">
+          <AppIcon name="warning" /> {{ faults.evidence }}
         </p>
         <p :id="`${id}-evidence-hint`" class="field__hint">{{ t("lexicon.cueForm.evidenceHint") }}</p>
       </div>

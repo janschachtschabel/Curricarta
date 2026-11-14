@@ -107,6 +107,7 @@ async function onSubmit(): Promise<void> {
       <label for="import-url">{{ t("sources.import.urlLabel") }}</label>
       <input
         id="import-url"
+        aria-required="true"
         v-model="url"
         type="url"
         inputmode="url"

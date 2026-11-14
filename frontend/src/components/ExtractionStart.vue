@@ -74,6 +74,7 @@ async function onSubmit(): Promise<void> {
         <label for="extraction-sector">{{ t("documents.start.sector") }}</label>
         <select
           id="extraction-sector"
+          aria-required="true"
           ref="sectorField"
           v-model="sector"
           :aria-invalid="sectorMissing || undefined"
