@@ -1,11 +1,15 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { mount, type VueWrapper } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { nextTick } from "vue";
 
 import TreeView from "@/components/TreeView.vue";
 import { rowsOf, type RowKey } from "@/documentTree";
 
 import { violations } from "./axe";
+import { SRC, cssRules, stylesOf } from "./sources";
 import { CV, SCHOOL, form_, node_, statement_, value_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
@@ -13,6 +17,7 @@ let shown: VueWrapper | null = null;
 let selected: RowKey | null = null;
 
 afterEach(() => {
+  vi.restoreAllMocks();
   shown?.unmount();
   shown = null;
   selected = null;
@@ -162,6 +167,25 @@ describe("a document's tree", () => {
     await press(wrapper, "ArrowDown");
 
     expect(document.activeElement?.getAttribute("data-key")).toBe("statement:s3");
+  });
+
+  // the sticky "Zur Auswahl" bar covered a row focused at the screen's foot: focus() alone does not scroll a row
+  // that is in the viewport under it (UI review 1, finding 2, WCAG 2.4.11)
+  it("scrolls the row the keys move to into sight, past the bar at the screen's foot", async () => {
+    const scrolled = vi.spyOn(Element.prototype, "scrollIntoView");
+    const wrapper = tree();
+    (row(wrapper, "node:a").element as HTMLElement).focus();
+
+    await press(wrapper, "ArrowDown");
+
+    expect(document.activeElement?.getAttribute("data-key")).toBe("statement:s1");
+    expect(scrolled.mock.contexts.at(-1)).toBe(row(wrapper, "statement:s1").element);
+    expect(scrolled).toHaveBeenLastCalledWith({ block: "nearest" });
+    // jsdom lays nothing out: the room the scroll leaves below the row is read from the styles
+    const rowRule = cssRules(stylesOf(readFileSync(join(SRC, "components", "TreeView.vue"), "utf8"))).find(
+      (rule) => rule.selectors.includes(".tree__row") && /scroll-margin/.test(rule.body),
+    );
+    expect(rowRule?.body).toMatch(/scroll-margin-block-end:\s*3\.5rem/);
   });
 
   it("goes from the row a key is pressed on, and leaves keys with Alt, Ctrl or Meta to the browser", async () => {

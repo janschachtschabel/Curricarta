@@ -95,9 +95,15 @@ function remember(key: RowKey, element: Element | ComponentPublicInstance | null
   else elements.delete(key);
 }
 
+// focus() alone leaves a row where it is if it lies in the viewport, also under the sticky "Zur Auswahl" bar at the
+// screen's foot (DocumentTreeView): the row is scrolled into sight itself, its scroll margin keeping it above the bar
 function focusRow(key: RowKey): void {
   at.value = key;
-  void nextTick(() => elements.get(key)?.focus());
+  void nextTick(() => {
+    const element = elements.get(key);
+    element?.focus({ preventScroll: true });
+    element?.scrollIntoView({ block: "nearest" });
+  });
 }
 
 // The row a key was pressed on: the tab stop moves with a row chosen from without (the browser's back),
@@ -222,6 +228,8 @@ defineExpose({ focusRow });
   border-inline-start: 3px solid transparent;
   border-radius: var(--radius-sm);
   cursor: pointer;
+  /* the room of the page's sticky "Zur Auswahl" bar (about 3rem), so a row scrolled into sight is not under it */
+  scroll-margin-block-end: 3.5rem;
 }
 
 /* Not over the row chosen: its wash says it is chosen. */
