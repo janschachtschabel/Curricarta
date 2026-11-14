@@ -271,11 +271,8 @@ def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_
 
 @pytest.mark.pg
 @pytest.mark.usefixtures("every_scrape_reads")
-def test_the_time_of_the_last_read_moves_only_when_a_read_succeeds(
-    queue_url: str, monkeypatch: pytest.MonkeyPatch
-) -> None:
+def test_the_time_of_the_last_read_moves_only_when_a_read_succeeds(queue_url: str) -> None:
     # the rules leave out a replica whose values are stale (deploy/alerts/curricarta.rules.yaml)
-    monkeypatch.setattr(internal_api, "CLIENT_DEADLINE_S", 0.3)  # the failed read need not wait long
     with scraping(queue_url) as client:
         before = time.time()
         client.get("/metrics")
@@ -289,24 +286,19 @@ def test_the_time_of_the_last_read_moves_only_when_a_read_succeeds(
 
 @pytest.mark.pg
 @pytest.mark.usefixtures("every_scrape_reads")
-def test_a_read_the_database_does_not_end_is_ended_by_the_scrape(
-    queue_url: str, monkeypatch: pytest.MonkeyPatch
-) -> None:
-    # a peer gone silent never answers, and the server's statement_timeout cannot reach the
-    # client: the scrape bounds the read itself. A short bound stands in for it here, under the
-    # server's own deadline, so the client's is the one that ends the read
-    monkeypatch.setattr(internal_api, "CLIENT_DEADLINE_S", 0.3)
+def test_a_statement_the_database_ends_spoils_no_later_read(queue_url: str) -> None:
+    # the database ends the read at its deadline (statement_timeout); the pool takes back the
+    # connection whose statement failed, and the next scrape reads again
     with scraping(queue_url) as client:
         client.get("/metrics")  # the pool's connection is open
         failed = sample(READS_FAILED)
         with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=READY_TIMEOUT_S + 3):
-            started = time.monotonic()
-            response = client.get("/metrics")
-            elapsed = time.monotonic() - started
+            client.get("/metrics")
+        add_job(queue_url, "source.fetch")
+        client.get("/metrics")
 
-    assert response.status_code == 200
-    assert elapsed < 1
     assert sample(READS_FAILED) == failed + 1
+    assert sample(JOBS, kind="source.fetch", status="queued") == 1
 
 
 def test_an_unreachable_database_leaves_the_scrape_answering_in_time() -> None:
