@@ -151,6 +151,21 @@ def test_no_peak_is_said_where_the_kernel_states_none(
     assert caplog.messages == []
 
 
+def test_a_peak_the_full_heap_cannot_read_is_said_by_no_line_and_raises_nothing(
+    monkeypatch: pytest.MonkeyPatch, caplog: pytest.LogCaptureFixture
+) -> None:
+    # at the limit the status file's reading fails as the conversion did: the outcome in flight stays
+    def wanting(*_: object, **__: object) -> str:
+        raise MemoryError
+
+    monkeypatch.setattr(Path, "read_text", wanting)
+
+    with caplog.at_level(logging.INFO, logger="app.core.child"):
+        log_peak(Path("status"))
+
+    assert caplog.messages == []
+
+
 @pytest.mark.skipif(sys.platform != "linux", reason="Linux's /proc states the peak")
 async def test_a_child_says_its_peak_memory_and_nothing_of_the_file(
     tmp_path: Path, capfd: pytest.CaptureFixture[str]

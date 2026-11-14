@@ -104,6 +104,27 @@ async def test_a_conversion_past_its_memory_limit_died() -> None:
         )  # fmt: skip
 
 
+async def test_a_conversion_out_of_memory_whose_peak_cannot_be_read_still_died() -> None:
+    # the peak's line, in the child's last act, does not replace the outcome in flight
+    with pytest.raises(ConversionDied, match="memory"):
+        await convert_in_child(
+            FIXTURES / "prose.pdf",
+            engine="stand-in",
+            max_pages=9,
+            convert=standins.exhausting_and_its_peak_unread,
+        )
+
+
+@pytest.mark.skipif(sys.platform != "linux", reason="CHILD_MEMORY_LIMIT_MB is applied on Linux alone")
+async def test_a_conversion_grown_to_its_memory_limit_died() -> None:
+    # a MiB at a time, every piece held: the heap is still full as the child says its peak
+    with pytest.raises(ConversionDied, match="memory"):
+        await convert_in_child(
+            FIXTURES / "prose.pdf", engine="stand-in", max_pages=9, convert=standins.growing,
+            child_log=ChildLog(level="INFO", format="text", request_id="-", memory_mb=512),
+        )  # fmt: skip
+
+
 def test_a_crash_is_logged_by_its_kind_and_frames_without_its_message(
     caplog: pytest.LogCaptureFixture,
 ) -> None:

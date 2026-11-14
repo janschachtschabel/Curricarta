@@ -85,6 +85,16 @@ def loading_wants_memory(path: Path, engine: str, max_pages: int) -> Conversion:
     return convert_file(path, docling_blocks.DoclingEngine(Path("/models")), max_pages=max_pages)
 
 
+def exhausting_and_its_peak_unread(path: Path, engine: str, max_pages: int) -> Conversion:
+    """Out of memory, and so is the reading of the peak after it, as at the limit the heap still is."""
+
+    def wanting(*_: object, **__: object) -> str:
+        raise MemoryError
+
+    Path.read_text = wanting  # type: ignore[method-assign]
+    raise MemoryError
+
+
 def growing(path: Path, engine: str, max_pages: int) -> Conversion:
     """A conversion that grows a MiB at a time, every piece held, until an allocation fails: as a parser
     on a large file meets the child's memory limit, the heap still full as the child ends."""

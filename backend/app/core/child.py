@@ -122,15 +122,17 @@ def _set_address_space(limit: int) -> None:
 
 def log_peak(status: Path = STATUS) -> None:
     """The process's peak memory as one line at INFO, numbers only: resident (VmHWM) and virtual (VmPeak),
-    the measure of CHILD_MEMORY_LIMIT_MB. Where the kernel states neither - not Linux - nothing."""
+    the measure of CHILD_MEMORY_LIMIT_MB. Where the kernel states neither - not Linux - nothing. It never
+    raises: called last, however the child ends, an error here - a MemoryError, the heap still full at the
+    limit - would replace the child's outcome in flight (died, its exit code 4)."""
     try:
         stated = dict(
             line.split(":", 1) for line in status.read_text(encoding="ascii").splitlines() if ":" in line
         )
         rss, virtual = (int(stated[name].split()[0]) * 1024 // MIB for name in ("VmHWM", "VmPeak"))
-    except (OSError, KeyError, ValueError, IndexError):
+        log.info("peak memory: rss=%d MiB, virtual=%d MiB", rss, virtual)
+    except Exception:  # a log line, never the outcome
         return
-    log.info("peak memory: rss=%d MiB, virtual=%d MiB", rss, virtual)
 
 
 def write(path: Path, text: str) -> None:
