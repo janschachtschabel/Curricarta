@@ -244,3 +244,25 @@ async def test_the_next_attempt_after_a_provider_s_error_asks_only_the_units_not
     assert sorted(after.units) == ["E2", "E4"]  # the one that failed and the one never begun
     assert [key for key, _, _ in await units_done(connection, document)] == ["E2", "E3", "E4"]
     assert await usage_rows(connection, again) == [(1, 1_100, False), (1, 1_100, False), ("held", 0)]
+
+
+async def test_a_request_the_provider_timed_out_is_left_to_the_job_s_next_attempt(
+    setup: Any, tmp_path: Path, database_url: str, waited: list[float]
+) -> None:
+    # a 408 is a 4xx and no refusal for good
+    pool, connection = setup
+    document = await a_document(connection, blocks=FIELDS)
+    job = await a_job(connection, document.id, document.owner_id)
+    model = Model()
+
+    def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        if asks(messages, "E2"):
+            raise refusal(408)
+        return model(messages, info)
+
+    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 1)
+    with pytest.raises(ModelHTTPError) as ended:
+        await extract_document(context, job)
+
+    assert (ended.value.status_code, waited, model.units) == (408, [], [])
+    assert await usage_rows(connection, job) == [(1, 0, False), ("held", 0)]
