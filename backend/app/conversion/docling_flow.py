@@ -49,7 +49,8 @@ _BREAK = "\ue000"  # Docling's sign for <br>, left in a list item's and a headin
 _DEEPEST = 64  # how far up an item's parents are looked through for a table
 # The places of a table's grid a file may state: a page holds a few thousand. The grid is laid out place by
 # place before its cells are read; a stated million by a million would take the child's memory whole
-# (audit 2026-11-14)
+# (audit 2026-11-14). Docling's HTML reader has kept a grid to the cells that are there since 2.150 (its
+# table_spans), so there the bound is the second line; tests/conversion/test_docling_e2e.py holds both ends
 MOST_GRID_CELLS = 200_000
 
 

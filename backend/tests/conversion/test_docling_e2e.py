@@ -460,7 +460,7 @@ def test_a_table_within_a_docx_cell_is_read_as_a_table_of_its_own(docling: Engin
 
 # --- the child's memory (audit 2026-11-14): the numbers CHILD_MEMORY_LIMIT_MB is sized by ---------------
 
-GRID_DEADLINE_S = 300  # the vast grid's child: refused at once, or a deadline that tells a walk
+GRID_DEADLINE_S = 300  # the vast grid's child: done at once, or a deadline that tells a walk
 PEAK = re.compile(r"peak memory: rss=(?P<rss>\d+) MiB, virtual=(?P<virtual>\d+) MiB")
 
 
@@ -483,31 +483,43 @@ async def test_a_conversion_in_its_child_says_its_peak_memory(
 
 
 @pytest.mark.anyio
-async def test_an_html_table_that_states_a_vast_grid_is_refused_before_docling_lays_it_out(
+async def test_an_html_table_that_states_a_vast_grid_costs_no_more_than_the_cells_it_holds(
     tmp_path: Path,
 ) -> None:
-    # Docling's own HTML backend reads the spans: the cap holds only if it hands the grid's size over
-    # before it lays the grid out. In a child under a bound and a deadline - the runner kills the child as
-    # the wait is cancelled (app/core/child.py, run_in_child) -, so neither memory nor time of the
-    # workflow's runner is spent on it, and each of its three ends is told by its word
+    # Docling's own HTML backend reads the spans, and Docling 2.150 keeps a table's grid to the cells that
+    # are there (docling/backend/utils/table_spans.py: a span is clamped, the width ends at the last column
+    # a cell starts in): a page stating a million by a million places is laid out as the one cell it holds,
+    # like the page without the spans. Were a later Docling to hand the stated size over, the cap refuses it
+    # (MOST_GRID_CELLS) - as good an end. In a child under a bound and a deadline - the runner kills the
+    # child as the wait is cancelled (app/core/child.py, run_in_child) -, so neither memory nor time of the
+    # workflow's runner is spent on a Docling that lays the stated grid out, and that end is told by its word
     bounded = ChildLog(level="WARNING", format="text", request_id="-", memory_mb=8192)
     page = "<html><body><p>Kompetenzraster</p><table><tr><td{spans}>x</td></tr></table></body></html>"
     plain, vast = tmp_path / "raster.html", tmp_path / "weit.html"
     plain.write_text(page.format(spans=""), encoding="utf-8")
     vast.write_text(page.format(spans=' colspan="1000000" rowspan="1000000"'), encoding="utf-8")
 
+    def read(conversion: Conversion) -> list[tuple[str, str, list[tuple[int, int, str]]]]:
+        """Each block's kind and text, and its cells at their places: what a laid-out grid would differ in."""
+        return [
+            (block.kind, block.text, [(cell.row, cell.column, cell.text) for cell in block.cells])
+            for block in conversion.blocks
+        ]
+
     # the control: the page without its spans converts under the same bound, so a "died" below is the grid's
     async with asyncio.timeout(GRID_DEADLINE_S):
-        await convert_in_child(plain, engine="docling", max_pages=800, child_log=bounded)
+        control = await convert_in_child(plain, engine="docling", max_pages=800, child_log=bounded)
+    assert any("Kompetenzraster" in text for _, text, _ in read(control)), read(control)
 
     try:
         async with asyncio.timeout(GRID_DEADLINE_S):
-            await convert_in_child(vast, engine="docling", max_pages=800, child_log=bounded)
+            stated = await convert_in_child(vast, engine="docling", max_pages=800, child_log=bounded)
     except ConversionRefused as refused:
         assert refused.code == "too_dense", f"refused as {refused.code}, not too_dense"
+        return
     except ConversionDied:
         pytest.fail("died: Docling laid the stated grid out before the cap saw it", pytrace=False)
     except TimeoutError:
         pytest.fail(f"deadline: Docling walked the stated grid past {GRID_DEADLINE_S} s", pytrace=False)
-    else:
-        pytest.fail("converted: the stated grid was neither capped nor refused", pytrace=False)
+
+    assert read(stated) == read(control)
