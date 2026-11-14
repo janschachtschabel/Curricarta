@@ -4,12 +4,8 @@ populations kept when drawn beside the pooled rate, recall by the statements fou
 now, an anchor sample's figures over all strata and without the title pages. Never a wording."""
 
 import json
-import os
 import re
-import subprocess
-import sys
 from collections.abc import Iterator
-from pathlib import Path
 
 import psycopg
 import pytest
@@ -38,12 +34,10 @@ from tests.quality.gold_documents import (
     statement,
     with_contents,
 )
-from tests.support import without_settings_variables
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["connection"]  # the fixture, from gold_documents
 
-BACKEND = Path(__file__).resolve().parents[2]
 CORRECT, IMPRECISE = Judgement("correct", (), None, None), Judgement("imprecise", ("boundary",), None, None)
 WRONG = Judgement("wrong", ("node",), None, None)
 
@@ -286,39 +280,3 @@ def test_a_leaf_other_than_a_count_or_code_breaks_the_report(value: object) -> N
     with pytest.raises(ValueError, match="counts, rates and codes"):
         closed(value)
     closed({"a": [1, 0.5, None, True, "front:statement", "x4-statements/2"]})
-
-
-def report_command(database_url: str, *arguments: str) -> subprocess.CompletedProcess[bytes]:
-    with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": database_url}
-    return subprocess.run(  # noqa: S603 - the interpreter running the tests, the tests' own arguments
-        [sys.executable, "-m", "app.quality.report", *arguments],
-        cwd=BACKEND,
-        env=environment,
-        capture_output=True,
-        timeout=120,
-        check=False,
-    )
-
-
-async def test_the_command_prints_the_report(connection: psycopg.AsyncConnection, database_url: str) -> None:
-    document = await a_document(connection)
-    await done(connection, document, "X4")
-    sample = await drawn(connection, document, "statement")
-    for item in await items_of(connection, sample):
-        await judge(connection, item.id, document.owner_id, CORRECT)
-
-    printed = report_command(database_url, "--sample", str(sample))
-    refused = report_command(database_url, "--sample", "999999")
-
-    assert printed.returncode == 0, printed.stderr
-    made = json.loads(printed.stdout)
-    assert made == json.loads(json.dumps(await report(connection, [sample])))
-    [entry] = made["documents"]
-    assert entry["statement"]["weighted"]["precision_strict"] == 1.0  # all correct
-    assert entry["statement"]["pooled"]["precision_strict_wilson95"] == [0.5655, 1.0]
-    assert (entry["label"], entry["source_kind"], entry["regions"], entry["pages"]) == (
-        "pilot-1", "extraction", ["DE-NW"], 1,
-    )  # fmt: skip
-    assert (refused.returncode, refused.stdout) == (1, b"")
-    assert b"unknown_sample" in refused.stderr

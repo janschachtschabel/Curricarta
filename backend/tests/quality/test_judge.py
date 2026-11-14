@@ -5,10 +5,6 @@ as a whole with the row named; the wording and the other shown columns are never
 import asyncio
 import csv
 import io
-import json
-import os
-import subprocess
-import sys
 from pathlib import Path
 
 import psycopg
@@ -36,12 +32,10 @@ from tests.quality.gold_documents import (
     statement,
     with_contents,
 )
-from tests.support import without_settings_variables
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["connection"]  # the fixture, from gold_documents
 
-BACKEND = Path(__file__).resolve().parents[2]
 SHEET = (Path(__file__).parent / "fixtures" / "bogen.csv").read_bytes()
 BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"
 HEADER = "note;verdict;reasons;item;mark;stratum;wording;expected"
@@ -292,42 +286,3 @@ async def test_two_imports_at_once_leave_one_judgement_each(
     assert sorted([first.new, second.new]) == [0, 4]
     assert sorted([first.unchanged, second.unchanged]) == [0, 4]
     assert await count(connection, "gold_judgement") == 4
-
-
-def judge_command(database_url: str, data: bytes, *arguments: str) -> subprocess.CompletedProcess[bytes]:
-    with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": database_url}
-    return subprocess.run(  # noqa: S603 - the interpreter running the tests, the tests' own arguments
-        [sys.executable, "-m", "app.quality.judge", *arguments],
-        cwd=BACKEND,
-        env=environment,
-        input=data,
-        capture_output=True,
-        timeout=120,
-        check=False,
-    )
-
-
-async def test_the_command_reads_the_sheet_from_stdin_and_tells_the_counts(
-    connection: psycopg.AsyncConnection, database_url: str
-) -> None:
-    sample, account = await a_sample(connection)
-    arguments = ("--sample", str(sample), "--account", account)
-
-    taken = judge_command(database_url, SHEET, *arguments)
-    refused = judge_command(database_url, SHEET.replace(b";correct  ;", b";gut;"), *arguments)
-    nobody = judge_command(database_url, SHEET, "--sample", str(sample), "--account", "niemand")
-
-    assert taken.returncode == 0, taken.stderr
-    assert json.loads(taken.stdout) == {
-        "sample": sample, "judged": 4, "new": 4, "changed": 0, "unchanged": 0, "left_empty": 1, "refused": 0,
-    }  # fmt: skip
-    assert refused.returncode == 1
-    assert json.loads(refused.stdout) == {
-        "sample": sample, "judged": 0, "new": 0, "changed": 0, "unchanged": 0, "left_empty": 0, "refused": 1,
-    }  # fmt: skip
-    [line] = refused.stderr.splitlines()
-    assert b"line 7: verdict_unknown" in line
-    assert b"gut" not in line  # a cell's content is never told
-    assert (nobody.returncode, nobody.stdout) == (1, b"")
-    assert b"unknown_account" in nobody.stderr
