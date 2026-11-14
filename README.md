@@ -704,8 +704,17 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   inzwischen verbrauchen, und ein Lauf kann mehr buchen als erwartet (Wiederholungen, verlorener
   Cache, längere Antworten). Er kann also weiter mit `budget_exhausted` enden und behält dann seine
   fertigen Pakete. `EXTRACT_BUDGET_WATCH=false` schaltet die Wacht ab; ein Konto ohne Grenze wird
-  nicht bewacht. Soll ein Lauf nach X2 anhalten, setzt der Betreiber die Grenze knapp über das, was
-  X1 und X2 verbraucht haben.
+  nicht bewacht.
+  Soll ein Lauf nach X2 anhalten (etwa für einen Piloten), geht der Betreiber in zwei Schritten vor:
+  1. Grenze = bisheriger Verbrauch des Kontos + `charged_at_most` von X1 aus der Schätzung vor dem
+     Lauf; dann starten. Der Job endet nach X2 mit `run_over_budget`, ohne eine Anfrage von X3 oder
+     X4. Die Meldung nennt Erwartung, Raum, Rest, Pakete und Präfix.
+  2. Schätzung erneut laufen lassen, die Grenze auf mindestens Verbrauch + `charged_expected` +
+     `room` anheben und neu starten. X1 und X2 bleiben, der neue Start ist zugelassen (der Verbrauch
+     liegt unter der Grenze).
+  Einschränkung: Bei einem kleinen Dokument können die Reservierungen von X1 mehr übrig lassen, als
+  der Rest samt Raum braucht. Dann läuft der Lauf über X2 hinaus weiter; das Konto verbraucht auch
+  dann nicht mehr als seine Grenze.
 - Einen Modelljob darf ein Konto nur starten, solange es seine Grenze nicht verbraucht hat, sonst
   403 `no_budget`; was laufende Aufrufe reserviert halten, zählt dabei nicht. Höchstens
   `MAX_JOBS_IN_FLIGHT` (Standard 20) dürfen warten oder laufen, sonst 429 `too_many_jobs` mit
