@@ -191,7 +191,7 @@ onMounted(() => {
             <input id="mem-import-title" v-model="title" type="search" maxlength="200" autocomplete="off" />
           </div>
           <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
-          <button type="submit" class="btn" data-test="mem-search" :aria-disabled="searching || undefined">
+          <button type="submit" class="btn secondary" data-test="mem-search" :aria-disabled="searching || undefined">
             {{ searching ? t("mem.import.searching") : t("mem.import.search") }}
           </button>
         </form>
@@ -237,7 +237,7 @@ onMounted(() => {
           <button
             v-if="plans.length < total"
             type="button"
-            class="btn"
+            class="btn secondary"
             data-test="mem-more"
             :aria-disabled="searching || undefined"
             @click="more"

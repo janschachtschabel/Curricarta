@@ -179,6 +179,30 @@ describe("shared component classes", () => {
   });
 });
 
+describe("a button without a variant", () => {
+  const VARIANTS = ["primary", "secondary", "link", "danger"];
+
+  // a bare `btn` fell back to the browser's grey face, 1.14:1 on a card (UI review m4)
+  it("is not written: every .btn names its variant, or binds one", () => {
+    const offenders = sourceFiles(SRC, /\.vue$/).flatMap((path) =>
+      [...readFileSync(path, "utf8").matchAll(/<(?:button|a|RouterLink)\b((?:[^>"']|"[^"]*"|'[^']*')*)>/g)]
+        .map(([tag, attributes]) => ({ tag, classes: /(?<![:\w-])class="([^"]*)"/.exec(attributes)?.[1].split(/\s+/) ?? [] }))
+        .filter(({ tag, classes }) => classes.includes("btn") && !classes.some((one) => VARIANTS.includes(one)) && !/:class=/.test(tag))
+        .map(({ tag }) => `${path}: ${tag.slice(0, 60)}`),
+    );
+
+    expect(offenders).toEqual([]);
+  });
+
+  it("looks like the secondary one, should one be written all the same", () => {
+    const rule = cssRules(STYLESHEET).find(({ selectors }) => selectors.includes(".btn:not(.primary):not(.secondary):not(.link):not(.danger)"));
+
+    expect(rule?.body).toMatch(/background:\s*var\(--surface\)/);
+    expect(rule?.body).toMatch(/border-color:\s*var\(--control-border\)/);
+    expect(rule?.body).toMatch(/color:\s*var\(--text\)/);
+  });
+});
+
 describe("an invalid field", () => {
   // aria-invalid looked like a valid field: the same border (UI review m3); a second signal beside the icon and text
   it("is drawn apart from a valid one, by a token's colour and a border twice as wide", () => {

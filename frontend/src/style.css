@@ -573,6 +573,14 @@ textarea[aria-invalid="true"]:not(:disabled) {
   color: var(--text);
 }
 
+/* A .btn that names no variant falls back to the secondary face rather than the browser's grey one, whose fill
+   stood at 1.14:1 on a card. Every button names its variant (tests/shared-styles.test.ts); this is the net. */
+.btn:not(.primary):not(.secondary):not(.link):not(.danger) {
+  background: var(--surface);
+  border-color: var(--control-border);
+  color: var(--text);
+}
+
 .btn.link {
   background: transparent;
   border-color: transparent;

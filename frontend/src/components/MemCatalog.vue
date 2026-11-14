@@ -94,7 +94,7 @@ function ended(job: Job): void {
       <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
       <button
         type="button"
-        class="btn"
+        class="btn secondary"
         data-test="catalog-start"
         :aria-disabled="busy || undefined"
         @click="ask"
