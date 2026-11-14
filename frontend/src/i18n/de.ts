@@ -1283,7 +1283,6 @@ export const messages = {
         sector: "Bildungsbereich",
         regions: "Länder",
         source: "Registereintrag",
-        tree: "Knoten und Aussagen",
         created: "Angelegt",
       },
       sourceLink: "Zum Registereintrag",
