@@ -182,15 +182,24 @@ def test_a_block_is_judged_by_a_count_alone(
 
 @pytest.mark.parametrize(
     ("kind", "title_pages"),
-    [("block", None), ("anchor", None), ("statement", "left_out"), ("statement", "unknown")],
-    ids=["block-without", "anchor-without", "statement-left-out", "statement-unknown"],
-)
+    [
+        ("block", None), ("anchor", None), ("block", "set_apart"), ("anchor", "left_out"),
+        ("statement", "left_out"), ("statement", "set_apart"), ("statement", "unknown"),
+    ],
+    ids=[
+        "block-without", "anchor-without", "block-set-apart", "anchor-left-out",
+        "statement-left-out", "statement-set-apart", "statement-unknown",
+    ],
+)  # fmt: skip
 def test_the_title_pages_are_told_for_the_kinds_that_know_them_alone(
     connection: psycopg.Connection, made: dict[str, Any], kind: str, title_pages: str | None
 ) -> None:
-    # whether the title pages were found, and so set apart, is kept with the blocks' and anchors' samples
-    a_sample(connection, made, kind="block", title_pages="unknown", seed="b")
-    a_sample(connection, made, kind="anchor", title_pages="left_out", seed="a")
+    # whether the title pages were found - a block sample left them out, an anchor sample set their rows
+    # apart - is kept with the blocks' and anchors' samples
+    for seed, (allowed_kind, allowed) in enumerate(
+        [("block", "left_out"), ("block", "unknown"), ("anchor", "set_apart"), ("anchor", "unknown")]
+    ):
+        a_sample(connection, made, kind=allowed_kind, title_pages=allowed, seed=f"s{seed}")
 
     with pytest.raises(errors.CheckViolation) as refused:
         a_sample(connection, made, kind=kind, title_pages=title_pages)

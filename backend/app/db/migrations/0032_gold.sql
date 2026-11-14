@@ -13,10 +13,14 @@ CREATE TABLE gold_sample (
     frame jsonb NOT NULL CHECK (jsonb_typeof(frame) = 'object'),  -- each stratum's population: {"content": 371}
     drawn_by uuid NOT NULL REFERENCES account (id),
     drawn_at timestamptz NOT NULL DEFAULT now(),
-    -- whether the title pages were found when drawn: blocks on them left out, anchors on them a stratum apart
-    title_pages text CHECK (title_pages IN ('left_out', 'unknown')),
+    -- whether the title pages were found when drawn: a block sample left their blocks out, an anchor sample
+    -- set their rows apart (strata front:*); unknown where the contents ended none
+    title_pages text CHECK (title_pages IN ('left_out', 'set_apart', 'unknown')),
     UNIQUE (document_id, kind, seed),
-    CONSTRAINT gold_sample_title_pages_of_kind CHECK ((title_pages IS NOT NULL) = (kind IN ('block', 'anchor')))
+    CONSTRAINT gold_sample_title_pages_of_kind CHECK (CASE kind
+        WHEN 'block' THEN title_pages IS NOT NULL AND title_pages <> 'set_apart'
+        WHEN 'anchor' THEN title_pages IS NOT NULL AND title_pages <> 'left_out'
+        ELSE title_pages IS NULL END)
 );
 CREATE TABLE gold_item (
     id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,

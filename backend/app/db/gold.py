@@ -18,7 +18,7 @@ from psycopg.types.json import Jsonb
 # As migration gold lists them (tests/db/test_gold_schema.py)
 SampleKind = Literal["statement", "block", "anchor"]
 Verdict = Literal["correct", "imprecise", "wrong"]
-TitlePages = Literal["left_out", "unknown"]
+TitlePages = Literal["left_out", "set_apart", "unknown"]
 Reason = Literal[
     "not_a_statement", "not_in_document", "node", "boundary", "kind", "fields", "wrong_place", "missed"
 ]
@@ -67,8 +67,8 @@ class SampleDraft:
     size: int  # asked for
     frame: Mapping[str, int]  # the population of each stratum when drawn
     drawn_by: UUID  # the account
-    # a block's or anchor's sample: whether the title pages were found (blocks on them left out, anchors on
-    # them a stratum apart) or unknown; None for statements
+    # whether the title pages were found: a block sample left them out (left_out), an anchor sample set their
+    # rows apart in the strata front:* (set_apart); unknown where not found; None for statements
     title_pages: TitlePages | None
 
 

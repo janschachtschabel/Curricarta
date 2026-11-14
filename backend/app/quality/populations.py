@@ -47,11 +47,11 @@ async def population_of(
     ground = await ground_of(connection, document)
     contents = await asyncio.to_thread(contents_of, ground, blocks, document.document_type_iri)
     front = title_page_blocks(blocks, contents.front_end)
-    title_pages: TitlePages = "unknown" if front is None else "left_out"
+    found = front is not None
     front = front or frozenset()
     if kind == "anchor":
         anchors = await imported_anchors(connection, document.id)
-        return Population([_set_apart(item, front) for item in anchors], title_pages)
+        return Population([_set_apart(item, front) for item in anchors], "set_apart" if found else "unknown")
     headings = await title_blocks(connection, document.id)
     pages = await conversion_pages(connection, document.conversion_id) or max(
         (b.page for b in blocks), default=1
@@ -65,7 +65,7 @@ async def population_of(
         and block.id not in headings
         and len(block.text.strip()) >= SHORTEST_BLOCK
     ]
-    return Population(items, title_pages)
+    return Population(items, "left_out" if found else "unknown")
 
 
 def _set_apart(item: ItemDraft, front: frozenset[str]) -> ItemDraft:

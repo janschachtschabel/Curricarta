@@ -164,7 +164,7 @@ async def test_an_import_s_anchors_on_the_title_pages_are_a_stratum_apart(
     # the node's one, five of each other; the nine left by share of 30 and 6: 7.5 and 1.5, the cover's one
     # all it has left, the one over to the tie's first
     assert drawn.strata == {"exact:node": (1, 1), "exact:statement": (30, 13), "front:statement": (6, 6)}
-    assert drawn.title_pages == "left_out"
+    assert drawn.title_pages == "set_apart"  # its rows kept, in front:*
     items = await items_of(connection, drawn.sample)
     assert {item.first_block for item in items if item.stratum == "front:statement"} == {"p1-b1"}
 
