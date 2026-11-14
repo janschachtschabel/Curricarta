@@ -137,6 +137,30 @@ def test_the_token_reaches_the_two_push_steps_alone_and_only_after_every_build()
         ]
 
 
+NOT_FOUND = "no such manifest|manifest unknown|name unknown"
+
+
+def test_a_version_is_pushed_once_and_a_registry_that_cannot_answer_stops_the_run() -> None:
+    for job, names in (("images", "curricarta curricarta-web"), ("converter", "curricarta-convert")):
+        run = _run(job, r"docker push")
+        check = rf"if {re.escape(TAG_RUN)}; then\n\s*for name in {names}; do\n"
+
+        # logged in, every name the job pushes asked for, and only then the first push; a tag's run alone
+        assert run.index(LOGIN) < run.index("docker manifest inspect") < run.index("docker push")
+        assert re.search(check, run), job
+        assert run.count("docker manifest inspect") == 1
+        # a name that answers stops the run; so does any answer but a clean not-found
+        assert re.search(
+            r'if answer="\$\(docker manifest inspect "\$REGISTRY/\$name:\$VERSION" 2>&1\)"; then\n'
+            r'\s*echo "::error::\$REGISTRY/\$name:\$VERSION exists[^\n]*"\n\s*exit 1\n'
+            rf"\s*elif ! grep -qiE '{re.escape(NOT_FOUND)}' <<<\"\$answer\"; then\n"
+            r'\s*echo "::error::[^\n]*\$\{answer[^\n]*"\n\s*exit 1\n',
+            run,
+        ), job
+    # a half release is completed by its failed jobs alone: a job run again finds its own images
+    assert '"Re-run failed jobs"' in _text() and "Re-run all jobs" not in _text()
+
+
 def test_no_run_step_expands_an_expression_into_the_shell() -> None:
     # A value the run gets goes through env: an expression in the script would be pasted into it as code
     for name in _jobs():

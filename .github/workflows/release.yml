@@ -1,8 +1,11 @@
 # Publishes the images to GitHub's container registry: for each version tag vX.Y.Z, which must be the
 # version of backend/pyproject.toml, or by hand for any branch. The API's and the web server's images, the
 # converter's for a tag or when asked; each tagged sha-<the commit's first 12 characters>, a tag's images
-# also X.Y.Z, never latest: a name someone can move to another image is no release. The job start pulls
-# what was pushed by its digests and starts the whole service with it, building nothing again.
+# also X.Y.Z, never latest: a name someone can move to another image is no release. A version is pushed
+# once: a tag's run stops before its first push where one of its names exists under X.Y.Z, or where the
+# registry does not answer cleanly (sha-<12> may be pushed again: the same commit). A release one job left
+# half is completed with "Re-run failed jobs"; a job run again finds the images it pushed and stops. The
+# job start pulls what was pushed by its digests and starts the whole service with it, building nothing.
 # Only the two jobs that push may write packages, with the run's own token, which the login takes on
 # stdin. No pull request starts it, and no value of one reaches it. Actions are pinned by commit (a tag
 # can be moved); the comment names the version.
@@ -89,13 +92,27 @@ jobs:
           }
           build deploy/api.Dockerfile "$REGISTRY/curricarta"
           build deploy/web.Dockerfile "$REGISTRY/curricarta-web"
-      # logged in only once everything is built; the digest is the registry's, the same under each tag
+      # logged in only once everything is built; a tag's run asks for every name before the first push
+      # (docker manifest inspect: exit 0 where it exists; a 404 reads "no such manifest", or "manifest
+      # unknown" / "name unknown" as the registry words it; any other answer is no answer). The digest is
+      # the registry's, the same under each tag
       - name: Push the images
         id: push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = tag ]; then
+            for name in curricarta curricarta-web; do
+              if answer="$(docker manifest inspect "$REGISTRY/$name:$VERSION" 2>&1)"; then
+                echo "::error::$REGISTRY/$name:$VERSION exists: a version is pushed once; delete that package version or release a new one"
+                exit 1
+              elif ! grep -qiE 'no such manifest|manifest unknown|name unknown' <<<"$answer"; then
+                echo "::error::the registry did not say whether $REGISTRY/$name:$VERSION exists; only a clean not-found lets the release go on: ${answer//$'\n'/ }"
+                exit 1
+              fi
+            done
+          fi
           push() {
             for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done
             digest="$(docker image inspect -f '{{index .RepoDigests 0}}' "$REGISTRY/$1:${TAGS%% *}")"
@@ -143,6 +160,17 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin
+          if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = tag ]; then
+            for name in curricarta-convert; do
+              if answer="$(docker manifest inspect "$REGISTRY/$name:$VERSION" 2>&1)"; then
+                echo "::error::$REGISTRY/$name:$VERSION exists: a version is pushed once; delete that package version or release a new one"
+                exit 1
+              elif ! grep -qiE 'no such manifest|manifest unknown|name unknown' <<<"$answer"; then
+                echo "::error::the registry did not say whether $REGISTRY/$name:$VERSION exists; only a clean not-found lets the release go on: ${answer//$'\n'/ }"
+                exit 1
+              fi
+            done
+          fi
           push() {
             for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done
             digest="$(docker image inspect -f '{{index .RepoDigests 0}}' "$REGISTRY/$1:${TAGS%% *}")"
