@@ -15,6 +15,8 @@ docs
 data
 # but the published seed: the API image seeds the register from it
 !data/seed
+# named as well: the gold standard's judging sheets hold a document's wordings
+data/gold-local
 deploy/secrets
 **/.env*
 **/*.pem

@@ -23,6 +23,8 @@ frontend/dist/
 # Local data of a development run: never the repository - but for the published seed data
 /data/*
 !/data/seed/
+# named as well: the gold standard's judging sheets hold a document's wordings (app/quality/sheet.py)
+/data/gold-local/
 
 # Secrets of the local Compose setup (deploy/make-secrets.py)
 /deploy/secrets/
