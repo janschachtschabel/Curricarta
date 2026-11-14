@@ -321,6 +321,31 @@ async def test_the_worker_serves_its_metrics(probes: str) -> None:
     assert "curricarta_job_leases_expired_total" in answer.text
 
 
+@pytest.mark.pg
+async def test_the_worker_s_metrics_say_its_own_pool(pool: AsyncConnectionPool) -> None:
+    listening = socket.socket()
+    listening.bind(("127.0.0.1", 0))
+    server = probe_server(pool=pool)
+    serving = asyncio.create_task(server.serve(sockets=[listening]))
+    try:
+        while not server.started:
+            await asyncio.sleep(0.01)
+        async with (
+            pool.connection(),
+            pool.connection(),
+            httpx2.AsyncClient(base_url=f"http://127.0.0.1:{listening.getsockname()[1]}") as client,
+        ):
+            await client.get("/metrics")
+            seen = [
+                sample(f"curricarta_db_pool_{name}") for name in ("size", "available", "requests_waiting")
+            ]
+    finally:
+        server.should_exit = True
+        await serving
+
+    assert seen == [2, 0, 0]  # two taken by the jobs, none free, nobody waiting
+
+
 @pytest.mark.parametrize("path", ["/ready", "/api/v1/info", "/"])
 async def test_the_worker_answers_nothing_else(probes: str, path: str) -> None:
     async with httpx2.AsyncClient(base_url=probes) as client:

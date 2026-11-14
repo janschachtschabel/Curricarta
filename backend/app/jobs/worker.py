@@ -317,7 +317,7 @@ async def _serve() -> int:
             grace_s=settings.job_shutdown_grace_s,
         )
         # /health and /metrics on the internal port, answering before the worker says it takes jobs
-        probes = probe_server(settings.host, settings.internal_port)
+        probes = probe_server(settings.host, settings.internal_port, pool=pool)
         serving = await start_serving(probes)
         log.info("worker %s takes %s", owner, sorted(handlers) or "nothing")
         try:

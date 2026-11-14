@@ -3,6 +3,7 @@ stops cleanly on SIGTERM; without its store, or told a kind it has no handler fo
 
 import os
 import queue
+import re
 import signal
 import socket
 import subprocess
@@ -122,11 +123,16 @@ def test_the_running_worker_answers_its_liveness_probe_on_the_internal_port(data
         wait_until_it_takes(process)
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/health", timeout=5) as answer:
             status = answer.status
+        with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=5) as answer:
+            scraped = answer.read().decode()
     finally:
         process.kill()
         process.wait(10)
 
     assert status == 200
+    # its own pool, open since it polled for jobs - not the 0 of a gauge nobody set
+    size = re.search(r"(?m)^curricarta_db_pool_size (\S+)$", scraped)
+    assert size is not None and float(size.group(1)) >= 1
 
 
 def ended_with(process: subprocess.Popen[str]) -> tuple[int, str]:

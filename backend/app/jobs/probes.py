@@ -10,6 +10,7 @@ import contextlib
 from collections.abc import Iterator
 
 import uvicorn
+from psycopg_pool import AsyncConnectionPool
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, Response
@@ -23,6 +24,9 @@ async def _health(request: Request) -> JSONResponse:
 
 
 async def _metrics(request: Request) -> Response:
+    pool: AsyncConnectionPool | None = request.app.state.pool
+    if pool is not None:  # the worker's own pool, as this scrape finds it
+        metrics.observe_pool(pool.get_stats())
     content, content_type = metrics.render(request.headers.get("accept", ""))
     return Response(content=content, media_type=content_type)
 
@@ -48,10 +52,13 @@ async def start_serving(server: ProbeServer) -> asyncio.Task[None]:
     return serving
 
 
-def probe_server(host: str = "127.0.0.1", port: int = 0) -> ProbeServer:
+def probe_server(
+    host: str = "127.0.0.1", port: int = 0, *, pool: AsyncConnectionPool | None = None
+) -> ProbeServer:
     """The server for ``host:port``; bind with ``server.config.bind_socket()`` and pass the
-    socket to ``serve``, or pass one bound elsewhere."""
+    socket to ``serve``, or pass one bound elsewhere. /metrics says ``pool``'s state, if given."""
     app = Starlette(routes=[Route("/health", _health), Route("/metrics", _metrics)])
+    app.state.pool = pool
     # log_config=None: uvicorn's lines go through the service's handler (app.core.logging)
     config = uvicorn.Config(
         app,
