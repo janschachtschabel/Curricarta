@@ -89,15 +89,17 @@ def raw_zip(
     version: int = 20,
     shift: int = 0,
     before_end: bytes = b"",
+    offset: int | None = None,
 ) -> bytes:
     """A ZIP written by hand of empty stored parts (name, extra field, entry comment), each part's
     entry stating extract ``version`` and ``flags``; the end record states the directory ``shift``
-    bytes further on than it is, and ``before_end`` stands between the directory and the record."""
+    bytes further on than it is, and ``before_end`` stands between the directory and the record;
+    ``offset``, where given, is the local header offset every entry states."""
     body, directory = b"", b""
     for name, extra, comment in parts:
         directory += struct.pack(
             "<4s6H3I5H2I", _DIRECTORY_ENTRY, 20, version, flags, 0, 0, 0x21, 0, 0, 0,
-            len(name), len(extra), len(comment), 0, 0, 0, len(body),
+            len(name), len(extra), len(comment), 0, 0, 0, len(body) if offset is None else offset,
         ) + name + extra + comment  # fmt: skip
         body += (
             struct.pack("<4s5H3I2H", b"PK\x03\x04", version, flags, 0, 0, 0x21, 0, 0, 0, len(name), 0) + name
@@ -105,6 +107,12 @@ def raw_zip(
     count = len(parts)
     end = struct.pack("<4s4H2IH", _END, 0, 0, count, count, len(directory), len(body) + shift, 0)
     return body + directory + before_end + end
+
+
+def zip64_offset(offset: int) -> bytes:
+    """A zip64 extra field stating an entry's local header offset as 64 bits (the entry's own field
+    then says 0xFFFFFFFF)."""
+    return struct.pack("<HHQ", 1, 8, offset)
 
 
 def zip64_locator(disk: int = 0, disks: int = 1) -> bytes:

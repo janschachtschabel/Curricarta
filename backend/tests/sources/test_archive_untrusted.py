@@ -19,7 +19,7 @@ import pytest
 from app.sources import archives
 from app.sources.archives import ArchiveTooLarge, ArchiveUnreadable
 from app.sources.filetype import examine_file
-from tests.sources.zip_helpers import make_zip, raw_zip, zip64_locator
+from tests.sources.zip_helpers import make_zip, raw_zip, zip64_locator, zip64_offset
 
 PART = [(b"word/document.xml", b"", b"")]
 SHAPES = {
@@ -29,18 +29,28 @@ SHAPES = {
     + b"\x04\x00note",
     "an-extract-version-zipfile-does-not-read": raw_zip(PART, version=99),
     "a-directory-stated-further-on-than-it-is": raw_zip(PART, shift=100),
+    # a part's local header offset outside the archive: zipfile would seek there to open it
+    "a-zip64-header-offset-of-2-to-the-63": raw_zip(
+        [(b"word/document.xml", zip64_offset(2**63), b"")], offset=0xFFFFFFFF
+    ),
+    "a-zip64-header-offset-of-2-to-the-64-less-1": raw_zip(
+        [(b"word/document.xml", zip64_offset(2**64 - 1), b"")], offset=0xFFFFFFFF
+    ),
+    "a-header-offset-past-2-to-the-31": raw_zip(PART, offset=0x80000000),
+    "a-header-offset-just-past-the-end": raw_zip(PART, offset=len(raw_zip(PART))),
 }
 
 
-@pytest.fixture(params=["memory", "disk"])
+@pytest.fixture(params=["memory", "spooled", "disk"])
 def held(request: pytest.FixtureRequest) -> Iterator[Any]:
-    """Bytes as a source: a BytesIO, or a spooled file rolled to disk."""
+    """Bytes as a source: a BytesIO, a spooled file still in memory, or one rolled to disk."""
     opened: list[Any] = []
 
     def source(data: bytes) -> BinaryIO:
         if request.param == "memory":
             return io.BytesIO(data)
-        spooled = tempfile.SpooledTemporaryFile(max_size=16)  # noqa: SIM115 - closed by the fixture; rolls over
+        rolls = 16 if request.param == "disk" else 2**30
+        spooled = tempfile.SpooledTemporaryFile(max_size=rolls)  # noqa: SIM115 - closed by the fixture
         spooled.write(data)
         spooled.seek(0)
         opened.append(spooled)
@@ -130,3 +140,21 @@ def test_an_archive_without_an_end_record_is_refused_without_a_log(caplog: pytes
         archives.check_archive_file(io.BytesIO(b"PK\x03\x04" + b"\0" * 40))
 
     assert [record for record in caplog.records if record.name == archives.__name__] == []
+
+
+@pytest.mark.parametrize("name", [name for name in SHAPES if "header-offset" in name])
+def test_a_part_s_header_outside_the_archive_is_refused_before_a_seek_to_it(held: Any, name: str) -> None:
+    # the root: the offsets are checked once the directory is read, before any part is opened
+    with pytest.raises(ArchiveUnreadable, match="header lies outside the archive"):
+        archives.check_archive_file(held(SHAPES[name]))
+
+
+def test_a_stated_value_past_what_a_seek_takes_is_the_archive_s_fault() -> None:
+    # the net, for whatever else in zipfile computes with a stated 64-bit value
+    def overflowing() -> None:
+        with archives._archive_s_fault(io.BytesIO(b"PK"), "invented"):
+            io.BytesIO(b"PK").seek(2**63)
+
+    with pytest.raises(ArchiveUnreadable) as raised:
+        overflowing()
+    assert isinstance(raised.value.__cause__, OverflowError)

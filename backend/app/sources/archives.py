@@ -51,9 +51,18 @@ _ZIP64_LOCATOR = b"PK\x06\x07"  # 20 bytes right before the end record of a ZIP6
 # malformed (multi-disk ZIP64 locators among them), NotImplementedError for an extract version,
 # compression or flag it does not read, EOFError and zlib.error for a part that ends or inflates
 # wrongly, struct.error for a cut record, ValueError for a negative seek in memory and for a name
-# that is no UTF-8 (UnicodeDecodeError). RuntimeError (an encrypted part) cannot come: those are
-# refused before zipfile opens a part
-_ZIPFILE_REFUSALS = (zipfile.BadZipFile, NotImplementedError, EOFError, zlib.error, struct.error, ValueError)
+# that is no UTF-8 (UnicodeDecodeError), OverflowError for a stated 64-bit value past what a seek or
+# a size takes (a header offset of 2^63 in a zip64 extra, on a file held in memory). RuntimeError (an
+# encrypted part) cannot come: those are refused before zipfile opens a part
+_ZIPFILE_REFUSALS = (
+    zipfile.BadZipFile,
+    NotImplementedError,
+    EOFError,
+    zlib.error,
+    struct.error,
+    ValueError,
+    OverflowError,
+)
 _told_of_a_changed_zipfile = False
 
 
@@ -107,6 +116,11 @@ def _check(source: BinaryIO) -> None:
         archive = zipfile.ZipFile(source)
     with archive:
         parts = archive.infolist()
+        # a part's header is opened by a seek to its offset, which an entry states - in a zip64 extra
+        # up to 2^64: none is attempted outside the archive
+        size = source.seek(0, io.SEEK_END)
+        if any(not 0 <= part.header_offset < size for part in parts):
+            raise ArchiveUnreadable("a part's header lies outside the archive")
         if len(parts) > MAX_ARCHIVE_ENTRIES:
             raise ArchiveTooLarge(f"more than {MAX_ARCHIVE_ENTRIES} parts")
         if sum(part.file_size for part in parts) > MAX_ARCHIVE_EXPANDED:
