@@ -69,7 +69,9 @@ def test_zipfile_s_end_record_is_what_the_check_reads() -> None:
     assert isinstance(record, list) and len(record) == 10
     assert (zipfile._ECD_SIGNATURE, zipfile._ECD_SIZE, zipfile._ECD_OFFSET) == (0, 5, 6)  # type: ignore[attr-defined]
     assert (zipfile._ECD_COMMENT_SIZE, zipfile._ECD_COMMENT, zipfile._ECD_LOCATION) == (7, 8, 9)  # type: ignore[attr-defined]
+    assert zipfile._ECD_ENTRIES_TOTAL == 4  # type: ignore[attr-defined]
     assert record[0] == b"PK\x05\x06" and record[7] == 4 and record[8] == b"note"
+    assert record[4] == len(PARTS) and record[6] == record[9] - record[5]  # no bytes before the archive
     assert record[9] == len(data) - 22 - 4
     assert record[5] == directory_read_by_zipfile(data)
 

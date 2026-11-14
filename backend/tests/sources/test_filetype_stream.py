@@ -131,7 +131,21 @@ def test_an_archive_comment_within_its_bound_is_taken() -> None:
 
 
 def test_a_directory_within_its_bound_is_read() -> None:
-    archives.check_archive_file(io.BytesIO(commented_parts(4900, comment=400)))
+    archives.check_archive_file(io.BytesIO(commented_parts(4900, comment=190)))
+
+
+def test_a_document_of_the_most_parts_with_long_names_and_extras_passes() -> None:
+    # as an ODF package names its pictures (a 40-digit hash), with Info-ZIP's time and owner extras:
+    # 46 + 53 + 24 = 123 bytes an entry, under the 256 the bound allows a part
+    extras = b"UT\x05\x00\x03" + b"\0" * 4 + b"ux\x0b\x00\x01\x04" + b"\0" * 4 + b"\x04" + b"\0" * 4
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as package:
+        for index in range(archives.MAX_ARCHIVE_ENTRIES):
+            info = zipfile.ZipInfo(f"Pictures/{index:040x}.png")
+            info.extra = extras
+            package.writestr(info, b"\x89PNG")
+
+    archives.check_archive_file(io.BytesIO(buffer.getvalue()))
 
 
 def test_a_zip64_archive_is_refused_before_its_directory_is_read(monkeypatch: pytest.MonkeyPatch) -> None:

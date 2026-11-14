@@ -7,10 +7,13 @@ once, with a margin for the interpreter and the store's client:
 - a text of 4-byte signs: the same, and the decoder's output for one piece, which CPython's UTF-8
   decoder allocates as four bytes a sign for the piece's length (4 MiB) - 6 MiB;
 - a DOCX whose directory is as large as allowed (thousands of parts with long entry comments):
-  the pieces, the directory as zipfile reads it (up to MAX_DIRECTORY_BYTES, 2.44 MiB), each entry's
+  the pieces, the directory as zipfile reads it (up to MAX_DIRECTORY_BYTES, 1.22 MiB), each entry's
   name and comment copied out of it (the same again) and an object per entry (5,000 at most) -
-  about 8 MiB.
-Measured: 2.0, 6.0 and 7.0 to 7.2 MiB, the same in both stores.
+  about 5 MiB;
+- the worst directory the bound admits: 5,000 parts whose UTF-8 names and unicode-path fields hold
+  a sign outside the BMP, which CPython keeps at four bytes a sign - the directory's 1.22 MiB held
+  about four times over, the pieces and the objects - about 8 MiB.
+Measured: 2.0, 6.0, 4.5 to 4.7 and 8.05 MiB, the same in both stores; under 9 MiB an upload.
 """
 
 import hashlib
@@ -26,7 +29,7 @@ from app.sources.archives import MAX_DIRECTORY_BYTES
 from app.sources.filetype import DOCX_MIME
 from tests.api.test_sources_upload import PDF
 from tests.api.upload_stores import UploadStore, upload_store
-from tests.sources.zip_helpers import commented_parts
+from tests.sources.zip_helpers import commented_parts, worst_names
 
 pytestmark = pytest.mark.pg
 __all__ = ["upload_store"]  # the fixture, taken over
@@ -50,7 +53,10 @@ KINDS = [
     pytest.param(
         "lehrplan.txt", lambda: "\U0001d11e".encode() * (SIZE // 4), "text/plain", 7 * MIB, id="text"
     ),
-    pytest.param("lehrplan.docx", heavy_directory, DOCX_MIME, 9 * MIB, id="docx-directory"),
+    pytest.param("lehrplan.docx", heavy_directory, DOCX_MIME, 6 * MIB, id="docx-directory"),
+    pytest.param(
+        "lehrplan.docx", lambda: worst_names(MAX_DIRECTORY_BYTES), DOCX_MIME, 9 * MIB, id="docx-worst-names"
+    ),
 ]
 
 

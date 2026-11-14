@@ -7,12 +7,19 @@ far below all three bounds.
 """
 
 import copy
+import errno
 import io
+import logging
+import platform
 import struct
 import sys
 import zipfile
 import zlib
-from typing import BinaryIO, NamedTuple
+from collections.abc import Iterator
+from contextlib import contextmanager
+from typing import BinaryIO, NamedTuple, NoReturn
+
+log = logging.getLogger(__name__)
 
 MAX_ARCHIVE_ENTRIES = 5000
 MAX_ARCHIVE_EXPANDED = 256 * 2**20
@@ -29,15 +36,25 @@ COUNTING_PIECE = 2**20  # the signatures are counted a piece at a time, never in
 # zipfile reads the central directory whole, by the size the end record states, and makes an object
 # of each entry. An entry is 46 bytes and the part's name, extra field and comment; a document's
 # names are short (an OOXML part's longest, "word/glossary/stylesWithEffects.xml", is 36 bytes), its
-# extra fields a few dozen bytes, and it has no comments: 512 bytes a part is a fivefold margin on
-# about 100. So the directory of MAX_ARCHIVE_ENTRIES parts is 5,000 x 512 B = 2.44 MiB at most -
-# a real DOCX's has some 20 to 200 parts, a few KiB to 20 KiB.
-MAX_DIRECTORY_BYTES = MAX_ARCHIVE_ENTRIES * 512
+# extra fields a few dozen bytes, and it has no comments: an entry of an OOXML or ODF part is 50 to
+# 150 bytes, and 256 bytes a part leaves room above the largest. So the directory of
+# MAX_ARCHIVE_ENTRIES parts is 5,000 x 256 B = 1.22 MiB at most - a real DOCX's has some 20 to 200
+# parts, a few KiB to 20 KiB. CPython holds such a directory at up to about four times its size
+# (names and unicode-path fields with a sign outside the BMP are kept at four bytes a sign).
+MAX_DIRECTORY_BYTES = MAX_ARCHIVE_ENTRIES * 256
 # A document's archive carries no comment of its own; zipfile reads up to 64 KiB of one
 MAX_ARCHIVE_COMMENT = 2**10
 _END = b"PK\x05\x06"  # the end record's signature; the record is 22 bytes and the comment
 _END_RECORD = struct.Struct("<4s4H2IH")
 _ZIP64_LOCATOR = b"PK\x06\x07"  # 20 bytes right before the end record of a ZIP64 archive
+# What zipfile raises for an archive's own bytes, in this Python (3.13): BadZipFile for what it finds
+# malformed (multi-disk ZIP64 locators among them), NotImplementedError for an extract version,
+# compression or flag it does not read, EOFError and zlib.error for a part that ends or inflates
+# wrongly, struct.error for a cut record, ValueError for a negative seek in memory and for a name
+# that is no UTF-8 (UnicodeDecodeError). RuntimeError (an encrypted part) cannot come: those are
+# refused before zipfile opens a part
+_ZIPFILE_REFUSALS = (zipfile.BadZipFile, NotImplementedError, EOFError, zlib.error, struct.error, ValueError)
+_told_of_a_changed_zipfile = False
 
 
 class ArchiveUnreadable(ValueError):
@@ -86,10 +103,8 @@ def _check(source: BinaryIO) -> None:
         raise ArchiveTooLarge(f"more than {MAX_ARCHIVE_ENTRIES} parts")
     _check_end_record(source)
     source.seek(0)
-    try:
+    with _archive_s_fault(source, "not a readable archive"):
         archive = zipfile.ZipFile(source)
-    except (zipfile.BadZipFile, ValueError) as error:
-        raise ArchiveUnreadable("not a readable archive") from error
     with archive:
         parts = archive.infolist()
         if len(parts) > MAX_ARCHIVE_ENTRIES:
@@ -106,7 +121,7 @@ def _check(source: BinaryIO) -> None:
         if any(part.flag_bits & _ENCRYPTED for part in parts):
             raise ArchiveUnreadable("a part is encrypted")
         for part in parts:
-            if _unpacks_past_its_size(archive, part):
+            if _unpacks_past_its_size(archive, part, source):
                 raise ArchiveTooLarge("a part unpacks past the size it states")
 
 
@@ -129,17 +144,53 @@ def end_record(source: BinaryIO) -> EndRecord:
     without the function, or whose answer has another shape, refuses the archive rather than skip
     the check (tests/sources/test_archive_end_record.py pins the indices)."""
     find = getattr(zipfile, "_EndRecData", None)
-    try:
-        record = find(source) if callable(find) else None
-    except (OSError, ValueError, struct.error) as error:
-        raise ArchiveUnreadable("no end record zipfile can read") from error
-    if not (isinstance(record, list) and len(record) == 10):
+    if not callable(find):
+        _changed_zipfile()
+    with _archive_s_fault(source, "no end record zipfile can read"):
+        record = find(source)
+    if record is None:  # no record: not an archive, or a broken one
         raise ArchiveUnreadable("no end record zipfile can read")
+    if not (isinstance(record, list) and len(record) == 10):
+        _changed_zipfile()
     signature, _, _, _, entries, size, offset, comment_size, comment, location = record
     found = EndRecord(signature, entries, size, offset, comment_size, comment, location)
-    if not all(isinstance(value, bytes | int) for value in found) or not isinstance(comment, bytes):
-        raise ArchiveUnreadable("no end record zipfile can read")
+    if not (isinstance(signature, bytes) and isinstance(comment, bytes)) or not all(
+        isinstance(value, int) for value in (entries, size, offset, comment_size, location)
+    ):
+        _changed_zipfile()
     return found
+
+
+def _changed_zipfile() -> NoReturn:
+    """Refuse the archive: this Python's zipfile reads end records otherwise than the check does.
+    Said once per process, without anything of the archive."""
+    global _told_of_a_changed_zipfile  # once per process, as said
+    if not _told_of_a_changed_zipfile:
+        _told_of_a_changed_zipfile = True
+        log.error(
+            "zipfile of Python %s reads end records otherwise than the archive check:"
+            " every archive is refused",
+            platform.python_version(),
+        )
+    raise ArchiveUnreadable("no end record zipfile can read")
+
+
+@contextmanager
+def _archive_s_fault(source: BinaryIO, refusal: str) -> Iterator[None]:
+    """What zipfile raises for the archive's own bytes, as the refusal ArchiveUnreadable. A source
+    that breaks on its own stays what it is: a file closed under the check (ValueError with the file
+    closed), a disk that fails (OSError other than EINVAL). EINVAL is a seek before the start, which
+    only an archive's offsets ask for - in memory the same seek is a ValueError."""
+    try:
+        yield
+    except _ZIPFILE_REFUSALS as error:
+        if getattr(source, "closed", False):
+            raise
+        raise ArchiveUnreadable(refusal) from error
+    except OSError as error:
+        if error.errno != errno.EINVAL:
+            raise
+        raise ArchiveUnreadable(refusal) from error
 
 
 def _check_end_record(source: BinaryIO) -> None:
@@ -148,7 +199,7 @@ def _check_end_record(source: BinaryIO) -> None:
     record = end_record(source)
     file_size = source.seek(0, io.SEEK_END)
     if record.signature != _END:  # zipfile took the ZIP64 record
-        raise ArchiveTooLarge("a ZIP64 archive: past every bound a document keeps to")
+        raise ArchiveTooLarge("a ZIP64 end record: past every bound a document keeps to")
     if record.comment_size != len(record.comment) or (
         record.location + _END_RECORD.size + len(record.comment) != file_size
     ):
@@ -160,7 +211,7 @@ def _check_end_record(source: BinaryIO) -> None:
         or record.entries == 0xFFFF
         or (0xFFFFFFFF in (record.directory_size, record.directory_offset))
     ):
-        raise ArchiveTooLarge("a ZIP64 archive: past every bound a document keeps to")
+        raise ArchiveTooLarge("a ZIP64 locator or marker: past every bound a document keeps to")
     if record.directory_size > MAX_DIRECTORY_BYTES:
         raise ArchiveTooLarge("the archive's directory is larger than a document's")
 
@@ -186,19 +237,16 @@ def _signatures(source: BinaryIO) -> int:
     return count
 
 
-def _unpacks_past_its_size(archive: zipfile.ZipFile, part: zipfile.ZipInfo) -> bool:
+def _unpacks_past_its_size(archive: zipfile.ZipFile, part: zipfile.ZipInfo, source: BinaryIO) -> bool:
     """Whether the part unpacks to more bytes than it states, counted a block at a time and
     given up a block past them. Opened as told no size: told its own, zipfile would cut it
     there - after unpacking it."""
     untold = copy.copy(part)
     untold.file_size = sys.maxsize
     unpacked = 0
-    try:
-        with archive.open(untold) as stream:
-            while block := stream.read(_MEASURING_BLOCK):
-                unpacked += len(block)
-                if unpacked > part.file_size:
-                    return True
-    except (zipfile.BadZipFile, EOFError, ValueError, NotImplementedError, zlib.error) as error:
-        raise ArchiveUnreadable("a part cannot be unpacked") from error
+    with _archive_s_fault(source, "a part cannot be unpacked"), archive.open(untold) as stream:
+        while block := stream.read(_MEASURING_BLOCK):
+            unpacked += len(block)
+            if unpacked > part.file_size:
+                return True
     return False

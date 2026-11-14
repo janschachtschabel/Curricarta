@@ -6,6 +6,7 @@ import io
 import os
 import struct
 import zipfile
+import zlib
 
 _DIRECTORY_ENTRY = b"PK\x01\x02"
 _END = b"PK\x05\x06"
@@ -79,6 +80,51 @@ def with_fake_end_record_in_an_entry(parts: dict[str, bytes], archive_comment: b
             archive.writestr(info, content)
         archive.comment = archive_comment
     return buffer.getvalue()
+
+
+def raw_zip(
+    parts: list[tuple[bytes, bytes, bytes]],
+    *,
+    flags: int = 0,
+    version: int = 20,
+    shift: int = 0,
+    before_end: bytes = b"",
+) -> bytes:
+    """A ZIP written by hand of empty stored parts (name, extra field, entry comment), each part's
+    entry stating extract ``version`` and ``flags``; the end record states the directory ``shift``
+    bytes further on than it is, and ``before_end`` stands between the directory and the record."""
+    body, directory = b"", b""
+    for name, extra, comment in parts:
+        directory += struct.pack(
+            "<4s6H3I5H2I", _DIRECTORY_ENTRY, 20, version, flags, 0, 0, 0x21, 0, 0, 0,
+            len(name), len(extra), len(comment), 0, 0, 0, len(body),
+        ) + name + extra + comment  # fmt: skip
+        body += (
+            struct.pack("<4s5H3I2H", b"PK\x03\x04", version, flags, 0, 0, 0x21, 0, 0, 0, len(name), 0) + name
+        )
+    count = len(parts)
+    end = struct.pack("<4s4H2IH", _END, 0, 0, count, count, len(directory), len(body) + shift, 0)
+    return body + directory + before_end + end
+
+
+def zip64_locator(disk: int = 0, disks: int = 1) -> bytes:
+    """A ZIP64 end locator naming the record on ``disk`` of ``disks``."""
+    return struct.pack("<4sIQI", b"PK\x06\x07", disk, 0, disks)
+
+
+def worst_names(directory_bytes: int, parts: int = 5000) -> bytes:
+    """The archive whose directory, within ``directory_bytes``, CPython holds largest: UTF-8 names
+    holding one sign outside the BMP (so the whole name is kept at four bytes a sign) and a
+    unicode-path extra field of the same kind, each part's entry filling its share of the bound."""
+    astral = "\U0001d11e".encode()
+    share = directory_bytes // parts - 46
+    made = []
+    for index in range(parts):
+        name = astral + b"%05d" % index + b"a" * (share // 2 - 9)
+        room = share - len(name) - 4 - 5
+        field = struct.pack("<BI", 1, zlib.crc32(name)) + (astral + b"%05d" % index).ljust(room, b"y")
+        made.append((name, struct.pack("<HH", 0x7075, len(field)) + field, b""))
+    return raw_zip(made, flags=0x800)
 
 
 def directory_only(entries: int) -> bytes:

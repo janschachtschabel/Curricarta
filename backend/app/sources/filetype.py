@@ -127,8 +127,9 @@ def examine_file(filename: str | None, source: BinaryIO) -> tuple[DetectedType, 
 
     The file is never held whole. At once it holds two pieces of READ_PIECE; for a text also the
     decoder's output for one piece (CPython sizes it at four bytes a sign: 4 MiB); for a ZIP the
-    central directory zipfile reads (at most MAX_DIRECTORY_BYTES) with an object per entry - under
-    10 MiB in each case, whatever the file's size (tests/api/test_sources_upload_memory.py).
+    central directory zipfile reads (at most MAX_DIRECTORY_BYTES) with an object per entry, up to
+    about four times its size for names outside the BMP - under 9 MiB in each case, whatever the
+    file's size (measured at most 8.05 MiB: tests/api/test_sources_upload_memory.py).
     Blocks: callers on the event loop run it in a thread."""
     start = source.tell()
     try:
