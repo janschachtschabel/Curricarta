@@ -76,7 +76,7 @@ S3-Objektspeicher.
 - [x] Helm-Werte als Vorlage ([helm-values.example.yaml](../../deploy/helm-values.example.yaml))
 - [x] Compose für den lokalen Betrieb
 - [ ] CI-Lauf grün und Images in der Registry (`release.yml` steht; die erste Veröffentlichung ist Sache des Betreibers, siehe Offene Punkte)
-- [ ] Alarmregeln, Ressourcen-Baseline, Lasttest (M6)
+- [ ] Gemessene Schwellen der Alarmregeln, Ressourcen-Baseline, Lasttest (M6)
 - [ ] Steckbrief für den Produktkatalog (mit dem ersten nutzbaren Stand, M1)
 
 ## 7. Kosten, Wartung und Lebenszyklus
@@ -96,11 +96,11 @@ S3-Objektspeicher.
   4. Alle drei Pakete öffentlich stellen.
   5. Den ersten Versions-Tag `v0.1.0` setzen und pushen, nur auf einen Commit von main, dessen `ci`-Lauf grün ist. Sein Lauf ist beim ersten Versuch grün: Die Zusammenfassung zeigt die Digests, der Job `start` startet den Dienst aus der Registry.
   Scheitert in einem Versions-Lauf ein Job, wird er mit „Re-run failed jobs“ wiederholt, nie mit „Re-run all jobs“: Ein wiederholter Job, dessen Images schon gepusht sind, findet sie und bricht ab; hat der Job `images` nur einen Teil gepusht, hilft das Löschen dieser Paketversion oder eine neue Version. Ein `sha-`-Image kann von jedem Branch stammen; nur `X.Y.Z` ist ein Release.
-- Gemessene Schwellen der Alarmregeln; Sicherung und Aufbewahrung.
+- Sicherung und Aufbewahrung.
 - Abstimmung der Content-Types für Uploads und Dateiausgaben (M1).
 - Prüfsummen beim Objektspeicher: boto3 schickt seit 1.36 bei jedem Schreiben eine CRC32-Prüfsumme
   mit (`x-amz-checksum-crc32`, über HTTPS als `aws-chunked`), die manche S3-kompatiblen Dienste
   ablehnen. Getestet ist MinIO. Nimmt T6s Dienst sie nicht an, schalten botocores eigene Variablen
   `AWS_REQUEST_CHECKSUM_CALCULATION=when_required` und `AWS_RESPONSE_CHECKSUM_VALIDATION=when_required`
   sie auf „nur wo verlangt" um; der Dienst setzt keinen der beiden Werte selbst (getestet).
-- Ressourcen, Alarme und Lastmessung (M6).
+- Gemessene Schwellen der Alarmregeln, Ressourcen-Baseline und Lasttest (M6).
