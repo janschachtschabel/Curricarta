@@ -2,12 +2,13 @@
 /**
  * The top of a document's page, under its heading: its main next step - opening the tree - and a way to each of
  * the sections the page shows, in its order, each by its heading's words (UI review m10: the step was an inline
- * link among the facts of a page of ten sections).
+ * link among the facts of a page of ten sections). Each section's heading takes the keyboard (tabindex -1).
  */
 import { computed } from "vue";
 import { RouterLink } from "vue-router";
 
 import type { CurriculumDocument } from "@/api";
+import { focusById } from "@/focusRescue";
 import { t } from "@/i18n/de";
 import { isEditor } from "@/session";
 
@@ -43,7 +44,9 @@ const sections = computed(() => {
     <nav data-test="document-sections" :aria-label="t('documents.page.sections')">
       <ul>
         <li v-for="part in sections" :key="part.id">
-          <a :href="`#${part.id}`">{{ part.label }}</a>
+          <!-- the keyboard to the section's heading, not the address's fragment: the router took that for a move and
+               named the tab anew without the document (focusRescue.ts) -->
+          <a :href="`#${part.id}`" @click.prevent="focusById(part.id)">{{ part.label }}</a>
         </li>
       </ul>
     </nav>

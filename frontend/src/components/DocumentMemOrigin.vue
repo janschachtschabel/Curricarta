@@ -13,7 +13,7 @@ defineProps<{ origin: MemOrigin }>();
 
 <template>
   <section aria-labelledby="document-mem">
-    <h2 id="document-mem">{{ t("mem.origin.heading") }}</h2>
+    <h2 id="document-mem" tabindex="-1">{{ t("mem.origin.heading") }}</h2>
     <dl class="facts">
       <dt>{{ t("mem.origin.plan") }}</dt>
       <dd>

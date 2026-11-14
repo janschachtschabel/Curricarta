@@ -195,7 +195,7 @@ watch(
       <PartialState :notice="failure" retry @retry="load()" />
       <RevisionNotice ref="notice" :key="document_.id" :document="document_" :copied="copied" @changed="load()" />
       <section class="document__section" aria-labelledby="document-facts">
-        <h2 id="document-facts">{{ t("documents.page.facts.heading") }}</h2>
+        <h2 id="document-facts" tabindex="-1">{{ t("documents.page.facts.heading") }}</h2>
         <dl class="facts">
           <dt>{{ t("documents.page.facts.sector") }}</dt>
           <dd>{{ word(messages.documents.sectors, document_.sector) }}</dd>

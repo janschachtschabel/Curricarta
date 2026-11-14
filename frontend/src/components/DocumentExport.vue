@@ -86,7 +86,7 @@ async function start(): Promise<void> {
 
 <template>
   <section class="export" aria-labelledby="document-export">
-    <h2 id="document-export">{{ t("mem.export.heading") }}</h2>
+    <h2 id="document-export" tabindex="-1">{{ t("mem.export.heading") }}</h2>
     <p v-if="!document.frozen_at" class="export__note">{{ t("refusals.export_not_frozen") }}</p>
     <template v-else>
       <p class="export__note">{{ t("mem.export.contains") }}</p>

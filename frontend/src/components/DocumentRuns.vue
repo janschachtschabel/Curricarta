@@ -41,7 +41,7 @@ function shortened(failure: string): string {
 
 <template>
   <section aria-labelledby="document-runs">
-    <h2 id="document-runs">{{ t("documents.page.runs") }}</h2>
+    <h2 id="document-runs" tabindex="-1">{{ t("documents.page.runs") }}</h2>
     <!-- wider than a phone: scrolled on its own, by the keyboard too; a name of its own, as two
          regions of one name would be one landmark twice -->
     <div v-if="runs.length" class="runs" tabindex="0" role="region" :aria-label="t('documents.page.runsTable')">

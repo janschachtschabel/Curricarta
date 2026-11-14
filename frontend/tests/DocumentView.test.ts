@@ -143,6 +143,38 @@ describe("a document's page", () => {
     expect(await violations(wrapper.html())).toEqual([]);
   });
 
+  // a fragment link is a move to the router: the tab lost the document's name (UI review 1, findings 4 and 9)
+  it.each([
+    ["an editor's extracted document", {}, ["document-units", "document-freeze"], ["document-mem", "document-export"]],
+    [
+      "an editor's MEM import",
+      { mem: { plan_iri: "https://w3id.org/p/1", attribution: "MEM-Schule", licence: null } },
+      ["document-mem", "document-freeze", "document-export"],
+      ["document-units"],
+    ],
+  ])("leads to each section of %s with the keyboard, the tab and the address as they were", async (_, changes, has, hasNot) => {
+    setSession({ id: "r", name: "Redaktion", roles: ["redaktion"] });
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve(document_(changes)));
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    await router.push("/dokumente/d1");
+    const wrapper = await open();
+    const title = document.title;
+    const address = window.location.href;
+
+    const links = wrapper.get("nav[data-test=document-sections]").findAll("a");
+    const targets = links.map((link) => (link.attributes("href") ?? "").slice(1));
+    for (const id of has) expect(targets).toContain(id);
+    for (const id of hasNot) expect(targets).not.toContain(id);
+    for (const [index, link] of links.entries()) {
+      await link.trigger("click");
+      await flushPromises();
+      expect(document.activeElement?.id).toBe(targets[index]);
+    }
+    expect(document.title).toBe(title);
+    expect(document.title).toContain("Kernlehrplan Physik");
+    expect(window.location.href).toBe(address);
+  });
+
   it("offers no way to an entry the account does not see: its facts say so", async () => {
     vi.spyOn(api, "getDocument").mockResolvedValue(document_());
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);

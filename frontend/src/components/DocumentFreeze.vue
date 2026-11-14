@@ -87,7 +87,7 @@ async function run(acceptViolations: boolean): Promise<void> {
 
 <template>
   <section v-if="offered" class="freeze" aria-labelledby="document-freeze">
-    <h2 id="document-freeze">{{ t("documents.page.freeze.heading") }}</h2>
+    <h2 id="document-freeze" tabindex="-1">{{ t("documents.page.freeze.heading") }}</h2>
     <p class="freeze__intro">{{ t("documents.page.freeze.intro") }}</p>
     <ul class="freeze__checks" :aria-label="t('documents.page.freeze.checks')">
       <li v-for="item in parts" :key="item.part" data-test="freeze-check" :class="{ 'freeze__check--missing': !item.set }">
