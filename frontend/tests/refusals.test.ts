@@ -68,6 +68,12 @@ describe("the refusals the page says in its own words", () => {
     expect(refusalText("uploads_busy")).toMatch(/in ein paar Sekunden/);
   });
 
+  it("tell an upload that arrived too slowly to try a faster connection or a smaller file", () => {
+    expect(backendCodes()).toContain("upload_too_slow");
+    expect(refusalText("upload_too_slow")).toMatch(/schnelleren Verbindung/);
+    expect(refusalText("upload_too_slow")).toMatch(/kleineren Datei/);
+  });
+
   it("send a lasting failure of the export to the administration", () => {
     expect(refusalText("export_unavailable")).toMatch(/Administration/);
     expect(refusalText("export_invalid")).toMatch(/nicht nachtragen/);

@@ -21,6 +21,7 @@ export const REFUSAL_CODES = [
   "too_many_uploads",
   "too_many_imports",
   "uploads_busy",
+  "upload_too_slow",
   // an entry's content and its conversion (backend app/api/source_content.py, conversions.py)
   "file_hidden",
   "no_file",

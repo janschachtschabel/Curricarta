@@ -741,6 +741,9 @@ export const messages = {
     too_many_uploads: "Du hast gerade viele Dateien hochgeladen. Warte eine Minute und versuch es dann noch einmal.",
     too_many_imports: "Du hast gerade viele Adressen abgerufen. Warte eine Minute und versuch es dann noch einmal.",
     uploads_busy: "Gerade laden viele gleichzeitig hoch. Versuch es in ein paar Sekunden noch einmal.",
+    upload_too_slow:
+      "Die Datei kam zu langsam an, der Server hat das Hochladen abgebrochen. Versuch es mit einer " +
+      "schnelleren Verbindung oder einer kleineren Datei noch einmal.",
     too_many_conversions:
       "Du hast gerade viele Umwandlungen gestartet. Warte eine Minute und versuch es dann noch einmal.",
     no_pages:

@@ -9,7 +9,8 @@ examined and stored a piece at a time, never held whole: under 9 MiB of memory a
 its size (examine_file says what it holds). A process takes
 MAX_CONCURRENT_UPLOADS uploads at once (audit 2026-11-14), each from before its form is read to
 after its file is stored: one more waits UPLOAD_WAIT_S, holding no connection, then is told to
-come back.
+come back. Holding a slot, the form is read for UPLOAD_READ_TIMEOUT_S at most (the wait for the
+slot is not counted); a client slower than that is told 408 and its connection is closed.
 """
 
 import asyncio
@@ -22,7 +23,7 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
 from pydantic import BaseModel, ConfigDict, Field, StringConstraints
-from starlette.datastructures import UploadFile
+from starlette.datastructures import FormData, UploadFile
 
 from app.api.body_limit import MIB
 from app.api.deps import require_account
@@ -64,6 +65,10 @@ def _limit_refusal(code: str, actions: str) -> dict[str, Any]:
 
 UPLOAD_REFUSALS: dict[int | str, dict[str, Any]] = {
     400: {"model": ErrorBody, "description": "The form cannot be read, or holds more than one file"},
+    408: {
+        "model": ErrorBody,
+        "description": "upload_too_slow: the form took longer than UPLOAD_READ_TIMEOUT_S (connection closed)",
+    },
     413: {"model": ErrorBody, "description": "The file, or the archive it is, is too large"},
     415: {"model": ErrorBody, "description": "No type a conversion reads"},
     429: _limit_refusal("too_many_uploads", "uploads"),
@@ -141,7 +146,10 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
             connection, who.account_id, "source.upload", settings.uploads_per_minute, "too_many_uploads"
         )
     # the slot first: a form waiting for one would hold its spooled file in /tmp
-    async with _upload_slot(request.app.state.upload_slots), request.form(max_files=1, max_fields=2) as form:
+    async with (
+        _upload_slot(request.app.state.upload_slots),
+        _read_form(request, settings.upload_read_timeout_s) as form,
+    ):
         upload = form.get("file")
         if not isinstance(upload, UploadFile):
             raise Refusal(422, "file_missing", "The form holds no file.")
@@ -248,6 +256,26 @@ async def _upload_slot(slots: asyncio.Semaphore) -> AsyncIterator[None]:
         yield
     finally:
         slots.release()
+
+
+@asynccontextmanager
+async def _read_form(request: Request, timeout_s: float) -> AsyncIterator[FormData]:
+    """The upload's form, read at the client's pace for ``timeout_s`` at most, and closed after the
+    block. A client that trickles its body would otherwise hold its slot as long as it likes
+    behind an edge that streams bodies (audit 2026-11-14). Cancelled, the form parser closes the
+    files it spooled itself; ``Connection: close`` makes the server end the connection instead of
+    reading the rest of the body at that same pace."""
+    try:
+        async with asyncio.timeout(timeout_s):
+            form = await request.form(max_files=1, max_fields=2)
+    except TimeoutError:
+        raise Refusal(
+            408, "upload_too_slow", "The upload did not arrive in time.", {"Connection": "close"}
+        ) from None
+    try:
+        yield form
+    finally:
+        await form.close()
 
 
 def _examined(upload: UploadFile, limit: int) -> tuple[DetectedType, bytes, int]:
