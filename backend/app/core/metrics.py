@@ -1,14 +1,17 @@
 """Prometheus metrics of the process, rendered for a scrape of /metrics on the internal port.
 
-One process per pod keeps the values in memory; the cluster sums over the pods. Label values
+One process per pod keeps the values in memory; the cluster sums over the pods - but for the
+queue's gauges, which every API replica reads alike from the database. Label values
 come from fixed sets - route templates, known methods, status codes - never from raw input,
 so the number of series stays bounded.
 """
 
-from collections.abc import Iterable
+from collections.abc import Collection, Iterable, Mapping
 
-from prometheus_client import REGISTRY, Counter, Histogram
+from prometheus_client import REGISTRY, Counter, Gauge, Histogram
 from prometheus_client.exposition import choose_encoder
+
+from app import __revision__, __version__
 
 # The method is caller input: anything else (PROPFIND, invented verbs) shares one label
 HTTP_METHODS = frozenset({"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"})
@@ -75,6 +78,56 @@ USAGE_RESERVATIONS = Counter(
     "Reservations of the model's budget by what became of them",
     ["outcome"],
 )
+
+
+# The queue as the API reads it from the job table at a scrape (app/api/internal.py), not the worker:
+# with every worker gone the queue stays in sight. Each replica reads the same table and says the
+# same values, so a rule takes their max, never their sum. kind is one the workers have a handler
+# for, or "other"; status queued or running
+QUEUE_STATUSES = ("queued", "running")
+OTHER_KIND = "other"
+QUEUE_JOBS = Gauge("curricarta_queue_jobs", "Waiting and running jobs by kind", ["kind", "status"])
+QUEUE_OLDEST_WAITING = Gauge(
+    "curricarta_queue_oldest_waiting_seconds",
+    "How long the oldest due waiting job has waited, by kind",
+    ["kind"],
+)
+QUEUE_READS_FAILED = Counter(
+    "curricarta_queue_reads_failed_total", "Reads of the queue at a scrape that failed; the last values stand"
+)
+# The process's connection pool, as psycopg_pool counts it at the scrape
+DB_POOL_SIZE = Gauge("curricarta_db_pool_size", "Connections the pool holds, in use or free")
+DB_POOL_AVAILABLE = Gauge("curricarta_db_pool_available", "Connections of the pool free to be taken")
+DB_POOL_WAITING = Gauge(
+    "curricarta_db_pool_requests_waiting", "Requests waiting for a connection of the pool"
+)
+# Which build runs: the series' labels say it, the value is 1
+BUILD_INFO = Gauge(
+    "curricarta_build_info", "The running build's version and revision", ["version", "revision"]
+)
+BUILD_INFO.labels(__version__, __revision__).set(1)
+
+
+def observe_queue(depth: Iterable[tuple[str, str, int, float]], kinds: Collection[str]) -> None:
+    """``depth`` as app.jobs.queue.queue_depth reads it; ``kinds`` those with a handler. Every kind
+    is set, one without jobs to 0, not left at its last value; any other kind is counted as other."""
+    counts = {(kind, status): 0 for kind in (*kinds, OTHER_KIND) for status in QUEUE_STATUSES}
+    oldest = dict.fromkeys((*kinds, OTHER_KIND), 0.0)
+    for kind, status, count, age in depth:
+        label = kind if kind in oldest else OTHER_KIND
+        counts[label, status] += count
+        oldest[label] = max(oldest[label], age)
+    for (kind, status), count in counts.items():
+        QUEUE_JOBS.labels(kind, status).set(count)
+    for kind, age in oldest.items():
+        QUEUE_OLDEST_WAITING.labels(kind).set(age)
+
+
+def observe_pool(stats: Mapping[str, int]) -> None:
+    """``stats`` as psycopg_pool's ``get_stats()`` gives them."""
+    DB_POOL_SIZE.set(stats.get("pool_size", 0))
+    DB_POOL_AVAILABLE.set(stats.get("pool_available", 0))
+    DB_POOL_WAITING.set(stats.get("requests_waiting", 0))
 
 
 def observe_llm_request(

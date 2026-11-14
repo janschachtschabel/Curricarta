@@ -5,9 +5,13 @@ port an internal path answers 404 as if it did not exist, also with a trailing s
 router's redirect would otherwise confirm it) and under a root path.
 """
 
+import logging
+import time
+
 import psycopg
 from fastapi import APIRouter, Request, Response
 from psycopg_pool import AsyncConnectionPool, PoolTimeout
+from starlette.datastructures import State
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
@@ -15,10 +19,16 @@ from app.api.errors import error_response
 from app.api.paths import route_path
 from app.core import metrics
 from app.db.migrate import applied_versions
+from app.jobs.queue import queue_depth
 
 METRICS_PATH = "/metrics"
 INTERNAL_PATHS = frozenset({"/health", "/ready", METRICS_PATH})
 READY_TIMEOUT_S = 2.0  # a probe has a short deadline of its own; waiting longer helps nobody
+# Scrapes come every few seconds, from more than one Prometheus; the job table is asked at most this
+# often per process, and a queue that stalls takes minutes to matter
+QUEUE_READ_EVERY_S = 15.0
+
+log = logging.getLogger(__name__)
 # Set in the scope of a request refused here: the metrics count it unmatched, not as traffic of the path
 REFUSED_INTERNAL = "curricarta.refused_internal"
 
@@ -41,10 +51,7 @@ async def ready(request: Request) -> JSONResponse:
     pool: AsyncConnectionPool = request.app.state.pool
     try:
         async with pool.connection(timeout=READY_TIMEOUT_S) as connection:
-            # The query has a deadline of its own, local to its transaction: a locked or busy
-            # database must not hold the probe, nor a pool connection per waiting probe
-            deadline = f"{int(READY_TIMEOUT_S * 1000)}ms"
-            await connection.execute("SELECT set_config('statement_timeout', %s, true)", (deadline,))
+            await _with_deadline(connection)
             applied = await applied_versions(connection)
     except (PoolTimeout, psycopg.Error):
         return _unavailable("database")
@@ -53,14 +60,44 @@ async def ready(request: Request) -> JSONResponse:
     return JSONResponse({"status": "ready"})
 
 
+async def _with_deadline(connection: psycopg.AsyncConnection) -> None:
+    """The transaction's queries get the probe's deadline, local to it: a locked or busy database
+    must not hold a probe or a scrape, nor a pool connection per waiting one."""
+    deadline = f"{int(READY_TIMEOUT_S * 1000)}ms"
+    await connection.execute("SELECT set_config('statement_timeout', %s, true)", (deadline,))
+
+
 def _unavailable(reason: str) -> JSONResponse:
     return JSONResponse({"status": "unavailable", "reason": reason}, status_code=503)
 
 
 @router.get(METRICS_PATH)
 async def scrape(request: Request) -> Response:
+    """The process's metrics; with them the pool as it is now and the queue as last read."""
+    metrics.observe_pool(request.app.state.pool.get_stats())
+    await _read_queue(request.app.state)
     content, content_type = metrics.render(request.headers.get("accept", ""))
     return Response(content=content, media_type=content_type)
+
+
+async def _read_queue(state: State) -> None:
+    """The queue's gauges, read anew at most every QUEUE_READ_EVERY_S. A failed read leaves the last
+    values and counts the failure; the scrape answers all the same."""
+    now = time.monotonic()
+    if state.queue_read_at is not None and now - state.queue_read_at < QUEUE_READ_EVERY_S:
+        return
+    # stamped before the read: a scrape beside it does not ask as well, a failed one waits its turn
+    state.queue_read_at = now
+    pool: AsyncConnectionPool = state.pool
+    try:
+        async with pool.connection(timeout=READY_TIMEOUT_S) as connection:
+            await _with_deadline(connection)
+            depth = await queue_depth(connection)
+    except (PoolTimeout, psycopg.Error) as error:
+        metrics.QUEUE_READS_FAILED.inc()
+        log.warning("could not read the queue for the metrics: %s", type(error).__name__)
+        return
+    metrics.observe_queue(depth, state.job_kinds)
 
 
 def is_internal(path: str) -> bool:

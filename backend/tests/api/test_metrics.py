@@ -1,17 +1,27 @@
 """HTTP metrics by route template, scraped on the internal port only."""
 
+import threading
+import time
 from collections.abc import Iterator
 
+import anyio
+import psycopg
 import pytest
 from fastapi import APIRouter, FastAPI, Request
 from fastapi.testclient import TestClient
 from prometheus_client import REGISTRY
+from psycopg_pool import AsyncConnectionPool
 from starlette.applications import Starlette
 from starlette.responses import PlainTextResponse
 from starlette.routing import Route
 
+from app import __revision__, __version__
+from app.api import internal as internal_api
 from app.api.app import create_app
-from tests.support import make_settings
+from app.api.internal import READY_TIMEOUT_S
+from app.core.ids import new_id
+from app.db.migrate import migrate
+from tests.support import lock_held, make_settings, selector_client
 
 PUBLIC = "http://testserver:8000"
 INTERNAL = "http://testserver:9000"
@@ -168,3 +178,135 @@ def test_a_refused_metrics_path_counts_as_unmatched(public: TestClient) -> None:
     public.get("/metrics")
 
     assert sample(REQUESTS, method="GET", route="unmatched", status="404") == before + 1
+
+
+def test_the_build_says_its_version_and_revision(internal: TestClient) -> None:
+    text = internal.get("/metrics").text
+
+    assert f'curricarta_build_info{{revision="{__revision__}",version="{__version__}"}} 1.0' in text
+
+
+# The queue as the API reads it at a scrape: every replica says the same, the rules take the max
+JOBS = "curricarta_queue_jobs"
+READS_FAILED = "curricarta_queue_reads_failed_total"
+
+
+@pytest.fixture
+def queue_url(database_url: str) -> str:
+    migrate(database_url)
+    return database_url
+
+
+def add_job(url: str, kind: str) -> None:
+    with psycopg.connect(url) as connection:
+        connection.execute("INSERT INTO job_lane (lane) VALUES ('system') ON CONFLICT DO NOTHING")
+        connection.execute("INSERT INTO job (id, kind, lane) VALUES (%s, %s, 'system')", (new_id(), kind))
+
+
+def remove_jobs(url: str) -> None:
+    with psycopg.connect(url) as connection:
+        connection.execute("DELETE FROM job")
+
+
+def scraping(url: str, **settings: object) -> TestClient:
+    return selector_client(create_app(make_settings(database_url=url, **settings)), base_url=INTERNAL)
+
+
+@pytest.fixture
+def every_scrape_reads(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(internal_api, "QUEUE_READ_EVERY_S", 0)
+
+
+@pytest.mark.pg
+@pytest.mark.usefixtures("every_scrape_reads")
+def test_a_kind_without_jobs_reads_zero_not_its_last_value(queue_url: str) -> None:
+    add_job(queue_url, "source.fetch")
+    with scraping(queue_url) as client:
+        client.get("/metrics")
+        assert sample(JOBS, kind="source.fetch", status="queued") == 1
+        remove_jobs(queue_url)
+
+        client.get("/metrics")
+
+    assert REGISTRY.get_sample_value(JOBS, {"kind": "source.fetch", "status": "queued"}) == 0
+    assert REGISTRY.get_sample_value(JOBS, {"kind": "extract.run", "status": "running"}) == 0
+
+
+@pytest.mark.pg
+@pytest.mark.usefixtures("every_scrape_reads")
+def test_a_kind_the_service_does_not_know_shares_one_label(queue_url: str) -> None:
+    add_job(queue_url, "made.up")
+    add_job(queue_url, "made.up_too")
+
+    with scraping(queue_url) as client:
+        client.get("/metrics")
+
+    assert sample(JOBS, kind="other", status="queued") == 2
+    assert REGISTRY.get_sample_value(JOBS, {"kind": "made.up", "status": "queued"}) is None
+
+
+@pytest.mark.pg
+@pytest.mark.usefixtures("every_scrape_reads")
+def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_url: str) -> None:
+    add_job(queue_url, "source.fetch")
+    with scraping(queue_url) as client:
+        client.get("/metrics")
+        remove_jobs(queue_url)  # read now, it would say 0
+        failed = sample(READS_FAILED)
+        # another session holds the table: the read waits out its deadline, the scrape does not
+        with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=READY_TIMEOUT_S + 3):
+            started = time.monotonic()
+            response = client.get("/metrics")
+            elapsed = time.monotonic() - started
+
+    assert response.status_code == 200
+    assert elapsed < 3
+    assert sample(JOBS, kind="source.fetch", status="queued") == 1
+    assert sample(READS_FAILED) == failed + 1
+
+
+@pytest.mark.pg
+def test_scrapes_in_quick_succession_ask_the_database_once(queue_url: str) -> None:
+    add_job(queue_url, "source.fetch")
+    with scraping(queue_url) as client:
+        client.get("/metrics")
+        add_job(queue_url, "source.fetch")
+
+        client.get("/metrics")
+
+    assert sample(JOBS, kind="source.fetch", status="queued") == 1
+
+
+@pytest.mark.pg
+def test_the_pool_says_its_size_what_is_free_and_who_waits(queue_url: str) -> None:
+    taken, release = threading.Event(), threading.Event()
+    with scraping(queue_url, db_pool_max_size=1) as client:
+        client.get("/metrics")  # its read of the queue opened the one connection, and gave it back
+        client.get("/metrics")  # the pool as this scrape finds it
+        assert (sample("curricarta_db_pool_size"), sample("curricarta_db_pool_available")) == (1, 1)
+        assert sample("curricarta_db_pool_requests_waiting") == 0
+        pool: AsyncConnectionPool = client.app.state.pool  # type: ignore[attr-defined]
+
+        async def hold() -> None:
+            async with pool.connection():
+                taken.set()
+                await anyio.to_thread.run_sync(release.wait)
+
+        async def wait() -> None:
+            async with pool.connection(timeout=10):
+                pass
+
+        holding = client.portal.start_task_soon(hold)  # type: ignore[union-attr]
+        assert taken.wait(5)
+        waiting = client.portal.start_task_soon(wait)  # type: ignore[union-attr]
+        deadline = time.monotonic() + 5
+        while pool.get_stats()["requests_waiting"] < 1 and time.monotonic() < deadline:
+            time.sleep(0.01)
+
+        client.get("/metrics")  # within the read's interval: no connection asked for
+        seen = [sample(f"curricarta_db_pool_{name}") for name in ("size", "available", "requests_waiting")]
+        release.set()
+        holding.result(10)
+        waiting.result(10)
+
+    assert seen == [1, 0, 1]

@@ -7,6 +7,7 @@ from typing import Any, cast
 import pytest
 from pydantic import ValidationError
 
+from app.api.app import create_app
 from app.conversion import job as convert_job
 from app.conversion.models import ModelFile
 from app.jobs import handlers
@@ -73,6 +74,18 @@ def test_a_worker_without_docling_knows_no_docling_conversion(monkeypatch: pytes
     assert convert_job.KIND in known and convert_job.DOCLING_KIND not in known
     with pytest.raises(ValueError, match=r"source\.convert_docling"):
         select_handlers(known, (convert_job.DOCLING_KIND,))
+
+
+def test_every_kind_a_worker_has_a_handler_for_is_a_kind_the_gauges_name(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    # the API's image has no Docling, yet the converter's workers queue its kind: the queue's
+    # gauges name it all the same, not as "other"
+    monkeypatch.setattr(handlers, "find_spec", installed())
+    named = create_app(make_settings()).state.job_kinds
+    monkeypatch.setattr(handlers, "find_spec", installed("docling"))
+
+    assert set(make_handlers(NO_CONTEXT)) <= named
 
 
 MODEL = ModelFile("layout/model.safetensors", 3, "0" * 64)

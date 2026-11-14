@@ -5,7 +5,10 @@ out of the files in between: bases pinned, no root, a health check that really a
 or secrets in the build context.
 """
 
+import os
 import re
+import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 
@@ -131,6 +134,27 @@ def test_the_api_installs_only_hashed_wheels_from_the_lock_export() -> None:
     assert "requirements-api.txt" in API
     assert "--require-hashes" in API
     assert "--only-binary=:all:" in API
+
+
+def test_the_image_carries_the_revision_it_was_built_from() -> None:
+    # after the last COPY and RUN: a new revision rebuilds no layer before it
+    final = _final_stage(API)
+    lines = _directives(final)
+    argument = lines.index("ARG REVISION=unknown")
+    variable = lines.index("ENV CURRICARTA_REVISION=$REVISION")
+    assert argument < variable
+    assert all(not line.startswith(("COPY ", "RUN ")) for line in lines[argument:])
+    # and the code reads it as the build info's revision (app/__init__.py), in a child process:
+    # this one's package was imported already
+    said = subprocess.run(
+        [sys.executable, "-c", "import app; print(app.__revision__)"],
+        capture_output=True,
+        text=True,
+        env={**os.environ, "CURRICARTA_REVISION": "0123abcd"},
+        cwd=ROOT / "backend",
+        check=True,
+    )
+    assert said.stdout.strip() == "0123abcd"
 
 
 def test_the_api_carries_its_code_and_the_ontology_it_reads_nothing_else() -> None:

@@ -57,6 +57,10 @@ COPY ontology/mem /srv/ontology/mem
 # The published seed of the source register (python -m app.sources.seed), 2 MB
 COPY data/seed /srv/data/seed
 RUN python -m compileall -q /srv/backend/app
+# The commit built from (docker build --build-arg REVISION=<sha>), in curricarta_build_info; after
+# the last COPY and RUN, so a new revision rebuilds no layer before it
+ARG REVISION=unknown
+ENV CURRICARTA_REVISION=$REVISION
 # Hugging Face's libraries never ask the net for a model: the converter reads them from MODELS_DIR.
 # EasyOCR makes its folder (~/.EasyOCR) as it starts; the service's user has no home and the root is
 # read-only, so it goes to the tmpfs (Docling's models of it still come from MODELS_DIR)

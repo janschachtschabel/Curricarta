@@ -3,6 +3,7 @@
 import asyncio
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
+from typing import cast
 
 from fastapi import FastAPI
 
@@ -37,12 +38,15 @@ from app.api.body_limit import JSON_BODY_LIMIT, MIB, BodyLimit
 from app.api.errors import ERROR_RESPONSES, install_error_handlers
 from app.api.request_log import RequestLog
 from app.api.security_headers import SecurityHeaders
+from app.conversion.job import DOCLING_KIND
 from app.core.settings import Settings
 from app.core.storage import open_storage
 from app.core.storage_async import AsyncStorage
 from app.db.migrate import load_migrations
 from app.db.pool import create_pool
 from app.exports.mem_export import MemExporter
+from app.jobs.context import JobContext
+from app.jobs.handlers import make_handlers
 
 SUMMARY = "Curricula captured after Curriculum-Kern 1.0, docked to competence and level schemes, linked."
 DESCRIPTION = """\
@@ -66,6 +70,13 @@ TAGS = [
     {"name": "profiles", "description": "A sector's profile as the editor offers it: its form and values."},
     {"name": "lexicon", "description": "The editors' review of the research cues: a sample, the decisions."},
 ]
+
+
+def job_kinds() -> frozenset[str]:
+    """Every kind a worker may run, the label values of the queue's gauges: Docling's conversions
+    too, which the converter's workers run and this image, without Docling, knows no handler for.
+    The handlers are only bound to the context, never run, so none is needed here."""
+    return frozenset({*make_handlers(cast(JobContext, None)), DOCLING_KIND})
 
 
 def create_app(settings: Settings) -> FastAPI:
@@ -104,6 +115,8 @@ def create_app(settings: Settings) -> FastAPI:
     )
     app.state.settings = settings
     app.state.expected_migrations = frozenset(migration.version for migration in load_migrations())
+    app.state.job_kinds = job_kinds()
+    app.state.queue_read_at = None  # when /metrics last read the queue (app/api/internal.py)
     install_error_handlers(app)
     app.include_router(internal.router)
     app.include_router(system.router)
