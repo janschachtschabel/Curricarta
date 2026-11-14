@@ -49,6 +49,7 @@ _REASON_ORDER = (
 )  # fmt: skip
 _SPLIT = re.compile(r"[\s,;|]+")
 _BY_NAME = "SELECT id FROM account WHERE name = %s"
+_OF_ITEM, _OF_ACCOUNT = "gold_judgement_item_id_fkey", "gold_judgement_judged_by_fkey"  # migration gold's
 
 
 class Refused(Exception):
@@ -149,10 +150,14 @@ async def take_in(connection: psycopg.AsyncConnection, sample_id: int, account: 
     lines = read_sheet(data)
     items = {item.id: item for item in await items_of(connection, sample_id)}
     judgements, left_empty = judgements_in(lines, items, sample.kind)
-    try:
-        judged = await judge_all(connection, found[0], judgements)
-    except psycopg.errors.ForeignKeyViolation:  # the sample taken away with its document meanwhile
-        raise Refused("unknown_sample", f"no sample {sample_id}") from None
+    try:  # in the items' order: two imports at once take their rows' locks in one order, and deadlock not
+        judged = await judge_all(connection, found[0], sorted(judgements, key=lambda judged: judged[0]))
+    except psycopg.errors.ForeignKeyViolation as violated:  # taken away meanwhile
+        if violated.diag.constraint_name == _OF_ACCOUNT:
+            raise Refused("unknown_account", "the account went while the sheet was read") from None
+        if violated.diag.constraint_name == _OF_ITEM:  # with its sample, with its document
+            raise Refused("unknown_sample", f"no sample {sample_id}") from None
+        raise
     return Taken(len(judgements), judged.new, judged.changed, judged.unchanged, left_empty)
 
 
