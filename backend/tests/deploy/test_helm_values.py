@@ -10,6 +10,7 @@ import yaml  # type: ignore[import-untyped]
 
 from app.api.internal import READY_TIMEOUT_S
 from app.core.settings import Settings
+from tests.deploy.test_compose import BESIDE_THE_GRACE_S
 
 VALUES: dict[str, Any] = yaml.safe_load(
     (Path(__file__).resolve().parents[3] / "deploy" / "helm-values.example.yaml").read_text(encoding="utf-8")
@@ -84,8 +85,7 @@ def test_the_worker_may_finish_its_job_before_kubernetes_kills_it() -> None:
     default = Settings.model_fields["job_shutdown_grace_s"].default
     grace = float(worker["env"].get("JOB_SHUTDOWN_GRACE_S", default))
 
-    # beside the grace: 2 s for the handler to clean up, up to 5 s for reservations handed back
-    assert worker["terminationGracePeriodSeconds"] >= grace + 8
+    assert worker["terminationGracePeriodSeconds"] >= grace + BESIDE_THE_GRACE_S
 
 
 def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:

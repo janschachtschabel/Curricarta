@@ -14,6 +14,8 @@ import yaml  # type: ignore[import-untyped]
 from app.conversion.job import DOCLING_KIND
 from app.conversion.models import MODELS_DIR
 from app.core.settings import Settings
+from app.jobs.worker import RELEASE_WAIT_S
+from tests.deploy.test_compose import SHUTDOWN_RESERVE_S, _seconds
 
 ROOT = Path(__file__).resolve().parents[3]
 TEXT = (ROOT / "deploy" / "docker-compose.converter.yml").read_text(encoding="utf-8")
@@ -43,6 +45,16 @@ def test_it_brings_no_secret_or_port_of_its_own() -> None:
     assert "secrets" not in CONVERTER
     assert not any(service.get("ports") for service in SERVICES.values())
     assert SERVICES["converter"]["environment"]["DATABASE_URL_FILE"].startswith("/run/secrets/")
+
+
+def test_a_stopping_converter_may_finish_its_conversion_before_docker_kills_it() -> None:
+    converter = SERVICES["converter"]
+    default = Settings.model_fields["job_shutdown_grace_s"].default
+    grace = float(converter["environment"].get("JOB_SHUTDOWN_GRACE_S", default))
+
+    # the worker's stop, but a conversion asks no model: no reservation is handed back, the wait for
+    # hand-backs ends at once
+    assert _seconds(converter["stop_grace_period"]) >= grace + RELEASE_WAIT_S + SHUTDOWN_RESERVE_S
 
 
 def test_the_converter_is_set_up_as_the_service_s_other_workers_are() -> None:

@@ -13,6 +13,7 @@ import pytest
 import yaml  # type: ignore[import-untyped]
 
 from app.core.settings import Settings
+from app.jobs.worker import HAND_BACKS_WAIT_S, RELEASE_WAIT_S
 
 ROOT = Path(__file__).resolve().parents[3]
 TEXT = (ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8")
@@ -21,6 +22,11 @@ SERVICES: dict[str, Any] = COMPOSE["services"]
 APP = ["bucket", "migrate", "vocab", "api", "worker"]
 # The services that run on; the one-off steps end, and a restart would run them again
 LASTING = ["postgres", "minio", "api", "worker", "web"]
+# A second beside a stopping worker's own waits, for the process to end after them
+SHUTDOWN_RESERVE_S = 1.0
+# What a stopping worker takes beside JOB_SHUTDOWN_GRACE_S: its handler's unwinding, the reservations
+# handed back, the reserve (app/jobs/worker.py)
+BESIDE_THE_GRACE_S = RELEASE_WAIT_S + HAND_BACKS_WAIT_S + SHUTDOWN_RESERVE_S
 
 
 def _seconds(duration: str) -> float:
@@ -150,8 +156,7 @@ def test_a_stopping_worker_may_finish_its_job_before_docker_kills_it() -> None:
     grace = float(worker["environment"].get("JOB_SHUTDOWN_GRACE_S", default))
 
     # Docker's default of 10 s would kill a busy worker; its job would wait for the lease to end
-    # beside the grace: 2 s for the handler to clean up, up to 5 s for reservations handed back
-    assert _seconds(worker["stop_grace_period"]) >= grace + 8
+    assert _seconds(worker["stop_grace_period"]) >= grace + BESIDE_THE_GRACE_S
 
 
 def test_the_worker_is_checked_by_the_image_s_health_check() -> None:
