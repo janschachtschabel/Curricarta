@@ -11,11 +11,11 @@ import psycopg
 import pytest
 
 from app.quality.sample import SEED
-from tests.quality.test_sample_command import a_document, connection, done, owner
+from tests.quality.gold_documents import a_document, connection, done, owner
 from tests.support import without_settings_variables
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["connection"]  # the database with the ontology's vocabularies, shared with test_sample_command
+__all__ = ["connection"]  # the fixture, from gold_documents
 
 BACKEND = Path(__file__).resolve().parents[2]
 
