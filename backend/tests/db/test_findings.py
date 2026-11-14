@@ -15,6 +15,7 @@ from app.db.findings import (
     add_findings,
     drop_stage_findings,
     findings_of,
+    rule_details,
 )
 from app.db.migrate import migrate
 from app.db.runs import RunStart, start_run
@@ -203,3 +204,35 @@ async def test_a_stage_s_earlier_findings_are_dropped_and_every_other_kept(
 
     cursor = await connection.execute("SELECT run_id FROM validation_finding ORDER BY message")
     assert (dropped, sorted(run for (run,) in await cursor.fetchall())) == (1, sorted([later, x4, elsewhere]))
+
+
+async def test_the_details_of_a_rule_s_findings_are_read(
+    connection: psycopg.AsyncConnection, made: dict[str, Any], database_url: str
+) -> None:
+    document = made["document"]
+    with psycopg.connect(database_url, autocommit=True) as setup:
+        other = add_document(setup, made)
+    await add_findings(
+        connection,
+        document,
+        None,
+        [
+            Finding("x4.answer_cut", "warning", document, "cut", details={"units": ["E3"], "cap": 4000}),
+            Finding("x4.answer_cut", "warning", document, "cut", details={"units": ["E5"], "cap": 8000}),
+            Finding("x4.unanswered", "warning", document, "unanswered", details={"units": ["E4"]}),
+        ],
+    )
+    await add_findings(
+        connection,
+        other,
+        None,
+        [Finding("x4.answer_cut", "warning", other, "cut", details={"units": ["E1"]})],
+    )
+
+    found = await rule_details(connection, document, "x4.answer_cut")
+
+    assert sorted(found, key=lambda details: details["cap"]) == [
+        {"units": ["E3"], "cap": 4000},
+        {"units": ["E5"], "cap": 8000},
+    ]
+    assert await rule_details(connection, document, "x4.pattern_timeout") == []

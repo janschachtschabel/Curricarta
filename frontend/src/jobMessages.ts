@@ -31,6 +31,7 @@ export const JOB_FAILURE_CODES = [
   // extract.run (backend app/pipeline/run.py, asking.py, unit_question.py, side_by_side.py)
   "budget_exhausted",
   "model_unanswered",
+  "answer_cut",
   "model_not_configured",
   "model_refused",
   "prefix_too_long",

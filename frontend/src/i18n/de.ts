@@ -651,6 +651,10 @@ export const messages = {
       model_unanswered:
         "Das Sprachmodell hat auch nach mehreren Versuchen keine verwertbare Antwort geliefert. Starte die " +
         "Extraktion später noch einmal; scheitert sie wieder, melde es der Administration.",
+      // an answer cut at the output cap, LLM_MAX_OUTPUT_TOKENS (backend app/pipeline/asking.py)
+      answer_cut:
+        "Eine Antwort des Sprachmodells war länger, als eine Antwort sein darf. Die Administration kann die " +
+        "Grenze anheben (LLM_MAX_OUTPUT_TOKENS); bis dahin bleibt dieser Teil offen.",
       model_not_configured: "Für das Sprachmodell ist kein Zugang eingerichtet. Melde das bitte der Administration.",
       // the provider refused a request for good: a 4xx but 408 and 429 (backend app/pipeline/side_by_side.py)
       model_refused:
@@ -1241,6 +1245,7 @@ export const messages = {
         target_elsewhere: "Ein Verweis auf Inhalt an einem anderen Knoten oder an keinem.",
         // a stage's own
         unanswered: "Das Sprachmodell gab keine Antwort in der verlangten Form.",
+        answer_cut: "Die Antwort des Sprachmodells wurde an der Längengrenze abgeschnitten; dieser Teil ist nicht ausgelesen.",
         empty_answer: "Die Antwort enthielt keine neue lesbare Aussage, obwohl das Paket welche hat; es bleibt, wie es war.",
         pattern_timeout: "Ein Suchmuster des Lexikons brauchte zu lange und wurde übergangen.",
       },

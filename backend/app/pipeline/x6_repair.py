@@ -5,11 +5,12 @@ X6 asks the model again for the work packages whose statements X5 or the reading
 wrong (app/pipeline/x6_units.py) - each once a job, twice at most in all -, with X4's question behind the
 same prefix and the defects named (prompts/x6.py), side by side as X4 asks, and writes each anew as soon
 as it is answered (app/pipeline/x6_unit.py). An answer out of form leaves its package as it was: it is
-counted as a repair, and its finding (``x6.unanswered``) asks for one more; so does an answer of no
-statement for a package that has some (``x6.empty_answer``). A budget spent lets no further package
-begin, as in X4, nor does a provider's error, which ends the run as in X4. Then X5 checks the
-document again, its findings replacing the ones before (app/pipeline/x5_stage.py) - also where the
-budget ended X6, before the job ends with it.
+counted as a repair, and its finding (``x6.unanswered``) asks for one more; so does an answer cut at
+the output cap (``x6.answer_cut``, with the cap), and an answer of no statement for a package that
+has some (``x6.empty_answer``). A budget spent lets no further package begin, as in X4, nor does a
+provider's error, which ends the run as in X4. Then X5 checks the document again, its findings
+replacing the ones before (app/pipeline/x5_stage.py) - also where the budget ended X6, before the job
+ends with it.
 
 A document is repaired once X5 has checked it, every package done then; one not checked yet goes on
 with extract.run (``document_not_checked``). With nothing to repair - the editors took it meanwhile -
@@ -36,7 +37,7 @@ from app.jobs.queue import Job, hold_lease
 from app.llm.calls import StageAgent
 from app.llm.metering import BudgetExhausted
 from app.llm.raw import RawResponses
-from app.pipeline.asking import Asking, Unanswered, ended, model_of
+from app.pipeline.asking import AnswerCut, Asking, Unanswered, ended, model_of
 from app.pipeline.extraction import REPAIR_KIND as REPAIR_KIND
 from app.pipeline.extraction import document_in
 from app.pipeline.ground import ground_of
@@ -158,6 +159,13 @@ class _Repairs:
             return
         except PROVIDER_ERRORS as error:
             self.broken = self.broken or error
+            return
+        except AnswerCut:
+            message = "the answer was cut at the output cap: the unit stays as it was"
+            of_unit = {"unit": unit.package.key, "cap": stage.output_tokens}
+            await self._left(
+                [Finding("x6.answer_cut", "warning", self.asking.document.id, message, None, of_unit)]
+            )
             return
         except (Unanswered, WrongUnit):
             message = "the model's answer never took the form of the unit, or answered for another"

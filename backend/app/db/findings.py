@@ -49,6 +49,9 @@ ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule
 LIMIT %(most)s
 """
 _DROP_RULE = "DELETE FROM validation_finding WHERE document_id = %s AND rule = %s"
+_RULE_DETAILS = (
+    "SELECT details FROM validation_finding WHERE document_id = %s AND rule = %s ORDER BY created_at, id"
+)
 # the findings of reading the model's answer for a package (details.unit) by the stages that read one
 _DROP_UNIT = """
 DELETE FROM validation_finding f USING extraction_run r
@@ -144,6 +147,14 @@ async def drop_rule_findings(connection: psycopg.AsyncConnection, document_id: U
     """Drop the document's findings of ``rule``, whichever run found them; how many went."""
     cursor = await connection.execute(_DROP_RULE, (document_id, rule))
     return cursor.rowcount
+
+
+async def rule_details(
+    connection: psycopg.AsyncConnection, document_id: UUID, rule: str
+) -> list[dict[str, Any]]:
+    """The details of the document's findings of ``rule``, whichever run found them, oldest first."""
+    cursor = await connection.execute(_RULE_DETAILS, (document_id, rule))
+    return [details for (details,) in await cursor.fetchall()]
 
 
 async def add_findings(

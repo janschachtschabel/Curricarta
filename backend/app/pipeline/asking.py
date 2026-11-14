@@ -1,10 +1,10 @@
 """How a stage of an extraction asks the model (plan M1 6.2, 7): each request charged to the
 document's account (its owner's) under the job - an attempt whose job ended or that lost its lease
 asks no more - and every answer kept as it came under the run; and how a stage's run ends by what
-broke it. A budget spent ends the run as ``budget_exhausted`` and the job with it; an answer that
-never took its schema's form ends the run as failed (``model_unanswered``); a run another run's
-write came before ends as failed and passes the stage over; any other error ends the run as failed
-and the attempt is asked again.
+broke it. A budget spent ends the run as ``budget_exhausted`` and the job with it; an answer cut
+at the output cap ends the run as failed (``answer_cut``), and one that never took its schema's
+form (``model_unanswered``); a run another run's write came before ends as failed and passes the
+stage over; any other error ends the run as failed and the attempt is asked again.
 """
 
 from collections.abc import Awaitable, Sequence
@@ -32,6 +32,10 @@ from app.usage.meter import LedgerMeter
 
 class Unanswered(Exception):
     """No answer of a request took its schema's form, however often asked."""
+
+
+class AnswerCut(Unanswered):
+    """An answer was cut at the output cap: asked again under the same cap, it would be again."""
 
 
 class Superseded(Exception):
@@ -65,6 +69,8 @@ class Asking:
         # with the job: a handler left to unwind after it ended - cancelled, lost - asks no more
         meter = LedgerMeter(self.context.pool, charge, self.job)
         got = await ask(stage, prompt, meter=meter, raw=self.keeper)
+        if got.cut:
+            raise AnswerCut(got.failure or "an answer was cut at the output cap")
         if got.output is None:
             raise Unanswered(got.failure or "no answer took the schema's form")
         return as_written(got.output)
@@ -103,6 +109,11 @@ async def ended(
         failure = f"{stage} of the document was written by another run meanwhile"
         await end_run(context, run_id, "failed", {"failure": failure})
         return {"superseded": True}
+    except AnswerCut as cut:
+        await end_run(context, run_id, "failed", {"failure": "answer_cut"})
+        raise PermanentError(
+            "answer_cut", "an answer was cut at the output cap (LLM_MAX_OUTPUT_TOKENS)"
+        ) from cut
     except Unanswered as unanswered:
         await end_run(context, run_id, "failed", {"failure": str(unanswered)[:2000]})
         raise PermanentError(

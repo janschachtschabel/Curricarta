@@ -12,7 +12,10 @@ lets no further unit begin: those asked are answered and written, then the run e
 provider's error, once its waits are spent (app/pipeline/side_by_side.py): the run ends by it, a
 request refused for good as ``model_refused``, any other for the job's next attempt. A unit whose
 answer never took its form, or answered for another unit, stays open while the others go on; the
-run then ends as failed (``model_unanswered``) and the next job asks it again. Any other error - a
+run then ends as failed (``model_unanswered``) and the next job asks it again. So does a unit whose
+answer was cut at the output cap, but the run ends as ``answer_cut`` - before ``model_unanswered`` -
+and its finding (``x4.answer_cut``) names the cap: no job asks the unit again under a cap no higher,
+whose answer would be cut and paid for again, and each ends as ``answer_cut``. Any other error - a
 lease lost, the database - ends every unit still asking; what was written stays. The run ends done
 once every unit is, under the lease and the document's lock: a run of X4 done meanwhile passes it
 over. Progress is reported as each unit is written.
@@ -27,15 +30,15 @@ from pydantic_ai.exceptions import ModelAPIError
 
 from app.conversion.base import Block
 from app.db.documents import Document
-from app.db.findings import Finding, add_findings, drop_rule_findings
+from app.db.findings import Finding, add_findings, drop_rule_findings, rule_details
 from app.db.runs import RunStart, done_stages, finish_run, lock_for_stage, stage_result, start_run
 from app.db.units import UnitTaken, done_units
 from app.jobs.context import JobContext
 from app.jobs.queue import Job, hold_lease
-from app.llm.calls import StageAgent
+from app.llm.calls import StageAgent, output_cap
 from app.llm.metering import BudgetExhausted
 from app.llm.raw import RawResponses
-from app.pipeline.asking import Asking, Superseded, Unanswered, ended, model_of
+from app.pipeline.asking import AnswerCut, Asking, Superseded, Unanswered, ended, model_of
 from app.pipeline.ground import ground_of
 from app.pipeline.progress import report
 from app.pipeline.prompts import x4
@@ -62,6 +65,9 @@ async def run_x4(
         packages = [WorkPackage.from_result(item) for item in (kept or {}).get("packages", [])]
         units = [item for item in packages if item.job == "statements"]
         done = len(units) - len(open_units := await units_to_ask(connection, document, units))
+        cut = await units_cut(connection, document, cap := output_cap(model))
+        held = [unit.key for unit in open_units if unit.key in cut]
+        open_units = [unit for unit in open_units if unit.key not in cut]
         # the lease first; in a block of its own, which ends the hold on the job's row
         await report(connection, job, "extract_statements", done=done, total=len(units))
     async with context.pool.connection() as connection:
@@ -84,7 +90,7 @@ async def run_x4(
         run_id = await start_run(connection, start)
     keeper = RawResponses(context.storage.sync, run_id, "x4")
     asking = Asking(context, job, document, run_id, model, model_name, keeper)
-    work = _Units(asking, questions, packages, len(units), done)
+    work = _Units(asking, questions, packages, len(units), done, cap, held)
     return await ended(context, run_id, "X4", work.run(open_units))
 
 
@@ -96,6 +102,17 @@ async def units_to_ask(
     return [unit for unit in units if unit.key not in done]
 
 
+async def units_cut(connection: psycopg.AsyncConnection, document: Document, cap: int | None) -> set[str]:
+    """The units whose answer an earlier run found cut at a cap no lower than ``cap``."""
+    found = await rule_details(connection, document.id, "x4.answer_cut")
+    return {
+        key
+        for details in found
+        if cap is not None and details.get("cap", 0) >= cap
+        for key in details.get("units", [])
+    }
+
+
 @dataclass
 class _Units:
     """One run's units being asked and written."""
@@ -105,9 +122,12 @@ class _Units:
     packages: Sequence[WorkPackage]  # all of X2's, for the parts of a node
     total: int
     done: int
+    cap: int | None  # on an answer, as the model sends it
+    held: list[str]  # open, and cut before under a cap no lower: not asked
     spent: BudgetExhausted | None = None  # once set, no further unit begins
     broken: ModelAPIError | None = None  # the provider's first error; as spent
     unanswered: list[str] = field(default_factory=list)
+    cut: list[str] = field(default_factory=list)
     taken: int = 0
 
     async def run(self, units: Sequence[WorkPackage]) -> dict[str, Any]:
@@ -127,6 +147,9 @@ class _Units:
             return
         except PROVIDER_ERRORS as error:
             self.broken = self.broken or error
+            return
+        except AnswerCut:
+            self.cut.append(unit.key)
             return
         except (Unanswered, WrongUnit):
             self.unanswered.append(unit.key)
@@ -150,17 +173,27 @@ class _Units:
         context, job, document, run_id = (
             self.asking.context, self.asking.job, self.asking.document, self.asking.run_id,
         )  # fmt: skip
-        keys = sorted(self.unanswered, key=lambda key: int(key[1:]))
-        if keys:  # committed before the run ends: it goes with the run, however that ends
+        keys = sorted(self.unanswered, key=_by_number)
+        cut = sorted(self.cut, key=_by_number)
+        findings = []
+        if keys:
             message = "units the model's answers never took the form of, or answered for another"
-            finding = Finding("x4.unanswered", "warning", document.id, message, None, {"units": keys})
+            findings.append(Finding("x4.unanswered", "warning", document.id, message, None, {"units": keys}))
+        if cut:  # named once, by the run that met the cap: a run that held them back adds nothing
+            message = "units whose answer was cut at the output cap: not read"
+            details = {"units": cut, "cap": self.cap}
+            findings.append(Finding("x4.answer_cut", "warning", document.id, message, None, details))
+        if findings:  # committed before the run ends: they go with the run, however that ends
             async with context.pool.connection() as connection, connection.transaction():
                 await hold_lease(connection, job)
-                await add_findings(connection, document.id, run_id, [finding])
+                await add_findings(connection, document.id, run_id, findings)
         if self.spent is not None:
             raise self.spent
         if self.broken is not None:
             fail_by_provider(self.broken)
+        if cut or self.held:
+            named = ", ".join(sorted([*cut, *self.held], key=_by_number))
+            raise AnswerCut(f"units {named} were cut at the output cap of {self.cap} tokens")
         if keys:
             raise Unanswered(f"units {', '.join(keys)} were never answered in form")
         async with context.pool.connection() as connection, connection.transaction():
@@ -169,6 +202,7 @@ class _Units:
                 raise Superseded
             # every unit answered now: an earlier run's word that some were not is no longer true
             await drop_rule_findings(connection, document.id, "x4.unanswered")
+            await drop_rule_findings(connection, document.id, "x4.answer_cut")
             done = await done_units(connection, document.id)
             result = {
                 "units": self.total,
@@ -177,3 +211,7 @@ class _Units:
             }
             await finish_run(connection, run_id, "done", result)
         return result
+
+
+def _by_number(key: str) -> int:
+    return int(key[1:])  # "E12" after "E2"
