@@ -653,8 +653,8 @@ export const messages = {
         "Extraktion später noch einmal; scheitert sie wieder, melde es der Administration.",
       // an answer cut at the output cap (backend app/pipeline/asking.py); the operator raises the limit
       answer_cut:
-        "Eine Antwort des Sprachmodells war länger, als eine Antwort sein darf, und wurde abgeschnitten; " +
-        "dieser Teil bleibt offen. Die Administration kann die Längengrenze für Antworten anheben.",
+        "Eine Antwort des Sprachmodells wurde an der Längengrenze für Antworten abgeschnitten; dieser Teil " +
+        "bleibt offen. Die Administration kann die Längengrenze für Antworten anheben.",
       model_not_configured: "Für das Sprachmodell ist kein Zugang eingerichtet. Melde das bitte der Administration.",
       // the provider refused a request for good: a 4xx but 408 and 429, or a 429 saying the credit at the
       // provider is spent (backend app/pipeline/side_by_side.py)
@@ -1250,8 +1250,9 @@ export const messages = {
         // X4's (a unit not yet read) and X6's (a package read before): the part stays as it is, and is
         // asked again - also offered for repair - only once the operator has raised the limit
         answer_cut:
-          "Die Antwort des Sprachmodells wurde an der Längengrenze abgeschnitten und nicht übernommen; " +
-          "dieser Teil bleibt, wie er ist. Die Administration kann die Grenze für Antworten anheben.",
+          "Die Antwort des Sprachmodells wurde an der Längengrenze für Antworten abgeschnitten und nicht " +
+          "übernommen; dieser Teil bleibt, wie er ist. Bis die Administration die Längengrenze für Antworten " +
+          "anhebt, wird er weder neu gelesen noch zur Reparatur angeboten.",
         empty_answer: "Die Antwort enthielt keine neue lesbare Aussage, obwohl das Paket welche hat; es bleibt, wie es war.",
         pattern_timeout: "Ein Suchmuster des Lexikons brauchte zu lange und wurde übergangen.",
       },
