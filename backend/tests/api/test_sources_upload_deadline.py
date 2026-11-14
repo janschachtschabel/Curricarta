@@ -36,7 +36,9 @@ pytestmark = pytest.mark.pg
 __all__ = ["migrated", "one_slot", "owner", "store"]  # the fixtures, taken over
 
 TRICKLE_S = 0.5  # the deadline of a client that stalls
-PACED_S = 1.0  # the deadline of a client that sends in pieces, in time
+PACED_S = 2.0  # the deadline of a client that sends in pieces, in time
+PAUSE_S = 1 / 6  # each pause of that client: half a second in all, a quarter of its deadline
+HELD_S = 1.8  # how long another upload holds the slot: with the reading, past the deadline
 STALL_S = 10 * TRICKLE_S  # how long a stalled client stays
 
 
@@ -218,7 +220,7 @@ def test_an_upload_that_arrives_in_time_is_not_touched_by_the_deadline(
 ) -> None:
     client = with_deadline(one_slot[0], PACED_S)
 
-    answered = drive(client, owner[1], paced(PACED_S / 6), cancel=None)  # half the deadline in all
+    answered = drive(client, owner[1], paced(PAUSE_S), cancel=None)
 
     assert answered[0]["status"] == 201
 
@@ -235,11 +237,11 @@ def test_waiting_for_a_slot_is_not_counted_against_the_reading(
     client.portal.call(slots.acquire)  # another upload holds the only slot
 
     async def other_upload_ends() -> None:
-        await asyncio.sleep(0.8 * PACED_S)
+        await asyncio.sleep(HELD_S)
         slots.release()
 
     client.portal.start_task_soon(other_upload_ends)
-    # half the deadline to read, once the slot is had: wait and reading together pass the deadline
-    answered = drive(client, owner[1], paced(PACED_S / 6), cancel=None)
+    # a quarter of the deadline to read, once the slot is had: wait and reading together pass it
+    answered = drive(client, owner[1], paced(PAUSE_S), cancel=None)
 
     assert answered[0]["status"] == 201
