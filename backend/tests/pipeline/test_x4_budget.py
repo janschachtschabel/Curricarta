@@ -21,7 +21,7 @@ __all__ = ["setup"]  # the fixture, shared with test_run
 
 
 async def test_a_budget_spent_amid_x4_keeps_the_units_done_and_a_new_job_asks_the_rest(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)

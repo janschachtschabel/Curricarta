@@ -134,7 +134,7 @@ async def test_the_error_that_ended_the_units_keeps_the_one_it_was_raised_in_han
 
 
 async def test_no_more_units_are_asked_at_once_than_the_pool_leaves_beside_the_worker(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
@@ -157,7 +157,7 @@ async def test_no_more_units_are_asked_at_once_than_the_pool_leaves_beside_the_w
 
 
 async def test_each_finding_of_a_unit_s_reading_names_its_unit(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)

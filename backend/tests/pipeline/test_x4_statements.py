@@ -137,7 +137,7 @@ async def test_each_unit_is_asked_once_behind_the_prefix_they_share_and_written(
 
 @pytest.mark.parametrize("concurrency", [1, 2])
 async def test_at_most_extract_concurrency_units_are_asked_at_once(
-    setup: Any, tmp_path: Path, database_url: str, concurrency: int
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, concurrency: int
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
@@ -162,7 +162,7 @@ async def test_at_most_extract_concurrency_units_are_asked_at_once(
 
 
 async def test_a_unit_answered_for_another_stays_open_and_a_new_job_asks_it_alone(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
@@ -219,7 +219,7 @@ async def test_a_lease_lost_while_a_unit_is_asked_ends_the_units_and_writes_none
 
 
 async def test_the_one_unit_of_a_document_without_headings_gets_a_node_of_its_own(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=PLAIN)
@@ -240,7 +240,7 @@ async def test_the_one_unit_of_a_document_without_headings_gets_a_node_of_its_ow
 
 
 async def test_the_parts_of_a_node_parted_at_pages_keep_their_order_at_it(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # "Inhaltsfeld 1" runs over 17 pages: X2 parts it after 15 (MOST_PAGES), X4 asks each part
     pool, connection = setup
@@ -266,7 +266,7 @@ async def test_the_parts_of_a_node_parted_at_pages_keep_their_order_at_it(
 
 
 async def test_a_unit_another_writer_did_meanwhile_counts_as_done(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
@@ -299,7 +299,7 @@ async def test_a_unit_another_writer_did_meanwhile_counts_as_done(
 
 
 async def test_a_run_of_x4_done_while_this_one_asked_passes_the_stage_over(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -326,7 +326,7 @@ async def test_a_run_of_x4_done_while_this_one_asked_passes_the_stage_over(
 
 
 async def test_a_pattern_of_the_lexicon_that_took_too_long_is_a_finding_of_its_unit(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -353,7 +353,7 @@ async def test_a_pattern_of_the_lexicon_that_took_too_long_is_a_finding_of_its_u
 
 
 async def test_a_wording_copied_as_the_prefix_shows_it_is_kept_as_its_block_has_it(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # the prefix indents a block's later lines (app/pipeline/prefix.py); a wording the model copies
     # with them is the block's without

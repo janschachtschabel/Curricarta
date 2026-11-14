@@ -184,7 +184,9 @@ async def test_an_import_writes_the_plan_s_tree_as_imported_rows_then_checks_it(
     assert kinds == [("match_exact",)]
 
 
-async def test_the_plan_s_answers_are_kept_raw_under_the_run(setup: Any, tmp_path: Path) -> None:
+async def test_the_plan_s_answers_are_kept_raw_under_the_run(
+    in_process_shacl: None, setup: Any, tmp_path: Path
+) -> None:
     context, connection = setup
     document = await an_import(connection)
 
@@ -202,7 +204,7 @@ async def test_the_plan_s_answers_are_kept_raw_under_the_run(setup: Any, tmp_pat
     assert (len(kept["closure"]), kept["plan"]) == (9, PLAN.iri)
 
 
-async def test_an_import_done_is_not_written_twice(setup: Any) -> None:
+async def test_an_import_done_is_not_written_twice(in_process_shacl: None, setup: Any) -> None:
     context, connection = setup
     document = await an_import(connection)
     await run(context, await a_job(connection, document), Endpoint())
@@ -292,7 +294,7 @@ async def test_a_cancel_or_a_lost_lease_at_the_last_attempt_is_no_endpoint_away(
 
 
 async def test_an_import_reports_reading_then_anchoring_then_checking(
-    setup: Any, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     context, connection = setup
     document = await an_import(connection)
@@ -336,7 +338,7 @@ def with_contents() -> list[Block]:
     return made
 
 
-async def test_the_contents_are_no_place_a_wording_is_anchored_at(setup: Any) -> None:
+async def test_the_contents_are_no_place_a_wording_is_anchored_at(in_process_shacl: None, setup: Any) -> None:
     context, connection = setup
     document = await document_of(connection, with_contents())
     await replace_graph(connection, PLAN.graph, [PLAN])
@@ -354,7 +356,7 @@ async def test_the_contents_are_no_place_a_wording_is_anchored_at(setup: Any) ->
 
 
 async def test_an_import_another_job_wrote_meanwhile_is_not_written_again(
-    setup: Any, monkeypatch: Any
+    in_process_shacl: None, setup: Any, monkeypatch: Any
 ) -> None:
     # this attempt looked before the other's run was done: the stage's lock tells it, and it writes nothing
     context, connection = setup
@@ -402,6 +404,7 @@ async def anchor_of(
 
 
 async def test_a_wording_the_document_does_not_hold_is_a_warning_and_the_references_are_counted(
+    in_process_shacl: None,
     setup: Any,
 ) -> None:
     # Saxony's frozen plan: parts at every depth, 20 references
@@ -436,7 +439,9 @@ async def test_a_wording_the_document_does_not_hold_is_a_warning_and_the_referen
     assert warned[0][0] >= 1
 
 
-async def test_a_wording_found_on_the_title_pages_is_counted_apart(setup: Any) -> None:
+async def test_a_wording_found_on_the_title_pages_is_counted_apart(
+    in_process_shacl: None, setup: Any
+) -> None:
     context, connection = setup
     made = with_contents()
     # a Kompetenzspezifikation's wording - a statement's -: on the cover, spaced apart, nowhere in the body
@@ -489,7 +494,7 @@ async def test_a_document_gone_at_the_write_ends_the_job(setup: Any, monkeypatch
     assert ended.value.code == "mem_unwritable"
 
 
-async def test_an_import_checked_and_then_edited_is_checked_again(setup: Any) -> None:
+async def test_an_import_checked_and_then_edited_is_checked_again(in_process_shacl: None, setup: Any) -> None:
     context, connection = setup
     document = await an_import(connection)
     await run(context, await a_job(connection, document), Endpoint())
@@ -559,6 +564,7 @@ LOOSE: dict[str, Any] = {
 
 
 async def test_statements_at_the_top_hang_under_the_plan_s_title_and_a_part_of_no_storable_iri_is_counted(
+    in_process_shacl: None,
     setup: Any,
 ) -> None:
     context, connection = setup
@@ -590,7 +596,7 @@ KMK_PLAN = MemPlan(
 )  # fmt: skip
 
 
-async def test_a_plan_of_the_kmk_s_graph_is_typed_by_its_table(setup: Any) -> None:
+async def test_a_plan_of_the_kmk_s_graph_is_typed_by_its_table(in_process_shacl: None, setup: Any) -> None:
     # its ten standards: Regelstandards for the learner, at the plan's own area (plan M2-7, E13)
     context, connection = setup
     document = await document_of(connection, blocks(KMK), regions=("DE",))

@@ -105,7 +105,7 @@ async def matched(connection: Any, document: Any) -> int:
 
 
 async def test_the_plausibility_findings_are_written_with_the_others(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -123,7 +123,7 @@ async def test_the_plausibility_findings_are_written_with_the_others(
 
 
 async def test_the_node_of_a_unit_under_no_heading_is_not_checked_against_its_blocks(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # X4 titles it by the document: its anchor says where the unit begins, not that the title stands there
     pool, connection = setup
@@ -186,7 +186,7 @@ async def waited_on(look: psycopg.AsyncConnection, holder: int) -> None:
 
 
 async def test_x5_takes_the_tree_s_lock_before_it_writes_the_matches(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # who changes a tree's anchors takes its lock first (migration l1_nodes), as an editor does
     pool, connection = setup
@@ -335,7 +335,7 @@ async def x5_run_ids(connection: Any, document: Any) -> list[Any]:
 
 
 async def test_x5_again_checks_the_document_as_it_stands_and_its_findings_replace_the_ones_before(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -374,7 +374,7 @@ async def test_x5_again_checks_the_document_as_it_stands_and_its_findings_replac
 
 
 async def test_x5_again_that_lost_its_lease_leaves_the_findings_before_standing(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -396,7 +396,9 @@ async def test_x5_again_that_lost_its_lease_leaves_the_findings_before_standing(
     assert before and await x5_findings(connection, document) == before
 
 
-async def test_x5_done_is_not_run_again_unless_asked(setup: Any, tmp_path: Path, database_url: str) -> None:
+async def test_x5_done_is_not_run_again_unless_asked(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
     pool, connection = setup
     document = await a_document(connection)
     job = await a_job(connection, document.id, document.owner_id)
@@ -408,7 +410,7 @@ async def test_x5_done_is_not_run_again_unless_asked(setup: Any, tmp_path: Path,
 
 
 async def test_an_imported_wording_found_nowhere_is_a_warning_on_its_row_not_a_violation(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # plan M2 E3: the import put the statement on an estimated page with no block - a hint for the redaktion
     pool, connection = setup

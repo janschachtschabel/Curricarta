@@ -247,7 +247,7 @@ async def rows(connection: psycopg.AsyncConnection, query: str, *params: Any) ->
 
 
 async def test_a_document_is_extracted_stage_by_stage_each_a_run(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -330,7 +330,7 @@ async def test_a_document_is_extracted_stage_by_stage_each_a_run(
 
 
 async def test_an_attempt_after_a_break_goes_on_from_the_last_stage_done(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -386,7 +386,7 @@ async def test_a_stage_that_breaks_ends_its_run_and_is_asked_again(
 
 
 async def test_the_headings_are_read_by_the_type_the_editors_set_not_by_x1_s(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # "CE 01" is a Curriculare Einheit in a Pflege-Rahmenplan alone (vocational#c-ce-1)
     pool, connection = setup
@@ -628,6 +628,7 @@ async def test_a_job_without_a_model_or_a_document_ends_at_once(
     ids=["tree", "plain"],
 )
 async def test_a_document_done_before_is_neither_asked_nor_written_again(
+    in_process_shacl: None,
     setup: Any,
     tmp_path: Path,
     database_url: str,
@@ -656,7 +657,7 @@ async def test_a_document_done_before_is_neither_asked_nor_written_again(
 
 
 async def test_a_new_job_goes_on_where_one_that_failed_stopped(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # a job that ends for good after X1 (attempts spent, a budget spent in a later stage)
     pool, connection = setup
@@ -692,6 +693,7 @@ async def test_a_new_job_goes_on_where_one_that_failed_stopped(
     ids=["tree", "plain"],
 )
 async def test_two_jobs_on_one_document_write_it_once(
+    in_process_shacl: None,
     setup: Any,
     tmp_path: Path,
     database_url: str,
@@ -758,7 +760,7 @@ async def test_a_document_with_a_tree_no_extraction_wrote_is_not_extracted(
 
 
 async def test_a_job_that_finds_x1_written_since_it_looked_goes_on_with_x2(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # another job wrote X1 between this one's look at the stages done and its start of X1
     pool, connection = setup

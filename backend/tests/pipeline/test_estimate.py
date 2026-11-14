@@ -121,7 +121,7 @@ def flattened(model: Model) -> Callable[[list[ModelMessage], AgentInfo], ModelRe
 
 
 async def test_x1_is_reckoned_as_its_requests_are_reserved(
-    setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
 ) -> None:
     # the type set by the editors: X1 reads the headings by it, the reckoning too
     pool, connection = setup
@@ -146,7 +146,7 @@ async def test_x1_is_reckoned_as_its_requests_are_reserved(
 
 
 async def test_the_outline_is_reckoned_by_the_type_the_editors_set(
-    setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
 ) -> None:
     # "CE 01" is a Curriculare Einheit in a Pflege-Rahmenplan alone (vocational#c-ce-1): read without
     # a type, its pattern types the heading and leaves no outline to ask; read as an Ausbildungsordnung,
@@ -237,7 +237,7 @@ async def test_after_x1_alone_the_units_are_counted_and_x3_and_x4_left_unreckone
 
 
 async def test_x3_and_x4_are_reckoned_once_x2_is_done_as_the_next_job_reserves_them(
-    setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
 ) -> None:
     _, connection = setup
     document, context = await after_x2(setup, tmp_path, database_url)
@@ -254,7 +254,7 @@ async def test_x3_and_x4_are_reckoned_once_x2_is_done_as_the_next_job_reserves_t
 
 
 async def test_a_unit_done_is_not_reckoned_again(
-    setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
 ) -> None:
     # a job ended at the quota midway through X4, one unit at a time: E1 written, E2 open
     pool, connection = setup
@@ -305,7 +305,7 @@ async def test_a_stage_no_window_fits_is_left_unreckoned(
 
 
 async def test_what_a_cache_breakpoint_keeps_before_it_is_the_prefix_counted(
-    setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, reserved: Reserved
 ) -> None:
     # a model that takes one, as gpt-6-luna does: the prefix, the breakpoint, the task
     # (app/llm/calls.py, cached_up_to) - reckoned as the stages then reserve it
@@ -331,7 +331,9 @@ async def test_what_a_cache_breakpoint_keeps_before_it_is_the_prefix_counted(
     assert sorted(requests_of(reckoning)) == sorted(reserved)
 
 
-async def test_a_document_done_owes_no_request(setup: Any, tmp_path: Path, database_url: str) -> None:
+async def test_a_document_done_owes_no_request(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
     _, connection = setup
     document, context = await after_x2(setup, tmp_path, database_url)
     await extract_document(context, await a_job(connection, document.id, document.owner_id))

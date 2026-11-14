@@ -61,7 +61,9 @@ def export(client: TestClient, document: str, header: dict[str, str]) -> Any:
     return client.get(f"/api/v1/documents/{document}/export.ttl", headers=header)
 
 
-def test_a_reader_of_a_frozen_import_downloads_its_mem_turtle(client: TestClient, url: str) -> None:
+def test_a_reader_of_a_frozen_import_downloads_its_mem_turtle(
+    in_process_shacl: None, client: TestClient, url: str
+) -> None:
     owner, header = an_account(url)
     document = an_import(url, owner)
 
@@ -77,7 +79,9 @@ def test_a_reader_of_a_frozen_import_downloads_its_mem_turtle(client: TestClient
     assert (URIRef(DOC), None, None) in graph and (URIRef(PLAN + "/teil-2"), None, None) in graph
 
 
-def test_the_editors_export_too_and_a_stranger_finds_no_document(client: TestClient, url: str) -> None:
+def test_the_editors_export_too_and_a_stranger_finds_no_document(
+    in_process_shacl: None, client: TestClient, url: str
+) -> None:
     owner, _ = an_account(url)
     document = an_import(url, owner)
     _, editor = an_account(url, "Redaktion", ("redaktion",))
@@ -147,7 +151,7 @@ def one_a_minute(url: str, tmp_path: Path) -> Iterator[TestClient]:
         yield test_client
 
 
-def test_exports_are_counted_per_minute(one_a_minute: TestClient, url: str) -> None:
+def test_exports_are_counted_per_minute(in_process_shacl: None, one_a_minute: TestClient, url: str) -> None:
     owner, header = an_account(url)
     document = an_import(url, owner)
 
@@ -169,7 +173,7 @@ def test_an_owner_whose_entry_is_hidden_exports_nothing(client: TestClient, url:
 
 
 def test_the_violations_listed_are_cut_and_all_counted(
-    client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setattr(exports, "MAX_LISTED", 1)
     owner, header = an_account(url)
@@ -182,7 +186,9 @@ def test_the_violations_listed_are_cut_and_all_counted(
     assert (answer.json()["details"]["total"], len(answer.json()["details"]["violations"])) == (3, 1)
 
 
-def test_a_refusal_before_the_export_counts_no_export(one_a_minute: TestClient, url: str) -> None:
+def test_a_refusal_before_the_export_counts_no_export(
+    in_process_shacl: None, one_a_minute: TestClient, url: str
+) -> None:
     owner, header = an_account(url)
     draft, frozen = an_import(url, owner, frozen=False), an_import(url, owner)
 
@@ -192,7 +198,7 @@ def test_a_refusal_before_the_export_counts_no_export(one_a_minute: TestClient, 
 
 
 def test_an_export_gone_from_the_store_meanwhile_is_tried_again(
-    client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     owner, header = an_account(url)
     document = an_import(url, owner)

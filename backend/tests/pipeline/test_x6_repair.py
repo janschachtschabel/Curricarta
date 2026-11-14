@@ -138,7 +138,9 @@ async def test_a_repair_asks_again_only_the_packages_with_defects_and_checks_the
     assert made == {"document_id": str(document.id), "units": 1, "checked": True}
 
 
-async def test_a_repair_s_prefix_is_x4_s_byte_for_byte(setup: Any, tmp_path: Path, database_url: str) -> None:
+async def test_a_repair_s_prefix_is_x4_s_byte_for_byte(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
     first = Quoting(invent=("E3",))
@@ -159,7 +161,7 @@ async def test_a_repair_s_prefix_is_x4_s_byte_for_byte(setup: Any, tmp_path: Pat
 
 
 async def test_a_package_whose_wrong_statement_the_editors_hold_is_left_to_them(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -179,7 +181,7 @@ async def test_a_package_whose_wrong_statement_the_editors_hold_is_left_to_them(
 
 
 async def test_a_document_nothing_is_wrong_with_is_neither_asked_nor_checked_again(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=())
@@ -208,7 +210,7 @@ async def test_a_document_not_checked_yet_is_not_repaired(
 
 
 async def test_an_answer_out_of_form_leaves_its_package_counts_the_repair_and_says_so(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -236,7 +238,7 @@ async def test_an_answer_out_of_form_leaves_its_package_counts_the_repair_and_sa
 
 
 async def test_an_answer_of_no_statement_leaves_its_package_counts_the_repair_and_says_so(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -259,7 +261,7 @@ async def test_an_answer_of_no_statement_leaves_its_package_counts_the_repair_an
 
 
 async def test_an_answer_none_of_whose_statements_reads_leaves_its_package_and_names_what_was_wrong(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # the reading found the answer's statements at blocks the document lacks: the next repair is told so
     pool, connection = setup
@@ -285,7 +287,7 @@ async def test_an_answer_none_of_whose_statements_reads_leaves_its_package_and_n
 
 
 async def test_a_repair_asks_with_one_connection_a_package_also_where_its_answer_is_empty(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # the gate gives each package one connection: none is taken twice, so a pool of one serves
     _, connection = setup
@@ -301,7 +303,7 @@ async def test_a_repair_asks_with_one_connection_a_package_also_where_its_answer
 
 
 async def test_a_budget_spent_amid_the_repair_still_checks_what_was_repaired(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E2", "E3"))
@@ -329,7 +331,7 @@ async def test_a_budget_spent_amid_the_repair_still_checks_what_was_repaired(
 
 
 async def test_an_attempt_after_a_break_checks_what_its_repair_wrote_and_asks_nothing_again(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -356,7 +358,7 @@ async def test_an_attempt_after_a_break_checks_what_its_repair_wrote_and_asks_no
 
 
 async def test_a_package_answered_wrong_again_is_asked_by_the_next_repair_and_no_third(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -384,7 +386,7 @@ async def broken_once(monkeypatch: pytest.MonkeyPatch, name: str) -> Any:
 
 
 async def test_an_attempt_after_x6_broke_off_asks_no_package_again_and_checks_what_it_wrote(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # the attempt before wrote E2 anew and was answered out of form for E3; then its run broke off
     pool, connection = setup
@@ -417,7 +419,7 @@ async def test_an_attempt_after_x6_broke_off_asks_no_package_again_and_checks_wh
 
 
 async def test_a_repair_ended_before_its_check_leaves_the_next_extraction_to_check_the_document(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # cancelled while it checked, or its attempts spent: what it wrote is checked by whatever comes next
     pool, connection = setup
@@ -443,7 +445,7 @@ async def test_a_repair_ended_before_its_check_leaves_the_next_extraction_to_che
 
 
 async def test_a_repair_with_nothing_left_to_ask_checks_what_one_before_left_unchecked(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -467,7 +469,7 @@ async def test_a_repair_with_nothing_left_to_ask_checks_what_one_before_left_unc
 
 
 async def test_an_attempt_after_the_budget_s_check_checks_what_it_repaired_then(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # the worker died once X5 had checked what the spent budget let X6 write: the job is asked again;
     # E2, answered wrong once more and found so, is not asked twice by the job
@@ -504,7 +506,7 @@ async def test_an_attempt_after_the_budget_s_check_checks_what_it_repaired_then(
 
 
 async def test_a_repair_reports_its_packages_as_they_are_written(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E2", "E4"))
@@ -526,7 +528,7 @@ async def test_a_repair_reports_its_packages_as_they_are_written(
 
 
 async def test_a_repair_leaves_out_the_wording_the_editors_hold_and_names_it(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection, blocks=FIELDS)
@@ -552,7 +554,7 @@ async def test_a_repair_leaves_out_the_wording_the_editors_hold_and_names_it(
 
 
 async def test_what_reading_a_repair_s_answer_finds_is_x6_s_and_names_its_package(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))

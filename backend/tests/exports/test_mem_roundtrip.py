@@ -144,7 +144,7 @@ async def warnings_of(connection: psycopg.AsyncConnection, document: Any, rule: 
 
 
 async def test_the_kmk_s_plan_imported_frozen_and_exported_is_a_bildungsstandard_meeting_the_mem_shapes(
-    setup: Any, database_url: str
+    in_process_shacl: None, setup: Any, database_url: str
 ) -> None:
     context, connection = setup
     document, kmk = await frozen_import(context, connection, database_url, KMK)
@@ -162,7 +162,7 @@ async def test_the_kmk_s_plan_imported_frozen_and_exported_is_a_bildungsstandard
     assert await warnings_of(connection, document, REGELSTANDARD_WARNING) == 0
 
 
-async def test_the_kmk_s_standards_typed_a_lehrplan_are_warned_of(setup: Any) -> None:
+async def test_the_kmk_s_standards_typed_a_lehrplan_are_warned_of(in_process_shacl: None, setup: Any) -> None:
     # the control: the profile's shape warns of a Regelstandard outside the KMK's standards
     context, connection = setup
     as_lehrplan = Kind("kmk", None, LP + "LP_0000571", "DE", "dt-Lehrplan", "curriculum", "KMK", KMK.work)

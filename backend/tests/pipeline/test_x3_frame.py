@@ -92,7 +92,7 @@ async def written(connection: Any, document: Any) -> tuple[Any, Any]:
 
 
 async def test_the_frame_is_asked_once_behind_the_prefix_and_written_with_its_anchors(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -176,7 +176,7 @@ async def test_the_frame_is_asked_once_behind_the_prefix_and_written_with_its_an
 
 
 async def test_a_run_of_x3_done_while_this_one_asked_is_found_at_the_write(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -200,7 +200,7 @@ async def test_a_run_of_x3_done_while_this_one_asked_is_found_at_the_write(
 
 
 async def test_a_budget_spent_before_the_frame_is_asked_keeps_x1_and_x2_and_a_new_job_asks_the_frame_alone(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # spent while X1's last question is asked (another job of the account): X3's one request is refused
     pool, connection = setup
@@ -274,7 +274,7 @@ async def test_a_document_no_window_of_which_fits_the_model_ends_the_job(
 
 
 async def test_a_job_that_finds_x3_done_since_it_looked_asks_nothing_of_it(
-    setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     pool, connection = setup
     document = await a_document(connection)
@@ -295,7 +295,7 @@ async def test_a_job_that_finds_x3_done_since_it_looked_asks_nothing_of_it(
 
 
 async def test_the_lexicon_excerpt_holds_the_cues_of_the_type_x1_read_that_bear_on_the_frame(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # "Regelstandard" is a cue of the Bildungsstandards alone (school#cue-ke-regelstandard): X1 read a
     # Lehrplan, and X3 reads the document as X1 left it

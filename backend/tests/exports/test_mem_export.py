@@ -2,7 +2,8 @@
 against the MEM shapes in a child process, kept as Turtle under a key of the document and what may change
 its output; asked again, the kept bytes, nothing checked; a state the shapes refuse is no export and leaves
 nothing; a check that does not end is none either. Saxony's frozen plan, as the gate's tests build it; a
-store on the file system; the real child."""
+store on the file system; the real child for the refused state, the check in the test's process
+(in_process_shacl) for the rest."""
 
 import asyncio
 import shutil
@@ -44,7 +45,7 @@ def counting(monkeypatch: pytest.MonkeyPatch) -> list[int]:
 
 
 async def test_a_sound_frozen_import_is_exported_and_its_bytes_kept(
-    exporter: MemExporter, tmp_path: Path
+    in_process_shacl: None, exporter: MemExporter, tmp_path: Path
 ) -> None:
     rows = imported()
 
@@ -58,7 +59,7 @@ async def test_a_sound_frozen_import_is_exported_and_its_bytes_kept(
 
 
 async def test_a_second_export_reads_the_kept_bytes_and_checks_nothing(
-    exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     asked = counting(monkeypatch)
     rows = imported()
@@ -69,7 +70,7 @@ async def test_a_second_export_reads_the_kept_bytes_and_checks_nothing(
 
 
 async def test_two_exports_of_one_document_at_once_check_once(
-    exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     asked = counting(monkeypatch)
     rows = imported()
@@ -80,7 +81,7 @@ async def test_two_exports_of_one_document_at_once_check_once(
 
 
 async def test_a_changed_rights_status_or_licence_is_another_export(
-    exporter: MemExporter, tmp_path: Path
+    in_process_shacl: None, exporter: MemExporter, tmp_path: Path
 ) -> None:
     rows = imported()
     first = await exporter.export(rows)
@@ -143,7 +144,7 @@ def test_a_shape_changed_by_a_deployment_is_another_fingerprint(tmp_path: Path) 
 
 
 async def test_a_refused_state_is_kept_refused_and_checked_once(
-    exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     asked = counting(monkeypatch)
     rows = imported(mem_land_iri=None)
@@ -154,7 +155,7 @@ async def test_a_refused_state_is_kept_refused_and_checked_once(
 
 
 async def test_a_wait_for_a_check_past_the_request_s_time_is_no_export(
-    exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
+    in_process_shacl: None, exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     # both checks of the process are taken: the request does not wait past what the proxy gives it
     monkeypatch.setattr(mem_export, "REQUEST_S", 0.0)

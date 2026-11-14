@@ -39,7 +39,7 @@ def test_the_check_is_a_job_of_its_own_and_no_model_job() -> None:
 
 
 async def test_a_check_finds_anew_what_the_editors_left(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=("E3",))
@@ -61,7 +61,7 @@ async def test_a_check_finds_anew_what_the_editors_left(
 
 
 async def test_an_attempt_after_its_check_was_done_checks_not_again(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     pool, connection = setup
     document = await extracted(setup, tmp_path, database_url, invent=())
@@ -115,7 +115,7 @@ async def test_an_import_whose_tree_is_written_is_checked_with_no_x5_before(
 
 
 async def test_a_draft_copy_is_checked_with_no_x5_of_its_own_and_x5_owes_it_nothing_after(
-    setup: Any, tmp_path: Path, database_url: str
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
 ) -> None:
     # a copy takes no runs along (app/db/draft_copy.py): its first check is this job's
     pool, connection = setup
