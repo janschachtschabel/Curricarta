@@ -1,0 +1,78 @@
+# Audits the locked dependencies against the advisory databases, so that a new advisory is noticed without
+# someone remembering to look: weekly, by hand, and on every pull request that changes a lock, an export or
+# the allowlist. Python: both hash-pinned exports the images install, read as they are (nothing installed).
+# npm: the lock alone. Known advisories that cannot be lifted yet stand in deploy/audit-allowlist.toml,
+# each with its reason and review date; their ids are passed below (a test keeps the two equal).
+# Actions are pinned by commit (a tag can be moved); the comment names the version.
+name: audit
+
+on:
+  schedule:
+    # Monday 05:17 UTC: off the full hour, when scheduled runs crowd and start late
+    - cron: "17 5 * * 1"
+  pull_request:
+    paths:
+      - backend/uv.lock
+      - backend/pyproject.toml
+      - deploy/requirements-*.txt
+      - deploy/audit-allowlist.toml
+      - frontend/package-lock.json
+      - frontend/package.json
+      - .github/workflows/audit.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: audit-${{ github.ref }}
+  # a newer push to a pull request replaces its run; a scheduled run always ends
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  python:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@1c37ad07a6a961277cf70c0d37d6f313000f5884 # v10.3.0
+        with:
+          version: "0.7.13"   # the version that wrote uv.lock
+          python-version: "3.13"
+          enable-cache: true
+      # pip-audit comes hash-pinned from the lock's dev group; the runtime is not needed to read the exports
+      - run: uv sync --frozen --only-group dev
+      # OSV, not the PyPI service: that one skips torch and torchvision, whose +cpu builds are not on PyPI.
+      # --disable-pip reads the pinned versions without resolving or installing anything (it needs the
+      # hashes); --strict fails where a requirement could not be read instead of passing it unaudited.
+      - name: Audit the API image's packages
+        run: >-
+          .venv/bin/pip-audit --strict --vulnerability-service osv --progress-spinner off
+          --require-hashes --disable-pip -r ../deploy/requirements-api.txt
+      - name: Audit the converter image's packages
+        run: >-
+          .venv/bin/pip-audit --strict --vulnerability-service osv --progress-spinner off
+          --require-hashes --disable-pip -r ../deploy/requirements-convert.txt
+
+  npm:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+      # npm audit reads package-lock.json; nothing is installed. What ships fails from moderate on; the
+      # development tools from high on, as their moderate advisories wait for the tools' next majors.
+      - run: npm audit --omit=dev --audit-level=moderate
+      - run: npm audit --audit-level=high

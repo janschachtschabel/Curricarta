@@ -1,0 +1,15 @@
+# Known advisories the audit (.github/workflows/audit.yml) ignores because they do not apply here or cannot
+# be lifted yet. Each entry is an [[advisory]] table:
+#
+#   [[advisory]]
+#   id = "GHSA-xxxx-xxxx-xxxx"     # as pip-audit names it; passed to it as --ignore-vuln in the workflow
+#   package = "example"
+#   reason = "why it does not apply, or what it waits for"
+#   added = 2026-11-14
+#   review = 2027-02-12            # at most 90 days after added
+#
+# backend/tests/deploy/test_ci_audit.py checks every entry, keeps the ids equal to the workflow's, and turns
+# red once a review date has passed: then lift the package, or write a new reason with a new date.
+#
+# Empty: nothing needs ignoring (2026-11-14). npm has no list: the development tools' moderate advisories
+# are below the level their audit fails at.

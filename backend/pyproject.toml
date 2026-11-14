@@ -49,6 +49,8 @@ dev = [
     "mypy>=2.3",
     # the deployment tests read deploy/docker-compose.yml
     "pyyaml>=6.0.3",
+    # audits the hash-pinned exports in .github/workflows/audit.yml
+    "pip-audit>=2.10.1",
 ]
 # Docling and its stack on the CPU, for the converter's image alone (plan M1 3b): the API's image and
 # the development's environment never carry them. Docling from the release on that carries the fixes

@@ -36,7 +36,7 @@ def _command(job: str, pattern: str) -> str:
 
 
 def test_there_are_the_workflows_these_guard() -> None:
-    assert [path.name for path in EVERY] == ["ci.yml", "converter.yml"]
+    assert [path.name for path in EVERY] == ["audit.yml", "ci.yml", "converter.yml"]
 
 
 @pytest.mark.parametrize("path", EVERY, ids=lambda path: path.name)
