@@ -538,6 +538,10 @@ ungültig.
   ausführen (`docker compose run`, `kubectl exec -it`), nicht als Job, dessen Ausgabe ein
   Log-System sammelt. Exit-Code 0: angelegt; 2: es gibt schon einen Admin, der sich anmelden
   kann; 1: Fehler. Weitere Konten und Tokens legt ein Admin über `/api/v1/accounts` an.
+  Lesen darf sie nur ein Admin: `GET /api/v1/accounts?limit=50&offset=0` (nach Namen, mit
+  `total`), `GET /api/v1/accounts/{id}` mit Rollen und Sperre, `GET /api/v1/accounts/{id}/keys`
+  mit Bezeichnung, Anlage, letzter Nutzung und Widerruf – nie Token oder Hash; ein unbekanntes
+  Konto ist 404 `no_account`.
 - `PUBLIC_ACCESS` (`off` | `lookup` | `search`, Standard `off`): was Besucher ohne Token dürfen.
   Das Sprachmodell braucht immer ein Token.
 - `MAX_UPLOAD_MB` (Standard 50, höchstens 500): die größte Datei, die ein Upload oder ein

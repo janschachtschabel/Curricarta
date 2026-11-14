@@ -86,6 +86,16 @@ def test_the_routes_of_freezing_name_the_refusals_they_give(spec: dict[str, Any]
         assert "invalid_field" in answers["422"]["description"]
 
 
+def test_the_routes_name_their_404(spec: dict[str, Any]) -> None:
+    paths = spec["paths"]
+    read = [paths[path]["get"]["responses"] for path in (
+        "/api/v1/accounts/{account_id}", "/api/v1/accounts/{account_id}/keys",
+    )]  # fmt: skip
+
+    for answers in read:
+        assert "no_account" in answers["404"]["description"]
+
+
 def test_info_names_the_service_its_version_and_what_visitors_may_do() -> None:
     # the start page asks it before anyone signs in: PUBLIC_ACCESS decides what it offers a visitor
     client = TestClient(create_app(make_settings()), base_url="http://testserver:8000")

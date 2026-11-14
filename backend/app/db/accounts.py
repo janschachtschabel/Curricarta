@@ -6,6 +6,7 @@ several to hold together (creating an account with its roles) runs them in its t
 
 from collections.abc import Iterable
 from dataclasses import dataclass
+from datetime import datetime
 from typing import Any
 from uuid import UUID
 
@@ -156,16 +157,57 @@ class AccountRecord:
     name: str
     roles: list[str]
     disabled: bool
+    created_at: datetime
+
+
+@dataclass(frozen=True)
+class KeyRecord:
+    """A key as an admin may read it: never its hash, and the token exists nowhere."""
+
+    id: UUID
+    label: str
+    created_at: datetime
+    last_used_at: datetime | None
+    revoked_at: datetime | None
+
+
+_ACCOUNTS = (
+    "SELECT account.id, account.name,"
+    " array_remove(array_agg(role_grant.role ORDER BY role_grant.role), NULL),"
+    " account.disabled_at IS NOT NULL, account.created_at"
+    " FROM account LEFT JOIN role_grant ON role_grant.account_id = account.id"
+)
+
+
+def _account(row: tuple[Any, ...]) -> AccountRecord:
+    return AccountRecord(row[0], row[1], list(row[2]), row[3], row[4])
 
 
 async def get_account(connection: psycopg.AsyncConnection, account_id: UUID) -> AccountRecord | None:
+    cursor = await connection.execute(_ACCOUNTS + " WHERE account.id = %s GROUP BY account.id", (account_id,))
+    row = await cursor.fetchone()
+    return _account(row) if row else None
+
+
+async def list_accounts(
+    connection: psycopg.AsyncConnection, *, limit: int, offset: int
+) -> tuple[list[AccountRecord], int]:
+    """A page of the accounts by name, whatever its case (as names are unique), and how many there are."""
     cursor = await connection.execute(
-        "SELECT account.id, account.name,"
-        " array_remove(array_agg(role_grant.role ORDER BY role_grant.role), NULL),"
-        " account.disabled_at IS NOT NULL"
-        " FROM account LEFT JOIN role_grant ON role_grant.account_id = account.id"
-        " WHERE account.id = %s GROUP BY account.id",
+        _ACCOUNTS + " GROUP BY account.id ORDER BY lower(account.name), account.id LIMIT %s OFFSET %s",
+        (limit, offset),
+    )
+    rows = await cursor.fetchall()
+    # counted apart: a page past the end holds no row to carry a windowed count
+    counted = await (await connection.execute("SELECT count(*) FROM account")).fetchone()
+    return [_account(row) for row in rows], int(counted[0]) if counted else 0
+
+
+async def keys_of(connection: psycopg.AsyncConnection, account_id: UUID) -> list[KeyRecord]:
+    """The account's keys, revoked ones too, oldest first."""
+    cursor = await connection.execute(
+        "SELECT id, label, created_at, last_used_at, revoked_at FROM api_key"
+        " WHERE account_id = %s ORDER BY created_at, id",
         (account_id,),
     )
-    row = await cursor.fetchone()
-    return AccountRecord(row[0], row[1], list(row[2]), row[3]) if row else None
+    return [KeyRecord(*row) for row in await cursor.fetchall()]

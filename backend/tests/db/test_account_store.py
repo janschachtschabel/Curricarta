@@ -11,6 +11,8 @@ from app.db.accounts import (
     admin_exists,
     create_account,
     issue_key,
+    keys_of,
+    list_accounts,
     principal_for,
     recent_failures,
     record_audit,
@@ -133,3 +135,31 @@ async def test_an_admin_without_a_live_key_or_blocked_counts_for_no_admin(
     await set_disabled(db, blocked, True)
 
     assert await admin_exists(db) is False
+
+
+async def test_accounts_are_listed_by_name_whatever_its_case_in_pages(db: psycopg.AsyncConnection) -> None:
+    for name in ("berta", "Carla", "anna", "Admin"):
+        await create_account(db, name, ["nutzer"])
+
+    first, total = await list_accounts(db, limit=3, offset=0)
+    rest, again = await list_accounts(db, limit=3, offset=3)
+    beyond, still = await list_accounts(db, limit=3, offset=10)
+
+    assert [record.name for record in first] == ["Admin", "anna", "berta"]
+    assert [record.name for record in rest] == ["Carla"]
+    assert (total, again, beyond, still) == (4, 4, [], 4)
+
+
+async def test_an_account_s_keys_are_read_without_their_hash_or_token(db: psycopg.AsyncConnection) -> None:
+    account = await create_account(db, "Lehrkraft", ["nutzer"])
+    other = await create_account(db, "Andere", ["nutzer"])
+    first, _ = await issue_key(db, account, "laptop", PEPPER)
+    second, _ = await issue_key(db, account, "", PEPPER)
+    await issue_key(db, other, "fremd", PEPPER)
+    await revoke_key(db, first)
+
+    keys = await keys_of(db, account)
+
+    assert [(key.id, key.label) for key in keys] == [(first, "laptop"), (second, "")]
+    assert keys[0].revoked_at is not None and keys[1].revoked_at is None
+    assert set(keys[0].__dict__) == {"id", "label", "created_at", "last_used_at", "revoked_at"}

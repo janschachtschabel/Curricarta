@@ -94,6 +94,109 @@ def test_only_an_admin_manages_accounts(client: TestClient, migrated: str) -> No
         == 403
     )
     assert client.post("/api/v1/accounts", json={"name": "X", "roles": ["admin"]}).status_code == 401
+    reads = [
+        "/api/v1/accounts",
+        f"/api/v1/accounts/{me_id(client, user)}",
+        f"/api/v1/accounts/{me_id(client, user)}/keys",
+    ]
+    assert [client.get(path, headers=user).status_code for path in reads] == [403] * 3
+    assert [client.get(path).status_code for path in reads] == [401] * 3
+
+
+def test_an_admin_lists_the_accounts_with_their_roles_and_whether_blocked(
+    client: TestClient, admin: dict[str, str]
+) -> None:
+    editor = client.post(
+        "/api/v1/accounts", json={"name": "Redaktion", "roles": ["redaktion", "nutzer"]}, headers=admin
+    ).json()
+    blocked = client.post(
+        "/api/v1/accounts", json={"name": "Gesperrt", "roles": ["nutzer"]}, headers=admin
+    ).json()
+    client.post(f"/api/v1/accounts/{blocked['id']}/keys", json={}, headers=admin)
+    client.patch(f"/api/v1/accounts/{blocked['id']}", json={"disabled": True}, headers=admin)
+
+    listed = client.get("/api/v1/accounts", headers=admin)
+
+    assert listed.status_code == 200
+    page = listed.json()
+    assert (page["total"], page["limit"], page["offset"]) == (3, 50, 0)
+    shown = [(entry["name"], entry["roles"], entry["disabled"]) for entry in page["accounts"]]
+    assert shown == [
+        ("Admin", ["admin"], False),
+        ("Gesperrt", ["nutzer"], True),
+        ("Redaktion", ["nutzer", "redaktion"], False),
+    ]
+    assert page["accounts"][2]["id"] == editor["id"]
+    assert all(entry["created_at"] for entry in page["accounts"])
+    one = client.get(f"/api/v1/accounts/{blocked['id']}", headers=admin)
+    assert one.json() == page["accounts"][1]
+
+
+def test_the_list_comes_in_pages_and_says_how_many_there_are(
+    client: TestClient, admin: dict[str, str]
+) -> None:
+    for name in ("berta", "Carla", "anna"):
+        client.post("/api/v1/accounts", json={"name": name, "roles": ["nutzer"]}, headers=admin)
+
+    first = client.get("/api/v1/accounts", params={"limit": 2}, headers=admin).json()
+    second = client.get("/api/v1/accounts", params={"limit": 2, "offset": 2}, headers=admin).json()
+    too_many = client.get("/api/v1/accounts", params={"limit": 201}, headers=admin)
+
+    assert [entry["name"] for entry in first["accounts"]] == ["Admin", "anna"]
+    assert [entry["name"] for entry in second["accounts"]] == ["berta", "Carla"]
+    assert (first["total"], second["total"], second["offset"]) == (4, 4, 2)
+    assert too_many.status_code == 422
+
+
+def test_an_admin_reads_an_account_s_keys_and_never_a_token_or_a_hash(
+    client: TestClient, admin: dict[str, str], migrated: str, log: io.StringIO
+) -> None:
+    account = client.post(
+        "/api/v1/accounts", json={"name": "Eins", "roles": ["nutzer"]}, headers=admin
+    ).json()
+    issued = client.post(f"/api/v1/accounts/{account['id']}/keys", json={"label": "Laptop"}, headers=admin)
+
+    keys = client.get(f"/api/v1/accounts/{account['id']}/keys", headers=admin)
+
+    assert keys.status_code == 200
+    [entry] = keys.json()
+    assert set(entry) == {"id", "label", "created_at", "last_used_at", "revoked_at"}
+    assert (entry["id"], entry["label"]) == (issued.json()["id"], "Laptop")
+    hashes = [bytes(stored).hex() for (stored,) in fetch(migrated, "SELECT key_hash FROM api_key")]
+    assert "curricarta_" not in keys.text
+    assert len(hashes) == 2 and not any(hashed in keys.text.lower() for hashed in hashes)
+    assert issued.json()["token"] not in log.getvalue()
+
+
+def test_a_revoked_key_is_listed_with_when_it_was_revoked_and_a_used_one_with_when(
+    client: TestClient, admin: dict[str, str]
+) -> None:
+    account = client.post(
+        "/api/v1/accounts", json={"name": "Eins", "roles": ["nutzer"]}, headers=admin
+    ).json()
+    revoked = client.post(f"/api/v1/accounts/{account['id']}/keys", json={}, headers=admin).json()
+    used = client.post(f"/api/v1/accounts/{account['id']}/keys", json={}, headers=admin).json()
+    client.delete(f"/api/v1/keys/{revoked['id']}", headers=admin)
+    client.get("/api/v1/me", headers=bearer(used["token"]))
+
+    keys = {
+        entry["id"]: entry
+        for entry in client.get(f"/api/v1/accounts/{account['id']}/keys", headers=admin).json()
+    }
+
+    assert keys[revoked["id"]]["revoked_at"] is not None and keys[revoked["id"]]["last_used_at"] is None
+    assert keys[used["id"]]["last_used_at"] is not None and keys[used["id"]]["revoked_at"] is None
+
+
+def test_an_unknown_account_has_nothing_to_read(client: TestClient, admin: dict[str, str]) -> None:
+    nobody = "01890000-0000-7000-8000-000000000000"
+
+    answers = [
+        client.get(path, headers=admin)
+        for path in (f"/api/v1/accounts/{nobody}", f"/api/v1/accounts/{nobody}/keys")
+    ]
+
+    assert [(answer.status_code, answer.json()["code"]) for answer in answers] == [(404, "no_account")] * 2
 
 
 def test_a_second_account_of_the_same_name_is_refused(client: TestClient, admin: dict[str, str]) -> None:

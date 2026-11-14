@@ -5,20 +5,26 @@ database keeps its hash. Every change is written to the audit log with the reque
 with a token.
 """
 
+from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response
+from fastapi import APIRouter, Depends, HTTPException, Query, Request, Response
 from pydantic import AfterValidator, BaseModel, BeforeValidator, ConfigDict, Field, StringConstraints
 
 from app.api.deps import require_account, require_role
-from app.api.errors import AUTH_RESPONSES
+from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.core.auth import MAX_NAME_SIGNS, Principal, Role, one_spelling, shows_whole
 from app.core.logging import current_request_id
 from app.db import accounts as store
 
 router = APIRouter(prefix="/api/v1", tags=["accounts"], responses=AUTH_RESPONSES)
 Admin = Annotated[Principal, Depends(require_role("admin"))]
+NO_ACCOUNT: dict[int | str, dict[str, Any]] = {
+    404: {"model": ErrorBody, "description": "no_account: no such account"}
+}
+# Past this a page is no page of the accounts: a larger offset only makes the database count
+MAX_OFFSET = 100_000
 # Named after the constraints, so they wrap them: one spelling first, then the length counts
 OneSpelling = BeforeValidator(one_spelling)
 ShowsWhole = AfterValidator(shows_whole)
@@ -41,6 +47,24 @@ class AccountOut(BaseModel):
     name: str
     roles: list[str]
     disabled: bool
+    created_at: datetime
+
+
+class AccountPage(BaseModel):
+    accounts: list[AccountOut]
+    total: int
+    limit: int
+    offset: int
+
+
+class KeyEntry(BaseModel):
+    """A key as the list shows it: never its token, nor its hash."""
+
+    id: UUID
+    label: str
+    created_at: datetime
+    last_used_at: datetime | None
+    revoked_at: datetime | None
 
 
 class AccountChange(BaseModel):
@@ -81,6 +105,41 @@ async def create_account(body: AccountIn, request: Request, admin: Admin) -> Acc
         record = await store.get_account(connection, account_id)
     assert record is not None  # noqa: S101 - created in this transaction
     return AccountOut(**record.__dict__)
+
+
+@router.get("/accounts", summary="The accounts by name, a page at a time")
+async def list_accounts(
+    request: Request,
+    admin: Admin,
+    limit: Annotated[int, Query(ge=1, le=200)] = 50,
+    offset: Annotated[int, Query(ge=0, le=MAX_OFFSET)] = 0,
+) -> AccountPage:
+    async with request.app.state.pool.connection() as connection:
+        records, total = await store.list_accounts(connection, limit=limit, offset=offset)
+    accounts = [AccountOut(**record.__dict__) for record in records]
+    return AccountPage(accounts=accounts, total=total, limit=limit, offset=offset)
+
+
+@router.get(
+    "/accounts/{account_id}", summary="One account, its roles and whether blocked", responses=NO_ACCOUNT
+)
+async def get_account(account_id: UUID, request: Request, admin: Admin) -> AccountOut:
+    async with request.app.state.pool.connection() as connection:
+        record = await store.get_account(connection, account_id)
+    if record is None:
+        raise _no_account()
+    return AccountOut(**record.__dict__)
+
+
+@router.get(
+    "/accounts/{account_id}/keys", summary="An account's API tokens, without them", responses=NO_ACCOUNT
+)
+async def list_keys(account_id: UUID, request: Request, admin: Admin) -> list[KeyEntry]:
+    async with request.app.state.pool.connection() as connection:
+        if await store.get_account(connection, account_id) is None:
+            raise _no_account()
+        keys = await store.keys_of(connection, account_id)
+    return [KeyEntry(**key.__dict__) for key in keys]
 
 
 @router.post("/accounts/{account_id}/keys", status_code=201, summary="Issue an API token for an account")
@@ -125,6 +184,10 @@ async def change_account(account_id: UUID, body: AccountChange, request: Request
 async def me(who: Annotated[Principal, Depends(require_account)]) -> Me:
     assert who.account_id is not None  # noqa: S101 - require_account refuses visitors
     return Me(id=who.account_id, name=who.name, roles=sorted(who.roles))
+
+
+def _no_account() -> Refusal:
+    return Refusal(404, "no_account", "No such account.")
 
 
 async def _keep_an_admin(connection: Any) -> None:
