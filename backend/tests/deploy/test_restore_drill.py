@@ -235,6 +235,16 @@ def test_the_token_is_never_printed_when_a_command_names_it(
     assert world.commands[-1] == [*restore_drill.COMPOSE, "down", "-v"]
 
 
+def test_an_archive_that_failed_leaves_no_file_a_restore_would_take(tmp_path: Path) -> None:
+    world = World(failing="-cf")
+
+    assert drill(world, tmp_path) == 1
+    names = {path.name for path in tmp_path.rglob("*") if path.is_file()}
+    assert "objects.tar" not in names
+    assert not [name for name in names if name.endswith(".part")]
+    assert "db.dump" in names  # made before, whole
+
+
 def test_a_project_left_behind_is_said_with_the_command_that_removes_it(
     tmp_path: Path, capsys: pytest.CaptureFixture[str]
 ) -> None:

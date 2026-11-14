@@ -82,8 +82,11 @@ offene Shell, die `set -e` beim ersten Fehler selbst beenden würde. Beide begin
 hält beim ersten Fehler und bei einer nie gesetzten Variable an; ohne es folgten auf ein
 gescheitertes Entpacken `pg_restore` und `up -d`, und der Dienst liefe mit einer Datenbank, der
 Objekte fehlen. `MSYS_NO_PATHCONV=1` hält Git Bash unter Windows davon ab, `/data` in den Argumenten
-an docker in einen Windows-Pfad umzuschreiben; unter Linux ändert es nichts. Beim Sichern startet
-`trap … EXIT` MinIO wieder, wie das Archiv auch ausgeht.
+an docker in einen Windows-Pfad umzuschreiben; unter Linux ändert es nichts. Beim Sichern entsteht
+jede Datei erst als `.part` und bekommt ihren Namen erst, wenn sie ganz geschrieben ist: Ein
+abgebrochenes Archiv hinterlässt kein `objects.tar`, das das Zurückspielen annähme. Scheitert ein
+Schritt, startet `trap … EXIT` MinIO wieder; sonst startet das Skript es selbst, und „MinIO läuft
+wieder“ erscheint nur, wenn Compose den Dienst danach als laufend meldet.
 
 ```bash
 set -eu
@@ -91,10 +94,16 @@ export MSYS_NO_PATHCONV=1
 # Sichern: erst die Datenbank, dann die Objekte
 dir="data/backup/$(date -u +%Y%m%dT%H%M%SZ)"
 mkdir -p "$dir"
-docker compose -f deploy/docker-compose.yml exec -T postgres pg_dump -U curricarta -Fc curricarta > "$dir/db.dump"
+docker compose -f deploy/docker-compose.yml exec -T postgres pg_dump -U curricarta -Fc curricarta > "$dir/db.dump.part"
+mv "$dir/db.dump.part" "$dir/db.dump"
 docker compose -f deploy/docker-compose.yml stop minio
 trap 'docker compose -f deploy/docker-compose.yml start minio' EXIT
-docker run --rm -v curricarta_miniodata:/data:ro pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f tar --numeric-owner -cf - -C /data . > "$dir/objects.tar"
+docker run --rm -v curricarta_miniodata:/data:ro pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f tar --numeric-owner -cf - -C /data . > "$dir/objects.tar.part"
+mv "$dir/objects.tar.part" "$dir/objects.tar"
+docker compose -f deploy/docker-compose.yml start minio
+trap - EXIT
+docker compose -f deploy/docker-compose.yml ps --status running --services | grep -qx minio
+echo "MinIO läuft wieder"
 ```
 
 Zum Zurückspielen in der dritten Zeile den Ordner der Sicherung eintragen. Die beiden `test -s`

@@ -113,8 +113,25 @@ def test_minio_starts_again_whatever_becomes_of_the_archive() -> None:
     compose = "docker compose -f deploy/docker-compose.yml"
     stop = backup.index(f"{compose} stop minio")
 
+    # the trap starts MinIO again on the way out after a failure; on success the script starts it
+    # itself and says so only once Compose reports it running (a failed start in a trap exits 0)
     assert backup[stop + 1] == f"trap '{compose} start minio' EXIT"
-    assert f"{compose} start minio" not in backup
+    assert backup[-4:] == [
+        f"{compose} start minio",
+        "trap - EXIT",
+        f"{compose} ps --status running --services | grep -qx minio",
+        'echo "MinIO läuft wieder"',
+    ]
+
+
+def test_the_backup_names_its_files_only_once_they_are_whole() -> None:
+    backup, _restore = _blocks()
+
+    for name in ("db.dump", "objects.tar"):
+        written = next(index for index, line in enumerate(backup) if line.endswith(f'> "$dir/{name}.part"'))
+        moved = backup.index(f'mv "$dir/{name}.part" "$dir/{name}"')
+        assert written < moved, name
+        assert not [line for line in backup if line.endswith(f'> "$dir/{name}"')], name
 
 
 def test_the_database_s_user_and_name_are_those_compose_gives_it() -> None:

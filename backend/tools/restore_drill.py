@@ -163,7 +163,10 @@ class Drill:
     def archive(self, name: str, data: bytes) -> int:
         if not data:
             raise DrillFailed(f"{name} is empty")
-        (self.folder / name).write_bytes(data)
+        # named only once whole, as the document's script does: an interrupted write leaves a .part
+        part = self.folder / f"{name}.part"
+        part.write_bytes(data)
+        part.replace(self.folder / name)
         return len(data)
 
     def pepper_lost(self, old: str) -> int:
