@@ -2,9 +2,10 @@
 
 ``principal`` reads the bearer token; no header means a visitor (``ANONYMOUS``). A valid
 token always passes: behind a proxy or a school's NAT many people share one address, and one
-of them with a stale token must not lock out the rest. A header without a valid token is
-refused (401) and counted against its source - an IPv4 address, or an IPv6 /64, which one
-client holds whole; past AUTH_FAILURE_LIMIT failures within AUTH_FAILURE_WINDOW_S the source
+of them with a stale token must not lock out the rest. A header that is no bearer token of a
+token's form is refused (401) before the database is asked, uncounted. One of the form that
+names no active key is refused and counted against its source - an IPv4 address, or an IPv6
+/64, which one client holds whole; past AUTH_FAILURE_LIMIT failures within AUTH_FAILURE_WINDOW_S the source
 gets 429 for its failures. With 256-bit tokens guessing is hopeless anyway; the limit keeps
 garbage from costing a write per request. The source is the socket's peer unless it is one
 of FORWARDED_ALLOW_IPS, whose X-Forwarded-For uvicorn reads instead. Routes then ask for what they need:
@@ -37,7 +38,7 @@ _OPENS = {"off": frozenset[str](), "lookup": frozenset({"lookup"}), "search": fr
 
 
 # Declares the scheme in the OpenAPI spec; the header itself is read below, where a malformed
-# one is counted as a failure rather than taken for a visitor
+# one is refused rather than taken for a visitor
 _BEARER = HTTPBearer(auto_error=False, description="An API token an admin issued (curricarta_...)")
 
 
@@ -51,13 +52,13 @@ async def principal(
     pool: AsyncConnectionPool = request.app.state.pool
     scheme, _, token = header.partition(" ")
     token = token.strip()
+    if scheme.lower() != "bearer" or not looks_like_token(token):
+        # no token can be guessed by a header of another form: refused without a pool connection,
+        # and not counted, so garbage costs neither a write nor a wait on a busy pool
+        raise HTTPException(401, "The token is not valid.", headers={"WWW-Authenticate": "Bearer"})
     async with pool.connection() as connection:
-        found = None
-        if scheme.lower() == "bearer" and looks_like_token(token):
-            assert settings.api_key_pepper is not None  # noqa: S101 - create_app refuses to start without
-            found = await principal_for(
-                connection, token_hash(token, settings.api_key_pepper.get_secret_value())
-            )
+        assert settings.api_key_pepper is not None  # noqa: S101 - create_app refuses to start without
+        found = await principal_for(connection, token_hash(token, settings.api_key_pepper.get_secret_value()))
         if found is not None:
             return found
         source = failure_source(request.client.host if request.client else None)
@@ -67,7 +68,6 @@ async def principal(
         if failures < settings.auth_failure_limit:
             await record_failure(connection, source)
             if failures + 1 == settings.auth_failure_limit:
-                assert settings.api_key_pepper is not None  # noqa: S101 - create_app refuses to start without
                 pepper = settings.api_key_pepper.get_secret_value()
                 log.warning("sign-in failures reached the limit for source %s", _anonymous(source, pepper))
     # raised outside the block: an exception inside would roll the failure back

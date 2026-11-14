@@ -139,6 +139,30 @@ def test_a_header_with_no_valid_token_is_refused(client: TestClient, header: str
     assert client.post("/api/v1/t/write", headers={"Authorization": header}).status_code == 401
 
 
+@pytest.mark.parametrize(
+    "header",
+    ["Basic dXNlcjpwYXNz", "Bearer", "Bearer curricarta_short", "curricarta_" + "a" * 43],
+    ids=["basic", "empty-bearer", "short", "no-scheme"],
+)
+def test_a_header_that_is_no_token_s_form_is_refused_without_the_database(header: str) -> None:
+    # the pool reaches no server: a refusal that asked the database would wait for it and answer 503
+    app = create_app(make_settings(db_pool_timeout_s=1))
+    with selector_client(app, base_url=PUBLIC) as client:
+        refused = client.get("/api/v1/me", headers={"Authorization": header})
+
+    assert refused.status_code == 401
+    assert refused.headers["WWW-Authenticate"] == "Bearer"
+
+
+def test_a_header_of_a_token_s_form_is_still_counted_and_limited(client: TestClient, migrated: str) -> None:
+    # no token can be guessed by a header of another form: it costs no write and is not counted
+    client.post("/api/v1/t/write", headers={"Authorization": "Basic dXNlcjpwYXNz"})
+    client.post("/api/v1/t/write", headers=bearer("curricarta_" + "x" * 43))
+
+    with psycopg.connect(migrated) as connection:
+        assert connection.execute("SELECT count(*) FROM auth_failure").fetchone() == (1,)
+
+
 def test_too_many_failures_refuse_the_source_s_further_failures_only(migrated: str) -> None:
     # a valid token still passes: behind one address there may be many people (review C, auth 1)
     _, _, token = run(account_with_token(migrated, "Lehrkraft", ["nutzer"]))
