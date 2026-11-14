@@ -160,5 +160,6 @@ networkPolicy:
 monitoring:
   serviceMonitor: { enabled: true, port: internal, path: /metrics }
   podMonitor: { enabled: true, component: worker, port: 9000, path: /metrics }   # the worker has no Service
-  # the groups of the rule file become the PrometheusRule's spec; thresholds are first values, not measured
+  # the groups of the rule file become the PrometheusRule's spec (copy it into the chart: .Files.Get
+  # reads only the chart's own files; it holds no template, tpl is not needed); thresholds not measured
   prometheusRule: { enabled: true, rulesFile: deploy/alerts/curricarta.rules.yaml }

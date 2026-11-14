@@ -142,6 +142,12 @@ def test_a_queue_no_replica_reports_is_an_alert_of_its_own() -> None:
     assert re.search(r"\bup\b", HEADER)
 
 
+def test_the_rules_read_the_same_through_helm_s_tpl_and_in_prometheus() -> None:
+    # a chart may render the file through tpl, where {{ $labels.kind }} would be Helm's; escaped for
+    # Helm, Prometheus' rule_files would read the escape. The alert keeps kind as a label (max by)
+    assert "{{" not in TEXT and "}}" not in TEXT
+
+
 def test_the_helm_example_points_at_the_rules() -> None:
     assert HELM["monitoring"]["prometheusRule"] == {"enabled": True, "rulesFile": RULES_FILE}
     assert (ROOT / RULES_FILE).is_file()

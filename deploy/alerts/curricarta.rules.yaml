@@ -1,5 +1,7 @@
 # Alert rules for the operators' Prometheus: a rule file as Prometheus loads it (rule_files), and the
-# groups a PrometheusRule's spec takes (helm-values.example.yaml, monitoring.prometheusRule).
+# groups a PrometheusRule's spec takes (helm-values.example.yaml, monitoring.prometheusRule). No Go
+# template in it: it reads the same whether a chart inserts it as it is (.Files.Get) or through tpl;
+# the alerts carry the kind as a label.
 # Checked by backend/tests/deploy/test_alert_rules.py: every series is one the service exports,
 # every label value one the code sets.
 #
@@ -27,7 +29,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Jobs of kind {{ $labels.kind }} have waited over 15 minutes and no worker takes them"
+          summary: "Jobs of one kind (label kind) have waited over 15 minutes and no worker takes them"
           description: >-
             Look whether the workers of this kind run and stay live (WORKER_KINDS, their /health and
             logs); a worker that cannot claim logs "could not claim a job". Scale the workers or
@@ -57,7 +59,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Over 100 jobs of kind {{ $labels.kind }} are waiting"
+          summary: "Over 100 jobs of one kind (label kind) are waiting"
           description: >-
             More is asked than the workers of this kind finish. Look at curricarta_job_duration_seconds
             for slower jobs and at the accounts' lanes for one that enqueues a lot; add workers of
@@ -83,7 +85,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Over 20 % of the runs of kind {{ $labels.kind }} end in an error or a lost lease"
+          summary: "Over 20 % of the runs of one kind (label kind) end in an error or a lost lease"
           description: >-
             Read the workers' log lines of the failing jobs (by their trace id) for the error;
             an unreachable dependency (database, object store, the model's provider, the converter)
