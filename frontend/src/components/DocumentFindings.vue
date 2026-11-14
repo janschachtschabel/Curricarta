@@ -131,11 +131,11 @@ watch(() => props.refresh, load);
                   {{ t(`documents.findings.severities.${row.finding.severity}`) }}
                 </span>
               </td>
-              <td class="findings__text">
+              <td class="findings__text" :data-label="t('documents.findings.columns.finding')">
                 <q v-if="row.said.lang" lang="en">{{ row.said.text }}</q>
                 <template v-else>{{ row.said.text }}</template>
               </td>
-              <td class="findings__text">
+              <td class="findings__text" :data-label="t('documents.findings.columns.focus')">
                 <RouterLink
                   v-if="row.row"
                   :to="{ name: 'documentTree', params: { id: documentId }, query: { [ROW_PARAM]: row.row } }"
@@ -181,6 +181,34 @@ watch(() => props.refresh, load);
 .findings__text {
   overflow-wrap: anywhere;
   max-width: var(--reading-width);
+}
+
+/* Narrow, a row is read as a block - its badge, its sentence, what it is about - not scrolled sideways for prose;
+   each cell names its column, whose head no longer stands above it. */
+@media (max-width: 40rem) {
+  .findings table {
+    min-width: 0;
+  }
+
+  .findings thead {
+    display: none;
+  }
+
+  .findings tr {
+    display: block;
+    padding-block: var(--space-1);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .findings td {
+    display: block;
+    padding: 0;
+  }
+
+  .findings td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+  }
 }
 
 .findings__counts {

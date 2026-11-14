@@ -160,7 +160,7 @@ defineExpose({ focusRow });
         :ref="(element) => remember(item.shown.row.key, element as Element | null)"
         class="tree__row"
         :class="{ 'tree__row--selected': item.shown.row.key === selected }"
-        :style="{ paddingInlineStart: `calc(${item.shown.level - 1} * var(--space-2))` }"
+        :style="{ '--tree-depth': item.shown.level - 1 }"
         role="treeitem"
         :data-key="item.shown.row.key"
         :aria-label="rowLabel(item.parts)"
@@ -213,6 +213,7 @@ defineExpose({ focusRow });
 }
 
 .tree__row {
+  padding-inline-start: calc(var(--tree-depth) * var(--space-2));
   display: flex;
   align-items: flex-start;
   gap: var(--space-0);
@@ -256,5 +257,13 @@ defineExpose({ focusRow });
 
 .tree__toggle--open {
   transform: rotate(90deg);
+}
+
+/* Narrow, a deep row keeps its text's room: the indent stops growing past three levels, at half the step. Its level
+   is still said (aria-level) and drawn by the rows above it. */
+@media (max-width: 40rem) {
+  .tree__row {
+    padding-inline-start: calc(min(var(--tree-depth), 3) * var(--space-1));
+  }
 }
 </style>

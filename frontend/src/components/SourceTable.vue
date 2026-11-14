@@ -4,7 +4,7 @@
  * far the register has come with it and on what terms it may be used - and how
  * many of all there are it shows, with the way to the next page.
  */
-import { ref } from "vue";
+import { nextTick, onMounted, onUnmounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import type { RegisterStatus, SourceEntry } from "@/api";
@@ -12,7 +12,7 @@ import { LOCALE, messages, t } from "@/i18n/de";
 import { readableAddress } from "@/readableAddress";
 import { entryName, word } from "@/registerWords";
 
-defineProps<{ entries: SourceEntry[]; total: number; loadingMore?: boolean }>();
+const props = defineProps<{ entries: SourceEntry[]; total: number; loadingMore?: boolean }>();
 defineEmits<{ more: [] }>();
 
 const body = ref<HTMLTableSectionElement | null>(null);
@@ -28,6 +28,26 @@ function row(index: number): HTMLTableRowElement | undefined {
 
 defineExpose({ row });
 
+// The box is a tab stop only while it scrolls sideways - a keyboard can only scroll what it can reach, and a stop
+// with nothing to scroll is a stop for nothing. Measured again as the window or the entries change.
+const scroller = ref<HTMLElement | null>(null);
+const overflowing = ref(false);
+
+function measure(): void {
+  const box = scroller.value;
+  overflowing.value = box !== null && box.scrollWidth > box.clientWidth;
+}
+
+onMounted(() => {
+  measure();
+  window.addEventListener("resize", measure);
+});
+onUnmounted(() => window.removeEventListener("resize", measure));
+watch(
+  () => props.entries,
+  () => void nextTick(measure),
+);
+
 // The pill by what the state means (style.css, .status-badge); the word in it carries the meaning
 const TONE: Record<RegisterStatus, string> = {
   unchecked: "neutral",
@@ -41,9 +61,14 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
 
 <template>
   <div class="register">
-    <!-- Focusable and named: on a narrow screen the table scrolls sideways, and a
-         keyboard can only scroll what it can reach -->
-    <div class="register__scroll" tabindex="0" role="region" :aria-label="t('sources.register.scrollLabel')">
+    <!-- Named, and focusable while the table scrolls sideways: a keyboard can only scroll what it can reach -->
+    <div
+      ref="scroller"
+      class="register__scroll"
+      :tabindex="overflowing ? 0 : undefined"
+      role="region"
+      :aria-label="t('sources.register.scrollLabel')"
+    >
       <table class="register__table">
         <caption class="visually-hidden">{{ t("sources.register.heading") }}</caption>
         <thead>
@@ -73,17 +98,17 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
                 <bdi>{{ readableAddress(entry.url) }}</bdi>
               </span>
             </td>
-            <td>
+            <td :data-label="t('sources.register.columns.provenance')">
               {{ word(messages.sources.provenance, entry.provenance) }}
               <span v-if="entry.mine" class="register__aside">{{ t("sources.register.mine") }}</span>
             </td>
-            <td>
+            <td :data-label="t('sources.register.columns.status')">
               <span class="status-badge" :class="TONE[entry.register_status]">
                 {{ word(messages.sources.status, entry.register_status) }}
               </span>
             </td>
-            <td>{{ word(messages.sources.rights, entry.rights_status) }}</td>
-            <td>
+            <td :data-label="t('sources.register.columns.rights')">{{ word(messages.sources.rights, entry.rights_status) }}</td>
+            <td :data-label="t('sources.register.columns.added')">
               <time :datetime="entry.created_at">{{ dateFormat.format(new Date(entry.created_at)) }}</time>
             </td>
           </tr>
@@ -164,6 +189,35 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
   color: var(--text-muted);
   font-size: var(--step--2);
   overflow-wrap: anywhere;
+}
+
+/* Narrow, an entry is read as a block - its title, then each fact named by its column, whose head no longer
+   stands above it - not scrolled sideways. */
+@media (max-width: 40rem) {
+  .register__table thead {
+    display: none;
+  }
+
+  .register__table tr {
+    display: block;
+    padding-block: var(--space-1);
+    border-block-end: 1px solid var(--border);
+  }
+
+  .register__table td {
+    display: block;
+    padding-block: 0;
+    border-bottom: 0;
+  }
+
+  .register__table td[data-label]::before {
+    content: attr(data-label) ": ";
+    font-weight: 600;
+  }
+
+  .register__title {
+    min-inline-size: 0;
+  }
 }
 
 .register__foot {

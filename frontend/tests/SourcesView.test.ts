@@ -108,6 +108,25 @@ describe("the register page", () => {
     expect(rows[0].findAll("a")).toHaveLength(1);
   });
 
+  // a tab stop with nothing to scroll is a stop for nothing (UI review, NIT)
+  it("makes the table's box a tab stop only while it scrolls sideways", async () => {
+    vi.spyOn(api, "listSources").mockResolvedValue(page([entry("a", "Lehrplan Physik")]));
+    const wrapper = mount(SourcesView, { global: { plugins: [router] }, attachTo: document.body });
+    await flushPromises();
+    const box = wrapper.get("[role=region]");
+    expect(box.attributes("aria-label")).toBe(t("sources.register.scrollLabel"));
+    expect(box.attributes("tabindex")).toBeUndefined();
+
+    // jsdom lays nothing out: the widths a narrow screen gives stand in
+    Object.defineProperty(box.element, "scrollWidth", { value: 710, configurable: true });
+    Object.defineProperty(box.element, "clientWidth", { value: 270, configurable: true });
+    window.dispatchEvent(new Event("resize"));
+    await flushPromises();
+
+    expect(box.attributes("tabindex")).toBe("0");
+    wrapper.unmount();
+  });
+
   it("says the register is empty, and how to fill it", async () => {
     vi.spyOn(api, "listSources").mockResolvedValue(page([]));
     const wrapper = mount(SourcesView, { global: { plugins: [router] } });
