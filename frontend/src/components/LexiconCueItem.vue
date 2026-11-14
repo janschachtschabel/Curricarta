@@ -83,7 +83,7 @@ function decided(decision: CueDecision): void {
         {{ t("lexicon.cue.pattern") }} <code><bdi>{{ item.pattern }}</bdi></code>
       </template>
     </component>
-    <p class="lexicon-item__where" data-test="where">{{ where }}</p>
+    <p :id="`${id}-where`" class="lexicon-item__where" data-test="where">{{ where }}</p>
     <dl class="facts">
       <div>
         <dt>{{ t("lexicon.cue.role") }}</dt>
@@ -112,14 +112,15 @@ function decided(decision: CueDecision): void {
     </dl>
     <!-- tabindex -1: where the keyboard goes once a decision made here shows -->
     <p ref="summary" class="lexicon-item__decision" tabindex="-1" data-test="decision">{{ said }}</p>
-    <!-- named with its cue: a long list holds many buttons that say the same -->
+    <!-- named with its cue and where it holds: a long list holds many buttons that say the same, and one word
+         stands for several cues of other Bildungsbereiche or Länder -->
     <button
       :id="`${id}-decide`"
       ref="toggle"
       type="button"
       class="btn secondary btn-sm"
       data-test="decide"
-      :aria-labelledby="`${id}-decide ${id}-heading`"
+      :aria-labelledby="`${id}-decide ${id}-heading ${id}-where`"
       :aria-expanded="open"
       :aria-controls="open ? `${id}-form` : undefined"
       @click="open = !open"

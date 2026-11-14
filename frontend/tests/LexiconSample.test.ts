@@ -461,6 +461,28 @@ describe("a long sample", () => {
         .map((id) => document.getElementById(id)?.textContent?.trim())
         .join(" "),
     );
-    expect(named).toEqual([`${t("lexicon.item.decide")} „Inhaltsfeld“`, `${t("lexicon.item.decideAgain")} „Lernfeld“`]);
+    expect(named).toEqual([
+      `${t("lexicon.item.decide")} „Inhaltsfeld“ Schulbildung · Nordrhein-Westfalen · ${t("lexicon.cue.inSample")}`,
+      `${t("lexicon.item.decideAgain")} „Lernfeld“ Schulbildung · Bayern · ${t("lexicon.cue.inSample")}`,
+    ]);
+  });
+
+  // six pairs of cues shared one name: the word alone does not tell them apart (browser check 2, NIT 7)
+  it("tells two buttons apart whose cues share a word, by where each holds", async () => {
+    const items = [
+      reviewCue({ iri: `${SCHOOL}a`, surface_form: "Grundkurs", regions: [REGION + "DE-NW"] }),
+      reviewCue({ iri: `${SCHOOL}b`, surface_form: "Grundkurs", regions: [REGION + "DE-BY"] }),
+      reviewCue({ iri: `${SCHOOL}c`, surface_form: "Grundkurs", sector: "vocational", regions: [REGION + "DE-BY"] }),
+    ];
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items })));
+    const wrapper = await section();
+
+    const named = wrapper.findAll("[data-test=decide]").map((button) =>
+      (button.attributes("aria-labelledby") ?? "")
+        .split(" ")
+        .map((id) => document.getElementById(id)?.textContent?.trim())
+        .join(" "),
+    );
+    expect(new Set(named).size).toBe(3);
   });
 });
