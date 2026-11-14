@@ -12,6 +12,7 @@ from uuid import UUID
 
 import psycopg
 import pytest
+from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 
 from app.api import mem as mem_route
@@ -336,13 +337,18 @@ def send_at_once(url: str, store: Path, lock: str, requests: int, send: Any) -> 
     """``send(client)`` from ``requests`` threads, each with an app of its own, while another session holds
     ``lock``: all of them come to wait for it, then go."""
     answers: list[Any] = []
+    # built, their routes' fields too, before the threads start: FastAPI builds a route's fields at the
+    # app's first request and quiets a pydantic warning meanwhile with warnings.catch_warnings, which two
+    # threads at once undo for each other (Python 3.13) - the warning then leaks
+    apps = [create_app(make_settings(database_url=url, storage_dir=store)) for _ in range(requests)]
+    for app in apps:
+        list(iter_route_contexts(app.routes))
 
-    def sending() -> None:
-        app = create_app(make_settings(database_url=url, storage_dir=store))
+    def sending(app: Any) -> None:
         with selector_client(app, base_url=PUBLIC) as client:
             answers.append(send(client))
 
-    threads = [threading.Thread(target=sending) for _ in range(requests)]
+    threads = [threading.Thread(target=sending, args=(app,)) for app in apps]
     with lock_held(url, lock, at_most_s=30):
         for thread in threads:
             thread.start()
