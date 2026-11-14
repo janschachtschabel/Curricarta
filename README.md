@@ -573,6 +573,12 @@ ungültig.
   oder fertig ist, noch einmal anzufragen, startet und zählt nichts.
 - `MAX_CONCURRENT_UPLOADS` (Standard 2, höchstens 64): Uploads, die ein API-Prozess zugleich
   annimmt; ein weiterer wartet bis zu 10 s und bekommt dann 503 `uploads_busy` mit `Retry-After`.
+- `UPLOAD_READ_TIMEOUT_S` (Standard 120, 5 bis 3600): so lange liest die API das Formular eines
+  Uploads höchstens, während er einen dieser Plätze hält (das Warten auf den Platz zählt nicht
+  mit). Wer langsamer sendet, bekommt 408 `upload_too_slow`, die Verbindung wird geschlossen, und
+  die Oberfläche rät zu einer schnelleren Verbindung oder einer kleineren Datei. Die Frist ist
+  die zweite Linie hinter dem Rand, der Bodies puffern muss: Hinter ihm kommt der Body auf einmal
+  an, und sie greift nie (`docs/uebergabe/konfiguration.md`).
 - `FETCH_USER_AGENT`: so stellen sich URL-Import und Prüfjob den Servern vor. Vorn steht das
   Produktkürzel, unter dem robots.txt uns kennt (`Curricarta`), dahinter, wo die
   Betreiber zu erreichen sind – hier den eigenen Kontakt eintragen (öffentliche Seite oder

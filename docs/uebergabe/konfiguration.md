@@ -129,7 +129,15 @@ ein Test schlägt an, wenn sie veraltet.
   `proxy_request_buffering off` bzw. die Annotation
   `nginx.ingress.kubernetes.io/proxy-request-buffering: "off"` darf vor der API nicht stehen
   (`tests/deploy/test_upload_edge.py`). Ein Rand, der Bodies durchreicht (etwa Traefik ohne
-  Puffer-Middleware oder der Port der API direkt), ist dafür nicht geeignet.
+  Puffer-Middleware oder der Port der API direkt), ist dafür nicht geeignet. Als zweite Linie
+  dahinter liest die API das Formular eines Uploads, sobald er einen Platz hat, höchstens
+  `UPLOAD_READ_TIMEOUT_S` lang (Standard 120 s, 5 bis 3600; das Warten auf den Platz zählt nicht
+  mit). Hinter einem puffernden Rand kommt der Body auf einmal an, die Frist greift dann nie. Wer
+  länger braucht, bekommt 408 `upload_too_slow`; die API gibt den Platz frei, behält nichts vom
+  Upload und schließt die Verbindung, statt den Rest des Bodies weiterzulesen. Die Oberfläche
+  sagt dann, die Datei sei zu langsam angekommen, und rät zu einer schnelleren Verbindung oder
+  einer kleineren Datei. Wo Nutzer große Dateien über langsame Leitungen hochladen und der Rand
+  nicht puffert, die Frist erhöhen.
 - Konvertierung: Der Worker legt die Datei für die Dauer der Umwandlung in `/tmp` ab (bis
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel
