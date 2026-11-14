@@ -1,0 +1,44 @@
+# Dependabot's update proposals; .github/workflows/audit.yml checks the locks for advisories every week.
+version: 2
+updates:
+  # Actions are pinned by commit with the version in a comment; Dependabot moves both
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /frontend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+    # minor and patch in one pull request; each major on its own, as it may need code changes
+    groups:
+      minor-and-patch:
+        patterns: ["*"]
+        update-types: [minor, patch]
+
+  # Security updates only: a limit of 0 turns version updates off and leaves security updates on.
+  # The converter's stack (docling, docling-core, docling-ibm-models, docling-parse, torch, transformers,
+  # pillow) is pinned to what its fixtures were measured with, and a lock change needs the two exports in
+  # deploy/ written again, which Dependabot does not do: its pull request stays red on the export guard
+  # (backend/tests/deploy/test_requirements_export.py) until someone re-exports (CONTRIBUTING.md).
+  - package-ecosystem: uv
+    directory: /backend
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 0
+
+  # The bases of deploy/*.Dockerfile are pinned as tag@sha256:digest; Dependabot refreshes the digest when
+  # the tag gets a new build (a Debian or CPython security fix) and keeps the tag.
+  - package-ecosystem: docker
+    directory: /deploy
+    schedule:
+      interval: weekly
+    ignore:
+      # python:3.13-slim stays on 3.13, the version uv.lock and the tests are for
+      - dependency-name: python
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]

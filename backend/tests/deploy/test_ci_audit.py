@@ -1,5 +1,5 @@
 """.github/workflows/audit.yml checks the locked dependencies against the advisory databases, weekly, by
-hand and wherever a lock changes. Known advisories that cannot
+hand and wherever a lock changes; .github/dependabot.yml proposes the updates. Known advisories that cannot
 be lifted yet stand in deploy/audit-allowlist.toml, each with a reason and a date to look again.
 
 These keep the audit from losing a file it reads, a trigger or its strictness, and keep an ignored
@@ -20,6 +20,7 @@ from tests.deploy.test_ci import EVERY
 ROOT = Path(__file__).resolve().parents[3]
 AUDIT = ROOT / ".github" / "workflows" / "audit.yml"
 ALLOWLIST = ROOT / "deploy" / "audit-allowlist.toml"
+DEPENDABOT = ROOT / ".github" / "dependabot.yml"
 PYPROJECT: dict[str, Any] = tomllib.loads((ROOT / "backend" / "pyproject.toml").read_text(encoding="utf-8"))
 EXPORTS = ["deploy/requirements-api.txt", "deploy/requirements-convert.txt"]
 # an entry is looked at again within a quarter
@@ -183,3 +184,23 @@ def test_no_allowlist_entry_is_past_its_review_date() -> None:
 
     assert overdue == []
 
+
+def test_dependabot_watches_each_ecosystem_in_its_directory() -> None:
+    config = yaml.safe_load(DEPENDABOT.read_text(encoding="utf-8"))
+    updates = {(update["package-ecosystem"], update["directory"]): update for update in config["updates"]}
+
+    assert config["version"] == 2
+    assert set(updates) == {
+        ("github-actions", "/"),
+        ("npm", "/frontend"),
+        ("uv", "/backend"),
+        ("docker", "/deploy"),
+    }
+    for update in updates.values():
+        assert update["schedule"]["interval"] == "weekly"
+    # the backend gets security updates alone: a lock change needs both exports written again
+    assert updates[("uv", "/backend")]["open-pull-requests-limit"] == 0
+    assert updates[("npm", "/frontend")]["open-pull-requests-limit"] == 5
+    npm_groups = updates[("npm", "/frontend")]["groups"].values()
+    assert [group["update-types"] for group in npm_groups] == [["minor", "patch"]]
+    assert len(updates[("github-actions", "/")]["groups"]) == 1
