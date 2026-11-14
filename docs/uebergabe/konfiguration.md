@@ -132,8 +132,8 @@ ein Test schlägt an, wenn sie veraltet.
   das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress von
   mindestens 60 s voraus. Den Speicher der API bei zwei gleichzeitigen Prüfungen misst M6. Die
   Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
-- Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`), hinter denen
-  eines `options=` aus `DATABASE_URL` (das bleibt; beim selben Parameter gilt der Wert des Dienstes). Eine
+- Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`); ein `options=`
+  aus `DATABASE_URL` bleibt und steht davor (beim selben Parameter gilt der Wert des Dienstes). Eine
   Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der
   Server; ihre Sperren werden frei, auch die Zeile des Jobs eines hängenden Workers. Die Anfrage der API
   antwortet dann 500; ein Job-Schritt endet mit `handler_error` und wird wiederholt, und seine Anfragen an
@@ -142,8 +142,13 @@ ein Test schlägt an, wenn sie veraltet.
   er ab, das Warten auf eine Sperre eingeschlossen: Die Anfrage antwortet 500. Im Worker gilt diese Frist
   nie, auch wenn die Variable dort gesetzt ist: Sie bräche einen Herzschlag ab, der hinter der Lease
   wartet, und eine Buchung, die auf die Zeile der Quote wartet - jedes Mal ein bezahlter neuer Versuch.
-  Dazu kommen die Keepalives des Servers (`tcp_keepalives_idle=30`, `tcp_keepalives_interval=10`,
-  `tcp_keepalives_count=3`): Ein Client ohne Lebenszeichen fällt ihm nach rund 60 s auf. Die Kommandos
+  Solange eine der beiden Fristen gilt, kommen die Keepalives des Servers dazu (`tcp_keepalives_idle=30`,
+  `tcp_keepalives_interval=10`, `tcp_keepalives_count=3`): Ein Client ohne Lebenszeichen fällt ihm nach
+  rund 60 s auf, und die Sperren seiner offenen Transaktion werden frei. Gilt keine, schickt der Dienst sie
+  nicht; der Worker nimmt die Anweisungsfrist nie, also verliert er sie schon mit
+  `DB_IDLE_IN_TRANSACTION_TIMEOUT_S=0` - und damit die rund 60 s, nach denen der Server einen toten Worker
+  bemerkt und die Zeile seines Jobs freigibt. Wer die Frist dort abschaltet, setzt die Keepalives an der
+  Rolle (`ALTER ROLE … SET tcp_keepalives_idle = 30` usw., wie unten für den Pooler). Die Kommandos
   (Migration, Bootstrap, Vokabular, Lizenznachtrag) setzen nichts davon: Eine Migration wartet auf die
   Sperre einer anderen, solange diese läuft.
   Gemessen wurde mit `backend/tools/measure_sessions.py` neben den Datenbanktests, auf deren synthetischen

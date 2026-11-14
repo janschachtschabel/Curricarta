@@ -127,8 +127,11 @@ class Settings(BaseSettings):
     # How long a request waits for a pool connection before it answers 503
     db_pool_timeout_s: Annotated[float, Field(gt=0, le=60)] = 5.0
     # How long a session of the pool may sit in a transaction doing nothing before the server ends it and
-    # its locks go - a process stuck in one holds no row past it; 0 for none. The longest pause measured on
-    # the test suite's synthetic data was 2 s (tools/measure_sessions.py)
+    # its locks go - a process stuck in one holds no row past it; 0 for none. 0 also drops the server's
+    # keepalives where no other timeout is on - in the worker always (it never takes the statement timeout),
+    # and with them the ~60 s in which the server frees a dead worker's job row: set them on the role then
+    # (docs/uebergabe/konfiguration.md). The longest pause measured on the test suite's synthetic data was 2 s
+    # (tools/measure_sessions.py)
     db_idle_in_transaction_timeout_s: Annotated[int, Field(ge=0, le=3600)] = 300
     # How long one statement of the pool's sessions may run, waiting for a lock included, before the server
     # cancels it (an error 500 in the API); 0 for none. The deployment sets 60 for the API; the worker's pool
