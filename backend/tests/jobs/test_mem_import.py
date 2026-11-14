@@ -98,7 +98,7 @@ def blocks(frozen: dict[str, Any] = FROZEN) -> list[Block]:
 
 @pytest.fixture
 async def setup(
-    database_url: str, tmp_path: Path
+    database_url: str, preloaded_vocabulary: None, tmp_path: Path
 ) -> AsyncIterator[tuple[JobContext, psycopg.AsyncConnection]]:
     migrate(database_url)
     load_vocabulary(database_url, ontology_vocabulary())

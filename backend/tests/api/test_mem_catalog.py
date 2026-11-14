@@ -156,7 +156,7 @@ def test_a_lookup_out_of_bounds_is_refused(client: TestClient, migrated: str, qu
 
 
 @pytest.fixture
-def vocabulary(migrated: str) -> str:
+def vocabulary(migrated: str, preloaded_vocabulary: None) -> str:
     load_vocabulary(migrated, ontology_vocabulary())
     return migrated
 

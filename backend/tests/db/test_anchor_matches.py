@@ -47,7 +47,7 @@ BLOCKS = [
 
 
 @pytest.fixture
-async def connection(database_url: str) -> AsyncIterator[psycopg.AsyncConnection]:
+async def connection(database_url: str, preloaded_vocabulary: None) -> AsyncIterator[psycopg.AsyncConnection]:
     migrate(database_url)
     load_vocabulary(database_url, ontology_vocabulary())
     async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as opened:

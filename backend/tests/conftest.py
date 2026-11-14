@@ -12,7 +12,8 @@ from psycopg import sql
 from psycopg.conninfo import make_conninfo
 
 from app.db.migrate import migrate
-from tests.support import kept_logging
+from app.vocab.store import load_vocabulary
+from tests.support import kept_logging, ontology_vocabulary
 
 
 @pytest.fixture(autouse=True)
@@ -77,12 +78,33 @@ def migrated_template() -> Iterator[str]:
         yield name
 
 
+@pytest.fixture(scope="session")
+def vocabulary_template(migrated_template: str) -> Iterator[str]:
+    """The migrated template with the repository's vocabulary loaded, for the tests that load it
+    first thing: writing its concepts and cues took about a second per test."""
+    admin = _admin_url()
+    with _database(admin, migrated_template, prefix="curricarta_tpl") as name:
+        load_vocabulary(make_conninfo(admin, dbname=name), ontology_vocabulary())
+        yield name
+
+
 @pytest.fixture
-def database_url(migrated_template: str) -> Iterator[str]:
+def preloaded_vocabulary() -> None:
+    """Asked for by a fixture whose first act on database_url is to load ontology_vocabulary(): the
+    database then comes with it, and that load finds the release there and changes nothing. A fixture
+    that writes anything before, loads another vocabulary first or reads the load's result must not
+    ask for it. A marker by name, so that every fixture of the test shares the one database."""
+
+
+@pytest.fixture
+def database_url(request: pytest.FixtureRequest, migrated_template: str) -> Iterator[str]:
     """A fresh database with every migration applied: a test's own migrate() call finds nothing to do.
     A test of the migrations themselves takes empty_database_url."""
+    template = migrated_template
+    if "preloaded_vocabulary" in request.fixturenames:
+        template = request.getfixturevalue("vocabulary_template")
     admin = _admin_url()
-    with _database(admin, migrated_template) as name:
+    with _database(admin, template) as name:
         yield make_conninfo(admin, dbname=name)
 
 

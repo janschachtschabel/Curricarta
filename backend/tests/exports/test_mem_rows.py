@@ -26,7 +26,7 @@ DOC = "https://example.org/kk/doc/de-sn/lp/1"
 
 
 @pytest.fixture
-def sync(database_url: str) -> Iterator[psycopg.Connection]:
+def sync(database_url: str, preloaded_vocabulary: None) -> Iterator[psycopg.Connection]:
     migrate(database_url)
     load_vocabulary(database_url, ontology_vocabulary())
     with psycopg.connect(database_url, autocommit=True) as opened:

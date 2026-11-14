@@ -30,7 +30,7 @@ SOURCE, PROPOSED = CV + "orig_source", CV + "rev_proposed"
 
 
 @pytest.fixture
-def url(database_url: str) -> str:
+def url(database_url: str, preloaded_vocabulary: None) -> str:
     migrate(database_url)
     load_vocabulary(database_url, ontology_vocabulary())
     return database_url

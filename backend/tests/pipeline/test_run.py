@@ -193,7 +193,7 @@ class Model:
 
 @pytest.fixture
 async def setup(
-    database_url: str, tmp_path: Path
+    database_url: str, preloaded_vocabulary: None, tmp_path: Path
 ) -> AsyncIterator[tuple[AsyncConnectionPool, psycopg.AsyncConnection]]:
     migrate(database_url)
     load_vocabulary(database_url, ontology_vocabulary())
