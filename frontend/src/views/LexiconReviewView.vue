@@ -23,6 +23,13 @@ const { leaving, answer } = useLeaveGuard(computed(() => unsaved.sample || unsav
   <div class="page lexicon">
     <h1>{{ t("lexicon.page.heading") }}</h1>
     <p class="lexicon__intro">{{ t("lexicon.page.intro") }}</p>
+    <!-- the second section stands behind a long sample: a way to each from the top -->
+    <nav :aria-label="t('lexicon.page.sections')">
+      <ul class="lexicon__sections">
+        <li><a href="#lexicon-sample">{{ t("lexicon.sample.heading") }}</a></li>
+        <li><a href="#lexicon-terms">{{ t("lexicon.terms.heading") }}</a></li>
+      </ul>
+    </nav>
     <LexiconSample @dirty="unsaved.sample = $event" />
     <LexiconTerms @dirty="unsaved.terms = $event" />
     <ConfirmDialog
@@ -50,5 +57,14 @@ const { leaving, answer } = useLeaveGuard(computed(() => unsaved.sample || unsav
 
 .lexicon__intro {
   max-width: var(--reading-width);
+}
+
+.lexicon__sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
 </style>

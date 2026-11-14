@@ -6,16 +6,18 @@
  * made is taken into the list without reading it again, and a cue decided here stays in sight while only the open
  * ones show, so the keyboard keeps its place. Tells the page whether a form holds what is not saved (`dirty`).
  */
-import { computed, onMounted, ref } from "vue";
+import { computed, nextTick, onMounted, ref, watch } from "vue";
 
 import { getReview, type CueDecision, type ReviewList } from "@/api";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
+import LexiconCueFilter from "@/components/LexiconCueFilter.vue";
 import LexiconCueItem from "@/components/LexiconCueItem.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import { LOCALE, t } from "@/i18n/de";
 import { decidedIn, judgedCue } from "@/lexiconReview";
+import { ANY_CUE, SAMPLE_PAGE, chosen, type CueChoice } from "@/lexiconStrata";
 import { labelList, sectorWord } from "@/lexiconWords";
 import { useOpenEntries } from "@/openEntries";
 import { useSectionReading } from "@/sectionReading";
@@ -31,12 +33,28 @@ const { shown: list, failure, load, retry } = useSectionReading<ReviewList>(
 const number = new Intl.NumberFormat(LOCALE);
 
 const items = computed(() => list.value?.items ?? []);
+// the cues of a Bildungsbereich and a Land, a page at a time
+const choice = ref<CueChoice>(ANY_CUE);
+const inChoice = computed(() => items.value.filter((item) => chosen(item, choice.value)));
 const { openOnly, open, listed, dirty } = useOpenEntries(
-  () => items.value,
+  () => inChoice.value,
   (item) => item.iri,
   (item) => item.decision !== null,
   (now) => emit("dirty", now),
 );
+const pageEnd = ref(SAMPLE_PAGE);
+const paged = computed(() => listed.value.slice(0, pageEnd.value));
+watch([choice, openOnly], () => (pageEnd.value = SAMPLE_PAGE));
+
+const itemsBox = ref<HTMLElement | null>(null);
+
+// as the register's "Weitere laden": the keyboard to the first cue the press brought
+async function more(): Promise<void> {
+  const first = paged.value.length;
+  pageEnd.value += SAMPLE_PAGE;
+  await nextTick();
+  itemsBox.value?.querySelectorAll<HTMLElement>(".lexicon-item__heading")[first]?.focus();
+}
 const retired = computed(() => (list.value?.retired ?? []).map(judgedCue));
 
 function regions(iris: string[]): string {
@@ -97,6 +115,7 @@ onMounted(load);
           </tbody>
         </table>
       </div>
+      <LexiconCueFilter v-if="items.length" v-model="choice" :items="items" :labels="list.labels" />
       <div v-if="items.length" class="lexicon-sample__tools">
         <button
           type="button"
@@ -107,18 +126,27 @@ onMounted(load);
         >
           {{ t("lexicon.list.openOnly") }}
         </button>
-        <p data-test="open-count">{{ t("lexicon.list.openCount", { open, total: items.length }) }}</p>
+        <p data-test="open-count">{{ t("lexicon.list.openCount", { open, total: inChoice.length }) }}</p>
       </div>
-      <p v-if="openOnly && !listed.length">{{ t("lexicon.list.allDecided") }}</p>
-      <LexiconCueItem
-        v-for="item in listed"
-        :key="item.iri"
-        :item="item"
-        :labels="list.labels"
-        @decided="decided"
-        @reload="retry()"
-        @dirty="dirty(item.iri, $event)"
-      />
+      <p v-if="items.length && !inChoice.length">{{ t("lexicon.sample.filter.none") }}</p>
+      <p v-else-if="openOnly && !listed.length">{{ t("lexicon.list.allDecided") }}</p>
+      <div ref="itemsBox" class="lexicon-sample__items">
+        <LexiconCueItem
+          v-for="item in paged"
+          :key="item.iri"
+          :item="item"
+          :labels="list.labels"
+          @decided="decided"
+          @reload="retry()"
+          @dirty="dirty(item.iri, $event)"
+        />
+      </div>
+      <div v-if="listed.length > SAMPLE_PAGE" class="lexicon-sample__tools">
+        <p data-test="shown-count">{{ t("lexicon.sample.shownCount", { shown: paged.length, total: listed.length }) }}</p>
+        <button v-if="paged.length < listed.length" type="button" class="btn secondary" data-test="more-cues" @click="more">
+          {{ t("lexicon.sample.more") }}
+        </button>
+      </div>
       <div v-if="retired.length" class="lexicon-sample__retired" data-test="retired">
         <h3>{{ t("lexicon.sample.retiredHeading") }}</h3>
         <p>{{ t("lexicon.sample.retiredIntro") }}</p>
@@ -183,9 +211,13 @@ onMounted(load);
   gap: var(--space-2);
 }
 
+.lexicon-sample__items,
 .lexicon-sample__retired {
   display: grid;
   gap: var(--space-2);
+}
+
+.lexicon-sample__retired {
   padding-block-start: var(--space-3);
 }
 

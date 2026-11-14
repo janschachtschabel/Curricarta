@@ -54,6 +54,15 @@ describe("a term X1 found no type for", () => {
     expect(wrapper.get("[data-test=decision]").text()).toBe(t("lexicon.item.undecided"));
   });
 
+  it("names its button to decide by its word, among many alike (UI review M3)", () => {
+    const wrapper = item();
+
+    const ids = (toggle(wrapper).attributes("aria-labelledby") ?? "").split(" ");
+    expect(ids.map((id) => document.getElementById(id)?.textContent?.trim()).join(" ")).toBe(
+      `${t("lexicon.item.decide")} „Lernbereich“`,
+    );
+  });
+
   it("leads to the documents that name it, with what X1 suggested there, and counts the others", () => {
     const wrapper = item(newTerm({ documents: 4 }));
 

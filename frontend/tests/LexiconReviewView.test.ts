@@ -61,6 +61,20 @@ describe("the editors' review of the lexicon", () => {
     expect(wrapper.findAll("article")).toHaveLength(2);
   });
 
+  it("leads to each of its sections from its top, the second one far down a long sample", async () => {
+    const { wrapper } = await page();
+
+    const nav = wrapper.get("nav");
+    expect(nav.attributes("aria-label")).toBe(t("lexicon.page.sections"));
+    const links = nav.findAll("a").map((link) => [link.text(), link.attributes("href")]);
+    expect(links).toEqual([
+      [t("lexicon.sample.heading"), "#lexicon-sample"],
+      [t("lexicon.terms.heading"), "#lexicon-terms"],
+    ]);
+    // each lands on its section's heading, which takes the keyboard
+    for (const [, href] of links) expect(wrapper.get(String(href)).attributes("tabindex")).toBe("-1");
+  });
+
   it("shows one section where the other did not come", async () => {
     vi.spyOn(api, "getReview").mockRejectedValue(new ApiError("server", 503, "service_unavailable"));
     const { wrapper } = await page();

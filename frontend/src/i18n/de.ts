@@ -906,6 +906,8 @@ export const messages = {
         "Hier entscheidet die Redaktion über die Hinweise der Länderrecherche und über Begriffe, für die die " +
         "Extraktion im Profil keinen Typ fand. Im Lexikon wirken die Entscheidungen erst, wenn die " +
         "Administration sie exportiert und die Länderdateien neu erzeugt.",
+      // names the links to the page's two sections
+      sections: "Abschnitte dieser Seite",
       // a decision not saved asked about before it goes (LexiconReviewView.vue, leaveGuard.ts)
       leave: {
         // not "Verwerfen": that is what a decision on a research cue may say
@@ -934,6 +936,16 @@ export const messages = {
         sampled: "In der Stichprobe",
         decided: "Entschieden",
       },
+      // which cues to show, by the strata (LexiconCueFilter.vue)
+      filter: {
+        sector: "Bildungsbereich",
+        anySector: "alle Bereiche",
+        region: "Land",
+        anyRegion: "alle Länder",
+        none: "Kein Hinweis passt zu dieser Auswahl. Wähle einen anderen Bereich oder ein anderes Land.",
+      },
+      more: "Weitere zeigen",
+      shownCount: "{shown} von {total} angezeigt",
       retiredHeading: "Entscheidungen zu ausgemusterten Hinweisen",
       retiredIntro:
         "Eine Ladung der Vokabulare hat diese Hinweise ausgemustert. Was die Redaktion über sie entschied, bleibt " +

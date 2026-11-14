@@ -2,9 +2,10 @@ import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
-import { ApiError, type ReviewList } from "@/api";
+import { ApiError, type ReviewCue, type ReviewList } from "@/api";
 import LexiconSample from "@/components/LexiconSample.vue";
 import { t } from "@/i18n/de";
+import { EVERYWHERE, SAMPLE_PAGE } from "@/lexiconStrata";
 
 import { violations } from "./axe";
 import { LABELS, REGION, SCHOOL, cueDecision, reviewCue } from "./lexiconFixtures";
@@ -259,5 +260,80 @@ describe("the sample of the research's cues", () => {
     await wrapper.get("[data-test=decision-cancel]").trigger("click");
 
     expect(wrapper.emitted("dirty")).toEqual([[true], [false]]);
+  });
+});
+
+// 197 cues on one page, all of their buttons named alike (UI review M3)
+describe("a long sample", () => {
+  const many = (count: number, changes: (index: number) => Partial<ReviewCue> = () => ({})) =>
+    Array.from({ length: count }, (_, index) =>
+      reviewCue({ iri: `${SCHOOL}re-${index}`, surface_form: `Wort ${index + 1}`, ...changes(index) }),
+    );
+  const byLabel = (wrapper: VueWrapper, id: string) => wrapper.get(`[for=${id}]`).text();
+
+  it("shows a page of cues at a time, the next one on the reader's word with the keyboard at its first cue", async () => {
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items: many(SAMPLE_PAGE + 5) })));
+    const wrapper = await section();
+    expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE);
+    expect(wrapper.get("[data-test=shown-count]").text()).toBe(
+      t("lexicon.sample.shownCount", { shown: SAMPLE_PAGE, total: SAMPLE_PAGE + 5 }),
+    );
+
+    await wrapper.get("[data-test=more-cues]").trigger("click");
+    await flushPromises();
+
+    expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE + 5);
+    expect(document.activeElement).toBe(wrapper.findAll("article h3")[SAMPLE_PAGE].element);
+    expect(wrapper.find("[data-test=more-cues]").exists()).toBe(false);
+  });
+
+  it("shows the cues of one Bildungsbereich and one Land, a cue of no region under its own choice", async () => {
+    const items = [
+      reviewCue({ iri: `${SCHOOL}a`, surface_form: "Inhaltsfeld", regions: [REGION + "DE-NW"] }),
+      reviewCue({ iri: `${SCHOOL}b`, surface_form: "Lernfeld", sector: "vocational", regions: [REGION + "DE-BY"] }),
+      reviewCue({ iri: `${SCHOOL}c`, surface_form: "Kompetenz", regions: [] }),
+    ];
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items })));
+    const wrapper = await section();
+    expect(byLabel(wrapper, "lexicon-sector")).toBe(t("lexicon.sample.filter.sector"));
+    expect(byLabel(wrapper, "lexicon-region")).toBe(t("lexicon.sample.filter.region"));
+    const regionOptions = wrapper.findAll("#lexicon-region option").map((one) => one.text());
+    expect(regionOptions).toEqual([t("lexicon.sample.filter.anyRegion"), "Bayern", "Nordrhein-Westfalen", t("lexicon.cue.everywhere")]);
+
+    await wrapper.get("#lexicon-sector").setValue("school");
+    expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Kompetenz“"]);
+    await wrapper.get("#lexicon-region").setValue(EVERYWHERE);
+    expect(headings(wrapper)).toEqual(["„Kompetenz“"]);
+    await wrapper.get("#lexicon-region").setValue(REGION + "DE-BY");
+
+    expect(headings(wrapper)).toEqual([]);
+    expect(wrapper.text()).toContain(t("lexicon.sample.filter.none"));
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("starts again at the first page when the choice changes", async () => {
+    vi.spyOn(api, "getReview").mockImplementation(() =>
+      Promise.resolve(review({ items: many(SAMPLE_PAGE * 3, (index) => ({ sector: index % 2 ? "school" : "vocational" })) })),
+    );
+    const wrapper = await section();
+    await wrapper.get("[data-test=more-cues]").trigger("click");
+    await flushPromises();
+    expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE * 2);
+
+    await wrapper.get("#lexicon-sector").setValue("school");
+
+    expect(headings(wrapper)).toHaveLength(SAMPLE_PAGE);
+  });
+
+  it("names each button to decide by its cue", async () => {
+    const wrapper = await section();
+
+    const named = wrapper.findAll("[data-test=decide]").map((button) =>
+      (button.attributes("aria-labelledby") ?? "")
+        .split(" ")
+        .map((id) => document.getElementById(id)?.textContent?.trim())
+        .join(" "),
+    );
+    expect(named).toEqual([`${t("lexicon.item.decide")} „Inhaltsfeld“`, `${t("lexicon.item.decideAgain")} „Lernfeld“`]);
   });
 });

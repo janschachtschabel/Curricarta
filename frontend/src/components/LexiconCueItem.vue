@@ -76,7 +76,8 @@ function decided(decision: CueDecision): void {
 
 <template>
   <article class="lexicon-item" :aria-labelledby="`${id}-heading`">
-    <component :is="`h${level ?? 3}`" :id="`${id}-heading`" class="lexicon-item__heading">
+    <!-- tabindex -1: where the keyboard goes when "Weitere zeigen" brought it into the list -->
+    <component :is="`h${level ?? 3}`" :id="`${id}-heading`" class="lexicon-item__heading" tabindex="-1">
       <template v-if="item.surface_form">„<bdi>{{ item.surface_form }}</bdi>“</template>
       <template v-else>
         {{ t("lexicon.cue.pattern") }} <code><bdi>{{ item.pattern }}</bdi></code>
@@ -111,11 +112,14 @@ function decided(decision: CueDecision): void {
     </dl>
     <!-- tabindex -1: where the keyboard goes once a decision made here shows -->
     <p ref="summary" class="lexicon-item__decision" tabindex="-1" data-test="decision">{{ said }}</p>
+    <!-- named with its cue: a long list holds many buttons that say the same -->
     <button
+      :id="`${id}-decide`"
       ref="toggle"
       type="button"
       class="btn secondary btn-sm"
       data-test="decide"
+      :aria-labelledby="`${id}-decide ${id}-heading`"
       :aria-expanded="open"
       :aria-controls="open ? `${id}-form` : undefined"
       @click="open = !open"

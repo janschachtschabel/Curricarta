@@ -113,11 +113,14 @@ function decided(decision: TermDecision, labels: Labels): void {
     </dl>
     <!-- tabindex -1: where the keyboard goes once a decision made here shows -->
     <p ref="summary" class="lexicon-item__decision" tabindex="-1" data-test="decision">{{ said }}</p>
+    <!-- named with its word: a long list holds many buttons that say the same -->
     <button
+      :id="`${id}-decide`"
       ref="toggle"
       type="button"
       class="btn secondary btn-sm"
       data-test="decide"
+      :aria-labelledby="`${id}-decide ${id}-heading`"
       :aria-expanded="open"
       :aria-controls="open ? `${id}-form` : undefined"
       @click="open = !open"
