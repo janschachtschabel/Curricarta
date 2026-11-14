@@ -41,6 +41,7 @@ CREATE TABLE gold_judgement (
     CONSTRAINT gold_judgement_verdict_or_count CHECK (num_nonnulls(verdict, expected) = 1),
     CONSTRAINT gold_judgement_correct_without_reason CHECK (verdict IS DISTINCT FROM 'correct' OR reasons = '{}'),
     CONSTRAINT gold_judgement_others_with_reason
-        CHECK (verdict IS NULL OR verdict = 'correct' OR cardinality(reasons) >= 1)
+        CHECK (verdict IS NULL OR verdict = 'correct' OR cardinality(reasons) >= 1),
+    CONSTRAINT gold_judgement_count_without_reason CHECK (expected IS NULL OR reasons = '{}')
+    -- a verdict on a block's item or a count on a statement's: refused by the sheet's importer, across tables
 );
-CREATE INDEX gold_item_of_sample ON gold_item (sample_id);

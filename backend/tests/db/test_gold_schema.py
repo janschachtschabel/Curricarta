@@ -2,6 +2,7 @@
 and seed; its items, each pointing at one statement, node or block; and the judgements of an item, one
 for each account - a verdict with its reasons from a fixed list, or a block's count alone."""
 
+import re
 from collections.abc import Iterator
 from typing import Any, get_args
 from uuid import UUID
@@ -12,7 +13,7 @@ from psycopg import errors
 from psycopg.types.json import Jsonb
 
 from app.db.gold import Reason, SampleKind, Verdict
-from app.db.migrate import migrate
+from app.db.migrate import MIGRATIONS, migrate
 from tests.db.l1 import add_conversion, add_document, listed_values, seed_vocabulary
 
 pytestmark = pytest.mark.pg
@@ -160,8 +161,9 @@ def test_a_reason_outside_the_list_is_refused(connection: psycopg.Connection, ma
         ({"verdict": None}, "gold_judgement_verdict_or_count"),
         ({"verdict": None, "expected": -1}, "gold_judgement_expected_check"),
         ({"verdict": None, "expected": 501}, "gold_judgement_expected_check"),
+        ({"verdict": None, "expected": 3, "reasons": ["boundary"]}, "gold_judgement_count_without_reason"),
     ],
-    ids=["verdict-and-count", "neither", "count-below-0", "count-above-500"],
+    ids=["verdict-and-count", "neither", "count-below-0", "count-above-500", "count-with-reason"],
 )
 def test_a_block_is_judged_by_a_count_alone(
     connection: psycopg.Connection, made: dict[str, Any], columns: dict[str, Any], constraint: str
@@ -204,3 +206,10 @@ def test_a_document_taken_away_takes_its_samples_along(
     assert connection.execute("SELECT document_id FROM gold_sample").fetchall() == [(other,)]
     assert connection.execute("SELECT id FROM gold_item").fetchall() == [(kept,)]
     assert connection.execute("SELECT item_id FROM gold_judgement").fetchall() == [(kept,)]
+
+
+def test_the_migration_seeds_no_gold_row(connection: psycopg.Connection) -> None:
+    # a gold row quotes a curriculum by its note: it lives in the runtime database alone, never in a file
+    assert re.search(r"insert", (MIGRATIONS / "0032_gold.sql").read_text(encoding="utf-8"), re.I) is None
+    for table in ("gold_sample", "gold_item", "gold_judgement"):
+        assert connection.execute(f"SELECT count(*) FROM {table}").fetchone() == (0,)  # noqa: S608
