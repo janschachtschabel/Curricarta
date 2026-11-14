@@ -235,6 +235,9 @@ def test_an_upload_cancelled_while_it_waits_for_a_slot_takes_none(
 
     client.portal.start_task_soon(soon_cancelled)
     drive(client, owner[1], receive, cancel=waiting)
+
+    # it waited, and gave back no slot it never took: the only one is still the other upload's
+    assert slots.locked()
     client.portal.call(slots.release)  # the other upload ends
 
     assert asked == []

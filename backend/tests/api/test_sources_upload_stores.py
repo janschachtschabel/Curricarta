@@ -9,16 +9,16 @@ import hashlib
 import json
 import threading
 from collections.abc import Iterator
-from typing import Any, BinaryIO, NoReturn
+from typing import Any, BinaryIO
 from uuid import UUID
 
+import psycopg
 import pytest
 from fastapi.routing import iter_route_contexts
 from fastapi.testclient import TestClient
 from starlette.datastructures import UploadFile
 from starlette.types import Message
 
-from app.api import sources
 from app.api.app import create_app
 from tests.api.test_sources_upload import PUBLIC, migrated, owner, rows, upload
 from tests.api.test_sources_upload_slots import HEAD, drive
@@ -167,6 +167,20 @@ def sends_of(store: Any) -> list[str]:
     return sent
 
 
+REFUSING_AUDIT = """
+CREATE FUNCTION refuse_upload_audit() RETURNS trigger LANGUAGE plpgsql AS $$
+BEGIN RAISE EXCEPTION 'the database refused the entry (invented)'; END $$;
+CREATE TRIGGER refuse_upload_audit BEFORE INSERT ON audit_log
+FOR EACH ROW WHEN (NEW.action = 'source.upload') EXECUTE FUNCTION refuse_upload_audit();
+"""
+# every table an upload writes to, in its one transaction
+UPLOAD_ROWS = (
+    "SELECT (SELECT count(*) FROM source_file), (SELECT count(*) FROM entity WHERE kind = 'source'),"
+    " (SELECT count(*) FROM source), (SELECT count(*) FROM acquisition),"
+    " (SELECT count(*) FROM audit_log WHERE action = 'source.upload')"
+)
+
+
 def test_a_failed_insert_leaves_the_object_which_the_next_upload_adopts(
     client: TestClient,
     migrated: str,
@@ -174,17 +188,21 @@ def test_a_failed_insert_leaves_the_object_which_the_next_upload_adopts(
     owner: tuple[UUID, dict[str, str]],
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    # stored, then the database refuses the entry: the object stays, whole, without a row - it is
-    # addressed by its bytes, nothing in this package sweeps it, and the same bytes take it over
-    async def refused(*args: Any, **kwargs: Any) -> NoReturn:
-        raise RuntimeError("the database refused the entry (invented)")
-
-    monkeypatch.setattr(sources, "record_upload", refused)
-    assert upload(client, owner[1], data=FILE).status_code == 500
+    # Stored, then the database refuses the upload's last insert, its audit entry: the transaction
+    # takes back every row it wrote, the object stays, whole, without a row - addressed by its
+    # bytes, nothing in this package sweeps it - and the same bytes take it over
+    with psycopg.connect(migrated, autocommit=True) as connection:
+        connection.execute(REFUSING_AUDIT)
+    try:
+        assert upload(client, owner[1], data=FILE).status_code == 500
+    finally:
+        with psycopg.connect(migrated, autocommit=True) as connection:
+            connection.execute("DROP TRIGGER refuse_upload_audit ON audit_log")
+            connection.execute("DROP FUNCTION refuse_upload_audit()")
     key = f"sources/{hashlib.sha256(FILE).hexdigest()}"
-    assert no_entry(migrated) and upload_store.stored_keys() == [key]
+    assert rows(migrated, UPLOAD_ROWS) == [(0, 0, 0, 0, 0)]
+    assert upload_store.stored_keys() == [key]
 
-    monkeypatch.undo()
     store = client.app.state.storage.sync  # type: ignore[attr-defined]
     writes: list[str] = []
     put_file = store.put_file
