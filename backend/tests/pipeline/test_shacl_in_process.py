@@ -11,7 +11,9 @@ typed a Lehrplan as its import hands it to X5 (the profile's warnings of its Reg
 deadline or a crash (the stand-in raises ShaclTimeout as the check does; test_shacl.py tests both in the
 child), and graphs larger than the tests' own."""
 
+import ast
 from collections.abc import Awaitable, Callable
+from pathlib import Path
 from typing import Any, cast
 
 import pytest
@@ -156,3 +158,50 @@ async def test_the_stand_in_answers_as_the_child_does_on_a_plan_as_its_import_ha
     else:  # the profile warns of a Regelstandard outside the KMK's standards
         regelstandards = [found for found in in_process if found.shape == "SchulRegelstandardShape"]
         assert regelstandards and {found.severity for found in regelstandards} == {"warning"}
+
+
+TESTS = Path(__file__).resolve().parents[1]
+# each caller of the check keeps a test on the real child (the tests of the check itself: test_shacl.py)
+ON_THE_CHILD = {
+    "pipeline/test_x5_stage.py": [
+        "test_x5_checks_the_document_after_x4_and_writes_its_findings_on_their_rows",
+        "test_x5_after_a_crashed_check_writes_its_findings_once_and_counts_the_anchors_as_they_stand",
+    ],
+    "pipeline/test_x5_check.py": ["test_an_import_whose_tree_is_written_is_checked_with_no_x5_before"],
+    "pipeline/test_x6_repair.py": [
+        "test_a_repair_asks_again_only_the_packages_with_defects_and_checks_the_document_again"
+    ],
+    "jobs/test_mem_import.py": ["test_an_import_writes_the_plan_s_tree_as_imported_rows_then_checks_it"],
+    "exports/test_mem_export.py": [
+        "test_a_state_the_shapes_refuse_is_no_export_and_leaves_its_violations_alone"
+    ],
+    "api/test_exports.py": ["test_a_state_the_shapes_refuse_answers_with_its_violations"],
+    "exports/test_mem_roundtrip.py": ["test_saxony_s_plan_imported_frozen_and_exported_meets_the_mem_shapes"],
+}
+
+
+def _functions(path: Path) -> dict[str, ast.FunctionDef | ast.AsyncFunctionDef]:
+    tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    return {
+        node.name: node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+
+@pytest.mark.parametrize("file", sorted(ON_THE_CHILD))
+def test_the_tests_kept_on_the_child_do_not_ask_for_the_stand_in(file: str) -> None:
+    functions = _functions(TESTS / file)
+
+    for name in ON_THE_CHILD[file]:
+        arguments = functions[name].args
+        assert "in_process_shacl" not in [each.arg for each in arguments.args + arguments.kwonlyargs], name
+
+
+def test_the_stand_in_is_asked_for_by_name_alone() -> None:
+    fixture = _functions(TESTS / "conftest.py")["in_process_shacl"]
+
+    [decorator] = fixture.decorator_list
+    assert ast.unparse(decorator) == "pytest.fixture"  # no autouse, no usefixtures in a module of the callers
+    for file in ON_THE_CHILD:
+        assert 'usefixtures("in_process_shacl")' not in (TESTS / file).read_text(encoding="utf-8"), file
