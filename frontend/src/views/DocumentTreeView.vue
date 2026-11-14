@@ -274,7 +274,9 @@ watch([heading, () => route.fullPath], ([name]) => {
   .document-tree__side {
     position: sticky;
     top: 0;
-    max-height: 100dvh;
+    /* A sticky box stays inside its containing block: as tall as the viewport, the page's bottom padding (.page)
+       would push it up at the page's end. Both are in rem, so this holds at any root font size. */
+    max-height: calc(100dvh - var(--space-5));
     overflow-y: auto;
     padding-inline-end: var(--space-1);
   }

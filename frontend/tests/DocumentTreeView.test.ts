@@ -1465,12 +1465,23 @@ describe("the ways between the row, its panel and the source", () => {
     const rules = cssRules(stylesOf(source));
     const sticky = rules.find((rule) => rule.selectors.includes(".document-tree__side") && /position:\s*sticky/.test(rule.body));
     expect(sticky, "a sticky rule for the side").toBeDefined();
-    expect(sticky?.body).toMatch(/max-height:\s*100dvh/);
+    expect(sticky?.body).toMatch(/max-height:\s*calc\(100dvh\b/);
     expect(sticky?.body).toMatch(/overflow-y:\s*auto/);
     // the side is sticky only inside the wide media query, where it stands beside the tree
     expect(source).toMatch(/@media \(min-width: 60rem\) \{[^@]*\.document-tree__side \{[^}]*position:\s*sticky/);
     const jumpRule = rules.find((rule) => rule.selectors.includes(".document-tree__jump"));
     expect(jumpRule?.body).toMatch(/position:\s*sticky/);
     expect(jumpRule?.body).toMatch(/bottom:\s*0/);
+  });
+
+  it("keeps the sticky side inside the page at its end, leaving room for the page's bottom padding", () => {
+    // A sticky box never leaves its containing block: one as tall as the viewport is pushed up by the page's
+    // bottom padding once the page stands at its end, and its first links go out of sight.
+    const page = cssRules(readFileSync(join(SRC, "style.css"), "utf8")).find((rule) => rule.selectors.includes(".page"));
+    const bottom = page?.body.match(/padding:\s*\S+\s+\S+\s+(var\(--[\w-]+\))/)?.[1];
+    expect(bottom, "the page's bottom padding").toBeDefined();
+    const rules = cssRules(stylesOf(readFileSync(join(SRC, "views", "DocumentTreeView.vue"), "utf8")));
+    const sticky = rules.find((rule) => rule.selectors.includes(".document-tree__side") && /position:\s*sticky/.test(rule.body));
+    expect(sticky?.body).toContain(`max-height: calc(100dvh - ${bottom})`);
   });
 });
