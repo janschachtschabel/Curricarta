@@ -656,7 +656,12 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   Zuschlag, ab der zweiten Anfrage aus dem Cache) und die Obergrenze der Antworten. Dazu kommen:
   - `reserved`: was der Aufruf für diese Anfragen reserviert, in rohen Token;
   - `charged_at_most`: das Höchste, was die Quote für sie halten muss, nach den Gewichten (`weights`).
-  Für den ganzen Lauf gelten beide nur, wo die Zählung genau ist und `unreckoned` leer ist.
+  - `charged_expected`: was sie voraussichtlich buchen, in gewichteten Token. Jede Anfrage liest
+    ihren Teil vor dem Haltepunkt aus dem Cache, außer den ersten `1 + EXTRACT_CONCURRENCY`, die
+    beginnen, bevor der Cache steht. Jede Antwort zählt mit 1.100 Token (in der Abnahme rund 1.050),
+    höchstens mit ihrer Obergrenze. `null`, solange X3 oder X4 in `unreckoned` steht. Das ist keine
+    Obergrenze: Wiederholungen und ein verlorener Cache kosten mehr.
+  Für den ganzen Lauf gelten diese Zahlen nur, wo die Zählung genau ist und `unreckoned` leer ist.
   - Vor X1 rechnet er X1 und nennt das Präfix von X3 (`prefix_tokens`, noch ohne Profil und Baum,
     also zu niedrig). Die Gliederung zählt er ohne die Spezifikationen, die X1 findet, und nach dem
     Typ der Redaktion oder ohne Typ. Das kann höher oder niedriger liegen als der Lauf.
@@ -664,7 +669,9 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
     X2 einen Baum schneidet. X1 kann Teile zu Rahmen- oder Nebenteilen machen, deshalb ist das eine
     obere Richtgröße: In den Abnahme-Dokumenten schnitt X2 das 0,5- bis 1-Fache.
   - Ist X1 allein fertig, zählt er die Pakete, die X4 fragen wird (`units`).
-  - Nach X2 rechnet er X3 und jedes offene Paket von X4. Solange X3 offen ist, fehlen dem Präfix von
+  - Nach X2 rechnet er X3 und jedes offene Paket von X4, das der Lauf fragen wird. Ein Paket, dessen
+    Antwort an der Grenze abgeschnitten wurde, fragt der Lauf unter derselben Grenze nicht noch
+    einmal; es zählt nicht mit. Solange X3 offen ist, fehlen dem Präfix von
     X4 die Wahllisten von X3; das liegt etwas zu niedrig.
   - Was er nicht rechnen kann, nennt `unreckoned` mit Grund: `before_x2`; `prefix_too_long` oder
     `document_has_tree`, wo die Stufe den Job beendet, bevor sie fragt.

@@ -65,10 +65,8 @@ async def run_x4(
         kept = await stage_result(connection, document.id, "X2")
         packages = [WorkPackage.from_result(item) for item in (kept or {}).get("packages", [])]
         units = [item for item in packages if item.job == "statements"]
-        done = len(units) - len(open_units := await units_to_ask(connection, document, units))
-        cut = await units_cut(connection, document, cap := output_cap(model))
-        held = [unit.key for unit in open_units if unit.key in cut]
-        open_units = [unit for unit in open_units if unit.key not in cut]
+        open_units, held = await units_asked(connection, document, units, cap := output_cap(model))
+        done = len(units) - len(open_units) - len(held)
         # the lease first; in a block of its own, which ends the hold on the job's row
         await report(connection, job, "extract_statements", done=done, total=len(units))
     async with context.pool.connection() as connection:
@@ -101,6 +99,18 @@ async def units_to_ask(
     """The units no job has done yet."""
     done = await done_units(connection, document.id)
     return [unit for unit in units if unit.key not in done]
+
+
+async def units_asked(
+    connection: psycopg.AsyncConnection, document: Document, units: Sequence[WorkPackage], cap: int | None
+) -> tuple[list[WorkPackage], list[str]]:
+    """Of ``units``, those a run of X4 asks under ``cap`` - open, not cut before under a cap no
+    lower -, and the keys of those it holds back: open, but cut before so. The reckoning of a run
+    (app/pipeline/reckoned.py) counts by the same choice."""
+    open_units = await units_to_ask(connection, document, units)
+    cut = await units_cut(connection, document, cap)
+    held = [unit.key for unit in open_units if unit.key in cut]
+    return [unit for unit in open_units if unit.key not in cut], held
 
 
 async def units_cut(connection: psycopg.AsyncConnection, document: Document, cap: int | None) -> set[str]:
