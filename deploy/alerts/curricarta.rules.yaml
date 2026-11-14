@@ -117,7 +117,10 @@ groups:
           description: >-
             Read the API's log lines of the 5xx answers (by route and request id); 503 mostly means
             the database or the object store did not answer in time - see /ready and
-            CurricartaPoolSaturated.
+            CurricartaPoolSaturated. Two are by design: 503 uploads_busy on POST /api/v1/sources is
+            back-pressure (raise MAX_CONCURRENT_UPLOADS or add replicas), and 500 with QueryCanceled
+            in the log is a statement past DB_STATEMENT_TIMEOUT_S, while 500 after a transaction the
+            server ended points at DB_IDLE_IN_TRANSACTION_TIMEOUT_S.
 
       - alert: CurricartaPoolSaturated
         expr: max(curricarta_db_pool_requests_waiting) > 0
