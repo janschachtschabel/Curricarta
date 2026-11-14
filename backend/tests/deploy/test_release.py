@@ -204,6 +204,27 @@ def test_a_tag_that_is_not_the_package_s_version_stops_the_release() -> None:
     assert read.stdout.strip() == VERSION
 
 
+def test_a_tag_s_run_releases_only_a_commit_of_main() -> None:
+    steps = _jobs()["images"]["steps"]
+    [on_main] = [index for index, step in enumerate(steps) if "merge-base" in str(step.get("run", ""))]
+    builds = [index for index, step in enumerate(steps) if re.search(r"npm|docker", str(step.get("run", "")))]
+    run = str(steps[on_main]["run"])
+
+    assert steps[on_main]["if"] == "github.event_name == 'push' && github.ref_type == 'tag'"
+    assert on_main < min(builds)
+    # the checkout holds the tagged commit alone: main's history is fetched for the check, without a token
+    assert "git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main" in run
+    assert re.search(
+        r'if ! git merge-base --is-ancestor "\$GITHUB_SHA" origin/main; then\n'
+        r"[^\n]*::error::[^\n]*\n\s*exit 1",
+        run,
+    )
+    # a run by hand may be of any branch, and says of which
+    assert re.search(
+        r'else\n\s*echo "::notice::[^\n]*\$GITHUB_REF_NAME[^\n]*"\n\s*fi', _run("images", r"GITHUB_ENV")
+    )
+
+
 def test_the_images_say_where_they_come_from() -> None:
     labels = [
         '--label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY"',

@@ -52,6 +52,16 @@ jobs:
             echo "::error::the tag $GITHUB_REF_NAME is not v$version, the version of backend/pyproject.toml"
             exit 1
           fi
+      # a version only of a commit of main; the checkout holds the tagged commit alone, so main's history
+      # is fetched for the check (a public repository: no token)
+      - name: The tagged commit is on main
+        if: github.event_name == 'push' && github.ref_type == 'tag'
+        run: |
+          git fetch --no-tags origin +refs/heads/main:refs/remotes/origin/main
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::the tag $GITHUB_REF_NAME is on $GITHUB_SHA, which is not on main: only a commit of main is released"
+            exit 1
+          fi
       # the registry's names are lower case; the version tag only from a version tag's run
       - &names
         name: Names and tags
@@ -61,6 +71,8 @@ jobs:
           if [ "$GITHUB_EVENT_NAME" = push ] && [ "$GITHUB_REF_TYPE" = tag ]; then
             version="${GITHUB_REF_NAME#v}"
             tags="$tags $version"
+          else
+            echo "::notice::a run by hand, no release: $tags is an image of $GITHUB_REF_TYPE $GITHUB_REF_NAME"
           fi
           {
             echo "REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"
