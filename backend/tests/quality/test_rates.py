@@ -67,7 +67,7 @@ def test_a_statement_replaced_with_the_same_wording_at_the_same_block_keeps_its_
 
     assert effect["kept_correct"] == 1
     assert effect["gone_wrong"] == 1
-    assert effect["new_unjudged"] == 1  # I at p2-b1
+    assert effect["new_unjudged"] == 1  # H2 at p2-b1
 
 
 def test_what_a_replay_would_keep_and_lose_is_counted() -> None:

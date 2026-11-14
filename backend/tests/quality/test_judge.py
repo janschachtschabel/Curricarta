@@ -118,11 +118,11 @@ async def test_a_sheet_of_another_database_is_refused_whole(connection: psycopg.
         (";;kind;1;m676f35a0284b;;;n/a", "reasons_amiss"),  # reasons without a verdict
         (";correct;;1;m676f35a0284b;;;3", "count_not_asked"),
         ("Begriff;;;1;m676f35a0284b;;;n/a", "note_alone"),
-        (";correct;;99;m676f35a0284b;;;n/a", "item_unknown"),  # of another sample
+        (";correct;;99;m676f35a0284b;;;n/a", "item_unknown"),  # no item at all
         (";correct;;eins;m676f35a0284b;;;n/a", "item_unknown"),
     ],
     ids=["verdict", "reason", "reason-of-another", "anchor-s-reason", "correct-with-reason",
-         "imprecise-without", "reason-alone", "count", "note-alone", "another-sample", "no-number"],
+         "imprecise-without", "reason-alone", "count", "note-alone", "no-item", "no-number"],
 )  # fmt: skip
 async def test_a_verdict_or_reason_outside_the_list_refuses_the_sheet_and_names_the_row(
     connection: psycopg.AsyncConnection, row: str, problem: str

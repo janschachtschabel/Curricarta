@@ -76,6 +76,19 @@ async def test_the_sheet_names_each_item_with_where_to_look(connection: psycopg.
 
 
 @pytest.mark.pg
+async def test_an_item_whose_row_is_gone_since_the_draw_says_so(connection: psycopg.AsyncConnection) -> None:
+    document, sample = await a_statement_sample(connection)
+    await connection.execute("DELETE FROM statement WHERE verbatim = %s", (WORDS["outcome"],))
+
+    rows = await sheet_rows(connection, sample, BASE)
+
+    [gone] = [row for row in rows if row["mark"] == "m" + text_hash(WORDS["outcome"])[:12]]
+    assert (gone["kind"], gone["wording"], gone["path"]) == ("gone", "", "")
+    assert gone["link"] == f"{BASE}/dokumente/{document.id}/baum?seite=1"  # no row that is not there
+    assert all(row["kind"] != "gone" for row in rows if row is not gone)
+
+
+@pytest.mark.pg
 async def test_a_block_s_row_shows_its_text_and_asks_for_a_count(connection: psycopg.AsyncConnection) -> None:
     document = await document_of(connection, with_contents())
     heading = NodeDraft(
