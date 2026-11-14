@@ -81,6 +81,11 @@ def allowlist_errors(entries: list[dict[str, Any]]) -> list[str]:
     return errors
 
 
+def overdue(entries: list[dict[str, Any]], today: datetime.date) -> list[str]:
+    """The ids whose review date has passed; on the review day itself an entry still holds."""
+    return [entry["id"] for entry in entries if (_as_date(entry.get("review")) or today) < today]
+
+
 def test_test_ci_guards_the_audit_like_every_workflow() -> None:
     # pinned actions, contents: read, no persisted token, a deadline per job, a concurrency group
     assert AUDIT in EVERY
@@ -178,11 +183,14 @@ def test_the_allowlist_check_refuses_each_kind_of_bad_entry(change: dict[str, An
 def test_no_allowlist_entry_is_past_its_review_date() -> None:
     # Meant to turn red by itself: on the day an entry's review date passes, someone looks at the advisory
     # again and lifts the package, or writes a new reason with a new date.
-    today = datetime.date.today()
+    assert overdue(_entries(), datetime.date.today()) == []
 
-    overdue = [entry["id"] for entry in _entries() if (_as_date(entry.get("review")) or today) < today]
 
-    assert overdue == []
+def test_an_entry_is_overdue_from_the_day_after_its_review_date() -> None:
+    today = datetime.date(2027, 2, 12)
+
+    assert overdue([GOOD | {"review": today - datetime.timedelta(days=1)}], today) == [GOOD["id"]]
+    assert overdue([GOOD | {"review": today}], today) == []
 
 
 def test_dependabot_watches_each_ecosystem_in_its_directory() -> None:
