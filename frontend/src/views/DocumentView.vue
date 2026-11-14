@@ -165,10 +165,10 @@ watch(
 <template>
   <div class="page document">
     <p v-if="document_" class="document__back">
-      <RouterLink v-if="sourceHidden" data-test="document-back" :to="{ name: 'sources' }">
+      <RouterLink v-if="sourceHidden" class="back-link" data-test="document-back" :to="{ name: 'sources' }">
         {{ t("documents.page.backToRegister") }}
       </RouterLink>
-      <RouterLink v-else data-test="document-back" :to="{ name: 'source', params: { id: document_.source_id } }">
+      <RouterLink v-else class="back-link" data-test="document-back" :to="{ name: 'source', params: { id: document_.source_id } }">
         {{ t("documents.page.back") }}
       </RouterLink>
     </p>

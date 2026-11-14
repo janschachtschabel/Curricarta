@@ -177,8 +177,10 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
 }
 
 /* The title gets the room; a long one breaks rather than widening every other column. */
+/* A target of 24 px of its own (WCAG 2.5.8), not by the rows' spacing alone. */
 .register__title {
   display: block;
+  padding-block: calc(var(--space-0) / 2);
   min-inline-size: 12rem;
   font-weight: 500;
   overflow-wrap: anywhere;

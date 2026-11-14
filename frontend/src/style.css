@@ -501,6 +501,13 @@ textarea[aria-invalid="true"]:not(:disabled) {
   margin: 0;
 }
 
+/* The choice is a fieldset: without the browser's grooved frame, as every other one. */
+.decision-form__choice {
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
+}
+
 .decision-form__choice,
 .decision-form__actions {
   display: flex;
@@ -535,6 +542,12 @@ textarea[aria-invalid="true"]:not(:disabled) {
   .facts dd {
     margin-block-end: var(--space-1);
   }
+}
+
+/* The way back above a page's heading: a target of 24 px of its own (WCAG 2.5.8), not by its spacing alone. */
+.back-link {
+  display: inline-block;
+  padding-block: var(--space-0);
 }
 
 .btn {

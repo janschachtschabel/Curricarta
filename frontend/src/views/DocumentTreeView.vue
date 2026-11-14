@@ -162,7 +162,7 @@ watch([heading, () => route.fullPath], ([name]) => {
 <template>
   <div class="page document-tree">
     <p class="document-tree__back">
-      <RouterLink :to="{ name: 'document', params: { id } }">{{ t("documents.tree.back") }}</RouterLink>
+      <RouterLink class="back-link" :to="{ name: 'document', params: { id } }">{{ t("documents.tree.back") }}</RouterLink>
     </p>
     <h1>
       <bdi>{{ heading }}</bdi>

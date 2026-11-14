@@ -236,7 +236,11 @@ onMounted(async () => {
   margin: 0;
 }
 
+/* a fieldset without the browser's grooved frame, as every other one */
 .work-form__choice {
+  padding: 0;
+  border: 0;
+  min-inline-size: 0;
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-2);

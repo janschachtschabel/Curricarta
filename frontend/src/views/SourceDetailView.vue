@@ -104,7 +104,7 @@ function grades(seed: SeedFields): string | null {
 <template>
   <div class="page source">
     <p class="source__back">
-      <RouterLink :to="registerBack">{{ t("entryPage.back") }}</RouterLink>
+      <RouterLink class="back-link" :to="registerBack">{{ t("entryPage.back") }}</RouterLink>
     </p>
     <h1 v-if="source"><bdi class="source__title">{{ entryName(source) }}</bdi></h1>
     <h1 v-else>{{ t("entryPage.heading") }}</h1>
@@ -330,5 +330,11 @@ function grades(seed: SeedFields): string | null {
 .note__address {
   margin: 0;
   font-size: var(--step--1);
+}
+
+/* small type, so a target of 24 px of its own (WCAG 2.5.8) */
+.note__address a {
+  display: inline-block;
+  padding-block: var(--space-0);
 }
 </style>

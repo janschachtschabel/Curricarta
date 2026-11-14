@@ -179,7 +179,7 @@ watch([source, page], ([entry, number]) => {
 <template>
   <div class="page conversion-page">
     <p class="conversion-page__back">
-      <RouterLink :to="{ name: 'source', params: { id } }">{{ t("conversionPage.back") }}</RouterLink>
+      <RouterLink class="back-link" :to="{ name: 'source', params: { id } }">{{ t("conversionPage.back") }}</RouterLink>
     </p>
     <h1 v-if="source"><bdi class="conversion-page__title">{{ entryName(source) }}</bdi></h1>
     <h1 v-else>{{ t("conversionPage.heading") }}</h1>

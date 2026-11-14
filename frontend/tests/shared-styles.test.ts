@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { ANCHORS, SRC, cssRules, formControlRules, scanned, sourceFiles } from "./sources";
+import { ANCHORS, SRC, cssRules, formControlRules, scanned, sourceFiles, stylesOf } from "./sources";
 
 /**
  * Shared rules live once, in style.css. In the old app every one of them had
@@ -200,6 +200,43 @@ describe("a button without a variant", () => {
     expect(rule?.body).toMatch(/background:\s*var\(--surface\)/);
     expect(rule?.body).toMatch(/border-color:\s*var\(--control-border\)/);
     expect(rule?.body).toMatch(/color:\s*var\(--text\)/);
+  });
+});
+
+describe("a back link", () => {
+  // 19.2 px tall, passing 2.5.8 only by its spacing (UI review, NIT): a target of 24 px of its own
+  it("is drawn tall enough to hit, by the shared rule", () => {
+    const rule = cssRules(STYLESHEET).find(({ selectors }) => selectors.includes(".back-link"));
+    expect(rule?.body).toMatch(/display:\s*inline-block/);
+    expect(rule?.body).toMatch(/padding-block:\s*var\(--space-0\)/);
+
+    const pages = sourceFiles(SRC, /\.vue$/).filter((path) => /class="[\w-]+__back"/.test(readFileSync(path, "utf8")));
+    scanned(pages, "SourceDetailView.vue", "DocumentTreeView.vue", "ConversionView.vue", "DocumentView.vue");
+    for (const path of pages) {
+      const paragraphs = [...readFileSync(path, "utf8").matchAll(/<p\b[^>]*class="[\w-]+__back"[^>]*>([\s\S]*?)<\/p>/g)];
+      const links = paragraphs.flatMap(([, inner]) => [...inner.matchAll(/<RouterLink\b[^>]*>/g)].map(([tag]) => tag));
+      expect(links.length, path).toBeGreaterThan(0);
+      for (const tag of links) expect(tag, path).toContain('class="back-link"');
+    }
+  });
+});
+
+describe("a fieldset", () => {
+  // the lexicon's decision and the work's choice kept the browser's grooved frame, unlike every other (UI review, NIT)
+  it("drops the browser's frame, whichever component draws it", () => {
+    const styles = [STYLESHEET, ...sourceFiles(SRC, /\.vue$/).map((path) => stylesOf(readFileSync(path, "utf8")))].join("\n");
+    const framed = new Set(
+      cssRules(styles)
+        .filter(({ body }) => /border:\s*0/.test(body))
+        .flatMap(({ selectors }) => selectors),
+    );
+    const offenders = sourceFiles(SRC, /\.vue$/).flatMap((path) =>
+      [...readFileSync(path, "utf8").matchAll(/<fieldset\b[^>]*?\sclass="([\w-]+)/g)]
+        .filter(([, name]) => !framed.has(`.${name}`))
+        .map(([, name]) => `${path}: ${name}`),
+    );
+
+    expect(offenders).toEqual([]);
   });
 });
 
