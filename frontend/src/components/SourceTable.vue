@@ -72,7 +72,7 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
       <!-- roles said outright: stacked on a narrow screen, display: block drops them in some engines -->
       <table role="table" class="register__table">
         <caption class="visually-hidden">{{ t("sources.register.heading") }}</caption>
-        <thead role="rowgroup">
+        <thead role="rowgroup" class="visually-hidden-narrow">
           <tr role="row">
             <th role="columnheader" scope="col">{{ t("sources.register.columns.title") }}</th>
             <th role="columnheader" scope="col">{{ t("sources.register.columns.provenance") }}</th>
@@ -197,21 +197,6 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
 /* Narrow, an entry is read as a block - its title, then each fact named by its column, whose head no longer
    stands above it - not scrolled sideways. */
 @media (max-width: 40rem) {
-  .register__table thead {
-    /* the project's visually-hidden clip, not display: none: the heads stay the cells' column headers for a screen
-       reader while each cell's label shows them to the eye */
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
-  }
-
   .register__table tr {
     display: block;
     padding-block: var(--space-1);

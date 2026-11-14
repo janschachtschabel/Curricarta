@@ -34,9 +34,9 @@ describe("a table of prose on a narrow screen", () => {
     ["components/DocumentFindings.vue", ".findings"],
     ["components/SourceTable.vue", ".register__table"],
   ])("keeps its column heads and its table's roles: %s", (file, table) => {
-    const head = narrowRule(file, `${table} thead`) ?? "";
-    expect(head).not.toMatch(/display:\s*none/);
-    expect(head).toMatch(/clip-path:\s*inset\(50%\)/);
+    // its heads clipped below 40rem by the shared rule, not taken out by display: none
+    expect(narrowRule(file, `${table} thead`) ?? "").not.toMatch(/display:\s*none/);
+    expect(source(file)).toMatch(/<thead role="rowgroup" class="visually-hidden-narrow">/);
     const roles: Record<string, string> = { table: "table", thead: "rowgroup", tbody: "rowgroup", tr: "row", th: "columnheader", td: "cell" };
     const tags = [...source(file).matchAll(/<(table|thead|tbody|tr|th|td)(?![\w-])((?:[^>"']|"[^"]*"|'[^']*')*)>/g)];
     expect(tags.length).toBeGreaterThan(6);
@@ -48,6 +48,16 @@ describe("a table of prose on a narrow screen", () => {
     ["components/SourceTable.vue", 4],
   ])("names the cells a stacked row labels by their column: %s", (file, count) => {
     expect(source(file).match(/:data-label="t\(/g)).toHaveLength(count);
+  });
+});
+
+describe("the column heads of a stacked table", () => {
+  it("are clipped below 40rem as visually-hidden clips, by one rule beside it", () => {
+    const stylesheet = source("style.css");
+    const hidden = cssRules(stylesheet).find(({ selectors }) => selectors.includes(".visually-hidden"))?.body;
+    const narrow = /@media \(max-width: 40rem\) \{\s*\.visually-hidden-narrow \{([^}]*)\}/.exec(stylesheet)?.[1];
+    expect(hidden).toBeDefined();
+    expect(narrow?.replace(/\s+/g, " ").trim()).toBe(hidden?.replace(/\s+/g, " ").trim());
   });
 });
 

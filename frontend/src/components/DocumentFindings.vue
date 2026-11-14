@@ -117,7 +117,7 @@ watch(() => props.refresh, load);
       <div class="findings" tabindex="0" role="region" :aria-label="t('documents.findings.table')">
         <!-- roles said outright: stacked on a narrow screen, display: block drops them in some engines -->
         <table role="table">
-          <thead role="rowgroup">
+          <thead role="rowgroup" class="visually-hidden-narrow">
             <tr role="row">
               <th role="columnheader" scope="col">{{ t("documents.findings.columns.severity") }}</th>
               <th role="columnheader" scope="col">{{ t("documents.findings.columns.finding") }}</th>
@@ -189,21 +189,6 @@ watch(() => props.refresh, load);
 @media (max-width: 40rem) {
   .findings table {
     min-width: 0;
-  }
-
-  .findings thead {
-    /* the project's visually-hidden clip, not display: none: the heads stay the cells' column headers for a screen
-       reader while each cell's label shows them to the eye */
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    clip-path: inset(50%);
-    white-space: nowrap;
-    border: 0;
   }
 
   .findings tr {

@@ -742,3 +742,21 @@ textarea[aria-invalid="true"]:not(:disabled) {
   white-space: nowrap;
   border: 0;
 }
+
+/* The same clip below 40rem alone: the column heads of a table stacked there (SourceTable.vue, DocumentFindings.vue)
+   stay its cells' headers for a screen reader, while each cell's label shows them to the eye. Beside the rule above,
+   and held equal to it by a test, so the two do not drift. */
+@media (max-width: 40rem) {
+  .visually-hidden-narrow {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+}
