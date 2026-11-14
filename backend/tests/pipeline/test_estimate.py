@@ -39,9 +39,9 @@ from tests.pipeline.test_run import (
     context_of,
     is_profile,
     setup,
-    unwatched,
 )
 from tests.pipeline.test_x4_statements import with_concurrency
+from tests.support import unwatched
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the database with the ontology's vocabularies and a pool, shared with test_run

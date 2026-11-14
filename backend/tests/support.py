@@ -16,6 +16,7 @@ import threading
 import time
 from collections.abc import AsyncIterator, Iterator
 from contextlib import asynccontextmanager, contextmanager
+from dataclasses import replace
 from functools import cache
 from pathlib import Path
 from typing import Any
@@ -29,6 +30,7 @@ from pydantic_settings import BaseSettings
 
 from app.core.logging import QUIET_LOGGERS
 from app.core.settings import Settings
+from app.jobs.context import JobContext
 from app.llm.settings import LLMSettings
 from app.vocab.loader import Vocabulary, read_vocabulary
 
@@ -139,6 +141,11 @@ def make_settings(**values: object) -> Settings:
     }
     with without_settings_variables():
         return Settings(**{**defaults, **values})  # type: ignore[arg-type]
+
+
+def unwatched(context: JobContext, database_url: str) -> JobContext:
+    """``context``, the watch after X2 off: a run spends until a reservation finds too little."""
+    return replace(context, settings=make_settings(database_url=database_url, extract_budget_watch=False))
 
 
 @asynccontextmanager

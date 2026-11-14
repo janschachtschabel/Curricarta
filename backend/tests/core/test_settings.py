@@ -531,6 +531,17 @@ def test_x4_asks_one_to_sixteen_units_at_once(value: int) -> None:
     assert make_settings(extract_concurrency=value).extract_concurrency == value
 
 
+def test_a_run_watches_its_budget_after_x2_by_default() -> None:
+    assert make_settings().extract_budget_watch is True
+
+
+def test_the_budget_watch_is_turned_off_by_its_variable(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setenv("DATABASE_URL", FAKE_URL)
+    monkeypatch.setenv("EXTRACT_BUDGET_WATCH", "false")
+
+    assert Settings().extract_budget_watch is False
+
+
 def test_x5_gives_its_shacl_check_five_minutes_by_default() -> None:
     # 43 s measured for a document of 2,400 rows (plan M1, Nachtrag 8a)
     assert make_settings().shacl_timeout_s == 300

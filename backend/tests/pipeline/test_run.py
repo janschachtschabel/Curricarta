@@ -7,7 +7,6 @@ import asyncio
 import json
 import re
 from collections.abc import AsyncIterator
-from dataclasses import replace
 from pathlib import Path
 from typing import Any, NamedTuple
 from uuid import UUID
@@ -214,11 +213,6 @@ def context_of(pool: AsyncConnectionPool, tmp_path: Path, model: Any, database_u
         llm=llm_settings(),
         model=None if function_model is None else (lambda: function_model),
     )
-
-
-def unwatched(context: JobContext, database_url: str) -> JobContext:
-    """``context``, the watch after X2 off: a run spends until a reservation finds too little."""
-    return replace(context, settings=make_settings(database_url=database_url, extract_budget_watch=False))
 
 
 # a document of no headings, whose profile names no specification: X1 writes no row X1 is told by

@@ -26,8 +26,9 @@ from app.pipeline.reckoned import expected_charge, owed_requests
 from app.pipeline.run import extract_document
 from app.pipeline.watch import watch_budget
 from tests.llm.test_client import llm_settings
-from tests.pipeline.test_run import Model, a_document, a_job, context_of, is_profile, rows, setup, unwatched
+from tests.pipeline.test_run import Model, a_document, a_job, context_of, is_profile, rows, setup
 from tests.pipeline.test_x4_statements import with_concurrency
+from tests.support import unwatched
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, shared with test_run

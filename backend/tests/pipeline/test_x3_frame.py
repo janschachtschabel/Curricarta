@@ -30,8 +30,8 @@ from tests.pipeline.test_run import (
     context_of,
     rows,
     setup,
-    unwatched,
 )
+from tests.support import unwatched
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, shared with test_run
