@@ -189,6 +189,7 @@ async def test_the_command_writes_the_sheet_and_warns_what_it_holds(
     assert piped.stdout == encoded(await sheet_rows(connection, sample, BASE))
     [warning] = piped.stderr.splitlines()
     assert b"data/gold-local/" in warning
+    assert b"workbook" in warning  # the copy a spreadsheet saves goes there too
     assert refused.returncode == 1
     assert (tmp_path / "sheet.csv").read_bytes() == b""
     [line] = refused.stderr.splitlines()

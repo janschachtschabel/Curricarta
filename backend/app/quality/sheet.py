@@ -45,7 +45,10 @@ NOT_ASKED = "n/a"  # in a judging cell the item's kind does not ask for
 GONE = "gone"  # the kind of an item whose statement or node is no more in the document
 BOM = "\N{ZERO WIDTH NO-BREAK SPACE}"  # by name: an invisible literal is lost without a diff
 LOCAL_FOLDER = Path("data") / "gold-local"
-WARNING = "the sheet holds the document's wordings: keep it under data/gold-local/, never in the repository"
+WARNING = (
+    "the sheet holds the document's wordings: keep it - and a copy saved as a workbook - under"
+    " data/gold-local/, never in the repository"
+)
 _FORMULA = ("=", "+", "-", "@", "\t", "\r")  # what a spreadsheet would read as the start of a formula
 _URL = re.compile(r"https?://[A-Za-z0-9.:\[\]-]+(/[A-Za-z0-9._~/-]*)?")
 

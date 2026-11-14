@@ -92,6 +92,35 @@ def test_a_sheet_is_known_however_it_was_saved(tmp_path: Path, data: bytes, shee
     assert _is_a_sheet(saved) is sheet
 
 
+WORKBOOKS = (".xlsx", ".xlsm", ".xls", ".ods", ".numbers")  # a sheet saved by a spreadsheet as its own
+
+
+def _found(root: Path, names: list[str]) -> list[str]:
+    """The listed files that are a judging sheet - a text file with its header, or any workbook, which
+    the guard cannot read into and so takes for one -, by their path under ``root``."""
+    files = [root / name for name in names]
+    return [
+        path.relative_to(root).as_posix()
+        for path in files
+        if path.is_file() and (path.suffix.lower() in WORKBOOKS or _is_a_sheet(path))
+    ]
+
+
+def test_a_workbook_in_the_tree_is_taken_for_a_sheet(tmp_path: Path) -> None:
+    for name, data in (
+        ("docs/pilot-1.xlsx", b"PK\x03\x04"),
+        ("data/Plan.ODS", b"PK\x03\x04"),
+        ("old.xls", b"\xd0\xcf\x11\xe0"),
+        ("notes.csv", b"name;value\r\n"),
+    ):
+        (tmp_path / name).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / name).write_bytes(data)
+
+    found = _found(tmp_path, ["docs/pilot-1.xlsx", "data/Plan.ODS", "old.xls", "notes.csv"])
+
+    assert found == ["docs/pilot-1.xlsx", "data/Plan.ODS", "old.xls"]
+
+
 def test_no_judging_sheet_lies_in_the_tree(tmp_path: Path) -> None:
     listed = subprocess.run(
         ["git", "ls-files", "-z", "--cached", "--others", "--exclude-standard"],  # noqa: S607
@@ -99,11 +128,10 @@ def test_no_judging_sheet_lies_in_the_tree(tmp_path: Path) -> None:
         capture_output=True,
         check=True,
     )
-    files = [ROOT / name for name in listed.stdout.decode("utf-8").split("\0") if name]
 
-    sheets = [path.relative_to(ROOT).as_posix() for path in files if path.is_file() and _is_a_sheet(path)]
+    sheets = _found(ROOT, [name for name in listed.stdout.decode("utf-8").split("\0") if name])
 
-    assert sheets == ["backend/tests/quality/fixtures/bogen.csv"]
+    assert sheets == ["backend/tests/quality/fixtures/bogen.csv"]  # each other one named here
     made = tmp_path / "sheet.csv"
     made.write_bytes(encoded([]))
     assert _is_a_sheet(made)  # as the tool writes it
