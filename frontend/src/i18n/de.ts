@@ -1324,6 +1324,19 @@ export const messages = {
           "{count|er bleibt|sie bleiben} am Dokument stehen.",
         violationsConfirm: "Trotzdem festschreiben",
         incomplete: "Zum Festschreiben fehlt noch: {missing}.",
+        // what the IRI is made of, each with its state, before the button (DocumentFreeze.vue)
+        checks: "Was die IRI braucht",
+        part: {
+          work: "Werk",
+          region: "Land des Werks",
+          short_title: "Kurztitel des Werks",
+          issuer: "Herausgeber",
+          edition: "Fassung",
+        },
+        check: {
+          set: "{what}: gesetzt",
+          missing: "{what}: fehlt",
+        },
         toTree: "Zum Baum: dort „Erneut prüfen“",
         failed: "Das Dokument wurde nicht festgeschrieben.",
         // what its IRI still lacks, item by item (backend details.missing)

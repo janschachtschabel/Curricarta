@@ -16,7 +16,10 @@ import { documentOf } from "./documentFixtures";
 let shown: VueWrapper | null = null;
 
 const EDITOR: Me = { id: "a2", name: "Redakteurin", roles: ["redaktion"] };
-const DOCUMENT = documentOf({ title: "Kernlehrplan Physik", revision: 2 });
+// what its IRI is made of all set, as the page can tell: the rest is the server's to say
+const WORK = { id: "w1", title: "Kernlehrplan Physik", region: "DE-NW", short_title: "klp-physik", iri: null };
+const DOCUMENT = documentOf({ title: "Kernlehrplan Physik", revision: 2, work: WORK, issuer: "MSB NRW", edition: "2019" });
+const BARE = documentOf({ title: "Kernlehrplan Physik" });
 const FROZEN = { ...DOCUMENT, iri: "https://example.org/kk/doc/x", frozen_at: "2026-10-31T10:00:00Z" };
 
 function section(document: CurriculumDocument = DOCUMENT, me: Me = EDITOR): VueWrapper {
@@ -121,6 +124,44 @@ describe("freezing a document", () => {
 
     expect(sent).toHaveBeenCalledTimes(1);
     expect(wrapper.find("[role=dialog]").exists()).toBe(false);
+  });
+
+  // the irreversible dialog opened with Werk, Herausgeber and Fassung unset (UI review m5)
+  it("lists what its IRI is made of, each with whether it is set", () => {
+    const wrapper = section({ ...DOCUMENT, issuer: "  ", edition: null });
+
+    const items = wrapper.findAll("[data-test=freeze-check]").map((item) => item.text());
+    expect(items).toEqual([
+      t("documents.page.freeze.check.set", { what: t("documents.page.freeze.part.work") }),
+      t("documents.page.freeze.check.set", { what: t("documents.page.freeze.part.region") }),
+      t("documents.page.freeze.check.set", { what: t("documents.page.freeze.part.short_title") }),
+      t("documents.page.freeze.check.missing", { what: t("documents.page.freeze.part.issuer") }),
+      t("documents.page.freeze.check.missing", { what: t("documents.page.freeze.part.edition") }),
+    ]);
+  });
+
+  it("lists the work's land and short title only once there is a work, as the server asks for them", () => {
+    const wrapper = section(BARE);
+
+    expect(wrapper.findAll("[data-test=freeze-check]")).toHaveLength(3);
+  });
+
+  it("says what is missing when pressed, without asking the irreversible question", async () => {
+    const sent = vi.spyOn(api, "freezeDocument");
+    const wrapper = section(BARE);
+
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+
+    expect(wrapper.find("[role=dialog]").exists()).toBe(false);
+    expect(sent).not.toHaveBeenCalled();
+    const missing = new Intl.ListFormat("de-DE").format([
+      t("documents.page.freeze.missing.work"),
+      t("documents.page.freeze.missing.issuer"),
+      t("documents.page.freeze.missing.edition"),
+    ]);
+    expect(wrapper.get("[role=alert]").text()).toContain(t("documents.page.freeze.incomplete", { missing }));
+    expect(await violations(wrapper.html())).toEqual([]);
   });
 
   it("names what is missing for the IRI, item by item", async () => {

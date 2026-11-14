@@ -50,6 +50,38 @@ export function missingWords(missing: readonly string[]): string[] {
   return missing.flatMap((item) => (Object.hasOwn(MISSING, item) ? [MISSING[item]()] : []));
 }
 
+/**
+ * What the document's IRI is made of, as the page can tell from the document it holds, each with whether it is
+ * set - in the server's order and on its terms (backend app/db/freezing.py: the work's land and short title asked
+ * for only once there is a work). A value the server finds names no part of an IRI (a Greek letter alone) reads as
+ * set here; the server says so on freezing, as it says a check owed and violations, which the document does not show.
+ */
+export function freezeParts(document: CurriculumDocument): { part: IriPart; set: boolean }[] {
+  const named = (text: string | null | undefined) => Boolean(text?.trim());
+  const { work } = document;
+  const parts: { part: IriPart; set: boolean }[] = [{ part: "work", set: work !== null }];
+  if (work) parts.push({ part: "region", set: named(work.region) }, { part: "short_title", set: named(work.short_title) });
+  parts.push({ part: "issuer", set: named(document.issuer) }, { part: "edition", set: named(document.edition) });
+  return parts;
+}
+
+export type IriPart = "work" | "region" | "short_title" | "issuer" | "edition";
+
+// each by its own key, as MISSING
+const PART: Readonly<Record<IriPart, () => string>> = {
+  work: () => t("documents.page.freeze.part.work"),
+  region: () => t("documents.page.freeze.part.region"),
+  short_title: () => t("documents.page.freeze.part.short_title"),
+  issuer: () => t("documents.page.freeze.part.issuer"),
+  edition: () => t("documents.page.freeze.part.edition"),
+};
+
+/** A part of the IRI with its state, as the freeze section lists it. */
+export function partState({ part, set }: { part: IriPart; set: boolean }): string {
+  const what = PART[part]();
+  return set ? t("documents.page.freeze.check.set", { what }) : t("documents.page.freeze.check.missing", { what });
+}
+
 export async function freeze(documentId: string, acceptViolations: boolean): Promise<FreezeOutcome> {
   try {
     return { outcome: "frozen", document: await freezeDocument(documentId, acceptViolations) };

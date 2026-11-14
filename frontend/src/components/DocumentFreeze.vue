@@ -14,7 +14,7 @@ import AppIcon from "@/components/AppIcon.vue";
 import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import FreezeDialog from "@/components/FreezeDialog.vue";
 import NoticeText from "@/components/NoticeText.vue";
-import { freeze, missingWords } from "@/documentRevision";
+import { freeze, freezeParts, missingWords, partState } from "@/documentRevision";
 import { LOCALE, t } from "@/i18n/de";
 import type { Notice } from "@/notice";
 import { refusalText } from "@/refusals";
@@ -31,9 +31,26 @@ const problem = ref<Notice | null>(null);
 const owed = ref(false);
 
 const offered = computed(() => isEditor() && props.document.frozen_at === null);
+// what its IRI is made of, as the document shows it: what is missing is said on pressing, not asked about
+const parts = computed(() => freezeParts(props.document));
+
+function incomplete(missing: readonly string[]): Notice {
+  const words = missingWords(missing);
+  const text = words.length
+    ? t("documents.page.freeze.incomplete", { missing: new Intl.ListFormat(LOCALE).format(words) })
+    : (refusalText("incomplete") ?? t("documents.page.freeze.failed"));
+  return { text, failed: true };
+}
 
 function ask(): void {
-  if (!busy.value) asking.value = "freeze"; // the button stays focusable while busy, so it can be pressed again
+  if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
+  const missing = parts.value.filter(({ set }) => !set).map(({ part }) => part);
+  if (missing.length) {
+    owed.value = false;
+    problem.value = incomplete(missing);
+    return;
+  }
+  asking.value = "freeze";
 }
 
 async function run(acceptViolations: boolean): Promise<void> {
@@ -51,14 +68,9 @@ async function run(acceptViolations: boolean): Promise<void> {
       count.value = done.count;
       asking.value = "violations";
       return;
-    case "incomplete": {
-      const missing = missingWords(done.missing);
-      const text = missing.length
-        ? t("documents.page.freeze.incomplete", { missing: new Intl.ListFormat(LOCALE).format(missing) })
-        : (refusalText("incomplete") ?? t("documents.page.freeze.failed"));
-      problem.value = { text, failed: true };
+    case "incomplete":
+      problem.value = incomplete(done.missing);
       return;
-    }
     case "owed":
       owed.value = true;
       problem.value = { text: refusalText("check_owed") ?? t("documents.page.freeze.failed"), failed: true };
@@ -77,6 +89,11 @@ async function run(acceptViolations: boolean): Promise<void> {
   <section v-if="offered" class="freeze" aria-labelledby="document-freeze">
     <h2 id="document-freeze">{{ t("documents.page.freeze.heading") }}</h2>
     <p class="freeze__intro">{{ t("documents.page.freeze.intro") }}</p>
+    <ul class="freeze__checks" :aria-label="t('documents.page.freeze.checks')">
+      <li v-for="item in parts" :key="item.part" data-test="freeze-check" :class="{ 'freeze__check--missing': !item.set }">
+        <AppIcon :name="item.set ? 'check' : 'warning'" /> {{ partState(item) }}
+      </li>
+    </ul>
     <p v-if="problem" class="field__error freeze__problem" role="alert">
       <AppIcon name="warning" /> <NoticeText :notice="problem" />
       <template v-if="owed">
@@ -117,11 +134,25 @@ async function run(acceptViolations: boolean): Promise<void> {
 
 .freeze h2,
 .freeze__intro,
+.freeze__checks,
 .freeze__problem {
   margin: 0;
 }
 
 .freeze__intro {
   max-width: var(--reading-width);
+}
+
+.freeze__checks {
+  display: grid;
+  gap: var(--space-0);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* the words say it; the ink is the second signal */
+.freeze__check--missing {
+  color: var(--danger);
 }
 </style>

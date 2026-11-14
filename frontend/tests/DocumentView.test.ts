@@ -921,7 +921,7 @@ describe("a document's revision on its page", () => {
   it("freezes the document, the keyboard taken to the notice that says so, its start no longer offered", async () => {
     setSession(EDITOR);
     const frozen = document_({ work: WORK, iri: "https://example.org/kk/doc/x", frozen_at: "2026-10-31T10:00:00Z" });
-    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK })).mockResolvedValue(frozen);
+    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK, issuer: "MSB", edition: "2019" })).mockResolvedValue(frozen);
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);
     vi.spyOn(api, "freezeDocument").mockResolvedValue(frozen);
     const wrapper = await open();
@@ -941,7 +941,7 @@ describe("a document's revision on its page", () => {
   it("says a document frozen where the keyboard went elsewhere meanwhile, leaving it there", async () => {
     setSession(EDITOR);
     const frozen = document_({ work: WORK, iri: "https://example.org/kk/doc/x", frozen_at: "2026-10-31T10:00:00Z" });
-    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK })).mockResolvedValue(frozen);
+    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK, issuer: "MSB", edition: "2019" })).mockResolvedValue(frozen);
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);
     let answer: (document: typeof frozen) => void = () => undefined;
     vi.spyOn(api, "freezeDocument").mockReturnValue(new Promise((resolve) => (answer = resolve)));
@@ -962,7 +962,7 @@ describe("a document's revision on its page", () => {
   it("takes the keyboard to the notice where a reading finds the document frozen under a form", async () => {
     setSession(EDITOR);
     const frozen = document_({ work: WORK, iri: "https://example.org/kk/doc/x", frozen_at: "2026-10-31T10:00:00Z" });
-    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK })).mockResolvedValue(frozen);
+    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK, issuer: "MSB", edition: "2019" })).mockResolvedValue(frozen);
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);
     vi.spyOn(api, "editDocument").mockRejectedValue(new ApiError("server", 409, "frozen"));
     const wrapper = await open();
@@ -1001,7 +1001,7 @@ describe("a document's revision on its page", () => {
   it("shows the document frozen as the freeze answers, before it is read again", async () => {
     setSession(EDITOR);
     const frozen = document_({ work: WORK, iri: "https://example.org/kk/doc/x", frozen_at: "2026-10-31T10:00:00Z" });
-    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK })).mockReturnValue(new Promise(() => {}));
+    vi.spyOn(api, "getDocument").mockResolvedValueOnce(document_({ work: WORK, issuer: "MSB", edition: "2019" })).mockReturnValue(new Promise(() => {}));
     vi.spyOn(api, "getRuns").mockResolvedValue(RUNS);
     vi.spyOn(api, "freezeDocument").mockResolvedValue(frozen);
     const wrapper = await open();
