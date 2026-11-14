@@ -112,6 +112,9 @@ Terminologieprofile der Bereiche mit ihren Erkennungshinweisen, auch aus Unteror
 (`WORKER_KINDS` beschränkt ihn auf Job-Arten, kommagetrennt). Beide starten nur mit einem
 nutzbaren Objektspeicher (lokal etwa `STORAGE_DIR=../data/store`). Der Worker bedient
 `/health` und `/metrics` ebenfalls auf `INTERNAL_PORT`; im Cluster hat jeder Pod seinen eigenen.
+Die Messgrößen der Warteschlange liest nur die API, die Alarmregeln für Prometheus liegen in
+`deploy/alerts/curricarta.rules.yaml`; `docker build --build-arg REVISION=<commit>` nennt den Commit
+in `curricarta_build_info`.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
