@@ -190,7 +190,7 @@ jobs:
             echo "| \`$REGISTRY/$1\` | $TAGS | \`$digest\` |" >> "$GITHUB_STEP_SUMMARY"
           }
           printf '%s\n' "| Image | Tags | Digest |" "|---|---|---|" >> "$GITHUB_STEP_SUMMARY"
-          push curricarta-convert convert
+          push curricarta-convert
       - *logout
 
   # the images as an operator gets them: from the registry, by their digests, without a login

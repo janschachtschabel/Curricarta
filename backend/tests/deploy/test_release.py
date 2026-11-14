@@ -175,9 +175,15 @@ def test_an_image_carries_its_commit_s_tag_and_a_version_tag_only_from_a_git_tag
         assert 'tags="$version"' in names
         version_tag = r'version="\$\{GITHUB_REF_NAME#v\}"\n\s*tags="\$tags \$version"'
         assert re.search(rf"if {re.escape(TAG_RUN)}; then\n\s*{version_tag}", names), job
-        # every image is built and pushed under each tag
+        assert 'echo "REGISTRY=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"' in names
+        # every image is built under each tag, and pushed by that loop alone
         assert 'for tag in $TAGS; do tags+=(-t "$image:$tag"); done' in _run(job, r"docker build")
-        assert 'for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done' in _run(job, r"docker push")
+    loop = 'for tag in $TAGS; do docker push "$REGISTRY/$1:$tag"; done'
+    assert [line.strip() for line in re.findall(r"[^\n]*docker push[^\n]*", _code())] == [loop, loop]
+    assert re.findall(r"^\s*build (\S+) (\S+)$", _run("images", r"docker build"), re.M) == [
+        ("deploy/api.Dockerfile", '"$REGISTRY/curricarta"'),
+        ("deploy/web.Dockerfile", '"$REGISTRY/curricarta-web"'),
+    ]
     # a name someone can move to another image is no release
     assert "latest" not in _code()
 
@@ -282,9 +288,7 @@ def test_the_converter_s_image_is_built_only_for_a_tag_or_when_asked() -> None:
     assert converter["timeout-minutes"] == 60
     assert "--build-arg VENV=convert" in build
     assert '"$REGISTRY/curricarta-convert"' in _run("converter", r"docker build")
-    assert re.findall(r"^\s*push (\S+ \w+)$", _run("converter", r"docker push"), re.M) == [
-        "curricarta-convert convert"
-    ]
+    assert re.findall(r"^\s*push (.+)$", _run("converter", r"docker push"), re.M) == ["curricarta-convert"]
 
 
 def test_the_pushed_image_is_started_by_its_digest_not_built_again() -> None:
@@ -301,7 +305,7 @@ def test_the_pushed_image_is_started_by_its_digest_not_built_again() -> None:
     push = _run("images", r"docker push")
     assert 'echo "$2=$digest" >> "$GITHUB_OUTPUT"' in push
     assert "$GITHUB_STEP_SUMMARY" in push
-    assert re.findall(r"^\s*push (\S+ \w+)$", push, re.M) == ["curricarta api", "curricarta-web web"]
+    assert re.findall(r"^\s*push (.+)$", push, re.M) == ["curricarta api", "curricarta-web web"]
     assert start["timeout-minutes"] == 15
     # each by its digest, checked as one before it is pulled, under the name Compose runs
     pulling = next(step for step in start["steps"] if "docker pull" in str(step.get("run", "")))
@@ -309,6 +313,7 @@ def test_the_pushed_image_is_started_by_its_digest_not_built_again() -> None:
         "API": "${{ needs.images.outputs.api }}",
         "WEB": "${{ needs.images.outputs.web }}",
     }
+    assert 'registry="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}"' in pull
     for digest, image, local in (
         ("API", "curricarta", "curricarta-api"),
         ("WEB", "curricarta-web", "curricarta-web"),

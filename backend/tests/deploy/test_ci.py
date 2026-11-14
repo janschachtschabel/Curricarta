@@ -1,5 +1,6 @@
 """.github/workflows/ci.yml runs every check of the repository, with pinned tools; every workflow reads
-the repository and nothing more, and takes its actions by their commits.
+the repository and nothing more, but for the two jobs of release.yml that push its images, and takes its
+actions by their commits.
 
 These keep a workflow from losing a check or taking an action by a tag someone could move.
 """
