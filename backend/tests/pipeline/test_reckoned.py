@@ -2,12 +2,16 @@
 weighed as the quota counts them, and the requests X3 and X4 still owe a document - exactly those the
 stages would ask. A model stands in (FunctionModel), never a provider."""
 
+import asyncio
+import threading
+from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 from pydantic_ai.messages import CachePoint
+from pydantic_ai.models.function import FunctionModel
 
 from app.db.conversions import all_blocks, printed_pages
 from app.db.documents import document_for_job
@@ -15,9 +19,12 @@ from app.jobs.outcome import PermanentError
 from app.llm.budget import count_tokens
 from app.llm.calls import StageAgent
 from app.llm.metering import FULL, Spent, Weights
+from app.pipeline import reckoned
 from app.pipeline.ground import ground_of
+from app.pipeline.prefix import Prefix
 from app.pipeline.reckoned import (
     EXPECTED_ANSWER_TOKENS,
+    Owing,
     Request,
     expected_charge,
     owed_requests,
@@ -35,6 +42,14 @@ from tests.support import make_settings
 __all__ = ["reserved", "setup"]  # fixtures, shared with test_estimate and test_run
 
 LUNA = Weights(Decimal("0.1"), Decimal(5))
+ONTOLOGY = make_settings().ontology_dir
+
+
+def never(messages: Any, info: Any) -> Any:
+    raise AssertionError("the reckoning asks no model")
+
+
+NEVER_ASKED = FunctionModel(never, settings={"max_tokens": 4_000})
 
 
 def a_request(
@@ -115,6 +130,91 @@ def test_a_frame_owed_alone_has_the_room_of_its_own_reservation() -> None:
 
     assert room_for([frame], LUNA, at_once=4, units=0) == 81_100 - (1_100 + 5_500) == 74_500
     assert room_for([frame], LUNA, at_once=4, units=1) == 74_500
+
+
+@dataclass(frozen=True)
+class Asked:
+    prompt: list[Any]
+    window: str
+
+
+class Questions:
+    """X4's questions as the reckoning reads them: each unit behind one prefix."""
+
+    def __init__(self, prefix: str) -> None:
+        self.prefix = prefix
+
+    async def question(self, unit: Any) -> Asked:
+        return Asked([self.prefix, CachePoint(), f"=== EINHEIT ===\n{unit}\n"], "whole")
+
+
+def owing_of(units: int, prefix: str = "=== DOKUMENT ===\nText.\n", plan: Any = None) -> Owing:
+    return Owing(None, cast(Any, Questions(prefix)), cast(Any, [f"E{n}" for n in range(units)]), plan)
+
+
+@pytest.mark.anyio
+async def test_the_shared_text_of_requests_behind_one_prefix_is_counted_once(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    prefix = "=== DOKUMENT ===\n" + "Die Lernenden beschreiben Vorgänge.\n" * 50
+    counted: list[str] = []
+
+    def counting(text: str) -> int:
+        counted.append(text)
+        return count_tokens(text)
+
+    monkeypatch.setattr(reckoned, "count_tokens", counting)
+
+    requests = await owing_of(5, prefix).requests(NEVER_ASKED, ONTOLOGY)
+
+    assert len(requests) == 5
+    assert {request.shared_tokens for request in requests} == {count_tokens(prefix)}
+    assert counted.count(prefix) == 1
+
+
+@pytest.mark.anyio
+async def test_a_cancel_ends_the_count_before_the_last_request(monkeypatch: pytest.MonkeyPatch) -> None:
+    # each request is counted on its own: a cancel takes effect between two, not after all of them
+    started, gate, calls = asyncio.Event(), threading.Event(), [0]
+    loop = asyncio.get_running_loop()
+    original = reckoned.request_of
+
+    def held(*args: Any, **kwargs: Any) -> Request:
+        calls[0] += 1
+        if calls[0] == 2:
+            loop.call_soon_threadsafe(started.set)
+            gate.wait(10)
+        return original(*args, **kwargs)
+
+    monkeypatch.setattr(reckoned, "request_of", held)
+    counting = asyncio.create_task(owing_of(5).requests(NEVER_ASKED, ONTOLOGY))
+    await asyncio.wait_for(started.wait(), 10)
+
+    counting.cancel()
+    gate.set()
+    with pytest.raises(asyncio.CancelledError):
+        await counting
+    await loop.shutdown_default_executor()  # whatever a thread still counts, it has counted now
+
+    assert calls[0] == 2
+
+
+@pytest.mark.anyio
+async def test_x3_s_prefix_is_counted_off_the_event_loop(monkeypatch: pytest.MonkeyPatch) -> None:
+    threads: list[bool] = []
+
+    def counting(text: str) -> int:
+        threads.append(threading.current_thread() is threading.main_thread())
+        return 1
+
+    class Plan:
+        def for_position(self, position: int) -> Prefix:
+            return Prefix("=== DOKUMENT ===\nText.\n", "whole")
+
+    monkeypatch.setattr(reckoned, "count_tokens", counting)
+
+    assert await owing_of(0, plan=Plan()).prefix_tokens() == 1
+    assert threads == [False]
 
 
 def test_nothing_owed_needs_no_room() -> None:

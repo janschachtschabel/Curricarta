@@ -62,13 +62,25 @@ def stage_agent(model: Model, ontology_dir: Path, prompts: ModuleType) -> StageA
 
 
 def request_of(
-    purpose: str, prompt: str | list[UserContent], stage: StageAgent, *, window: str = ""
+    purpose: str,
+    prompt: str | list[UserContent],
+    stage: StageAgent,
+    *,
+    window: str = "",
+    shared_counts: dict[str, int] | None = None,
 ) -> Request:
     """The first request of a stage's agent, as the meter reckons it (app/llm/calls.py, _attempt);
-    ``window`` that of its prefix."""
+    ``window`` that of its prefix. ``shared_counts`` keeps the count of each shared text, so that
+    the requests behind one prefix count it once."""
     request = ModelRequest(parts=[UserPromptPart(prompt)])
     reckoned = estimate_input([], request, instructions=stage.instructions, schema=stage.schema)
-    shared = 0 if isinstance(prompt, str) else count_tokens(str(prompt[0]))
+    shared = 0
+    if not isinstance(prompt, str):
+        text = str(prompt[0])
+        known = None if shared_counts is None else shared_counts.get(text)
+        shared = count_tokens(text) if known is None else known
+        if shared_counts is not None:
+            shared_counts[text] = shared
     return Request(purpose, reckoned, shared, stage.output_tokens, window)
 
 
@@ -154,8 +166,9 @@ class Owing:
     x3_plan: PrefixPlan  # X3's prefix, for ``prefix_tokens``
 
     async def requests(self, model: Model, ontology_dir: Path) -> list[Request]:
-        """X3's request first, then each unit's, counted as the meter counts them; PermanentError
-        (prefix_too_long) where a unit's question fits no window."""
+        """X3's request first, then each unit's, counted as the meter counts them, one thread a
+        request so that a cancel ends the count between two; PermanentError (prefix_too_long) where a
+        unit's question fits no window."""
         prompts: list[tuple[str, str | list[UserContent], ModuleType, str]] = []
         if self.frame is not None:
             prompts.append(("x3.frame", self.frame.prompt, x3, ""))
@@ -166,16 +179,17 @@ class Owing:
         agents = {
             module: stage_agent(model, ontology_dir, module) for module in {item[2] for item in prompts}
         }
-        return await asyncio.to_thread(
-            lambda: [
-                request_of(purpose, prompt, agents[module], window=window)
-                for purpose, prompt, module, window in prompts
-            ]
-        )
+        shared: dict[str, int] = {}  # by text, filled one thread after the other
+        return [
+            await asyncio.to_thread(
+                request_of, purpose, prompt, agents[module], window=window, shared_counts=shared
+            )
+            for purpose, prompt, module, window in prompts
+        ]
 
     async def prefix_tokens(self) -> int:
         """X3's prefix - the document as every request of the run sends it first -, counted plainly."""
-        return count_tokens((await asyncio.to_thread(prefix_at, self.x3_plan, 0)).text)
+        return await asyncio.to_thread(lambda: count_tokens(prefix_at(self.x3_plan, 0).text))
 
 
 async def owed_questions(
@@ -230,4 +244,4 @@ async def prefix_tokens(
     """X3's prefix - the document as every request of the run sends it first -, counted plainly;
     PermanentError (prefix_too_long) where no window of it fits."""
     plan = await prefix_plan(connection, llm, document.id, blocks, printed, lists="")
-    return count_tokens((await asyncio.to_thread(prefix_at, plan, 0)).text)
+    return await asyncio.to_thread(lambda: count_tokens(prefix_at(plan, 0).text))
