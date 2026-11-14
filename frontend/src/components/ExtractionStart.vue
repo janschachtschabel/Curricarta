@@ -12,6 +12,7 @@ import { useRouter } from "vue-router";
 import { makeDocument, type Sector } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { requiredLabel } from "@/formWords";
 import { messages, t } from "@/i18n/de";
 import { failureNotice, type Notice } from "@/notice";
 
@@ -71,7 +72,7 @@ async function onSubmit(): Promise<void> {
     <p class="extraction-start__intro">{{ t("documents.start.intro") }}</p>
     <form novalidate @submit.prevent="onSubmit">
       <div class="field">
-        <label for="extraction-sector">{{ t("documents.start.sector") }}</label>
+        <label for="extraction-sector">{{ requiredLabel(t("documents.start.sector")) }}</label>
         <select
           id="extraction-sector"
           aria-required="true"

@@ -11,6 +11,7 @@ import { ApiError, importSource, MAX_TITLE_SIGNS, MAX_URL_SIGNS, type ImportStar
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { requiredLabel } from "@/formWords";
 import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
@@ -104,7 +105,7 @@ async function onSubmit(): Promise<void> {
   <form class="source-form" novalidate @submit.prevent="onSubmit">
     <h3 class="source-form__heading">{{ t("sources.import.heading") }}</h3>
     <div class="field">
-      <label for="import-url">{{ t("sources.import.urlLabel") }}</label>
+      <label for="import-url">{{ requiredLabel(t("sources.import.urlLabel")) }}</label>
       <input
         id="import-url"
         aria-required="true"

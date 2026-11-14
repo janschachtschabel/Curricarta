@@ -14,6 +14,7 @@ import { ApiError, decideCue, type CueDecision, type CueDecisionKind } from "@/a
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { useFieldFaults, type Fault } from "@/fieldFaults";
+import { requiredLabel } from "@/formWords";
 import { t } from "@/i18n/de";
 import { STRENGTHS, strengthText } from "@/lexiconWords";
 import { sayAnew } from "@/liveRegion";
@@ -113,7 +114,7 @@ async function onSubmit(): Promise<void> {
 <template>
   <form class="decision-form" novalidate @submit.prevent="onSubmit">
     <fieldset class="decision-form__choice">
-      <legend>{{ t("lexicon.cueForm.legend") }}</legend>
+      <legend>{{ requiredLabel(t("lexicon.cueForm.legend")) }}</legend>
       <label>
         <input
           :id="`${id}-decision`"
@@ -144,7 +145,7 @@ async function onSubmit(): Promise<void> {
     </p>
     <template v-if="confirming">
       <div class="field">
-        <label :for="`${id}-strength`">{{ t("lexicon.cueForm.strength") }}</label>
+        <label :for="`${id}-strength`">{{ requiredLabel(t("lexicon.cueForm.strength")) }}</label>
         <select
           :id="`${id}-strength`"
           aria-required="true"
@@ -161,7 +162,7 @@ async function onSubmit(): Promise<void> {
         <p :id="`${id}-strength-hint`" class="field__hint">{{ t("lexicon.cueForm.strengthHint") }}</p>
       </div>
       <div class="field">
-        <label :for="`${id}-evidence`">{{ t("lexicon.cueForm.evidence") }}</label>
+        <label :for="`${id}-evidence`">{{ requiredLabel(t("lexicon.cueForm.evidence")) }}</label>
         <input
           :id="`${id}-evidence`"
           aria-required="true"

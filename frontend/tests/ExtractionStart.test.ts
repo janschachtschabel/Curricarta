@@ -65,7 +65,7 @@ describe("the start of an extraction from a finished conversion", () => {
     expect(options).toEqual([t("documents.start.sectorChoose"), ...Object.values(messages.documents.sectors)]);
     expect(wrapper.findAll("input[type=checkbox]")).toHaveLength(Object.keys(messages.sources.countries).length);
     expect(checked(wrapper)).toEqual(["DE-NW"]);
-    expect(wrapper.get("label[for=extraction-sector]").text()).toBe(t("documents.start.sector"));
+    expect(wrapper.get("label[for=extraction-sector]").text()).toBe(t("forms.required", { label: t("documents.start.sector") }));
   });
 
   it("says by the field what it lacks, and sends nothing", async () => {

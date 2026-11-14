@@ -7,6 +7,11 @@ import { ANCHORS, anchorCodeText } from "@/anchorDraft";
 import { t } from "@/i18n/de";
 import { sameValue } from "@/rowDraft";
 
+/** A required field's label, as every form marks one; a free field's label stands as it is. */
+export function requiredLabel(label: string): string {
+  return t("forms.required", { label });
+}
+
 /** The label of value ``iri`` of the field ``key``; the IRI itself where the form offers none. */
 export function valueLabel(fields: readonly FormField[], key: string, iri: string): string {
   const field = fields.find((one) => one.key === key);

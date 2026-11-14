@@ -18,7 +18,8 @@ function form(before: CueDecision | null = null): VueWrapper {
 }
 
 const control = <T extends HTMLElement = HTMLInputElement>(wrapper: VueWrapper, label: string) => {
-  const found = wrapper.findAll("label").find((one) => one.text() === label);
+  // a required field's label says so after its name (forms.required)
+  const found = wrapper.findAll("label").find((one) => [label, t("forms.required", { label })].includes(one.text()));
   if (!found) throw new Error(label);
   return found.attributes("for") ? wrapper.get<T>(`#${found.attributes("for")}`) : found.get<T>("input");
 };
@@ -60,7 +61,7 @@ describe("the decision on a research cue", () => {
   it("asks for a strength and where the cue was found only for a confirmation", async () => {
     const wrapper = form();
 
-    expect(wrapper.get("fieldset legend").text()).toBe(t("lexicon.cueForm.legend"));
+    expect(wrapper.get("fieldset legend").text()).toBe(t("forms.required", { label: t("lexicon.cueForm.legend") }));
     expect(wrapper.findAll("select")).toHaveLength(0);
     await control(wrapper, t("lexicon.cueForm.confirmed")).setValue(true);
 

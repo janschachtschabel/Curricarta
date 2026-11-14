@@ -22,6 +22,7 @@ import {
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { useFieldFaults, type Fault } from "@/fieldFaults";
+import { requiredLabel } from "@/formWords";
 import { t } from "@/i18n/de";
 import { grouped, type Targets } from "@/lexiconTargets";
 import { skipReason, tooShort } from "@/lexiconWords";
@@ -195,7 +196,7 @@ async function onSubmit(): Promise<void> {
 <template>
   <form class="decision-form" novalidate @submit.prevent="onSubmit">
     <fieldset class="decision-form__choice">
-      <legend>{{ t("lexicon.termForm.legend") }}</legend>
+      <legend>{{ requiredLabel(t("lexicon.termForm.legend")) }}</legend>
       <!-- one name: the arrow keys move between the three, and Tab passes them as one group -->
       <label v-for="choice in ['cue', 'document', 'error'] as const" :key="choice">
         <input
@@ -233,7 +234,7 @@ async function onSubmit(): Promise<void> {
       <p v-else-if="types === null" class="field__hint">{{ t("lexicon.termForm.targetsLoading") }}</p>
       <template v-else>
         <div class="field">
-          <label :for="`${id}-target`">{{ t("lexicon.termForm.target") }}</label>
+          <label :for="`${id}-target`">{{ requiredLabel(t("lexicon.termForm.target")) }}</label>
           <select
             :id="`${id}-target`"
             aria-required="true"
@@ -258,7 +259,7 @@ async function onSubmit(): Promise<void> {
           </p>
         </div>
         <div class="field">
-          <label :for="`${id}-role`">{{ t("lexicon.termForm.role") }}</label>
+          <label :for="`${id}-role`">{{ requiredLabel(t("lexicon.termForm.role")) }}</label>
           <select
             :id="`${id}-role`"
             aria-required="true"

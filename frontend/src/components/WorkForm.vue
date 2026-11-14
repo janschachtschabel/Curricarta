@@ -15,6 +15,7 @@ import { listDocuments, type CurriculumDocument, type DocumentWork } from "@/api
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { knownWorks, saveWork, shortTitleOk, workWords } from "@/documentMeta";
+import { requiredLabel } from "@/formWords";
 import { useFieldFaults, type Fault } from "@/fieldFaults";
 import { messages, t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
@@ -138,7 +139,7 @@ onMounted(async () => {
         <label><input v-model="mode" type="radio" value="new" /> {{ t("documents.page.edition.workNew") }}</label>
       </fieldset>
       <div v-if="mode === 'existing'" class="field">
-        <label :for="`${id}-work_id`">{{ t("documents.page.edition.workChosen") }}</label>
+        <label :for="`${id}-work_id`">{{ requiredLabel(t("documents.page.edition.workChosen")) }}</label>
         <select
           :id="`${id}-work_id`"
           aria-required="true"
@@ -155,7 +156,7 @@ onMounted(async () => {
       </div>
       <template v-else>
         <div class="field">
-          <label :for="`${id}-title`">{{ t("documents.page.edition.workTitle") }}</label>
+          <label :for="`${id}-title`">{{ requiredLabel(t("documents.page.edition.workTitle")) }}</label>
           <input
             :id="`${id}-title`"
             aria-required="true"
@@ -171,7 +172,7 @@ onMounted(async () => {
           </p>
         </div>
         <div class="field">
-          <label :for="`${id}-region`">{{ t("documents.page.edition.workRegion") }}</label>
+          <label :for="`${id}-region`">{{ requiredLabel(t("documents.page.edition.workRegion")) }}</label>
           <select
             :id="`${id}-region`"
             aria-required="true"
@@ -187,7 +188,7 @@ onMounted(async () => {
           </p>
         </div>
         <div class="field">
-          <label :for="`${id}-short_title`">{{ t("documents.page.edition.workShortTitle") }}</label>
+          <label :for="`${id}-short_title`">{{ requiredLabel(t("documents.page.edition.workShortTitle")) }}</label>
           <input
             :id="`${id}-short_title`"
             aria-required="true"

@@ -5,6 +5,7 @@ import { RouterLink, useRoute, useRouter } from "vue-router";
 import { ApiError, checkToken, looksLikeToken, setToken } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
+import { requiredLabel } from "@/formWords";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { RETURN_PARAM, returnTarget } from "@/returnTarget";
@@ -71,7 +72,7 @@ async function onSubmit(): Promise<void> {
 
       <form class="login__form" novalidate @submit.prevent="onSubmit">
         <div class="field">
-          <label for="token">{{ t("login.tokenLabel") }}</label>
+          <label for="token">{{ requiredLabel(t("login.tokenLabel")) }}</label>
           <!-- autocomplete off: on a school's shared computers no password manager is to offer
                the token to the next person; pasting it stays possible (WCAG 3.3.8) -->
           <input

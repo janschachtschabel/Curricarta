@@ -12,6 +12,7 @@ import type { FormField, FormValue } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import { messages, t } from "@/i18n/de";
+import { requiredLabel } from "@/formWords";
 import { word } from "@/registerWords";
 
 const props = defineProps<{ field: FormField; values: FormValue[]; error?: string | null }>();
@@ -24,7 +25,7 @@ const group = ref<HTMLElement | null>(null);
 
 const name = computed(() => {
   const label = word(messages.documents.tree.fields, props.field.key);
-  return props.field.required ? t("documents.tree.form.requiredLabel", { label }) : label;
+  return props.field.required ? requiredLabel(label) : label;
 });
 // the values held that the form does not know
 const unknown = computed(() => {

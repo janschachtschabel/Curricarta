@@ -22,7 +22,8 @@ async function form(): Promise<VueWrapper> {
 }
 
 const control = <T extends HTMLElement = HTMLInputElement>(wrapper: VueWrapper, label: string) => {
-  const found = wrapper.findAll("label").find((one) => one.text() === label);
+  // a required field's label says so after its name (forms.required)
+  const found = wrapper.findAll("label").find((one) => [label, t("forms.required", { label })].includes(one.text()));
   if (!found) throw new Error(label);
   return found.attributes("for") ? wrapper.get<T>(`#${found.attributes("for")}`) : found.get<T>("input");
 };

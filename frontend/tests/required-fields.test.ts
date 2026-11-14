@@ -26,7 +26,12 @@ describe("a required field", () => {
     const wrapper = render();
 
     expect(wrapper.get(required).attributes("aria-required")).toBe("true");
-    if (optional) expect(wrapper.get(optional).attributes("aria-required")).toBeUndefined();
+    // one convention in every form: a required field says so in its label, a free one says nothing
+    expect(wrapper.get(`label[for=${required.slice(1)}]`).text()).toMatch(/\(Pflichtfeld\)$/);
+    if (optional) {
+      expect(wrapper.get(optional).attributes("aria-required")).toBeUndefined();
+      expect(wrapper.get(`label[for=${optional.slice(1)}]`).text()).not.toMatch(/\(|freiwillig/);
+    }
     wrapper.unmount();
   });
 

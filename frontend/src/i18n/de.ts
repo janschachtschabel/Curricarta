@@ -39,6 +39,10 @@ export const messages = {
     // in the shell, a token held whose account did not load (App.vue)
     accountFailed: "Dein Konto wurde nicht geladen.",
   },
+  // one convention in every form: a required field says so in its label, a free one says nothing (formWords.ts)
+  forms: {
+    required: "{label} (Pflichtfeld)",
+  },
   login: {
     heading: "Anmeldung",
     intro: "Gib das Zugangstoken ein, das dir die Administration gegeben hat.",
@@ -97,7 +101,7 @@ export const messages = {
       fileHint: "PDF, Word (DOCX), RTF, HTML, Markdown, Text (UTF-8) oder Turtle, bis {limit} MB.",
       // where the limit did not load: the server still says it on a refusal
       fileHintNoLimit: "PDF, Word (DOCX), RTF, HTML, Markdown, Text (UTF-8) oder Turtle.",
-      titleLabel: "Titel (freiwillig)",
+      titleLabel: "Titel",
       titleHint: "Ohne Titel trägt der Eintrag den Namen der Datei.",
       submit: "Hochladen",
       busy: "Wird hochgeladen …",
@@ -112,7 +116,7 @@ export const messages = {
       heading: "Von einer Adresse abrufen",
       urlLabel: "Adresse (URL)",
       urlHint: "Der Server lädt das Dokument selbst herunter; das dauert meist nur einige Sekunden.",
-      titleLabel: "Titel (freiwillig)",
+      titleLabel: "Titel",
       titleHint: "Ohne Titel trägt der Eintrag den Namen der Datei unter der Adresse.",
       submit: "Abrufen",
       busy: "Wird gestartet …",
@@ -1042,7 +1046,7 @@ export const messages = {
     },
     // What the two forms of a decision share (CueDecisionForm.vue, TermDecisionForm.vue)
     form: {
-      note: "Anmerkung (freiwillig)",
+      note: "Anmerkung",
       save: "Entscheidung speichern",
       cancel: "Abbrechen",
       failed: "Die Entscheidung wurde nicht gespeichert.",
@@ -1540,7 +1544,6 @@ export const messages = {
       assignedCode: "{code} (aus der Position vergeben)",
       // the row's form (FormFieldInput.vue, RowForm.vue)
       form: {
-        requiredLabel: "{label} (Pflichtfeld)",
         choose: "Bitte wählen",
         none: "keine Angabe",
         unknownValue: "unbekannt: {iri}",
