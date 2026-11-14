@@ -51,6 +51,7 @@ jobs:
   # rest runs faster, its Docling tests skipped. tests/deploy/test_ci.py holds that every folder and
   # top-level test file runs in exactly one part.
   backend-tests:
+    name: backend-tests (${{ matrix.part }})
     runs-on: ubuntu-24.04
     # the parts took 10 and 9 minutes, their tests with coverage 9.6 and 8.3 (pull request 5,
     # 2026-11-14; the single job before them 21-24); the limit allows more than twice the longer, for

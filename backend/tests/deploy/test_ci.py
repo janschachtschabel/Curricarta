@@ -137,6 +137,8 @@ def test_the_backend_tests_run_in_parts_that_leave_no_test_out_and_none_twice() 
     assert len(every) == len(set(every)), every
     assert set(every) == _holding_tests(ROOT / "backend" / "tests")
     assert "${{ matrix.paths }}" in _command("backend-tests", r"-m pytest")
+    # its checks are named by the part, not by the paths, which change with each rebalancing
+    assert JOBS["backend-tests"]["name"] == "backend-tests (${{ matrix.part }})"
 
 
 def test_the_checks_beside_the_tests_run_once() -> None:
