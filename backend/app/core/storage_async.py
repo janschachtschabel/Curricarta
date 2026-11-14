@@ -7,6 +7,7 @@ store raised them (ObjectNotFound, InvalidKey, the service's own).
 
 import asyncio
 from collections.abc import AsyncIterator
+from typing import BinaryIO
 
 from app.core.storage import ObjectStream, Storage
 
@@ -43,6 +44,9 @@ class AsyncStorage:
 
     async def put(self, key: str, data: bytes) -> None:
         await asyncio.to_thread(self.sync.put, key, data)
+
+    async def put_file(self, key: str, source: BinaryIO, size: int) -> None:
+        await asyncio.to_thread(self.sync.put_file, key, source, size)
 
     async def get(self, key: str) -> bytes:
         return await asyncio.to_thread(self.sync.get, key)

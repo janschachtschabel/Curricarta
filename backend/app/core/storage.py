@@ -4,7 +4,8 @@ The interface is S3's (app/core/storage_s3.py is that backend): an object is byt
 such as ``sources/ab/<sha256>.pdf``. A key is plain segments of letters, digits and ``._-``
 joined by ``/`` - nothing that could leave the root on a file system, whatever the caller
 passed in. The file system backend writes to a temporary file beside the target and renames
-it, so an object is either the old or the new one, never half of it.
+it, so an object is either the old or the new one, never half of it - from bytes or from a
+stream (``put_file``), which is read in pieces and never held whole.
 
 simplify: a process killed between the two leaves a ``.tmp-*`` file, which no key can name and
 nothing removes yet; a sweep at start would, should the file system backend serve more than
@@ -17,7 +18,7 @@ import tempfile
 from collections.abc import Callable, Iterator
 from functools import partial
 from pathlib import Path
-from typing import Protocol
+from typing import BinaryIO, Protocol
 
 from app.core.settings import Settings
 
@@ -76,6 +77,11 @@ class ObjectStream:
 
 class Storage(Protocol):
     def put(self, key: str, data: bytes) -> None: ...
+    def put_file(self, key: str, source: BinaryIO, size: int) -> None:
+        """The ``size`` bytes of ``source`` from where it stands, read in pieces; ``source`` must
+        be seekable (S3 rewinds it for a retry). Whole or not at all, as ``put``."""
+        ...
+
     def get(self, key: str) -> bytes: ...
     def exists(self, key: str) -> bool: ...
     def delete(self, key: str) -> None:
@@ -136,6 +142,13 @@ class FileSystemStorage:
     def put(self, key: str, data: bytes) -> None:
         """Raises InvalidKey for a key below an object or one that holds other keys: S3 keeps
         ``a`` and ``a/b`` side by side, a file system cannot."""
+        self._write(key, lambda file: file.write(data))
+
+    def put_file(self, key: str, source: BinaryIO, size: int) -> None:
+        self._write(key, partial(_copy, source, size))
+
+    def _write(self, key: str, fill: Callable[[BinaryIO], object]) -> None:
+        """The object under ``key``, as ``fill`` writes it into a temporary file beside it."""
         path = self._path(key)
         made = [folder for folder in (path.parent, *path.parent.parents) if not folder.exists()]
         try:
@@ -147,7 +160,7 @@ class FileSystemStorage:
         handle, temporary = tempfile.mkstemp(dir=path.parent, prefix=".tmp-")
         try:
             with os.fdopen(handle, "wb") as file:
-                file.write(data)
+                fill(file)
                 file.flush()
                 os.fsync(file.fileno())
             os.replace(temporary, path)
@@ -190,6 +203,18 @@ class FileSystemStorage:
         if not path.is_file():
             raise ObjectNotFound(key)
         return path
+
+
+def _copy(source: BinaryIO, size: int, target: BinaryIO) -> None:
+    """``size`` bytes of ``source`` into ``target``, CHUNK_BYTES at a time; OSError for a source
+    that ends before its size."""
+    left = size
+    while left:
+        piece = source.read(min(left, CHUNK_BYTES))
+        if not piece:
+            raise OSError(f"the stream ended {left} bytes before its size")
+        target.write(piece)
+        left -= len(piece)
 
 
 def _plain_form(path: Path) -> Path:

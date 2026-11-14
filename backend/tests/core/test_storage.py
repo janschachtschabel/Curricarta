@@ -8,6 +8,21 @@ import pytest
 
 from app.core.storage import FileSystemStorage, InvalidKey, ObjectNotFound, without_long_prefix
 
+# keys that name something outside the root, or nothing: refused by every write
+LEAVING_KEYS = [
+    pytest.param("", id="empty"),
+    pytest.param("../outside.txt", id="parent"),
+    pytest.param("sources/../../outside.txt", id="nested-parent"),
+    pytest.param("/etc/passwd", id="absolute"),
+    pytest.param("C:/Windows/win.ini", id="drive"),
+    pytest.param("sources\\..\\outside.txt", id="backslash"),
+    pytest.param("sources//double.txt", id="empty-segment"),
+    pytest.param("sources/./same.txt", id="dot"),
+    pytest.param("sources/name\x00.txt", id="nul"),
+    pytest.param("sources/", id="trailing-slash"),
+    pytest.param("a" * 600, id="too-long"),
+]
+
 
 @pytest.fixture
 def storage(tmp_path: Path) -> FileSystemStorage:
@@ -65,35 +80,7 @@ def test_a_stream_closed_early_lets_its_file_go(storage: FileSystemStorage) -> N
         next(stream)
 
 
-@pytest.mark.parametrize(
-    "key",
-    [
-        "",
-        "../outside.txt",
-        "sources/../../outside.txt",
-        "/etc/passwd",
-        "C:/Windows/win.ini",
-        "sources\\..\\outside.txt",
-        "sources//double.txt",
-        "sources/./same.txt",
-        "sources/name\x00.txt",
-        "sources/",
-        "a" * 600,
-    ],
-    ids=[
-        "empty",
-        "parent",
-        "nested-parent",
-        "absolute",
-        "drive",
-        "backslash",
-        "empty-segment",
-        "dot",
-        "nul",
-        "trailing-slash",
-        "too-long",
-    ],
-)
+@pytest.mark.parametrize("key", LEAVING_KEYS)
 def test_a_key_that_could_leave_the_root_is_refused(
     storage: FileSystemStorage, tmp_path: Path, key: str
 ) -> None:

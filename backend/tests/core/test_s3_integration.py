@@ -6,9 +6,12 @@ container. Each test gets a bucket of its own and leaves nothing behind. Without
 the tests are skipped, unless CURRICARTA_REQUIRE_S3 or CI is set.
 """
 
+import hashlib
 import os
+import tempfile
 import uuid
 from collections.abc import Iterator
+from typing import BinaryIO, cast
 
 import pytest
 
@@ -93,6 +96,17 @@ def test_an_object_comes_back_in_pieces_with_its_size(storage: S3Storage) -> Non
     assert b"".join(pieces) == data
     with pytest.raises(ObjectNotFound):
         storage.open_stream("sources/missing.pdf")
+
+
+def test_a_stream_of_several_mib_is_stored_whole(storage: S3Storage) -> None:
+    data = os.urandom(5 * 2**20)
+    with tempfile.SpooledTemporaryFile(max_size=2**20) as spooled:  # as the form parser spools an upload
+        spooled.write(b"form head" + data)
+        spooled.seek(len(b"form head"))
+
+        storage.put_file("sources/big.pdf", cast(BinaryIO, spooled), len(data))
+
+    assert hashlib.sha256(storage.get("sources/big.pdf")).digest() == hashlib.sha256(data).digest()
 
 
 def test_a_bucket_the_service_does_not_hold_stops_the_opening(service_settings: Settings) -> None:

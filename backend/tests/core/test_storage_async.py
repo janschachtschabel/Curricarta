@@ -8,8 +8,9 @@ import asyncio
 import threading
 import time
 from collections.abc import Awaitable, Callable, Coroutine, Iterator
+from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 import pytest
 
@@ -28,6 +29,9 @@ class SlowStore:
     """Each call holds its thread, as a slow disk or service would."""
 
     def put(self, key: str, data: bytes) -> None:
+        time.sleep(SLOW_S)
+
+    def put_file(self, key: str, source: BinaryIO, size: int) -> None:
         time.sleep(SLOW_S)
 
     def get(self, key: str) -> bytes:
@@ -113,11 +117,13 @@ def test_a_missing_object_is_not_found_before_its_stream(tmp_path: Path) -> None
 def test_the_calls_reach_the_store(tmp_path: Path) -> None:
     store = AsyncStorage(FileSystemStorage(tmp_path))
 
-    async def calls() -> tuple[bool, bytes]:
+    async def calls() -> tuple[bool, bytes, bytes]:
         await store.put("sources/ab.txt", b"text")
-        return await store.exists("sources/ab.txt"), await store.get("sources/ab.txt")
+        await store.put_file("sources/cd.txt", BytesIO(b"streamed"), 8)
+        read = await store.get("sources/cd.txt")
+        return await store.exists("sources/ab.txt"), await store.get("sources/ab.txt"), read
 
-    assert run(calls()) == (True, b"text")
+    assert run(calls()) == (True, b"text", b"streamed")
     run(store.delete("sources/ab.txt"))
     assert not (tmp_path / "sources" / "ab.txt").exists()
 
@@ -127,11 +133,12 @@ def test_the_store_s_errors_come_through_as_they_are(tmp_path: Path) -> None:
         run(AsyncStorage(FileSystemStorage(tmp_path)).get("sources/missing.txt"))
 
 
-@pytest.mark.parametrize("call", ["put", "get", "exists", "delete"])
+@pytest.mark.parametrize("call", ["put", "put_file", "get", "exists", "delete"])
 def test_a_slow_store_does_not_hold_the_loop(call: str) -> None:
     store = AsyncStorage(SlowStore())
     calls: dict[str, Callable[[], Awaitable[object]]] = {
         "put": lambda: store.put("a", b"x"),
+        "put_file": lambda: store.put_file("a", BytesIO(b"x"), 1),
         "get": lambda: store.get("a"),
         "exists": lambda: store.exists("a"),
         "delete": lambda: store.delete("a"),

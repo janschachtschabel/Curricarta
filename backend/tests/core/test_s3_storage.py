@@ -45,6 +45,17 @@ def test_an_object_is_written_under_its_key(stubbed: tuple[S3Storage, Stubber]) 
     storage.put("sources/ab.pdf", b"%PDF")
 
 
+def test_a_stream_goes_out_as_it_is_with_its_length(stubbed: tuple[S3Storage, Stubber]) -> None:
+    # botocore reads the stream itself, from where it stands, and rewinds it to there for a retry
+    storage, stubber = stubbed
+    source = BytesIO(b"form head%PDF")
+    source.seek(len(b"form head"))
+    expected = {"Bucket": BUCKET, "Key": "sources/ab.pdf", "Body": source, "ContentLength": 4}
+    stubber.add_response("put_object", {}, expected)
+
+    storage.put_file("sources/ab.pdf", source, 4)
+
+
 def test_an_object_is_read_back(stubbed: tuple[S3Storage, Stubber]) -> None:
     storage, stubber = stubbed
     stubber.add_response("get_object", {"Body": _body(b"%PDF")}, {"Bucket": BUCKET, "Key": "sources/ab.pdf"})

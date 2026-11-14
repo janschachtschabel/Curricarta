@@ -14,7 +14,7 @@ Its own module: boto3 takes a noticeable while to import, and a process on the f
 store should not pay for it.
 """
 
-from typing import Any
+from typing import Any, BinaryIO
 
 import boto3  # type: ignore[import-untyped]
 from botocore.config import Config  # type: ignore[import-untyped]
@@ -51,6 +51,10 @@ class S3Storage:
 
     def put(self, key: str, data: bytes) -> None:
         self.client.put_object(Bucket=self.bucket, Key=check_key(key), Body=data)
+
+    def put_file(self, key: str, source: BinaryIO, size: int) -> None:
+        # botocore reads the stream in pieces from where it stands, and rewinds it there to retry
+        self.client.put_object(Bucket=self.bucket, Key=check_key(key), Body=source, ContentLength=size)
 
     def get(self, key: str) -> bytes:
         body = self._object(key)["Body"]
