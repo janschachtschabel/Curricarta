@@ -9,7 +9,8 @@ the reservation's place. A retry of the agent is a request like any other, reser
 refused request (an HTTP error) is booked as a request without tokens; one sent and never
 answered - timed out, cut off, cancelled in flight - as its reservation, an estimate, since the
 provider may have charged for it; so is an answer that reports no usage, and one no model could
-read, which fails the call. A request that never went out (no connection) costs nothing. A 429,
+read, which fails the call. A request that never went out (no connection) costs nothing, nor does
+one cancelled while its reservation was made: it is handed back once made. A 429,
 a 5xx or a provider not reached is waited on and asked again, twice at most; the SDK does not
 ask again on its own (app/llm/client.py).
 """
@@ -222,7 +223,7 @@ async def _attempt(
                             schema=stage.schema,
                         )
                         open_ = _Open(
-                            await meter.reserve(estimate, stage.output_tokens), estimate, attempts.sent
+                            await _reserve(meter, estimate, stage.output_tokens), estimate, attempts.sent
                         )
                     elif Agent.is_call_tools_node(node) and open_ is not None:
                         open_.answered = _answered(node.model_response, open_.estimate, stage.output_tokens)
@@ -256,6 +257,23 @@ async def _attempt(
             await _book_cut_off(meter, open_, stage, sent=attempts.sent > open_.sent_before and not unsent)
         if isinstance(error, Exception) and unsent:
             raise _NotSent(error, spent) from error
+        raise
+
+
+async def _reserve(meter: Meter, input_tokens: int, output_tokens: int) -> Any:
+    """The meter's reservation, made whole however a cancel comes: one that came while it was made -
+    its row may stand, the commit's answer not yet come - is waited for and handed back unspent, as
+    no request went out; left standing, the job's end would book it as abandoned, an estimate."""
+    reserving = asyncio.ensure_future(meter.reserve(input_tokens, output_tokens))
+    try:
+        return await asyncio.shield(reserving)
+    except asyncio.CancelledError:
+        try:
+            reservation = await asyncio.shield(reserving)
+        except Exception:  # noqa: S110 - none was made: nothing to hand back, the cancel goes on
+            pass
+        else:
+            await asyncio.shield(meter.book(reservation, Spent()))
         raise
 
 

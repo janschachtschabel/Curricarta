@@ -10,6 +10,7 @@ from typing import Any
 
 import httpx2
 import pytest
+from prometheus_client import REGISTRY
 from pydantic_ai import Agent
 from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
 from pydantic_ai.messages import (
@@ -565,6 +566,41 @@ async def test_a_call_cancelled_before_its_request_went_out_books_nothing() -> N
         await task
 
     assert ledger.booked == [(1, Spent())]
+
+
+class Committing(Ledger):
+    """A ledger whose reservation is held at once and whose commit answers only when ``answered`` is set."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.holding = asyncio.Event()
+        self.answered = asyncio.Event()
+
+    async def reserve(self, input_tokens: int, output_tokens: int) -> int:
+        held = await super().reserve(input_tokens, output_tokens)
+        self.holding.set()
+        await self.answered.wait()
+        return held
+
+
+async def test_a_call_cancelled_as_its_reservation_was_made_lets_it_go_unspent() -> None:
+    # nothing went out: the reservation the cancel came upon is handed back, not left to be booked
+    # as abandoned - an estimate - with the job
+    ledger = Committing()
+    unanswered = REGISTRY.get_sample_value("curricarta_llm_requests_total", {"outcome": "unanswered"}) or 0.0
+    built, seen = stage(['{"title": "Zahlen"}'])
+
+    task = asyncio.create_task(ask(built, "Text", meter=ledger))
+    await ledger.holding.wait()
+    task.cancel()
+    await asyncio.sleep(0)  # the cancel reaches the call before the commit answers
+    ledger.answered.set()
+    with pytest.raises(asyncio.CancelledError):
+        await task
+
+    assert (seen, ledger.booked) == ([], [(1, Spent())])
+    after = REGISTRY.get_sample_value("curricarta_llm_requests_total", {"outcome": "unanswered"}) or 0.0
+    assert after == unanswered
 
 
 async def test_what_an_attempt_spent_before_its_request_never_went_out_counts_in_the_call(
