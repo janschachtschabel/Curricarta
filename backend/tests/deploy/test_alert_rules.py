@@ -16,11 +16,9 @@ from app.core import metrics
 
 ROOT = Path(__file__).resolve().parents[3]
 RULES_FILE = "deploy/alerts/curricarta.rules.yaml"
-RULES: list[dict[str, Any]] = [
-    rule
-    for group in yaml.safe_load((ROOT / RULES_FILE).read_text(encoding="utf-8"))["groups"]
-    for rule in group["rules"]
-]
+TEXT = (ROOT / RULES_FILE).read_text(encoding="utf-8")
+HEADER = TEXT.split("groups:", 1)[0]
+RULES: list[dict[str, Any]] = [rule for group in yaml.safe_load(TEXT)["groups"] for rule in group["rules"]]
 HELM: dict[str, Any] = yaml.safe_load(
     (ROOT / "deploy" / "helm-values.example.yaml").read_text(encoding="utf-8")
 )
@@ -119,6 +117,17 @@ def test_a_replica_whose_queue_values_are_stale_is_left_out() -> None:
             + r"\s*\)"
         )
         assert re.search(inside, expr), rule["alert"]
+
+
+def test_a_queue_no_replica_reports_is_an_alert_of_its_own() -> None:
+    # labelled gauges render nothing before their first read: with no replica reading the queue,
+    # every rule on it would stay silent
+    absent = [rule for rule in RULES if rule["expr"].lstrip().startswith("absent(")]
+    assert len(absent) == 1
+    assert set(METRIC.findall(absent[0]["expr"])) & queue_gauges()
+    assert absent[0]["for"] == "10m"
+    # a replica that is down exports nothing at all: that is the operator's alert on up
+    assert re.search(r"\bup\b", HEADER)
 
 
 def test_the_helm_example_points_at_the_rules() -> None:

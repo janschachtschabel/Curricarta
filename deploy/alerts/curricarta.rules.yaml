@@ -9,7 +9,12 @@
 # take a replica only while its last good read, as of the scrape that took it, is under 30 s old
 # (2 x QUEUE_READ_EVERY_S, backend/app/api/internal.py). timestamp() is the scrape's own time, so the
 # bound holds whatever the scrape interval; it assumes the clocks of pods and Prometheus agree
-# within seconds. CurricartaQueueUnread names the replica that fails.
+# within seconds. CurricartaQueueUnread names the replica that fails; CurricartaQueueUnseen fires when
+# no replica has fresh values at all.
+#
+# These rules see only what the service exports. A replica that is down, or every one, exports
+# nothing: the operator's own alert on up (up == 0 for the API's and the workers' targets) stays
+# necessary beside them.
 groups:
   - name: curricarta
     rules:
@@ -27,6 +32,21 @@ groups:
             Look whether the workers of this kind run and stay live (WORKER_KINDS, their /health and
             logs); a worker that cannot claim logs "could not claim a job". Scale the workers or
             restart a stuck one; the jobs keep their place in the queue.
+
+      - alert: CurricartaQueueUnseen
+        expr: >-
+          absent(max(curricarta_queue_jobs
+            and on (instance) (timestamp(curricarta_queue_read_timestamp_seconds) - curricarta_queue_read_timestamp_seconds < 30)
+          ))
+        for: 10m
+        labels:
+          severity: critical
+        annotations:
+          summary: "No API replica has read the job queue for 10 minutes: the queue's alerts cannot fire"
+          description: >-
+            Either no API replica runs or is scraped (see the alert on up and the ServiceMonitor), or
+            every replica fails to read the queue (CurricartaQueueUnread, /ready, the database's load
+            and its locks on the table job). Until a replica reads it again, a stalled queue goes unseen.
 
       - alert: CurricartaQueueDeep
         expr: >-
