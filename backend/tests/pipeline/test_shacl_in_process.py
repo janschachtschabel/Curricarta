@@ -4,8 +4,10 @@ are equal, field by field and in the order the product sorts them in.
 
 The graphs: a sound document; the faulty example, which breaks every kind of shape it names; a document
 whose statement breaks a count, a SPARQL constraint (its message's language) and whose anchor holds
-values of the wrong type; the MEM plan the gate's tests build, sound and refused; and the largest graph a
-switched test checks, Saxony's plan as its import hands it to X5 (about 1,350 triples). Not covered: a
+values of the wrong type; the MEM plan the gate's tests build, sound, refused, and with a reference held
+by none and pointing at nothing (VerweisShape, an inverse path among its results); the largest graph a
+switched test checks, Saxony's plan as its import hands it to X5 (about 1,350 triples); and the KMK's plan
+typed a Lehrplan as its import hands it to X5 (the profile's warnings of its Regelstandards). Not covered: a
 deadline or a crash (the stand-in raises ShaclTimeout as the check does; test_shacl.py tests both in the
 child), and graphs larger than the tests' own."""
 
@@ -13,7 +15,7 @@ from collections.abc import Awaitable, Callable
 from typing import Any, cast
 
 import pytest
-from rdflib import Graph, Literal, Namespace
+from rdflib import Graph, Literal, Namespace, URIRef
 from rdflib.namespace import XSD
 
 from app.core.child import ChildLog
@@ -24,12 +26,14 @@ from app.pipeline import x5_stage
 from app.pipeline.shacl import shacl_check
 from app.pipeline.shacl_child import ShaclResult, ShapeSet
 from tests.exports.test_mem_gate import imported, model
-from tests.exports.test_mem_roundtrip import SAXONY
+from tests.exports.test_mem_roundtrip import KMK, SAXONY, Kind
 from tests.exports.test_mem_roundtrip import imported as imported_by_the_job
 from tests.jobs.test_mem_import import setup
 from tests.pipeline.test_shacl import CV, ONTOLOGY, a_document, example
 
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
+LP = "https://w3id.org/lehrplan/ontology/"
+HAS_REFERENCE = URIRef(LP + "LP_0030071")  # hat verweis
 TOLD = ChildLog(level="WARNING", format="text", request_id="-")
 pytestmark = pytest.mark.anyio
 __all__ = ["setup"]  # the fixture, shared with test_mem_import
@@ -57,6 +61,16 @@ def a_refused_plan() -> Graph:
     return mem_graph(imported(mem_land_iri=None), model()).graph
 
 
+def a_plan_with_a_reference_of_nothing() -> Graph:
+    rows = imported()
+    reference = next(row for row in rows.statements if row["statement_kind_iri"] == CV + "kind_reference")
+    reference["mem_properties"] = {key: value for key, value in reference["mem_properties"].items()
+                                   if key != "targets"}  # fmt: skip
+    graph = mem_graph(rows, model()).graph
+    graph.remove((None, HAS_REFERENCE, URIRef(reference["mem_iri"])))  # held by none
+    return graph
+
+
 Check = Callable[..., Awaitable[list[ShaclResult]]]
 
 
@@ -71,6 +85,7 @@ GRAPHS: list[tuple[str, Callable[[], Graph], ShapeSet]] = [
     ("broken document", a_broken_document, "kern"),
     ("sound MEM plan", a_sound_plan, "mem"),
     ("refused MEM plan", a_refused_plan, "mem"),
+    ("MEM plan with a reference of nothing", a_plan_with_a_reference_of_nothing, "mem"),
 ]
 
 
@@ -99,8 +114,10 @@ async def test_the_graphs_here_meet_what_they_are_here_for(in_process_shacl: Non
     broken = await results(a_broken_document(), "kern")
     plan = await results(a_sound_plan(), "mem")
     refused = await results(a_refused_plan(), "mem")
+    nothing = await results(a_plan_with_a_reference_of_nothing(), "mem")
 
     assert [found for found in sound if found.severity == "violation"] == []
+    assert any(found.severity == "warning" for found in sound)
     components = {found.component for found in broken}
     assert {"MinCountConstraintComponent", "SPARQLConstraintComponent", "DatatypeConstraintComponent"} <= (
         components
@@ -108,11 +125,17 @@ async def test_the_graphs_here_meet_what_they_are_here_for(in_process_shacl: Non
     assert any(found.lang == "de" for found in broken)
     assert [found for found in plan if found.severity == "violation"] == []
     assert "LPBundeslandShape" in {found.shape for found in refused}
+    referred = [found for found in nothing if found.shape == "VerweisShape"]
+    assert len(referred) == 2 and any((found.path or "").startswith("^") for found in referred)
+
+
+KMK_AS_LEHRPLAN = Kind("kmk", None, LP + "LP_0000571", "DE", "dt-Lehrplan", "curriculum", "KMK", KMK.work)
 
 
 @pytest.mark.pg
-async def test_the_stand_in_answers_as_the_child_does_on_the_largest_graph_the_tests_check(
-    in_process_shacl: None, setup: Any, monkeypatch: pytest.MonkeyPatch
+@pytest.mark.parametrize("kind", [SAXONY, KMK_AS_LEHRPLAN], ids=["Saxony", "KMK typed a Lehrplan"])
+async def test_the_stand_in_answers_as_the_child_does_on_a_plan_as_its_import_hands_it_to_x5(
+    in_process_shacl: None, setup: Any, monkeypatch: pytest.MonkeyPatch, kind: Kind
 ) -> None:
     context, connection = setup
     checked: list[tuple[Graph, dict[str, Any], list[ShaclResult]]] = []
@@ -124,8 +147,12 @@ async def test_the_stand_in_answers_as_the_child_does_on_the_largest_graph_the_t
         return results
 
     monkeypatch.setattr(x5_stage, "shacl_check", kept)
-    await imported_by_the_job(context, connection, SAXONY)
+    await imported_by_the_job(context, connection, kind)
 
     [(graph, asked, in_process)] = checked
-    assert len(graph) > 1_000
     assert await shacl_check(graph, **asked) == in_process
+    if kind is SAXONY:
+        assert len(graph) > 1_000  # the largest graph a switched test checks
+    else:  # the profile warns of a Regelstandard outside the KMK's standards
+        regelstandards = [found for found in in_process if found.shape == "SchulRegelstandardShape"]
+        assert regelstandards and {found.severity for found in regelstandards} == {"warning"}
