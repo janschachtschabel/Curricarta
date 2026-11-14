@@ -754,6 +754,96 @@ Speicher einmal nach dem Bucket und bricht ab, wenn es ihn nicht gibt.
 `python -m app.core.storage_bucket` legt den Bucket an, wo die Umgebung keinen mitbringt
 (Compose).
 
+### Güte messen
+
+Ein Abnahmelauf und seine Messung in der Reihenfolge, in der der Betreiber sie fährt. Jeder Befehl
+läuft im Worker: in Compose vom Wurzelverzeichnis aus hinter
+`docker compose -f deploy/docker-compose.yml exec -T worker`, ohne Compose im Verzeichnis `backend/`
+(dort liegt der Ordner unten unter `../data/gold-local/`). In spitzen Klammern steht, was der
+Betreiber einsetzt: `<Kennung>` ist der Name des Dokuments im Bericht (`a-z`, `0-9`, `-`, nie sein
+Titel), `<Konto>` das Konto, unter dem gezogen und geurteilt wird. Eine Generalprobe ohne Modell und
+ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/test_rehearsal.py`).
+
+1. Schätzung vor dem Lauf; sie fragt nichts und schreibt nichts (siehe „Kosten des Modells“):
+
+   ```sh
+   python -m app.pipeline.estimate <Dokument-ID>
+   ```
+
+2. Budget in zwei Schritten (siehe „Wacht nach X2“): Grenze des Kontos mit
+   `PUT /api/v1/accounts/{id}/quota` auf den Verbrauch (`GET /api/v1/me/usage`) plus
+   `charged_at_most` aus der Schätzung setzen, den Lauf mit `POST /api/v1/documents/{id}/extraction`
+   starten; er endet nach X2 mit `run_over_budget`. Die Schätzung erneut laufen lassen, die Grenze um
+   `charged_expected` + `room` anheben und den Lauf neu starten: X3 bis X5 laufen zu Ende. Endet er
+   anders (`budget_exhausted`, eine Buchung weit über der Erwartung), anhalten und nicht nachlegen.
+3. Was der Lauf gekostet hat, je Zweck, und ob die abgelegten Rohantworten dieselben Token melden wie
+   die Buchung (`ledger_equals_raw`):
+
+   ```sh
+   python -m app.quality.usage_report <Dokument-ID> --label <Kennung> --raw
+   ```
+
+4. Stichproben ziehen: Aussagen und Blöcke. Die Ausgabe nennt die Nummer der Stichprobe (`sample`),
+   die die folgenden Befehle als `<Aussagen-Stichprobe>` und `<Block-Stichprobe>` brauchen. Derselbe
+   Seed zieht dieselbe Stichprobe; ein zweiter Aufruf zieht nichts neu.
+
+   ```sh
+   python -m app.quality.sample <Dokument-ID> --kind statement --label <Kennung> --account <Konto>
+   python -m app.quality.sample <Dokument-ID> --kind block --label <Kennung> --account <Konto>
+   ```
+
+5. Urteilsbögen schreiben. `<Adresse>` ist die Adresse der Oberfläche; jede Zeile verweist auf ihre
+   Stelle im Baum oder in der Blockansicht. Der Ordner muss bestehen (`mkdir -p data/gold-local`):
+
+   ```sh
+   python -m app.quality.sheet --sample <Aussagen-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-aussagen.csv
+   python -m app.quality.sheet --sample <Block-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-bloecke.csv
+   ```
+
+6. Urteilen in der Tabellenkalkulation: je Aussage `verdict` (`correct`, `imprecise`, `wrong`) mit
+   `reasons` aus der festen Liste, je Block `expected` (wie viele Aussagen er hält), `note` frei.
+   `item`, `mark` und `shown` bleiben, wie der Bogen sie schrieb; gespeichert wird als CSV.
+7. Urteile einlesen, je Bogen ganz oder gar nicht:
+
+   ```sh
+   python -m app.quality.judge --sample <Aussagen-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-aussagen.csv
+   python -m app.quality.judge --sample <Block-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-bloecke.csv
+   ```
+
+8. Bericht: Präzision streng und weit, Falsch-Quote und Vollständigkeit, je Schicht und gepoolt:
+
+   ```sh
+   python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe>
+   ```
+
+9. Nach einer Änderung am Lesen der Antworten: die abgelegten Antworten von X4 neu lesen, ohne das
+   Modell zu fragen, und den Bericht mit dem, was das Nachspielen von den Urteilen behält. Gemessen
+   wird der Unterschied zwischen einem `--replayed` vor und einem nach der Änderung:
+
+   ```sh
+   python -m app.pipeline.replay <Dokument-ID>
+   python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe> --replayed
+   ```
+
+10. Für ein aus MEM-Schule importiertes Dokument: die Trefferquote der Ankersuche, mit und ohne
+    Titelei, aus dem Lauf des Imports. Ohne den Schalter liest der Befehl nur Datenbank und
+    Objektspeicher, und nichts geht über das Netz; `--endpoint-counts` schickt eine einzige
+    zusammengefasste Anfrage an den Endpunkt von MEM-Schule (`MEM_SPARQL_URL`), nur nach Zusage:
+
+    ```sh
+    python -m app.quality.mem_report <Dokument-ID> --label <Kennung>
+    python -m app.quality.mem_report <Dokument-ID> --label <Kennung> --endpoint-counts
+    ```
+
+Urteilsbögen halten Wortlaute des Dokuments. Sie und jede Arbeitsmappe, als die eine
+Tabellenkalkulation sie speichert, liegen nur unter `data/gold-local/`: Git und die Images lassen
+den Ordner aus, `app.quality.sheet` schreibt nur nach stdout und weist in einem Arbeitsbaum jede
+andere Datei ab, und ein Test lässt keinen Bogen im Repository zu. Alle anderen Befehle geben nur
+Zahlen, Raten, Kennungen und Codes aus, nie einen Wortlaut, ein Zitat oder eine Notiz; Nutzung,
+Bericht, Nachspielen und MEM-Bericht prüfen das vor der Ausgabe und verweigern sonst
+(`report_not_closed`). Exit-Code 1 heißt abgewiesen (die Meldung steht auf stderr), 2 falscher
+Aufruf.
+
 ### Compose
 
 `deploy/docker-compose.yml` startet alles auf einem Rechner: PostgreSQL mit pgvector, MinIO
