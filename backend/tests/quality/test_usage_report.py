@@ -22,7 +22,7 @@ from app.db.documents import Document
 from app.db.runs import RunStart, Stage, finish_run, start_run
 from app.jobs.queue import enqueue
 from app.llm.raw import answer_key
-from app.quality.report import closed
+from app.quality.closed import closed
 from app.quality.usage_report import usage_report
 from tests.quality.gold_documents import WORDS, a_document, connection
 from tests.support import without_settings_variables

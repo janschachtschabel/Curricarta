@@ -29,7 +29,7 @@ from app.llm.raw import answer_key
 from app.pipeline import statement_read
 from app.pipeline.replay import Replayed, replay_x4
 from app.pipeline.run import extract_document
-from app.quality.report import closed
+from app.quality.closed import closed
 from app.quality.sample import Request, draw
 from tests.llm.test_client import llm_settings
 from tests.pipeline.test_run import BODY, CV, Model, a_document, a_job, a_statement, context_of, rows, setup

@@ -2,7 +2,6 @@
 an anchor's verdicts over the strata of the frame kept when drawn, an anchor sample's found anchors and its
 rows not found, a block sample's recall - counts and rates alone."""
 
-import re
 from collections.abc import Mapping, Sequence
 from typing import Any
 
@@ -12,7 +11,6 @@ from app.db.gold import Item, Judgement, Sample
 from app.db.gold_report import found_in_blocks
 from app.quality.rates import recall, weighted, wilson
 
-LEAF = r"[A-Za-z0-9_.:/+-]{1,60}"  # no space: no wording passes
 STATEMENT_REASONS = ("not_a_statement", "not_in_document", "node", "boundary", "kind", "fields")
 ANCHOR_REASONS = ("boundary", "wrong_place")  # of a found anchor; "missed" is not_found's
 FRONT = "front:"  # the strata of the title pages' anchors
@@ -20,10 +18,6 @@ NOT_FOUND = "notFound:"
 _DIGITS = 4
 
 Section = dict[str, Any]
-
-
-def token(value: object) -> str | None:
-    return value if isinstance(value, str) and re.fullmatch(LEAF, value) else None
 
 
 def rate(value: float | None) -> float | None:

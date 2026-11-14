@@ -48,13 +48,13 @@ from app.db.gold_report import head_of
 from app.db.pool import CONNECTION_OPTIONS
 from app.llm.settings import LLMSettings
 from app.pipeline.replay import Refused as ReplayRefused
+from app.quality.closed import NOT_CLOSED, closed, token
 from app.quality.report_replay import Replay, replay_of, replayed_counts
 from app.quality.report_sections import (
     STATEMENT_REASONS,
     Section,
     anchors,
     blocks,
-    token,
     verdicts,
 )
 from app.quality.stale import STALE, stale_items
@@ -115,19 +115,6 @@ async def _entry(
     return entry
 
 
-def closed(value: object) -> None:
-    """ValueError where a key or leaf is other than a number, a truth value, null or a code of LEAF."""
-    if isinstance(value, dict):
-        for key, inner in value.items():
-            closed(key)
-            closed(inner)
-    elif isinstance(value, list):
-        for inner in value:
-            closed(inner)
-    elif not (value is None or isinstance(value, bool | int | float) or token(value) is not None):
-        raise ValueError("a report holds counts, rates and codes alone")
-
-
 async def report(
     connection: psycopg.AsyncConnection, sample_ids: Sequence[int], *, replay: Replay | None = None
 ) -> dict[str, Any]:
@@ -150,7 +137,7 @@ async def report(
     try:
         closed(made)
     except ValueError:  # a stratum's name longer than a leaf, say
-        raise Refused("report_not_closed", "a key or leaf is no count, rate or code") from None
+        raise Refused(NOT_CLOSED, "a key or leaf is no count, rate or code") from None
     return made
 
 

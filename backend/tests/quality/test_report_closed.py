@@ -12,8 +12,8 @@ from app.core.ids import new_id
 from app.db.gold import ItemDraft, Judgement, SampleDraft, add_sample, items_of, judge
 from app.db.nodes import write_subtree
 from app.domain.l1 import AnchorDraft, NodeDraft
-from app.quality.report import Refused, closed, report
-from app.quality.report_sections import LEAF
+from app.quality.closed import LEAF, closed
+from app.quality.report import Refused, report
 from tests.db.document_of import document_of
 from tests.quality.gold_documents import (
     CV,
