@@ -29,6 +29,7 @@ from app.llm.attempts import never_sent
 from app.llm.calls import StageAgent, ask, breakpoint_settings, build_agent, cached_up_to, wait_after
 from app.llm.client import build_model
 from app.llm.metering import BudgetExhausted, Spent, estimate_input
+from app.pipeline.side_by_side import PROVIDER_ERRORS
 from tests.llm.test_client import llm_settings
 
 pytestmark = pytest.mark.anyio
@@ -467,13 +468,28 @@ async def test_a_provider_never_reached_fails_the_call_after_two_waits(waited: l
     assert never_sent(caught.value)  # the client's error stays its cause, for the job's log
 
 
-async def test_an_answer_no_model_could_read_books_its_reservation_and_fails_the_call() -> None:
-    # a proxy's page with a 200: the provider may have counted what it passed on
+@pytest.mark.parametrize(
+    ("provider", "error"),
+    [("openai-compatible", UnexpectedModelBehavior), ("openai", ModelAPIError)],
+    ids=["chat-completions", "responses"],
+)
+async def test_an_answer_no_model_could_read_books_its_reservation_and_fails_the_call(
+    provider: str, error: type[Exception]
+) -> None:
+    # a proxy's page with a 200: the provider may have counted what it passed on. Each API says so
+    # by a class of its own; both are a provider's error to the units asked beside it
     ledger = Ledger()
     page = httpx2.Response(200, text="<html>Anmeldung</html>", headers={"content-type": "text/html"})
+    model = build_model(
+        llm_settings(llm_provider=provider, llm_max_output_tokens=2_000),
+        transport=httpx2.MockTransport(lambda _: page),
+    )
+    built = build_agent(model, schema=SCHEMA, name="titel", instructions="Nenne den Titel.")
 
-    with pytest.raises(UnexpectedModelBehavior):
-        await ask(gateway(lambda _: page), "Text", meter=ledger)
+    with pytest.raises(error) as raised:
+        await ask(built, "Text", meter=ledger)
+
+    assert type(raised.value) is error and isinstance(raised.value, PROVIDER_ERRORS)
 
     [(estimate, cap)] = ledger.reserved
     assert ledger.booked == [

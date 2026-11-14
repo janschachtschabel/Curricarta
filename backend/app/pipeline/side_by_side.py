@@ -23,8 +23,8 @@ from app.llm.calls import quota_spent
 log = logging.getLogger(__name__)
 
 # a refusal (an HTTP error), a provider never reached or that never answered (a timeout), and an
-# answer no model could read - a proxy's page in its place (app/llm/calls.py raises it as the
-# request's)
+# answer no model could read - a proxy's page in its place, which Chat Completions says by
+# UnexpectedModelBehavior and the Responses API by ModelAPIError (app/llm/calls.py)
 PROVIDER_ERRORS = (ModelHTTPError, ModelAPIError, UnexpectedModelBehavior)
 # a 4xx that is no refusal for good: a request that timed out, a rate limit
 _PASSING = (408, 429)

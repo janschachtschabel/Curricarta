@@ -165,8 +165,8 @@ async def ask(
     every answer kept in ``raw`` before it is checked. A request the provider was never reached
     with is asked again as a busy provider's is. BudgetExhausted where the budget holds no further
     request; ModelHTTPError where the provider refused for good; ModelAPIError where it was never
-    reached; UnexpectedModelBehavior - or, on the Responses API, the library's own error - for an
-    answer no model could read; whatever else failed. Each with the error it was raised from."""
+    reached; UnexpectedModelBehavior - on the Responses API ModelAPIError - for an answer no model
+    could read; whatever else failed. Each with the error it was raised from."""
     spent = Spent()
     attempt = 0
     while True:
