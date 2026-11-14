@@ -34,7 +34,7 @@ from tests.jobs.test_mem_import import ENDPOINT, Endpoint, an_import, run
 from tests.jobs.test_mem_import import a_job as an_import_job
 from tests.pipeline.test_run import Model, a_job, a_statement, block, context_of, rows, setup
 from tests.quality.gold_documents import owner
-from tests.quality.handout import COMMANDS
+from tests.quality.handout import COMMANDS, PREFIX
 from tests.sources.test_mem_fixtures import mem_synth
 from tests.support import make_settings, without_settings_variables
 
@@ -100,9 +100,10 @@ class Standing(Model):
 
 @dataclass
 class Operator:
-    """Runs the handout's commands as an operator types them, in ``backend/``: the words in angle brackets
-    filled in, ``> file`` and ``< file`` - which must lie under the local gold folder - in a temporary
-    folder in its place; each command run is noted (``ran``)."""
+    """Runs the handout's commands as an operator types them, the part after ``PREFIX`` in ``backend/``,
+    as the worker's image runs it: the words in angle brackets filled in, ``> file`` and ``< file`` -
+    which must lie under the local gold folder - in a temporary folder in its place; each command run is
+    noted (``ran``)."""
 
     database_url: str
     store: Path
@@ -120,7 +121,8 @@ class Operator:
         return self.folder / path.relative_to(LOCAL_FOLDER.as_posix())
 
     def _run(self, name: str, values: dict[str, str]) -> subprocess.CompletedProcess[bytes]:
-        words = shlex.split(COMMANDS[name])
+        assert COMMANDS[name].startswith(PREFIX), name  # run as the worker's image runs it
+        words = shlex.split(COMMANDS[name].removeprefix(PREFIX))
         assert words[:2] == ["python", "-m"], words
         written = read = None
         if ">" in words:

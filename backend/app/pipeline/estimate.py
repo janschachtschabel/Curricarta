@@ -23,7 +23,7 @@ before it asks. An answer out of form asks again: a request beside these, and th
 each ask anew. A document imported from MEM-Schule owes its import's stages (IM, X5), which ask the
 model nothing (app/sources/mem/import_job.py).
 
-    docker compose -f deploy/docker-compose.yml exec worker python -m app.pipeline.estimate <document>
+    docker compose -f deploy/docker-compose.yml exec -T worker python -m app.pipeline.estimate <document>
 
 The requests are reckoned for the model the settings name, as the worker builds it - its cap, whether
 it takes a cache breakpoint, the weights its tokens are charged by (``charged_at_most``: what the

@@ -659,7 +659,7 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   wartet er nicht.
 - Die Rohantworten legt er vor der Auswertung unter `runs/<Lauf>/<Stufe>/<n>.json` im
   Objektspeicher ab.
-- Schätzung vor einem Lauf: `docker compose -f deploy/docker-compose.yml exec worker python -m
+- Schätzung vor einem Lauf: `docker compose -f deploy/docker-compose.yml exec -T worker python -m
   app.pipeline.estimate <Dokument-ID>` zählt jede Anfrage, die die Stufen dem Dokument noch
   schulden, so wie der Aufruf sie vor dem Senden reserviert. Er fragt nichts und schreibt nichts.
   Ausgabe ist JSON: je Zweck (`x1.profile`, `x1.outline`, `x3.frame`, `x4.unit`) die Anfragen, die
@@ -757,17 +757,18 @@ Speicher einmal nach dem Bucket und bricht ab, wenn es ihn nicht gibt.
 ### Güte messen
 
 Ein Abnahmelauf und seine Messung in der Reihenfolge, in der der Betreiber sie fährt. Jeder Befehl
-läuft im Worker: in Compose vom Wurzelverzeichnis aus hinter
-`docker compose -f deploy/docker-compose.yml exec -T worker`, ohne Compose im Verzeichnis `backend/`
+läuft im Worker, vom Wurzelverzeichnis aus. `-T` gehört dazu: Ohne es bekommt der Befehl ein
+Terminal, und seine Meldungen (stderr) landen in den Daten (stdout), ein umgeleiteter Bogen oder
+Bericht hielte Logzeilen. Ohne Compose läuft der Teil ab `python -m` im Verzeichnis `backend/`
 (dort liegt der Ordner unten unter `../data/gold-local/`). In spitzen Klammern steht, was der
 Betreiber einsetzt: `<Kennung>` ist der Name des Dokuments im Bericht (`a-z`, `0-9`, `-`, nie sein
 Titel), `<Konto>` das Konto, unter dem gezogen und geurteilt wird. Eine Generalprobe ohne Modell und
-ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/test_rehearsal.py`).
+ohne Netz fährt jeden dieser Befehle ab `python -m` Wort für Wort (`backend/tests/quality/test_rehearsal.py`).
 
 1. Schätzung vor dem Lauf; sie fragt nichts und schreibt nichts (siehe „Kosten des Modells“):
 
    ```sh
-   python -m app.pipeline.estimate <Dokument-ID>
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.pipeline.estimate <Dokument-ID>
    ```
 
 2. Budget in zwei Schritten (siehe „Wacht nach X2“): Grenze des Kontos mit
@@ -780,7 +781,7 @@ ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/tes
    die Buchung (`ledger_equals_raw`):
 
    ```sh
-   python -m app.quality.usage_report <Dokument-ID> --label <Kennung> --raw
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.usage_report <Dokument-ID> --label <Kennung> --raw
    ```
 
 4. Stichproben ziehen: Aussagen und Blöcke. Die Ausgabe nennt die Nummer der Stichprobe (`sample`),
@@ -788,16 +789,16 @@ ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/tes
    Seed zieht dieselbe Stichprobe; ein zweiter Aufruf zieht nichts neu.
 
    ```sh
-   python -m app.quality.sample <Dokument-ID> --kind statement --label <Kennung> --account <Konto>
-   python -m app.quality.sample <Dokument-ID> --kind block --label <Kennung> --account <Konto>
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.sample <Dokument-ID> --kind statement --label <Kennung> --account <Konto>
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.sample <Dokument-ID> --kind block --label <Kennung> --account <Konto>
    ```
 
 5. Urteilsbögen schreiben. `<Adresse>` ist die Adresse der Oberfläche; jede Zeile verweist auf ihre
    Stelle im Baum oder in der Blockansicht. Der Ordner muss bestehen (`mkdir -p data/gold-local`):
 
    ```sh
-   python -m app.quality.sheet --sample <Aussagen-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-aussagen.csv
-   python -m app.quality.sheet --sample <Block-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-bloecke.csv
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.sheet --sample <Aussagen-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-aussagen.csv
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.sheet --sample <Block-Stichprobe> --base-url <Adresse> > data/gold-local/<Kennung>-bloecke.csv
    ```
 
 6. Urteilen in der Tabellenkalkulation: je Aussage `verdict` (`correct`, `imprecise`, `wrong`) mit
@@ -806,14 +807,14 @@ ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/tes
 7. Urteile einlesen, je Bogen ganz oder gar nicht:
 
    ```sh
-   python -m app.quality.judge --sample <Aussagen-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-aussagen.csv
-   python -m app.quality.judge --sample <Block-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-bloecke.csv
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.judge --sample <Aussagen-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-aussagen.csv
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.judge --sample <Block-Stichprobe> --account <Konto> < data/gold-local/<Kennung>-bloecke.csv
    ```
 
 8. Bericht: Präzision streng und weit, Falsch-Quote und Vollständigkeit, je Schicht und gepoolt:
 
    ```sh
-   python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe>
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe>
    ```
 
 9. Nach einer Änderung am Lesen der Antworten: die abgelegten Antworten von X4 neu lesen, ohne das
@@ -821,8 +822,8 @@ ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/tes
    wird der Unterschied zwischen einem `--replayed` vor und einem nach der Änderung:
 
    ```sh
-   python -m app.pipeline.replay <Dokument-ID>
-   python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe> --replayed
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.pipeline.replay <Dokument-ID>
+   docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.report --sample <Aussagen-Stichprobe> --sample <Block-Stichprobe> --replayed
    ```
 
 10. Für ein aus MEM-Schule importiertes Dokument: die Trefferquote der Ankersuche, mit und ohne
@@ -831,8 +832,8 @@ ohne Netz fährt jeden dieser Befehle Wort für Wort (`backend/tests/quality/tes
     zusammengefasste Anfrage an den Endpunkt von MEM-Schule (`MEM_SPARQL_URL`), nur nach Zusage:
 
     ```sh
-    python -m app.quality.mem_report <Dokument-ID> --label <Kennung>
-    python -m app.quality.mem_report <Dokument-ID> --label <Kennung> --endpoint-counts
+    docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.mem_report <Dokument-ID> --label <Kennung>
+    docker compose -f deploy/docker-compose.yml exec -T worker python -m app.quality.mem_report <Dokument-ID> --label <Kennung> --endpoint-counts
     ```
 
 Urteilsbögen halten Wortlaute des Dokuments. Sie und jede Arbeitsmappe, als die eine

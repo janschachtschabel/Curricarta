@@ -1,13 +1,19 @@
 """The commands an operator runs to measure a document's quality, in the order run - each held once, here:
 the dress rehearsal (tests/quality/test_rehearsal.py) runs every one of them word for word, so a command
-that no longer does what its line says turns it red.
+that no longer does what its line says turns it red; the README's section "Güte messen" holds the same
+lines (tests/quality/test_handout.py).
 
-Each runs in ``backend/`` as the worker's image runs it (in Compose behind ``docker compose -f
-deploy/docker-compose.yml exec -T worker``, from the repository's root); ``> file`` and ``< file`` are the
-shell's, and the files lie under ``data/gold-local/`` alone (app/quality/sheet.py ``LOCAL_FOLDER``). The
-words in angle brackets are what the operator fills in."""
+Each is written as the deployment runs it, from the repository's root: behind ``PREFIX``, with ``-T`` -
+without it exec gives the command a terminal, which merges its words to the operator (stderr) into its
+data (stdout), and a redirected sheet or report would hold log lines. "Word for word" means: the
+rehearsal holds that each line begins with ``PREFIX`` and runs the rest of it in ``backend/``, as the
+worker's image does. ``> file`` and ``< file`` are the shell's, and the files lie under
+``data/gold-local/`` alone (app/quality/sheet.py ``LOCAL_FOLDER``). The words in angle brackets are what
+the operator fills in."""
 
-COMMANDS = {
+PREFIX = "docker compose -f deploy/docker-compose.yml exec -T worker "
+
+_RUN = {
     "estimate": "python -m app.pipeline.estimate <Dokument-ID>",
     "usage": "python -m app.quality.usage_report <Dokument-ID> --label <Kennung> --raw",
     "draw_statements": (
@@ -42,3 +48,4 @@ COMMANDS = {
         "python -m app.quality.mem_report <Dokument-ID> --label <Kennung> --endpoint-counts"
     ),
 }
+COMMANDS = {name: PREFIX + line for name, line in _RUN.items()}
