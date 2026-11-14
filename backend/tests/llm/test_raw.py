@@ -8,7 +8,7 @@ from pathlib import Path
 import pytest
 
 from app.core.storage import FileSystemStorage
-from app.llm.raw import RawResponses
+from app.llm.raw import RawResponses, kept_answers
 
 pytestmark = pytest.mark.anyio
 
@@ -51,3 +51,16 @@ async def test_answers_kept_side_by_side_take_numbers_of_their_own(tmp_path: Pat
 def test_a_stage_is_named_as_the_core_s_stages_are(tmp_path: Path, stage: str) -> None:
     with pytest.raises(ValueError, match="stage"):
         RawResponses(FileSystemStorage(tmp_path), RUN, stage)
+
+
+async def test_a_run_s_answers_are_read_back_in_their_order_one_gone_as_none(tmp_path: Path) -> None:
+    storage = FileSystemStorage(tmp_path)
+    raw = RawResponses(storage, RUN, "x4")
+    for data in (b"first", b"second", b"third"):
+        await raw.keep(data)
+    storage.delete(f"runs/{RUN}/x4/2.json")
+
+    read = await kept_answers(storage, RUN, "x4", 3)
+
+    assert read == [b"first", None, b"third"]
+    assert await kept_answers(storage, RUN, "x4", 0) == []

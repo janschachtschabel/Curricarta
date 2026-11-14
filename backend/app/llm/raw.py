@@ -13,7 +13,7 @@ import asyncio
 import re
 from uuid import UUID
 
-from app.core.storage import Storage
+from app.core.storage import ObjectNotFound, Storage
 
 # a stage as the core names them, lowercase: x0 to x6, n1, g1
 _STAGE = re.compile(r"[a-z][a-z0-9]{0,15}")
@@ -26,7 +26,8 @@ class RawResponses:
         if _STAGE.fullmatch(stage) is None:
             raise ValueError(f"{stage!r} is no stage's name, as x4 is")
         self._storage = storage
-        self._prefix = f"runs/{run_id}/{stage}"
+        self._run_id = run_id
+        self._stage = stage
         self._next = 1
         self._taking = asyncio.Lock()
 
@@ -38,7 +39,26 @@ class RawResponses:
         return key
 
     def _free_key(self) -> str:
-        while self._storage.exists(key := f"{self._prefix}/{self._next}.json"):
+        while self._storage.exists(key := answer_key(self._run_id, self._stage, self._next)):
             self._next += 1
         self._next += 1
         return key
+
+
+def answer_key(run_id: UUID, stage: str, number: int) -> str:
+    """Where the run's ``number``-th answer at ``stage`` is kept."""
+    return f"runs/{run_id}/{stage}/{number}.json"
+
+
+async def kept_answers(storage: Storage, run_id: UUID, stage: str, count: int) -> list[bytes | None]:
+    """The run's first ``count`` answers at ``stage`` as they were kept, in their order; None for one that
+    is not there (taken away since, or never kept). Read only: the store cannot list, so the caller says
+    how many there are - as its ledger booked them."""
+
+    def read(number: int) -> bytes | None:
+        try:
+            return storage.get(answer_key(run_id, stage, number))
+        except ObjectNotFound:
+            return None
+
+    return [await asyncio.to_thread(read, number) for number in range(1, count + 1)]
