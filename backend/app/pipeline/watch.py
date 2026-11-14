@@ -13,8 +13,9 @@ where ``expected + room`` is left.
 
 What is left is read as a reservation reads it (app/usage/ledger.py, ``usage_of``): the limit less what
 the account spent and what its requests hold - this job's and those of its other jobs -, under the job's
-lease, after the reckoning (which may take long for a long document; the limit alone is read before, to
-pass over an account without one). It is a look at one moment, not a reservation: other jobs of the
+lease, after the reckoning (which may take long for a long document; before it, ``usage_of`` is read
+once more for the limit alone - its sums are not used then -, to pass over an account without one).
+It is a look at one moment, not a reservation: other jobs of the
 account may spend what it saw left, and a run may charge more than expected (an answer out of form asks
 again, a cache dropped is read whole, answers longer than the mean). So a run the watch let pass may
 still end as ``budget_exhausted`` when a reservation finds too little - the quota stays the hard stop

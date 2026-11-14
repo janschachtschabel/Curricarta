@@ -656,7 +656,8 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   schulden, so wie der Aufruf sie vor dem Senden reserviert. Er fragt nichts und schreibt nichts.
   Ausgabe ist JSON: je Zweck (`x1.profile`, `x1.outline`, `x3.frame`, `x4.unit`) die Anfragen, die
   Eingabe mit dem Zuschlag von 10 %, ihr Anteil vor dem Cache-Haltepunkt (`shared_tokens`, ohne
-  Zuschlag, ab der zweiten Anfrage aus dem Cache) und die Obergrenze der Antworten. Dazu kommen:
+  Zuschlag; welche Anfragen ihn aus dem Cache lesen, sagt `charged_expected`) und die Obergrenze der
+  Antworten. Dazu kommen:
   - `reserved`: was der Aufruf für diese Anfragen reserviert, in rohen Token;
   - `charged_at_most`: das Höchste, was die Quote für sie halten muss, nach den Gewichten (`weights`).
   - `charged_expected`: was sie voraussichtlich buchen, in gewichteten Token. Je Anfrage:
@@ -705,7 +706,10 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   Cache, längere Antworten). Er kann also weiter mit `budget_exhausted` enden und behält dann seine
   fertigen Pakete. `EXTRACT_BUDGET_WATCH=false` schaltet die Wacht ab; ein Konto ohne Grenze wird
   nicht bewacht.
-  Soll ein Lauf nach X2 anhalten (etwa für einen Piloten), geht der Betreiber in zwei Schritten vor:
+  Soll ein Lauf nach X2 anhalten (etwa für einen Piloten), geht der Betreiber in zwei Schritten vor.
+  Den Verbrauch liest er als `tokens_spent` aus `GET /api/v1/me/usage` des Kontos, die Grenze setzt
+  er mit `PUT /api/v1/accounts/{id}/quota` (beide Grenzen genannt). Schritt 1 setzt voraus, dass
+  kein anderer Job des Kontos läuft.
   1. Grenze = bisheriger Verbrauch des Kontos + `charged_at_most` von X1 aus der Schätzung vor dem
      Lauf; dann starten. Der Job endet nach X2 mit `run_over_budget`, ohne eine Anfrage von X3 oder
      X4. Die Meldung nennt Erwartung, Raum, Rest, Pakete und Präfix.
@@ -715,6 +719,11 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
   Einschränkung: Bei einem kleinen Dokument können die Reservierungen von X1 mehr übrig lassen, als
   der Rest samt Raum braucht. Dann läuft der Lauf über X2 hinaus weiter; das Konto verbraucht auch
   dann nicht mehr als seine Grenze.
+  Eine Grenze genau auf dieser Kante reicht für einen Versuch, der wie erwartet bucht, aber nicht für
+  einen neuen Versuch. Nach einem Fehler des Anbieters, einer verlorenen Lease oder einem gestoppten
+  Worker rechnet der neue Versuch den Rest neu. Anfragen, die unterwegs abgebrochen wurden, sind dann
+  mit ihrer ganzen Reservierung gebucht. Er kann deshalb wieder mit `run_over_budget` enden. Verloren
+  ist nichts (fertige Pakete bleiben, keine Anfrage wird gesendet): Grenze anheben und neu starten.
 - Einen Modelljob darf ein Konto nur starten, solange es seine Grenze nicht verbraucht hat, sonst
   403 `no_budget`; was laufende Aufrufe reserviert halten, zählt dabei nicht. Höchstens
   `MAX_JOBS_IN_FLIGHT` (Standard 20) dürfen warten oder laufen, sonst 429 `too_many_jobs` mit
