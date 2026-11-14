@@ -12,6 +12,8 @@ import time
 from pathlib import Path
 from typing import cast
 
+import pytest
+
 from app.conversion.base import Block, Conversion, EngineUnavailable
 from app.conversion.convert import ConversionRefused, convert_file
 from app.core.logging import current_request_id
@@ -80,8 +82,9 @@ def loading_wants_memory(path: Path, engine: str, max_pages: int) -> Conversion:
     def wanting(*_: object) -> object:
         raise MemoryError
 
-    docling_blocks.version = lambda name: "2.117.0"
-    docling_blocks._converter = wanting  # type: ignore[assignment]
+    patched = pytest.MonkeyPatch()  # in the child, which ends with the conversion: never undone
+    patched.setattr(docling_blocks, "version", lambda name: "2.117.0")
+    patched.setattr(docling_blocks, "_converter", wanting)
     return convert_file(path, docling_blocks.DoclingEngine(Path("/models")), max_pages=max_pages)
 
 
@@ -91,7 +94,7 @@ def exhausting_and_its_peak_unread(path: Path, engine: str, max_pages: int) -> C
     def wanting(*_: object, **__: object) -> str:
         raise MemoryError
 
-    Path.read_text = wanting  # type: ignore[method-assign]
+    pytest.MonkeyPatch().setattr(Path, "read_text", wanting)  # in the child alone: never undone
     raise MemoryError
 
 
