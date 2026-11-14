@@ -94,6 +94,11 @@ class Storage(Protocol):
         """The object to read in pieces; ObjectNotFound as ``get`` raises it, before any piece."""
         ...
 
+    def list(self, prefix: str) -> Iterator[str]:
+        """The keys under ``prefix`` (it ends in "/"), in no promised order; InvalidKey at the call for a
+        prefix no key could begin with. An object written meanwhile may be missing, or one deleted named."""
+        ...
+
 
 def check_key(key: str) -> str:
     """``key``, if it is plain segments joined by ``/`` that every file system holds as written.
@@ -106,6 +111,14 @@ def check_key(key: str) -> str:
     if not key or len(key) > MAX_KEY_CHARS or not all(_plain(segment) for segment in segments):
         raise InvalidKey(f"not a storage key: {key[:80]!r}")
     return key
+
+
+def check_prefix(prefix: str) -> str:
+    """``prefix``, if it is a key's beginning ending in "/": a place no key outside it lies under."""
+    if not prefix.endswith("/"):
+        raise InvalidKey(f"not a storage prefix: {prefix[:80]!r}")
+    check_key(prefix[:-1])
+    return prefix
 
 
 def _plain(segment: str) -> bool:
@@ -197,6 +210,21 @@ class FileSystemStorage:
             path.unlink()
         except FileNotFoundError:  # deleted in between
             raise ObjectNotFound(key) from None
+
+    def list(self, prefix: str) -> Iterator[str]:
+        """Only names a key could have: a temporary file a killed write left (``.tmp-*``) is no object."""
+        folder = self._path(check_prefix(prefix)[:-1])
+        return self._keys(folder)
+
+    def _keys(self, folder: Path) -> Iterator[str]:
+        # links are not followed: one inside the root may lead out of it
+        for parent, _, files in os.walk(folder, followlinks=False):
+            for name in files:
+                key = (Path(parent) / name).relative_to(self.root).as_posix()
+                try:
+                    yield check_key(key)
+                except InvalidKey:
+                    continue
 
     def _object(self, key: str) -> Path:
         """The object's file; ObjectNotFound for none, a folder of other keys, or below a file."""

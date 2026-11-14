@@ -78,6 +78,14 @@ def test_a_missing_object_is_not_found_the_way_the_file_system_store_says_it(sto
     assert storage.exists("runs/missing.json") is False
 
 
+def test_the_service_lists_what_was_put(storage: S3Storage) -> None:
+    for key in ("runs/a/x4/1.json", "runs/a/x4/3.json", "runs/ab/x4/1.json"):
+        storage.put(key, b"{}")
+
+    assert sorted(storage.list("runs/a/")) == ["runs/a/x4/1.json", "runs/a/x4/3.json"]
+    assert list(storage.list("runs/none/")) == []
+
+
 def test_bytes_come_back_as_they_went_in(storage: S3Storage) -> None:
     data = bytes(range(256)) * 4096  # 1 MiB with every byte value
 

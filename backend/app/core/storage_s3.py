@@ -15,6 +15,7 @@ store should not pay for it.
 """
 
 import io
+from collections.abc import Iterator
 from typing import Any, BinaryIO
 
 import boto3  # type: ignore[import-untyped]
@@ -22,7 +23,14 @@ from botocore.config import Config  # type: ignore[import-untyped]
 from botocore.exceptions import ClientError  # type: ignore[import-untyped]
 
 from app.core.settings import Settings
-from app.core.storage import CHUNK_BYTES, ObjectNotFound, ObjectStream, StorageNotConfigured, check_key
+from app.core.storage import (
+    CHUNK_BYTES,
+    ObjectNotFound,
+    ObjectStream,
+    StorageNotConfigured,
+    check_key,
+    check_prefix,
+)
 
 # The codes S3 and MinIO answer a missing object with: get_object names it, head_object has no
 # body and carries the status only
@@ -95,6 +103,13 @@ class S3Storage:
         if not self.exists(key):
             raise ObjectNotFound(key)
         self.client.delete_object(Bucket=self.bucket, Key=key)
+
+    def list(self, prefix: str) -> Iterator[str]:
+        # a page holds a thousand keys at most; the paginator asks on from where the last ended
+        pages = self.client.get_paginator("list_objects_v2").paginate(
+            Bucket=self.bucket, Prefix=check_prefix(prefix)
+        )
+        return (item["Key"] for page in pages for item in page.get("Contents", []))
 
 
 class Window:

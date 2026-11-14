@@ -180,6 +180,7 @@ CALLS: dict[str, Callable[[S3Storage, str], object]] = {
     "exists": lambda storage, key: storage.exists(key),
     "delete": lambda storage, key: storage.delete(key),
     "open_stream": lambda storage, key: storage.open_stream(key),
+    "list": lambda storage, key: storage.list(key + "/"),  # a prefix ends in "/"
 }
 
 
@@ -192,6 +193,28 @@ def test_a_key_is_checked_before_anything_is_sent(
 
     with pytest.raises(InvalidKey):
         call(storage, key)
+
+
+def test_more_keys_than_one_page_are_all_listed(stubbed: tuple[S3Storage, Stubber]) -> None:
+    # the service answers a thousand keys at most a page, and names where the next page begins
+    storage, stubber = stubbed
+    first = {"Contents": [{"Key": "runs/a/x4/1.json"}], "IsTruncated": True, "NextContinuationToken": "next"}
+    stubber.add_response("list_objects_v2", first, {"Bucket": BUCKET, "Prefix": "runs/a/"})
+    last = {"Contents": [{"Key": "runs/a/x4/3.json"}], "IsTruncated": False}
+    stubber.add_response(
+        "list_objects_v2", last, {"Bucket": BUCKET, "Prefix": "runs/a/", "ContinuationToken": "next"}
+    )
+
+    assert list(storage.list("runs/a/")) == ["runs/a/x4/1.json", "runs/a/x4/3.json"]
+
+
+def test_a_prefix_that_holds_nothing_lists_nothing_on_s3(stubbed: tuple[S3Storage, Stubber]) -> None:
+    storage, stubber = stubbed
+    stubber.add_response(
+        "list_objects_v2", {"IsTruncated": False}, {"Bucket": BUCKET, "Prefix": "runs/none/"}
+    )
+
+    assert list(storage.list("runs/none/")) == []
 
 
 def _client(**values: object) -> Any:

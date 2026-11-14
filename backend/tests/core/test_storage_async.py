@@ -49,6 +49,10 @@ class SlowStore:
         time.sleep(SLOW_S)
         return ObjectStream(0, iter([]), lambda: None)
 
+    def list(self, prefix: str) -> Iterator[str]:
+        time.sleep(SLOW_S)  # a call, as S3 answers it
+        yield from ()
+
 
 class ThreadNotingStore(FileSystemStorage):
     """A file system store that notes the thread each opening and each piece is read in."""
@@ -128,12 +132,21 @@ def test_the_calls_reach_the_store(tmp_path: Path) -> None:
     assert not (tmp_path / "sources" / "ab.txt").exists()
 
 
+def test_the_keys_under_a_prefix_come_whole(tmp_path: Path) -> None:
+    # read to their end in the thread: S3 lists a page a request
+    sync = FileSystemStorage(tmp_path)
+    for key in ("runs/a/x4/1.json", "runs/a/x4/3.json", "runs/ab/1.json"):
+        sync.put(key, b"{}")
+
+    assert sorted(run(AsyncStorage(sync).list("runs/a/"))) == ["runs/a/x4/1.json", "runs/a/x4/3.json"]
+
+
 def test_the_store_s_errors_come_through_as_they_are(tmp_path: Path) -> None:
     with pytest.raises(ObjectNotFound):
         run(AsyncStorage(FileSystemStorage(tmp_path)).get("sources/missing.txt"))
 
 
-@pytest.mark.parametrize("call", ["put", "put_file", "get", "exists", "delete"])
+@pytest.mark.parametrize("call", ["put", "put_file", "get", "exists", "delete", "list"])
 def test_a_slow_store_does_not_hold_the_loop(call: str) -> None:
     store = AsyncStorage(SlowStore())
     calls: dict[str, Callable[[], Awaitable[object]]] = {
@@ -142,6 +155,7 @@ def test_a_slow_store_does_not_hold_the_loop(call: str) -> None:
         "get": lambda: store.get("a"),
         "exists": lambda: store.exists("a"),
         "delete": lambda: store.delete("a"),
+        "list": lambda: store.list("a/"),
     }
 
     async def measured() -> float:

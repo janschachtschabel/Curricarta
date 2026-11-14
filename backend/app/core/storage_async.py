@@ -56,3 +56,7 @@ class AsyncStorage:
 
     async def delete(self, key: str) -> None:
         await asyncio.to_thread(self.sync.delete, key)
+
+    async def list(self, prefix: str) -> list[str]:
+        """The keys under ``prefix``, read to their end in a thread: S3 answers a page a request."""
+        return await asyncio.to_thread(lambda: [*self.sync.list(prefix)])
