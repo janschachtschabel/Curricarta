@@ -13,7 +13,8 @@ document named by the label, never by its title, nor its plan by its IRI:
   place may lie past them -, an estimate mostly from above (``rare_word_hidden_by``), and apart the
   not-found wordings longer than the fuzzy stage takes (``too_long_for_fuzzy``); rows past the search's
   time in neither (app/quality/mem_rare.py says how, and what the estimate rests on);
-- ``label_is_iri_tail``: parts titled by their IRI's tail - of no label, or of one that says no more -;
+- ``label_is_iri_tail``: parts titled by their IRI's tail, their label saying nothing once cleaned as the
+  import cleans it (app/sources/mem/tree.py ``clean_label``);
   ``cut``: node titles longer than ``MAX_TITLE`` and statement wordings longer than ``MAX_WORDING``, which
   the import cut - both from the plan's answers kept under the run (null where they are gone), typed by the
   rules as they stand now (``cut`` null too where the catalogue names the plan no more);
@@ -31,6 +32,7 @@ import json
 import logging
 import sys
 from collections.abc import Sequence
+from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
@@ -55,7 +57,7 @@ from app.sources.mem.drafts import MAX_TITLE, MAX_WORDING, rows_in_order
 from app.sources.mem.queries import LABEL_SHAPES, label_shape_count
 from app.sources.mem.rules_db import load_rules
 from app.sources.mem.sparql import KMK_GRAPH, MemEndpoint, MemRefused, MemSparql, MemUnavailable
-from app.sources.mem.tree import MemTree, build_tree, iri_tail
+from app.sources.mem.tree import MemTree, build_tree, clean_label
 
 log = logging.getLogger("app.quality.mem_report")  # also when run as __main__
 
@@ -68,16 +70,27 @@ class Refused(Exception):
         self.code = code
 
 
-async def _kept_tree(storage: Storage, run_id: UUID) -> MemTree | None:
-    """The plan's tree as the run read it, from its answers kept raw; None where they are gone or unread."""
+@dataclass(frozen=True)
+class Kept:
+    tree: MemTree
+    no_label: int  # parts whose label says nothing, titled by their IRI's tail
+
+
+async def _kept(storage: Storage, run_id: UUID) -> Kept | None:
+    """The plan's tree as the run read it, from its answers kept raw, and how many of its parts had no
+    label; None where the answers are gone or unread."""
     [data, *_] = await kept_answers(storage, run_id, "im", 1)
     if data is None:
         return None
     try:
         kept = json.loads(data)
-        return build_tree(kept["closure"], kept["references"])
-    except (ValueError, KeyError, TypeError, MemRefused):
+        tree = build_tree(kept["closure"], kept["references"])
+        raw = {row["n"]: row.get("label") for row in kept["closure"]}
+        for row in kept["references"]:  # a reference's label as the tree takes it: its first row's
+            raw.setdefault(row["v"], row.get("label"))
+    except (ValueError, KeyError, TypeError, AttributeError, MemRefused):
         return None
+    return Kept(tree, sum(not clean_label(raw.get(iri)) for iri in tree.parts))
 
 
 def _cut(tree: MemTree, rules: MemRules) -> dict[str, int]:
@@ -129,7 +142,8 @@ async def mem_report(
         key = token(rule) or "other"  # a rule's name is a code; one that is not is counted, not printed
         findings[key] = findings.get(key, 0) + count
     checked = await stage_result(connection, document.id, "X5")
-    tree = await _kept_tree(storage, run.id)
+    kept = await _kept(storage, run.id)
+    tree = None if kept is None else kept.tree
     rules = None
     if tree is not None and plan is not None:
         rules = await load_rules(connection, settings.ontology_dir, kmk=plan.graph == KMK_GRAPH)
@@ -154,9 +168,7 @@ async def mem_report(
         "findings": findings,
         "shacl": None if checked is None else token(checked.get("shacl")),
         **await rare_words(connection, document, left),
-        "label_is_iri_tail": None
-        if tree is None
-        else sum(part.label == iri_tail(part.iri) for part in tree.parts.values()),
+        "label_is_iri_tail": None if kept is None else kept.no_label,
         "cut": None if tree is None or rules is None else _cut(tree, rules),
     }
     if endpoint_counts:

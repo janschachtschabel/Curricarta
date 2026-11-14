@@ -24,13 +24,14 @@ async def test_labels_that_are_their_iri_s_tail_and_wordings_cut_are_counted(
     context, connection = setup
     closure = [dict(row) for row in FROZEN["closure"]]
     closure[0]["label"] = ""  # a node of no label: titled by its IRI's tail
+    closure[2]["label"] = closure[2]["n"].rsplit("/", 1)[1]  # one labelled as its tail reads: a label
     closure[1]["label"] = " ".join(["Muster"] * (MAX_TITLE // 6))  # a node's title past its bound
     closure[8]["label"] = " ".join(["Muster"] * (MAX_WORDING // 6))  # the statement's wording past its own
     document = await imported(context, connection, blocks(), {**FROZEN, "closure": closure})
 
     report = await report_of(context, connection, document)
 
-    assert report["label_is_iri_tail"] == 1
+    assert report["label_is_iri_tail"] == 1  # the one of no label alone
     assert report["cut"] == {"titles": 1, "wordings": 1}
 
 
