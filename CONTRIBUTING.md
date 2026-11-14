@@ -26,7 +26,8 @@ welcome. For larger changes, open an issue first so the direction can be agreed 
   every pull request that changes a lock, an export or the allowlist.
 - An advisory that does not apply or cannot be lifted yet goes into `deploy/audit-allowlist.toml` with its
   id, package, reason, the date it was added and a review date at most 90 days later; its id is passed to
-  `pip-audit` as `--ignore-vuln` in the workflow (a test keeps the two equal). Once the review date has
+  `pip-audit` as `--ignore-vuln` on both audit steps of the workflow (a test keeps each step equal to the
+  list). Once the review date has
   passed, a test fails: lift the package, or give a new reason and a new date.
 - Dependabot opens security pull requests for the backend only. They change `uv.lock` alone and stay red
   on the export guard: check out the branch, run the two `uv export` commands, and push the exports to it.

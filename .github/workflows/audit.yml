@@ -2,7 +2,8 @@
 # someone remembering to look: weekly, by hand, and on every pull request that changes a lock, an export or
 # the allowlist. Python: both hash-pinned exports the images install, read as they are (nothing installed).
 # npm: the lock alone. Known advisories that cannot be lifted yet stand in deploy/audit-allowlist.toml,
-# each with its reason and review date; their ids are passed below (a test keeps the two equal).
+# each with its reason and review date; their ids are passed to both pip-audit steps below (a test keeps
+# each step equal to the list).
 # Actions are pinned by commit (a tag can be moved); the comment names the version.
 name: audit
 

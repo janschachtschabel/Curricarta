@@ -86,6 +86,17 @@ def overdue(entries: list[dict[str, Any]], today: datetime.date) -> list[str]:
     return [entry["id"] for entry in entries if (_as_date(entry.get("review")) or today) < today]
 
 
+def ignore_mismatches(commands: list[str], ids: list[str]) -> list[str]:
+    """Where the ids a pip-audit command ignores differ from the allowlist's, one line per command."""
+    # each audit on its own: an id passed to one export's audit alone leaves the other failing on it
+    mismatches = []
+    for command in commands:
+        ignored = set(re.findall(r"--ignore-vuln[ =](\S+)", command))
+        if ignored != set(ids):
+            mismatches.append(f"{command}: ignores {sorted(ignored)}, the allowlist holds {sorted(ids)}")
+    return mismatches
+
+
 def test_test_ci_guards_the_audit_like_every_workflow() -> None:
     # pinned actions, contents: read, no persisted token, a deadline per job, a concurrency group
     assert AUDIT in EVERY
@@ -141,10 +152,29 @@ def test_both_npm_audits_run_at_their_levels() -> None:
     assert "npm audit --audit-level=high" in runs
 
 
-def test_every_ignored_advisory_stands_in_the_allowlist_and_the_other_way_round() -> None:
-    ignored = re.findall(r"--ignore-vuln[ =](\S+)", AUDIT.read_text(encoding="utf-8"))
+def test_every_pip_audit_ignores_exactly_the_allowlisted_advisories() -> None:
+    audits = [run for run in _runs("python") if "pip-audit" in run]
 
-    assert sorted(ignored) == sorted(entry["id"] for entry in _entries())
+    assert len(audits) == len(EXPORTS)
+    assert ignore_mismatches(audits, [entry["id"] for entry in _entries()]) == []
+
+
+@pytest.mark.parametrize(
+    ("commands", "ids"),
+    [
+        # listed, but passed to one of the two audits only
+        (["pip-audit --ignore-vuln PYSEC-1 -r a.txt", "pip-audit -r b.txt"], ["PYSEC-1"]),
+        # ignored, but not listed
+        (["pip-audit --ignore-vuln PYSEC-1 -r a.txt", "pip-audit --ignore-vuln PYSEC-1 -r b.txt"], []),
+        # listed, but ignored nowhere
+        (["pip-audit -r a.txt", "pip-audit -r b.txt"], ["PYSEC-1"]),
+    ],
+)
+def test_the_parity_check_looks_at_each_audit_on_its_own(commands: list[str], ids: list[str]) -> None:
+    both = [f"pip-audit {' '.join(f'--ignore-vuln {id_}' for id_ in ids)} -r {name}" for name in ("a", "b")]
+    assert ignore_mismatches(both, ids) == []
+
+    assert ignore_mismatches(commands, ids) != []
 
 
 def test_every_allowlist_entry_is_complete() -> None:
