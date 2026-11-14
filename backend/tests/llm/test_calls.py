@@ -568,6 +568,38 @@ async def test_a_call_cancelled_before_its_request_went_out_books_nothing() -> N
     assert ledger.booked == [(1, Spent())]
 
 
+async def test_an_answer_cut_at_the_cap_is_booked_once_and_said_to_be_cut() -> None:
+    # pydantic-ai would ask twice more before it gives up on a cut tool call, each paid and cut alike
+    seen: list[list[ModelMessage]] = []
+
+    def cut(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
+        seen.append(messages)
+        usage = RequestUsage(input_tokens=100, output_tokens=2_000)
+        part = ToolCallPart(info.output_tools[0].name, '{"title": "Zah')
+        return ModelResponse(parts=[part], usage=usage, finish_reason="length")
+
+    built = build_agent(
+        FunctionModel(cut, settings={"max_tokens": 2_000}), schema=SCHEMA, name="titel", instructions="x"
+    )
+    ledger, kept = Ledger(), Kept()
+
+    answer = await ask(built, "Text", meter=ledger, raw=kept)
+
+    assert (answer.output, answer.cut) == (None, True)
+    assert answer.failure is not None and "2000" in answer.failure
+    assert (len(seen), len(kept.answers)) == (1, 1)
+    assert ledger.booked == [(1, Spent(input_tokens=100, output_tokens=2_000, requests=1))]
+    assert answer.spent == Spent(input_tokens=100, output_tokens=2_000, requests=1)
+
+
+async def test_an_answer_out_of_form_is_not_taken_for_cut() -> None:
+    built, _ = stage(['{"title": 3}'])
+
+    answer = await ask(built, "Das Dokument.", meter=Ledger())
+
+    assert (answer.output, answer.cut) == (None, False)
+
+
 class Committing(Ledger):
     """A ledger whose reservation is held at once and whose commit answers only when ``answered`` is set."""
 

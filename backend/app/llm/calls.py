@@ -2,7 +2,8 @@
 and services/usage.py).
 
 A stage's agent answers in its schema's form (``StructuredDict``, checked against the schema,
-app/llm/schema.py) and asks again where the answer is out of form, twice at most. ``ask`` walks
+app/llm/schema.py) and asks again where the answer is out of form, twice at most - but not where
+it was cut at the cap: asked again under the same cap, it would be cut again (``Answer.cut``). ``ask`` walks
 the agent's run node by node: before each request it reserves the request's tokens - reckoned
 input and the answer's cap - and after the answer it books what the answer reports, which takes
 the reservation's place. A retry of the agent is a request like any other, reserved anew. A
@@ -24,8 +25,14 @@ from dataclasses import dataclass
 from typing import Any, Protocol
 
 from pydantic_ai import Agent, ModelRetry
-from pydantic_ai.exceptions import ModelHTTPError, UnexpectedModelBehavior
-from pydantic_ai.messages import CachePoint, ModelMessagesTypeAdapter, ModelResponse, UserContent
+from pydantic_ai.exceptions import ModelHTTPError, OutputTokenLimitExceeded, UnexpectedModelBehavior
+from pydantic_ai.messages import (
+    CachePoint,
+    ModelMessagesTypeAdapter,
+    ModelResponse,
+    ToolCallPart,
+    UserContent,
+)
 from pydantic_ai.models import Model
 from pydantic_ai.models.openai import OpenAIChatModel, OpenAIResponsesModelSettings
 from pydantic_ai.output import StructuredDict
@@ -69,12 +76,13 @@ class StageAgent:
 @dataclass(frozen=True)
 class Answer:
     """The output in the schema's form, or None where no answer took it - ``failure`` says why
-    (out of form however often asked, an answer cut at the cap, a content filter); what the call
-    spent."""
+    (out of form however often asked, an answer cut at the cap, a content filter), ``cut`` where
+    the answer was cut at the cap; what the call spent."""
 
     output: dict[str, Any] | None
     spent: Spent
     failure: str | None = None
+    cut: bool = False
 
 
 def build_agent(model: Model, *, schema: Mapping[str, Any], name: str, instructions: str) -> StageAgent:
@@ -83,7 +91,7 @@ def build_agent(model: Model, *, schema: Mapping[str, Any], name: str, instructi
     app/llm/client.py); ValueError for a model that sends none - a request could cost anything."""
     if _NAME.fullmatch(name) is None:
         raise ValueError(f"{name!r}: a schema's name is letters, digits, _ and - (as OpenAI takes it)")
-    output_tokens = (model.settings or {}).get("max_tokens")
+    output_tokens = output_cap(model)
     if output_tokens is None:
         raise ValueError("the stage's model sends no max_tokens: its answers would have no cap to reserve")
     agent: Agent[None, dict[str, Any]] = Agent(
@@ -102,6 +110,12 @@ def build_agent(model: Model, *, schema: Mapping[str, Any], name: str, instructi
         return kept
 
     return StageAgent(agent, schema, instructions, output_tokens)
+
+
+def output_cap(model: Model) -> int | None:
+    """The cap on an answer that ``model`` sends (``max_tokens``); None where it sends none."""
+    cap: int | None = (model.settings or {}).get("max_tokens")
+    return cap
 
 
 def cached_up_to(shared: str, own: str, model: Model) -> str | list[UserContent]:
@@ -157,8 +171,8 @@ async def ask(
     attempt = 0
     while True:
         try:
-            output, this, failure = await _attempt(stage, content, meter, raw)
-            return Answer(output, spent + this, failure)
+            output, this, failure, cut = await _attempt(stage, content, meter, raw)
+            return Answer(output, spent + this, failure, cut)
         except _Refused as refused:
             spent += refused.spent
             wait = wait_after(refused.error, attempt)
@@ -202,9 +216,10 @@ class _Open:
 
 async def _attempt(
     stage: StageAgent, content: str | Sequence[UserContent], meter: Meter, raw: RawSink | None
-) -> tuple[dict[str, Any] | None, Spent, str | None]:
+) -> tuple[dict[str, Any] | None, Spent, str | None, bool]:
     """One run of the agent, its requests reserved, answered and booked one by one: the output,
-    what the run spent, and why there is no output where there is none."""
+    what the run spent, why there is no output where there is none, and whether an answer was cut
+    at the cap."""
     spent = Spent()
     attempts = Attempts()
     open_: _Open | None = None
@@ -233,15 +248,19 @@ async def _attempt(
                         # kept before the next node checks it against the schema
                         if raw is not None:
                             await raw.keep(ModelMessagesTypeAdapter.dump_json([node.model_response]))
+                        if _cut(node.model_response):
+                            failure = f"an answer was cut at the output cap ({stage.output_tokens} tokens)"
+                            log.warning("a stage's answer took no form: %s", failure)
+                            return None, spent, failure, True
                 assert run.result is not None  # noqa: S101 - the run went to its end
-                return run.result.output, spent, None
+                return run.result.output, spent, None, False
     except UnexpectedModelBehavior as error:
         if open_ is not None:  # raised by the request: an answer no model could read
             await _book_cut_off(meter, open_, stage, sent=attempts.sent > open_.sent_before)
             raise
         # every answer came and is booked: none took the schema's form, or the run stopped at one
         log.warning("a stage's answer took no form: %s", error.message)
-        return None, spent, error.message
+        return None, spent, error.message, isinstance(error, OutputTokenLimitExceeded)
     except ModelHTTPError as error:
         # answered, with a refusal: nothing to charge but the request
         refused = Spent(requests=1)
@@ -295,6 +314,22 @@ async def _book_cut_off(meter: Meter, open_: _Open, stage: StageAgent, *, sent: 
     else:
         cost = Spent()
     await asyncio.shield(meter.book(open_.reservation, cost))
+
+
+def _cut(response: ModelResponse) -> bool:
+    """Whether the answer stopped at the cap before its output was whole - no tool call, or one whose
+    arguments are no JSON object yet. pydantic-ai would ask again twice before it says so
+    (IncompleteToolCall), each request paid for and cut alike under the same cap."""
+    if response.finish_reason != "length":
+        return False
+    last = response.parts[-1] if response.parts else None
+    if not isinstance(last, ToolCallPart):
+        return True
+    try:
+        last.args_as_dict(raise_if_invalid=True)
+    except (ValueError, AssertionError):
+        return True
+    return False
 
 
 def _answered(response: ModelResponse, estimate: int, output_tokens: int) -> Spent:
