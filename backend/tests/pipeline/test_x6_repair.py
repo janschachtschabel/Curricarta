@@ -39,7 +39,8 @@ from tests.pipeline.test_run import (
     setup,
 )
 from tests.pipeline.test_x3_frame import prompt_of
-from tests.pipeline.test_x4_statements import FIELDS, cutting, with_concurrency
+from tests.pipeline.test_x4_cut import cutting
+from tests.pipeline.test_x4_statements import FIELDS, with_concurrency
 from tests.support import make_settings
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
