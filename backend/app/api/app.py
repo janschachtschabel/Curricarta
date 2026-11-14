@@ -47,6 +47,7 @@ from app.db.pool import create_pool
 from app.exports.mem_export import MemExporter
 from app.jobs.context import JobContext
 from app.jobs.handlers import make_handlers
+from app.llm.settings import LLMSettings
 
 SUMMARY = "Curricula captured after Curriculum-Kern 1.0, docked to competence and level schemes, linked."
 DESCRIPTION = """\
@@ -79,7 +80,13 @@ def job_kinds() -> frozenset[str]:
     return frozenset({*make_handlers(cast(JobContext, None)), DOCLING_KIND})
 
 
-def create_app(settings: Settings) -> FastAPI:
+# the cap an unset LLM_MAX_OUTPUT_TOKENS gives
+DEFAULT_OUTPUT_CAP: int = LLMSettings.model_fields["llm_max_output_tokens"].default
+
+
+def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> FastAPI:
+    """The API; ``output_cap`` the cap on a model's answer the workers send (LLM_MAX_OUTPUT_TOKENS):
+    a repair's offer and start leave out what a repair under it would not ask."""
     if settings.api_key_pepper is None:
         raise ValueError("API_KEY_PEPPER is required for the API: API keys are checked against it")
 
@@ -116,6 +123,7 @@ def create_app(settings: Settings) -> FastAPI:
         redoc_url=None,
     )
     app.state.settings = settings
+    app.state.output_cap = output_cap
     app.state.expected_migrations = frozenset(migration.version for migration in load_migrations())
     app.state.job_kinds = job_kinds()
     app.state.queue_read_at = None  # when /metrics last read the queue (app/api/internal.py)

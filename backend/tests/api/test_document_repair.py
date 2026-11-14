@@ -13,6 +13,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.app import create_app
+from app.llm.settings import LLMSettings
 from tests.api.test_document_findings import finding
 from tests.api.test_document_units import a_run, package
 from tests.api.test_documents import (
@@ -35,6 +36,7 @@ pytestmark = pytest.mark.pg
 __all__ = ["client", "tight", "url"]  # the fixtures, shared with test_documents
 
 REPAIR = "extract.repair"
+OUTPUT_CAP = LLMSettings.model_fields["llm_max_output_tokens"].default  # the service's, unset
 
 
 def extracted(
@@ -220,3 +222,51 @@ def test_the_findings_name_the_packages_a_repair_would_ask_again_to_the_owner(
     assert to_owner["repairable"] == ["E1"]
     assert to_editor["repairable"] == []  # only the owner starts one
     assert to_owner["findings"] == to_editor["findings"]
+
+
+def cut_at(url: str, document: dict[str, Any], cap: int) -> None:
+    """A repair's answer for E1 was cut at ``cap`` (app/pipeline/x6_repair.py)."""
+    x6 = a_run(url, document["id"], "X6")
+    finding(
+        url,
+        document["id"],
+        x6,
+        "x6.answer_cut",
+        "warning",
+        document["id"],
+        details={"unit": "E1", "cap": cap},
+    )
+
+
+def test_a_package_cut_under_the_cap_the_service_has_is_neither_offered_nor_started(
+    client: TestClient, url: str
+) -> None:
+    # a repair would ask nothing: under the same cap its answer would be cut again
+    owner, header = an_account(url)
+    document = extracted(client, url, header, owner)
+    checked(url, document)
+    cut_at(url, document, OUTPUT_CAP)
+
+    offered = client.get(f"/api/v1/documents/{document['id']}/findings", headers=header).json()["repairable"]
+    started = repair(client, document["id"], header)
+
+    assert offered == []
+    assert (started.status_code, started.json()["code"]) == (409, "nothing_to_repair")
+    assert rows(url, "SELECT count(*) FROM job WHERE kind = %s", REPAIR) == [(0,)]
+
+
+def test_a_package_cut_under_a_lower_cap_is_offered_and_started(url: str, tmp_path: Path) -> None:
+    app = create_app(make_settings(database_url=url, storage_dir=tmp_path), output_cap=2 * OUTPUT_CAP)
+    with selector_client(app, base_url=PUBLIC) as raised:
+        owner, header = an_account(url)
+        document = extracted(raised, url, header, owner)
+        checked(url, document)
+        cut_at(url, document, OUTPUT_CAP)
+
+        offered = raised.get(f"/api/v1/documents/{document['id']}/findings", headers=header).json()[
+            "repairable"
+        ]
+        started = repair(raised, document["id"], header)
+
+    assert offered == ["E1"]
+    assert started.status_code == 202, started.text

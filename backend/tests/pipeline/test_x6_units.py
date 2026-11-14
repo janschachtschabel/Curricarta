@@ -17,6 +17,8 @@ from app.pipeline.x2_segments import WorkPackage
 from app.pipeline.x6_units import Defect, repairable_units
 from tests.db.l1 import CV, add_conversion, add_document, add_entity, add_node, add_statement, seed_vocabulary
 
+CAP = 16_000  # no finding here names a cap
+
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
 
@@ -95,7 +97,7 @@ async def connection(database_url: str) -> Any:
 
 
 async def keys(connection: Any, tree: Tree) -> list[str]:
-    return [unit.package.key for unit in await repairable_units(connection, tree.document)]
+    return [unit.package.key for unit in await repairable_units(connection, tree.document, CAP)]
 
 
 async def test_a_violation_on_a_statement_the_model_wrote_asks_its_package_again(
@@ -104,7 +106,7 @@ async def test_a_violation_on_a_statement_the_model_wrote_asks_its_package_again
     wrong = tree.statement(tree.one, 1, "Aussage E1")
     tree.finding(tree.x5, "x5.wording_not_found", "violation", wrong, message="not in the blocks")
 
-    [unit] = await repairable_units(connection, tree.document)
+    [unit] = await repairable_units(connection, tree.document, CAP)
 
     assert (unit.package.key, unit.node_id, unit.first) == ("E1", tree.one, 1)
     assert unit.defects == (Defect("x5.wording_not_found", "not in the blocks", "Aussage E1", None),)
@@ -119,7 +121,7 @@ async def test_a_warning_of_reading_an_answer_asks_the_package_it_names_again(
     tree.finding(tree.x4, "x4.unknown_value", "warning", tree.document, path="statements[1].obligation",
                  message="no such value", details={"unit": "E2", "value": "sometimes"})  # fmt: skip
 
-    [unit] = await repairable_units(connection, tree.document)
+    [unit] = await repairable_units(connection, tree.document, CAP)
 
     assert (unit.package.key, unit.first) == ("E2", 1)
     assert unit.defects == (  # with what was at fault: the block, value or key the reading named
@@ -156,7 +158,7 @@ async def test_a_statement_the_editors_hold_is_no_cause_and_is_named_as_kept(
     wrong = tree.statement(tree.one, 5, "Aussage E1")
     tree.finding(tree.x5, "x5.wording_not_found", "violation", wrong)
 
-    [unit] = await repairable_units(connection, tree.document)
+    [unit] = await repairable_units(connection, tree.document, CAP)
 
     assert (unit.package.key, unit.kept) == ("E1", ("Geändert.", "Bestätigt.", "Verworfen.", "Von Hand."))
 
@@ -177,7 +179,7 @@ async def test_a_statement_is_the_package_s_of_its_part_or_of_its_own_node(
     for wrong in (second_part, under_no_heading):
         tree.finding(tree.x5, "x5.wording_not_found", "violation", wrong)
 
-    found = await repairable_units(connection, tree.document)
+    found = await repairable_units(connection, tree.document, CAP)
 
     assert [(unit.package.key, unit.node_id, unit.first) for unit in found] == [
         ("E3", tree.parted, 10_001),
@@ -205,7 +207,7 @@ async def test_the_defects_of_a_package_are_all_named_in_their_order(tree: Tree,
                  path="cur:addressee")  # fmt: skip
     tree.finding(tree.x4, "x4.unknown_block", "warning", tree.document, details={"unit": "E1"})
 
-    [unit] = await repairable_units(connection, tree.document)
+    [unit] = await repairable_units(connection, tree.document, CAP)
 
     assert [(defect.rule, defect.wording) for defect in unit.defects] == [
         ("shacl.StatementShape", "Aussage A"),

@@ -29,9 +29,12 @@ from app.llm.startup import check_model_layer
 log = logging.getLogger("app.serve")  # also when run as __main__
 
 
-def build_server(settings: Settings) -> tuple[uvicorn.Server, list[socket.socket]]:
-    """The server and its two bound sockets, public first; ``server.run(sockets=...)`` serves them."""
-    app = create_app(settings)
+def build_server(
+    settings: Settings, llm: LLMSettings | None = None
+) -> tuple[uvicorn.Server, list[socket.socket]]:
+    """The server and its two bound sockets, public first; ``server.run(sockets=...)`` serves them.
+    With ``llm``, the API knows the cap on a model's answer (app/api/app.py)."""
+    app = create_app(settings) if llm is None else create_app(settings, output_cap=llm.llm_max_output_tokens)
     public = _config(app, settings, settings.public_port)
     internal = _config(app, settings, settings.internal_port)
     # uvicorn's own binding for both: IPv6 hosts, SO_REUSEADDR, a port in use ends the start
@@ -71,7 +74,7 @@ def main() -> None:
     except (ValueError, TokenizerMissing) as error:
         log.error("%s", error)
         raise SystemExit(STARTUP_FAILURE) from None
-    server, sockets = build_server(settings)
+    server, sockets = build_server(settings, llm)
     # as uvicorn.main.run: Ctrl+C ends without a traceback
     with contextlib.suppress(KeyboardInterrupt):
         server.run(sockets=sockets)

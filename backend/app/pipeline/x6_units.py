@@ -7,7 +7,7 @@ proposed, its first revision - such as a wording its blocks do not hold, or a wa
 model's answer for the package (``details.unit``): the answer lost a statement or a value. A lexicon
 pattern that ran out of time is no fault of the answer, nor is an answer cut at the output cap
 (``x6.answer_cut``), which changed nothing: a repair under a cap no higher leaves the package out
-(``cut_under``), one under a higher cap asks it for the defects it had. Hints, SHACL's warnings
+(``repairable_units``), one under a higher cap asks it for the defects it had. Hints, SHACL's warnings
 (plausibility, the profiles' rules - the editors' to weigh, and those of L2 certain in M1), findings on
 nodes, frame parts or the document (X1 to X3), and packages X4 has not done (extract.run asks them) are
 no cause.
@@ -98,11 +98,15 @@ class RepairUnit:
     kept: tuple[str, ...]  # the wordings of its statements the editors hold
 
 
-async def repairable_units(connection: psycopg.AsyncConnection, document_id: UUID) -> list[RepairUnit]:
-    """The document's packages X6 asks again, in the document's order, each with its defects."""
+async def repairable_units(
+    connection: psycopg.AsyncConnection, document_id: UUID, cap: int | None
+) -> list[RepairUnit]:
+    """The document's packages X6 asks again under the output cap ``cap``, in the document's order,
+    each with its defects: the one place that decides it, for the page's offer, the start and X6."""
     result = await stage_result(connection, document_id, "X2")
     packages = [WorkPackage.from_result(kept) for kept in (result or {}).get("packages", [])]
     done = await done_units(connection, document_id)
+    cut = await _cut_under(connection, document_id, cap)
     places = _Places(packages, done)
     defects: dict[str, list[Defect]] = {}
     asked = _ASKED | {"document": document_id}
@@ -128,11 +132,11 @@ async def repairable_units(connection: psycopg.AsyncConnection, document_id: UUI
             tuple(kept.get(item.key, ())),
         )
         for item in packages
-        if item.key in defects and places.repairable(item)
+        if item.key in defects and places.repairable(item) and item.key not in cut
     ]
 
 
-async def cut_under(connection: psycopg.AsyncConnection, document_id: UUID, cap: int | None) -> set[str]:
+async def _cut_under(connection: psycopg.AsyncConnection, document_id: UUID, cap: int | None) -> set[str]:
     """The packages whose repair's answer was cut at a cap no lower than ``cap``: asked again under it,
     the answer would be cut and paid for again."""
     found = await rule_details(connection, document_id, "x6.answer_cut")

@@ -308,7 +308,7 @@ async def start_repair(document_id: UUID, request: Request, response: Response, 
                 await readable_content(connection, who, settings, document)
                 if "X5" not in await done_stages(connection, document.id):
                     raise Refusal(409, "not_checked", "The document's extraction has not come to its check.")
-                if not await repairable_units(connection, document.id):
+                if not await repairable_units(connection, document.id, request.app.state.output_cap):
                     raise Refusal(409, "nothing_to_repair", "No work package's findings ask for a repair.")
                 await _admit(connection, who.account_id, settings, lambda: _open(connection, key))
                 job_id = await _enqueue(connection, who.account_id, document.id, REPAIR_KIND)

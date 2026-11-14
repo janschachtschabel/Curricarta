@@ -49,7 +49,7 @@ from app.pipeline.x4_question import UnitQuestions, unit_questions
 from app.pipeline.x4_read import WrongUnit, read_unit
 from app.pipeline.x5_stage import run_x5
 from app.pipeline.x6_unit import EmptyAnswer, rewrite_unit
-from app.pipeline.x6_units import RepairUnit, asked_by, cut_under, repairable_units
+from app.pipeline.x6_units import RepairUnit, asked_by, repairable_units
 
 PROMPT_VERSION = x6.PROMPT_VERSION
 
@@ -96,12 +96,8 @@ async def run_x6(
     assert context.llm is not None  # noqa: S101 - the stage has its model (model_of)
     async with context.pool.connection() as connection:
         asked = await asked_by(connection, document.id, job.id)
-        cut = await cut_under(connection, document.id, output_cap(model))
-        units = [
-            unit
-            for unit in await repairable_units(connection, document.id)
-            if unit.package.key not in asked and unit.package.key not in cut
-        ]
+        repairable = await repairable_units(connection, document.id, output_cap(model))
+        units = [unit for unit in repairable if unit.package.key not in asked]
         if not units:
             return {"units": 0}
         await report(connection, job, "repair_units", done=0, total=len(units))

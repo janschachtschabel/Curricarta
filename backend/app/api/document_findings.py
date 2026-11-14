@@ -73,7 +73,8 @@ async def read_findings(document_id: UUID, request: Request, who: Account) -> Fi
         page = await findings_of(connection, document_id)
         repairable: list[str] = []
         if document.owner_id == who.account_id and "X5" in await done_stages(connection, document_id):
-            repairable = [unit.package.key for unit in await repairable_units(connection, document_id)]
+            cap = request.app.state.output_cap
+            repairable = [unit.package.key for unit in await repairable_units(connection, document_id, cap)]
     return FindingsOut(
         counts=SeverityCounts(**page.counts),
         findings=[
