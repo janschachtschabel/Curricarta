@@ -63,4 +63,16 @@ async def test_a_run_s_answers_are_read_back_in_their_order_one_gone_as_none(tmp
     read = await kept_answers(storage, RUN, "x4", 3)
 
     assert read == [b"first", None, b"third"]
-    assert await kept_answers(storage, RUN, "x4", 0) == []
+    assert await kept_answers(storage, RUN, "x4", 0) == [b"first"]  # read on up to the first gap
+
+
+async def test_answers_kept_beyond_the_count_said_are_read_on_and_told(tmp_path: Path) -> None:
+    # a ledger that booked fewer answers than were kept: the rest is read, not cut off silently
+    storage = FileSystemStorage(tmp_path)
+    raw = RawResponses(storage, RUN, "x4")
+    for data in (b"first", b"second", b"third"):
+        await raw.keep(data)
+
+    read = await kept_answers(storage, RUN, "x4", 1)
+
+    assert read == [b"first", b"second", b"third"]  # two beyond the one said

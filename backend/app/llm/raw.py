@@ -51,9 +51,10 @@ def answer_key(run_id: UUID, stage: str, number: int) -> str:
 
 
 async def kept_answers(storage: Storage, run_id: UUID, stage: str, count: int) -> list[bytes | None]:
-    """The run's first ``count`` answers at ``stage`` as they were kept, in their order; None for one that
-    is not there (taken away since, or never kept). Read only: the store cannot list, so the caller says
-    how many there are - as its ledger booked them."""
+    """The run's answers at ``stage`` as they were kept, in their order: the first ``count`` - None for one
+    that is not there (taken away since, or never kept) -, then each kept beyond them, as long as the next
+    number is there. Read only: the store cannot list, so the caller says how many there should be - as its
+    ledger booked them -, and learns from the length how many it did not count."""
 
     def read(number: int) -> bytes | None:
         try:
@@ -61,4 +62,7 @@ async def kept_answers(storage: Storage, run_id: UUID, stage: str, count: int) -
         except ObjectNotFound:
             return None
 
-    return [await asyncio.to_thread(read, number) for number in range(1, count + 1)]
+    found = [await asyncio.to_thread(read, number) for number in range(1, count + 1)]
+    while (beyond := await asyncio.to_thread(read, len(found) + 1)) is not None:
+        found.append(beyond)
+    return found
