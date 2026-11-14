@@ -30,6 +30,7 @@ import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import RowPanel from "@/components/RowPanel.vue";
 import SourcePane from "@/components/SourcePane.vue";
+import TreeSideWays from "@/components/TreeSideWays.vue";
 import TreeTools from "@/components/TreeTools.vue";
 import TreeView from "@/components/TreeView.vue";
 import { ROW_PARAM, useDocumentTree } from "@/documentTree";
@@ -39,6 +40,7 @@ import { useLeaveGuard } from "@/leaveGuard";
 import { pageTitle } from "@/pageTitle";
 import { useTreeAdding } from "@/treeAdding";
 import { useTreeAddress } from "@/treeAddress";
+import { useTreeJumps } from "@/treeJumps";
 
 const props = defineProps<{ id: string }>();
 const route = useRoute();
@@ -61,6 +63,7 @@ const heading = computed(() =>
 const source = ref<InstanceType<typeof SourcePane> | null>(null);
 const panel = ref<InstanceType<typeof RowPanel> | null>(null);
 const treeView = ref<InstanceType<typeof TreeView> | null>(null);
+const { toPanel, toRow, toSource } = useTreeJumps({ selected, treeView, panel, source });
 // a row the address named that the tree does not hold: said above tree and panel, seen at once however narrow,
 // and in the page's region, there from the start - words in a region inserted with them are often not read;
 // both until a row is chosen or another document read
@@ -130,20 +133,6 @@ watch(selected, (key) => {
   if (side.value) side.value.scrollTop = 0;
 });
 
-// A long tree puts the panel and the source far from the row chosen, narrow one under the other: ways between
-// them, the tree keeping its one tab stop and its keys
-function toPanel(): void {
-  panel.value?.focus();
-}
-
-function toRow(): void {
-  if (selected.value) treeView.value?.focusRow(selected.value);
-}
-
-function showSource(): void {
-  source.value?.focus();
-}
-
 onMounted(() => void load());
 watch(
   () => props.id,
@@ -205,12 +194,7 @@ watch([heading, () => route.fullPath], ([name]) => {
           </p>
         </section>
         <div ref="side" class="document-tree__side">
-          <p class="document-tree__ways">
-            <button v-if="selectedRow" type="button" class="btn link" @click="toRow">
-              {{ t("documents.tree.jump.toRow") }}
-            </button>
-            <button type="button" class="btn link" @click="showSource">{{ t("documents.tree.jump.toSource") }}</button>
-          </p>
+          <TreeSideWays class="document-tree__ways" :chosen="selectedRow !== null" @row="toRow" @source="toSource" />
           <RowPanel
             ref="panel"
             :row="selectedRow"
@@ -254,15 +238,8 @@ watch([heading, () => route.fullPath], ([name]) => {
 
 <style scoped>
 .document-tree__back,
-.document-tree__not-held,
-.document-tree__ways {
+.document-tree__not-held {
   margin: 0;
-}
-
-.document-tree__ways {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-1) var(--space-3);
 }
 
 /* At the screen's foot while the tree is in sight: a row chosen far down still shows the way to its panel. */
