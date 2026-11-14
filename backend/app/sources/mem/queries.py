@@ -89,6 +89,40 @@ def closure_page(sparql: MemSparql, graph: str, plan: str, limit: int, offset: i
     )
 
 
+_TYPED = (
+    '  FILTER(isLiteral(?v) && lang(?v) = "" && datatype(?v) != <http://www.w3.org/2001/XMLSchema#string>)\n'
+)
+# One branch a measure: the parts it holds for, bound as ?x
+_SHAPES = {
+    "label_de": '?n rdfs:label ?l . FILTER(lang(?l) = "de")',
+    "label_untagged": '?n rdfs:label ?l . FILTER(isLiteral(?l) && lang(?l) = "")',
+    "label_other_language": '?n rdfs:label ?l . FILTER(lang(?l) != "" && lang(?l) != "de")',
+    "pref_label_only": "?n skos:prefLabel ?l . FILTER NOT EXISTS { ?n rdfs:label ?any }",
+    "typed_number": f"?n lp:LP_0030057 ?v .\n{_TYPED}",
+    "typed_hours": f"?n lp:LP_0000024 ?zs . ?zs a lp:LP_0000508 ; lp:LP_0000344 ?v .\n{_TYPED}",
+    "typed_grade": f"?n lp:LP_0000026 ?v .\n{_TYPED}",
+}
+
+
+def label_shape_count(sparql: MemSparql, graph: str, plan: str) -> str:
+    """How many of the plan's parts carry each shape of label the closure's query reads (plan H-3, A10):
+    an ``rdfs:label`` tagged ``@de``, one untagged, one in another language, a ``skos:prefLabel`` and no
+    ``rdfs:label``; and how many state their number, hours or grades as a literal of a datatype - a row a
+    measure, a measure no part holds for absent. Asked only on the operator's word, never by an import."""
+    branches = "\n  UNION\n".join(
+        f'  {{ {pattern}\n    BIND("{measure}" AS ?measure) BIND(?n AS ?x) }}'
+        for measure, pattern in _SHAPES.items()
+    )
+    return (
+        f"{PREFIXES}SELECT ?measure (COUNT(DISTINCT ?x) AS ?count)\n{sparql.from_clauses(graph)}\n"
+        "WHERE {\n"
+        f"  {{ SELECT DISTINCT ?n WHERE {{ {mem_iri(plan)} obo:BFO_0000051+ ?n . }} }}\n"
+        f"{branches}\n"
+        "}\n"
+        "GROUP BY ?measure"
+    )
+
+
 def reference_count(sparql: MemSparql, graph: str, plan: str) -> str:
     """The number of (holder, reference) pairs among the plan's parts."""
     return (

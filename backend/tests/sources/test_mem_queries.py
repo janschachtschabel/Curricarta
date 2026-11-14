@@ -13,6 +13,7 @@ from app.sources.mem.queries import (
     SEPARATOR,
     closure_count,
     closure_page,
+    label_shape_count,
     plan_count,
     reference_count,
     reference_page,
@@ -120,6 +121,52 @@ def test_no_projected_name_is_a_variable_of_the_pattern(query: str) -> None:
 
     assert projected
     assert not {name for name in projected if re.search(re.escape(name) + r"\b", body)}
+
+
+def test_the_count_query_projects_no_variable_of_its_pattern() -> None:
+    head, body = label_shape_count(SPARQL, RP, PLAN).split("\nWHERE {", 1)
+
+    projected = set(re.findall(r"AS (\?\w+)\)", head))
+
+    assert projected == {"?count"}
+    assert not {name for name in projected if re.search(re.escape(name) + r"\b", body)}
+
+
+def test_the_count_query_names_only_checked_iris() -> None:
+    query = label_shape_count(SPARQL, RP, PLAN)
+    assert f"FROM <{RP}>" in query and f"<{PLAN}> obo:BFO_0000051+" in query
+
+    with pytest.raises(MemRefused):
+        label_shape_count(SPARQL, RP, "https://w3id.org/x> } DROP ALL { <y")
+    with pytest.raises(MemRefused):
+        label_shape_count(SPARQL, "http://sn-2026-02-26/", PLAN)
+
+
+def test_the_count_query_counts_the_parts_by_the_shape_of_their_labels_and_typed_literals() -> None:
+    turtle = f"""
+    <{PLAN}> obo:BFO_0000051 <https://w3id.org/p/a> , <https://w3id.org/p/b> , <https://w3id.org/p/c> ,
+        <https://w3id.org/p/d> .
+    <https://w3id.org/p/a> rdfs:label "Deutsch"@de , "Zweit"@de , "English"@en ;
+        lp:LP_0030057 "3"^^<http://www.w3.org/2001/XMLSchema#integer> ;
+        lp:LP_0000026 "5"^^<http://www.w3.org/2001/XMLSchema#integer> .
+    <https://w3id.org/p/b> rdfs:label "plain" ; lp:LP_0030057 "4" ;
+        lp:LP_0000024 [ a lp:LP_0000508 ; lp:LP_0000344 "12"^^<http://www.w3.org/2001/XMLSchema#decimal> ] .
+    <https://w3id.org/p/c> skos:prefLabel "preferred"@de .
+    <https://w3id.org/p/d> rdfs:label "English"@en ; skos:prefLabel "preferred"@de ;
+        lp:LP_0000024 [ a lp:LP_0000509 ; lp:LP_0000344 "3"^^<http://www.w3.org/2001/XMLSchema#integer> ] .
+    """
+
+    rows = answered(label_shape_count(SPARQL, RP, PLAN), turtle)
+
+    assert {row["measure"]: int(row["count"]) for row in rows} == {
+        "label_de": 1,
+        "label_untagged": 1,
+        "label_other_language": 2,
+        "pref_label_only": 1,
+        "typed_number": 1,
+        "typed_hours": 1,
+        "typed_grade": 1,
+    }
 
 
 def test_a_plan_s_count_is_one_while_the_graph_holds_it_and_none_after() -> None:
