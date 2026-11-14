@@ -17,9 +17,9 @@ pytestmark = pytest.mark.pg
 BACKEND = Path(__file__).resolve().parents[2]
 
 
-def run_migrate(empty_database_url: str) -> subprocess.CompletedProcess[str]:
+def run_migrate(conninfo: str) -> subprocess.CompletedProcess[str]:
     with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": empty_database_url, "LOG_FORMAT": "json"}
+        environment = {**os.environ, "DATABASE_URL": conninfo, "LOG_FORMAT": "json"}
     return subprocess.run(
         [sys.executable, "-m", "app.db.migrate"],
         cwd=BACKEND,

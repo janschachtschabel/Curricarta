@@ -92,9 +92,9 @@ def test_a_migration_blocked_by_a_table_lock_gives_up(
         migrate(empty_database_url, tmp_path / "m")
 
 
-def run_migrate(empty_database_url: str, log_format: str = "json") -> subprocess.CompletedProcess[str]:
+def run_migrate(conninfo: str, log_format: str = "json") -> subprocess.CompletedProcess[str]:
     with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": empty_database_url, "LOG_FORMAT": log_format}
+        environment = {**os.environ, "DATABASE_URL": conninfo, "LOG_FORMAT": log_format}
     return subprocess.run(
         [sys.executable, "-m", "app.db.migrate"],
         cwd=BACKEND,
