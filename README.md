@@ -587,8 +587,10 @@ ungültig.
 Worker: `JOB_LEASE_S` (Standard 60 s; ein Worker ohne Lebenszeichen verliert seinen Job danach),
 `JOB_POLL_S` (Standard 1 s), `JOB_SHUTDOWN_GRACE_S` (Standard 20 s): Nach SIGTERM darf der
 laufende Job so lange zu Ende laufen, dann geht er unverbraucht an den nächsten Worker zurück.
-Mindestens 5 s unter der Frist des Deployments halten (Kubernetes: 30 s): Nach der Frist bekommt
-der Handler noch bis zu 2 s zum Aufräumen, erst dann wird der Job zurückgegeben.
+Mindestens 8 s unter der Frist des Deployments halten (Kubernetes: 30 s): Nach der Frist bekommt
+der Handler noch bis zu 2 s zum Aufräumen, erst dann wird der Job zurückgegeben, und vor dem
+Schließen seiner Datenbankverbindungen wartet der Worker noch bis zu 5 s auf Reservierungen, die
+ein Abbruch zurückgibt.
 
 Sprachmodell (OpenAI-kompatibel): `OPENAI_API_KEY` (auch `OPENAI_API_KEY_FILE`; nur sichtbare
 ASCII-Zeichen), `OPENAI_BASE_URL` (Standard `https://api.openai.com/v1`; `http(s)://Host[:Port][/Pfad]`

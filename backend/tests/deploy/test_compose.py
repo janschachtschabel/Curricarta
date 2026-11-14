@@ -141,7 +141,8 @@ def test_a_stopping_worker_may_finish_its_job_before_docker_kills_it() -> None:
     grace = float(worker["environment"].get("JOB_SHUTDOWN_GRACE_S", default))
 
     # Docker's default of 10 s would kill a busy worker; its job would wait for the lease to end
-    assert _seconds(worker["stop_grace_period"]) >= grace + 5
+    # beside the grace: 2 s for the handler to clean up, up to 5 s for reservations handed back
+    assert _seconds(worker["stop_grace_period"]) >= grace + 8
 
 
 def test_the_worker_is_checked_by_the_image_s_health_check() -> None:

@@ -72,7 +72,7 @@ worker:
   # protects the job, not the capacity). No readiness: the worker sits behind no Service.
   probes:
     liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
-  terminationGracePeriodSeconds: 30   # JOB_SHUTDOWN_GRACE_S + 2 s to clean up + margin
+  terminationGracePeriodSeconds: 30   # JOB_SHUTDOWN_GRACE_S + 2 s to clean up + 5 s for hand-backs + margin
   resources:
     requests: { cpu: 250m, memory: 384Mi }
     limits: { cpu: "1", memory: 1Gi }

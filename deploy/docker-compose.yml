@@ -114,7 +114,8 @@ services:
       replicas: 2
     # it ends with an error when its sweeper breaks, for a supervisor to start it again
     restart: unless-stopped
-    # JOB_SHUTDOWN_GRACE_S (20 s) for the job, then the hand-back; Docker's default of 10 s would
+    # JOB_SHUTDOWN_GRACE_S (20 s) for the job, then the hand-back and up to 5 s for reservations
+    # handed back (8 s beside the grace in all); Docker's default of 10 s would
     # kill a busy worker, and its job would wait for the lease to end
     stop_grace_period: 30s
     depends_on:

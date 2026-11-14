@@ -84,7 +84,8 @@ def test_the_worker_may_finish_its_job_before_kubernetes_kills_it() -> None:
     default = Settings.model_fields["job_shutdown_grace_s"].default
     grace = float(worker["env"].get("JOB_SHUTDOWN_GRACE_S", default))
 
-    assert worker["terminationGracePeriodSeconds"] >= grace + 5
+    # beside the grace: 2 s for the handler to clean up, up to 5 s for reservations handed back
+    assert worker["terminationGracePeriodSeconds"] >= grace + 8
 
 
 def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:

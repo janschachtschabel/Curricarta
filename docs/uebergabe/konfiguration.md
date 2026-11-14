@@ -183,7 +183,8 @@ ein Test schlägt an, wenn sie veraltet.
   `tcp_keepalives_count = 3`) und nur für eine eigene Rolle der API
   `ALTER ROLE <Rolle der API> SET statement_timeout = '60s';`. Die Keepalives des Servers wirken dann
   zwischen Server und Pooler.
-- `JOB_SHUTDOWN_GRACE_S` mindestens 5 s unter `terminationGracePeriodSeconds` des Workers.
+- `JOB_SHUTDOWN_GRACE_S` mindestens 8 s unter `terminationGracePeriodSeconds` des Workers: 2 s zum
+  Aufräumen des Handlers, bis zu 5 s für zurückgegebene Reservierungen, 1 s Reserve.
 - `IRI_BASE`: die Basis der IRIs, die ein Dokument beim Festschreiben bekommt (Werk, Dokument,
   Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der Dienst nichts fest
   (409 `no_iri_base`). Der Namensraum `w3id.org/wlo/` ist noch nicht registriert
