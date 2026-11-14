@@ -349,6 +349,74 @@ describe("a long sample", () => {
     expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
   });
 
+  // kept only for its input, the cue went from under the keyboard once its form was left or saved (browser check 2,
+  // defect 2): it stays until the choice changes again
+  describe("a cue kept outside the choice for its input", () => {
+    const items = () => [
+      reviewCue({ iri: `${SCHOOL}a`, surface_form: "Inhaltsfeld", regions: [REGION + "DE-NW"] }),
+      reviewCue({ iri: `${SCHOOL}b`, surface_form: "Lernfeld", sector: "vocational", regions: [REGION + "DE-BY"] }),
+    ];
+
+    async function heldOutside(): Promise<VueWrapper> {
+      vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items: items() })));
+      const wrapper = await section();
+      const held = wrapper.findAll("article")[1];
+      await held.get("[data-test=decide]").trigger("click");
+      await held.get("textarea").setValue("noch prüfen");
+      await wrapper.get("#lexicon-sector").setValue("school");
+      return wrapper;
+    }
+
+    it("stays when its form is left, the keyboard on its button, until the choice changes", async () => {
+      const wrapper = await heldOutside();
+
+      await wrapper.get("[data-test=decision-cancel]").trigger("click");
+      await flushPromises();
+
+      expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+      expect(document.activeElement).toBe(wrapper.findAll("article")[1].get("[data-test=decide]").element);
+      await wrapper.get("#lexicon-region").setValue(REGION + "DE-NW");
+      expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+    });
+
+    it("stays when its decision is saved, the keyboard on the decision, and the status says it was saved", async () => {
+      const made = cueDecision({ cue: `${SCHOOL}b`, decision: "rejected", strength: null, evidence: null });
+      vi.spyOn(api, "decideCue").mockResolvedValue(made);
+      const wrapper = await heldOutside();
+      const held = wrapper.findAll("article")[1];
+
+      await held.get("input[value=rejected]").setValue(true);
+      await held.get("form").trigger("submit");
+      await flushPromises();
+
+      expect(headings(wrapper)).toEqual(["„Inhaltsfeld“", "„Lernfeld“"]);
+      expect(document.activeElement).toBe(wrapper.findAll("article")[1].get("[data-test=decision]").element);
+      expect(wrapper.get("[data-test=choice-status]").text()).toBe(
+        `${t("lexicon.sample.saved")} ${t("lexicon.sample.keptOutside")}`,
+      );
+      await wrapper.get("#lexicon-sector").setValue("vocational");
+      await wrapper.get("#lexicon-sector").setValue("school");
+      expect(headings(wrapper)).toEqual(["„Inhaltsfeld“"]);
+    });
+
+    it("is counted with the cues it stands among", async () => {
+      vi.spyOn(api, "getReview").mockImplementation(() =>
+        Promise.resolve(review({ items: [...items(), ...many(SAMPLE_PAGE, () => ({ regions: [REGION + "DE-NW"] }))] })),
+      );
+      const wrapper = await section();
+      const held = wrapper.findAll("article")[1];
+      await held.get("[data-test=decide]").trigger("click");
+      await held.get("textarea").setValue("noch prüfen");
+
+      await wrapper.get("#lexicon-sector").setValue("school");
+
+      // one open cue more among the shown than in the choice: both counts say the same total
+      const total = SAMPLE_PAGE + 2;
+      expect(wrapper.get("[data-test=open-count]").text()).toBe(t("lexicon.list.openCount", { open: total, total }));
+      expect(wrapper.get("[data-test=shown-count]").text()).toBe(t("lexicon.sample.shownCount", { shown: SAMPLE_PAGE, total }));
+    });
+  });
+
   it("keeps the page down to a cue whose form holds input when only the open ones are asked for", async () => {
     vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items: many(SAMPLE_PAGE * 2) })));
     const wrapper = await section();

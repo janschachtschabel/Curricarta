@@ -968,6 +968,9 @@ export const messages = {
       },
       more: "Weitere zeigen",
       shownCount: "{shown} von {total} angezeigt",
+      // said once a decision is saved; the second sentence where its cue is shown outside the choice
+      saved: "Die Entscheidung ist gespeichert.",
+      keptOutside: "Der Hinweis passt nicht zur Auswahl und bleibt sichtbar, bis du die Auswahl änderst.",
       retiredHeading: "Entscheidungen zu ausgemusterten Hinweisen",
       retiredIntro:
         "Eine Ladung der Vokabulare hat diese Hinweise ausgemustert. Was die Redaktion über sie entschied, bleibt " +
