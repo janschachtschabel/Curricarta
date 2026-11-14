@@ -57,11 +57,12 @@ class Refused(Exception):
 
 
 def mark(item: Item) -> str:
-    """What ties a sheet's row to its item in this database: a block's id, else the first twelve signs of
-    the hash of its wording when drawn."""
+    """What ties a sheet's row to its item in this database: a block's id, else ``m`` and the first twelve
+    signs of the hash of its wording when drawn. Each begins with a letter, so that a spreadsheet keeps it
+    as text: twelve hex signs may be digits alone, which it would turn into a number."""
     if item.block_id is not None:
         return item.block_id
-    return item.text_hash[:12] if item.text_hash is not None else "none"
+    return f"m{item.text_hash[:12]}" if item.text_hash is not None else "none"
 
 
 def _page_of(block_id: str | None) -> int | None:

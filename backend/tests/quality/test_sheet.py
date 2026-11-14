@@ -65,7 +65,7 @@ async def test_the_sheet_names_each_item_with_where_to_look(connection: psycopg.
     outcome = by_wording[WORDS["outcome"]]
     made = await statement_id(connection, WORDS["outcome"])
     assert outcome == {
-        "item": outcome["item"], "mark": text_hash(WORDS["outcome"])[:12], "stratum": "learningOutcome",
+        "item": outcome["item"], "mark": "m" + text_hash(WORDS["outcome"])[:12], "stratum": "learningOutcome",
         "page": "1", "path": WORDS["title"], "kind": "learningOutcome", "wording": WORDS["outcome"],
         "lead_in": "", "quote": "",
         "link": f"{BASE}/dokumente/{document.id}/baum?zeile=statement:{made}&seite=1",

@@ -48,6 +48,8 @@ _REASON_ORDER = (
     "not_a_statement", "not_in_document", "node", "boundary", "kind", "fields", "wrong_place", "missed",
 )  # fmt: skip
 _SPLIT = re.compile(r"[\s,;|]+")
+_NUMBER = re.compile(r"[0-9]{1,9}")  # ASCII digits: isdigit() takes a superscript two, int() does not
+MARK = re.compile(r"m[0-9a-f]{12}|p[0-9]+-b[0-9]+|none")  # the shapes app.quality.sheet.mark writes
 _BY_NAME = "SELECT id FROM account WHERE name = %s"
 _OF_ITEM, _OF_ACCOUNT = "gold_judgement_item_id_fkey", "gold_judgement_judged_by_fkey"  # migration gold's
 
@@ -88,7 +90,7 @@ def _judged(line: SheetLine, item: Item, kind: SampleKind) -> Judgement | str | 
             return "verdict_not_asked"
         if not count:
             return "note_alone" if note else None
-        if not count.isdigit() or int(count) > COUNT_MOST:
+        if _NUMBER.fullmatch(count) is None or int(count) > COUNT_MOST:
             return "count_amiss"
         return Judgement(None, (), int(count), note or None)
     if count:
@@ -114,9 +116,12 @@ def judgements_in(
     left_empty = 0
     for line in lines:
         number = line.cells["item"]
-        item = items.get(int(number)) if number.isdigit() else None
+        item = items.get(int(number)) if _NUMBER.fullmatch(number) else None
         if item is None:
             problems.append(f"line {line.line}: item_unknown")
+            continue
+        if MARK.fullmatch(line.cells["mark"]) is None:  # a spreadsheet made a number of it, say
+            problems.append(f"line {line.line}: mark_mangled")
             continue
         if line.cells["mark"] != mark(item):
             problems.append(f"line {line.line}: mark_differs")

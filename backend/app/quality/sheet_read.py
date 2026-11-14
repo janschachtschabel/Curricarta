@@ -1,8 +1,9 @@
 """A judging sheet as it comes back from a spreadsheet or an editor, read into its rows: UTF-8 with or
-without a BOM - else the Windows code page a spreadsheet saves "CSV" in -, ``;`` or ``,`` between the
-cells (the header's tells which), any line end, the columns in any order and any of them dropped but
-``item`` and ``mark``. Only the columns the importer reads are kept, their cells stripped; the wording
-and the other shown columns are never read. Whatever cannot be read refuses the sheet at its line."""
+without a BOM - without one, else the Windows code page a spreadsheet saves "CSV" in -, ``;`` or ``,``
+between the cells (the header's tells which), any line end, the columns in any order and any of them
+dropped but ``item`` and ``mark``. Only the columns the importer reads are kept, their cells stripped;
+the wording and the other shown columns are never read. Whatever cannot be read refuses the sheet at its
+line."""
 
 import csv
 import io
@@ -32,11 +33,13 @@ def _text(data: bytes) -> str:
     if data.startswith(_WIDE) or b"\x00" in data:
         line = data[: max(data.find(b"\x00"), 0)].count(b"\n") + 1
         raise SheetRefused([f"line {line}: encoding_unknown"])
+    stated = data.startswith(_BOM)  # UTF-8 by its own word: no other code page is guessed
     data = data.removeprefix(_BOM)
     try:
         return data.decode("utf-8")
-    except UnicodeDecodeError:
-        pass
+    except UnicodeDecodeError as broken:
+        if stated:
+            raise SheetRefused([f"line {data[: broken.start].count(b'\n') + 1}: encoding_unknown"]) from None
     try:
         return data.decode("cp1252")
     except UnicodeDecodeError as undecodable:

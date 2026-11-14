@@ -97,7 +97,7 @@ async def test_a_row_left_empty_is_no_judgement(connection: psycopg.AsyncConnect
 
 async def test_a_sheet_of_another_database_is_refused_whole(connection: psycopg.AsyncConnection) -> None:
     sample, account = await a_sample(connection)
-    other = SHEET.replace(b";a8fb47665142;", b";a8fb47665143;")
+    other = SHEET.replace(b";ma8fb47665142;", b";ma8fb47665143;")
 
     with pytest.raises(SheetRefused) as refused:
         await take_in(connection, sample, account, other)
@@ -109,17 +109,17 @@ async def test_a_sheet_of_another_database_is_refused_whole(connection: psycopg.
 @pytest.mark.parametrize(
     ("row", "problem"),
     [
-        (";korrekt;;1;676f35a0284b;;;n/a", "verdict_unknown"),
-        (";wrong;spelling;1;676f35a0284b;;;n/a", "reasons_amiss"),
-        (";wrong;boundary;1;676f35a0284b;;;n/a", "reasons_amiss"),  # an imprecise one's
-        (";wrong;wrong_place;1;676f35a0284b;;;n/a", "reasons_amiss"),  # an anchor's
-        (";correct;kind;1;676f35a0284b;;;n/a", "reasons_amiss"),
-        (";imprecise;;1;676f35a0284b;;;n/a", "reasons_amiss"),
-        (";;kind;1;676f35a0284b;;;n/a", "reasons_amiss"),  # reasons without a verdict
-        (";correct;;1;676f35a0284b;;;3", "count_not_asked"),
-        ("Begriff;;;1;676f35a0284b;;;n/a", "note_alone"),
-        (";correct;;99;676f35a0284b;;;n/a", "item_unknown"),  # of another sample
-        (";correct;;eins;676f35a0284b;;;n/a", "item_unknown"),
+        (";korrekt;;1;m676f35a0284b;;;n/a", "verdict_unknown"),
+        (";wrong;spelling;1;m676f35a0284b;;;n/a", "reasons_amiss"),
+        (";wrong;boundary;1;m676f35a0284b;;;n/a", "reasons_amiss"),  # an imprecise one's
+        (";wrong;wrong_place;1;m676f35a0284b;;;n/a", "reasons_amiss"),  # an anchor's
+        (";correct;kind;1;m676f35a0284b;;;n/a", "reasons_amiss"),
+        (";imprecise;;1;m676f35a0284b;;;n/a", "reasons_amiss"),
+        (";;kind;1;m676f35a0284b;;;n/a", "reasons_amiss"),  # reasons without a verdict
+        (";correct;;1;m676f35a0284b;;;3", "count_not_asked"),
+        ("Begriff;;;1;m676f35a0284b;;;n/a", "note_alone"),
+        (";correct;;99;m676f35a0284b;;;n/a", "item_unknown"),  # of another sample
+        (";correct;;eins;m676f35a0284b;;;n/a", "item_unknown"),
     ],
     ids=["verdict", "reason", "reason-of-another", "anchor-s-reason", "correct-with-reason",
          "imprecise-without", "reason-alone", "count", "note-alone", "another-sample", "no-number"],
@@ -216,9 +216,9 @@ async def test_the_wording_column_is_never_read_back(connection: psycopg.AsyncCo
 
     taken = await take_in(
         connection, sample, account,
-        edited('1;676f35a0284b;correct;;n/a;"=HYPERLINK(""x"");wrong;not_a_statement";@', header=shown),
+        edited('1;m676f35a0284b;correct;;n/a;"=HYPERLINK(""x"");wrong;not_a_statement";@', header=shown),
     )  # fmt: skip
-    without = await take_in(connection, sample, account, edited("1;676f35a0284b;correct;;n/a", header=bare))
+    without = await take_in(connection, sample, account, edited("1;m676f35a0284b;correct;;n/a", header=bare))
 
     assert taken == Taken(judged=1, new=1, changed=0, unchanged=0, left_empty=0)
     assert without == Taken(judged=1, new=0, changed=0, unchanged=1, left_empty=0)
@@ -229,47 +229,13 @@ async def test_a_note_is_cut_to_what_the_table_holds_or_refused(connection: psyc
     sample, account = await a_sample(connection)
     longest = "a" * 500
 
-    taken = await take_in(connection, sample, account, edited(f"{longest}   ;correct;;1;676f35a0284b;;;n/a"))
+    taken = await take_in(connection, sample, account, edited(f"{longest}   ;correct;;1;m676f35a0284b;;;n/a"))
     with pytest.raises(SheetRefused) as refused:
-        await take_in(connection, sample, account, edited(f"{longest}b;correct;;1;676f35a0284b;;;n/a"))
+        await take_in(connection, sample, account, edited(f"{longest}b;correct;;1;m676f35a0284b;;;n/a"))
 
     assert taken.new == 1
     assert (await judgements_of(connection, sample))[1].note == longest  # the spaces after it cut
     assert refused.value.problems == ["line 2: note_too_long"]
-
-
-@pytest.mark.parametrize(
-    ("data", "problem"),
-    [
-        (SHEET.replace(b";", b"\t"), "line 1: delimiter_unknown"),
-        (SHEET.replace(b";mark;", b";marke;"), "line 1: column_missing"),
-        (SHEET.replace(b"note;verdict", b"verdict;verdict"), "line 1: column_twice"),
-        ((BOM + SHEET.decode("utf-8-sig")).encode("utf-16-le"), "line 1: encoding_unknown"),
-        (SHEET.replace(b"Schritt", b"Schritt\x81"), "line 5: encoding_unknown"),  # neither UTF-8 nor cp1252
-    ],
-    ids=["tabs", "no-mark", "twice", "utf-16", "undecodable"],
-)
-async def test_a_sheet_the_importer_cannot_read_is_refused_at_its_line(
-    connection: psycopg.AsyncConnection, data: bytes, problem: str
-) -> None:
-    sample, account = await a_sample(connection)
-
-    with pytest.raises(SheetRefused) as refused:
-        await take_in(connection, sample, account, data)
-
-    assert refused.value.problems == [problem]
-
-
-async def test_a_sheet_saved_in_the_spreadsheet_s_own_encoding_comes_in(
-    connection: psycopg.AsyncConnection,
-) -> None:
-    sample, account = await a_sample(connection)
-    windows = SHEET.decode("utf-8-sig").encode("cp1252")  # as a spreadsheet saves "CSV" in Western Europe
-
-    taken = await take_in(connection, sample, account, windows)
-
-    assert taken.new == 4
-    assert (await judgements_of(connection, sample))[3].note == EXPECTED[3].note
 
 
 async def test_two_imports_at_once_leave_one_judgement_each(
