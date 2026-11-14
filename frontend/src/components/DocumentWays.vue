@@ -46,7 +46,7 @@ const sections = computed(() => {
         <li v-for="part in sections" :key="part.id">
           <!-- the keyboard to the section's heading, not the address's fragment: the router took that for a move and
                named the tab anew without the document (focusRescue.ts) -->
-          <a :href="`#${part.id}`" @click.prevent="focusById(part.id)">{{ part.label }}</a>
+          <a class="section-link" :href="`#${part.id}`" @click.prevent="focusById(part.id)">{{ part.label }}</a>
         </li>
       </ul>
     </nav>

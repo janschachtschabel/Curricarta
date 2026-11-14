@@ -221,6 +221,19 @@ describe("a back link", () => {
   });
 });
 
+describe("a link to a section of the page", () => {
+  // about 19 px tall, passing 2.5.8 by spacing alone, as the back links did (UI review 1, NIT 15)
+  it("is drawn tall enough to hit, by the rule the back links have", () => {
+    const rule = cssRules(STYLESHEET).find(({ selectors }) => selectors.includes(".section-link"));
+    expect(rule?.selectors).toContain(".back-link");
+    for (const file of ["components/DocumentWays.vue", "views/LexiconReviewView.vue"]) {
+      const links = [...readFileSync(join(SRC, ...file.split("/")), "utf8").matchAll(/<a\b[^>]*href="#[^>]*>|<a\b[^>]*:href="`#[^>]*>/g)];
+      expect(links.length, file).toBeGreaterThan(0);
+      for (const [tag] of links) expect(tag, file).toContain('class="section-link"');
+    }
+  });
+});
+
 describe("a fieldset", () => {
   // the lexicon's decision and the work's choice kept the browser's grooved frame, unlike every other (UI review, NIT)
   it("drops the browser's frame, whichever component draws it", () => {

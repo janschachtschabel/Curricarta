@@ -26,8 +26,8 @@ const { leaving, answer } = useLeaveGuard(computed(() => unsaved.sample || unsav
     <!-- the second section stands behind a long sample: a way to each from the top -->
     <nav :aria-label="t('lexicon.page.sections')">
       <ul class="lexicon__sections">
-        <li><a href="#lexicon-sample">{{ t("lexicon.sample.heading") }}</a></li>
-        <li><a href="#lexicon-terms">{{ t("lexicon.terms.heading") }}</a></li>
+        <li><a class="section-link" href="#lexicon-sample">{{ t("lexicon.sample.heading") }}</a></li>
+        <li><a class="section-link" href="#lexicon-terms">{{ t("lexicon.terms.heading") }}</a></li>
       </ul>
     </nav>
     <LexiconSample @dirty="unsaved.sample = $event" />

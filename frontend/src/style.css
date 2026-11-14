@@ -544,8 +544,10 @@ textarea[aria-invalid="true"]:not(:disabled) {
   }
 }
 
-/* The way back above a page's heading: a target of 24 px of its own (WCAG 2.5.8), not by its spacing alone. */
-.back-link {
+/* The way back above a page's heading, and a link among a page's sections (DocumentWays, LexiconReviewView): a target
+   of 24 px of its own (WCAG 2.5.8), not by its spacing alone. */
+.back-link,
+.section-link {
   display: inline-block;
   padding-block: var(--space-0);
 }
