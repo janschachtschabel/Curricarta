@@ -51,6 +51,8 @@ ungültig, auch das der Admins; ein neuer Pepper macht keines wieder gültig. De
    Befehl wieder an, der alte Name gehört aber noch dem alten Konto. Das Token geht einmal auf stdout.
 4. Mit diesem Token über die API jedem Konto einen neuen Schlüssel ausgeben.
 
+Die Übung unten spielt die Schritte 1 bis 3 durch.
+
 ## Rollback
 
 - **Migrationen laufen nur vorwärts**; es gibt keine Rücknahme einer Migration. Jede Migration
@@ -108,3 +110,39 @@ Im Cluster sichert der Betrieb mit seinen eigenen Mitteln, in derselben Reihenfo
   Zeitpunkt zurückgeholt werden kann, der zu dem der Datenbank passt: Objekte zum selben oder einem
   späteren Zeitpunkt als die Datenbank, nie zu einem früheren.
 - Die Geheimnisse dort, wo der Betrieb seine Secrets verwahrt.
+
+## Übung
+
+Eine Sicherung, die nie zurückgespielt wurde, ist eine Vermutung. `backend/tools/restore_drill.py`
+spielt den Weg dieser Seite einmal ganz durch, in einem eigenen Compose-Projekt `curricarta-drill`
+aus derselben Datei, mit eigenen Volumes:
+
+1. startet es, legt einen Admin an (`app.bootstrap`; das Token bleibt im Speicher des Skripts) und
+   lädt ein erzeugtes PDF hoch;
+2. sichert erst die Datenbank, dann die Objekte nach `data/backup/<Zeitstempel>/` (`db.dump`,
+   `objects.tar`) und entfernt das Projekt samt Volumes;
+3. spielt erst die Objekte, dann die Datenbank zurück und startet alles;
+4. prüft `/ready` an jeder API-Replica, dass das alte Token sich anmeldet, dass die Datei mit
+   demselben SHA-256 zurückkommt und dass `source`, `source_file`, `audit_log` und
+   `schema_migration` so viele Zeilen haben wie vor der Sicherung;
+5. spielt „Pepper verloren“ durch: neuer Pepper (nur für das Übungsprojekt, `deploy/secrets/` bleibt
+   unberührt), alle Schlüssel widerrufen, ein zweiter Bootstrap, dessen Token sich anmeldet, während
+   das alte abgewiesen wird;
+6. entfernt am Ende, bestanden oder nicht, das Übungsprojekt samt Volumes.
+
+Es läuft nicht neben dem Projekt `curricarta` (beide bräuchten Port 18080 und dasselbe Subnetz) und
+bricht dann mit Exit-Code 1 ab, bevor es etwas anfasst; `down -v` nennt immer `-p curricarta-drill`.
+Ausgegeben werden nur Zählwerte, zuletzt `restore drill passed` (Exit-Code 0); ein Fehler nennt den
+Schritt (Exit-Code 1). Die Images müssen gebaut, die Geheimnisse geschrieben sein:
+
+```bash
+python deploy/make-secrets.py
+(cd frontend && npm ci && npm run build)
+docker compose -f deploy/docker-compose.yml build
+docker compose -f deploy/docker-compose.yml down
+python backend/tools/restore_drill.py
+```
+
+Die Tests des Skripts (`backend/tests/deploy/test_restore_drill.py`) laufen ohne Docker gegen einen
+Ersatz, der jedes Kommando nur liest. **Mit Docker ist die Übung noch nicht gelaufen**; ihr erster
+Lauf und seine Zählwerte werden hier nachgetragen.
