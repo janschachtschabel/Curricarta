@@ -108,6 +108,8 @@ faulthandler_timeout = 300
 # the bootstrap, the vocabulary load, the migration and the worker run as processes of their own
 # in their tests; coverage follows them there
 patch = ["subprocess"]
+# CI measures the tests in two jobs and combines their data in a third: paths relative to backend/
+relative_files = true
 
 [tool.coverage.report]
 # 96 % measured on Windows at the end of M0 (the old app holds 96); one point for the branches of

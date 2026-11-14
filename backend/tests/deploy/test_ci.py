@@ -112,19 +112,94 @@ def test_the_script_ci_runs_is_linted_and_typed_as_well() -> None:
         assert "make-secrets.py" in _command("backend", tool), tool
 
 
+def _test_parts() -> list[list[str]]:
+    return [str(part["paths"]).split() for part in JOBS["backend-tests"]["strategy"]["matrix"]["include"]]
+
+
+def _holding_tests(tests: Path) -> set[str]:
+    """The top-level entries under ``tests`` that pytest collects from: its folders with a test file
+    anywhere below, and its own test files."""
+    patterns = ("test_*.py", "*_test.py")
+
+    def holds(path: Path) -> bool:
+        if path.is_dir():
+            return any(next(path.rglob(pattern), None) for pattern in patterns)
+        return any(path.match(pattern) for pattern in patterns)
+
+    return {f"tests/{path.name}" for path in tests.iterdir() if holds(path)}
+
+
+def test_the_backend_tests_run_in_parts_that_leave_no_test_out_and_none_twice() -> None:
+    parts = _test_parts()
+    every = [path for part in parts for path in part]
+
+    assert len(parts) >= 2
+    assert len(every) == len(set(every)), every
+    assert set(every) == _holding_tests(ROOT / "backend" / "tests")
+    assert "${{ matrix.paths }}" in _command("backend-tests", r"-m pytest")
+
+
+def test_the_checks_beside_the_tests_run_once() -> None:
+    for check in ("pruefung/pruefe.py", "ruff check", "ruff format --check", "-m mypy"):
+        running = [
+            name
+            for name, job in JOBS.items()
+            if any(check in str(step.get("run", "")) for step in job["steps"])
+        ]
+        assert running == ["backend"], check
+
+
+def test_the_entries_holding_tests_are_found_however_deep_their_files_lie(tmp_path: Path) -> None:
+    for folder in ("flat", "deep/er", "helpers"):
+        (tmp_path / folder).mkdir(parents=True)
+    (tmp_path / "flat" / "test_a.py").touch()
+    (tmp_path / "deep" / "er" / "b_test.py").touch()
+    (tmp_path / "helpers" / "support.py").touch()
+    (tmp_path / "test_top.py").touch()
+    (tmp_path / "conftest.py").touch()
+
+    assert _holding_tests(tmp_path) == {"tests/flat", "tests/deep", "tests/test_top.py"}
+
+
 def test_the_tests_keep_their_coverage() -> None:
     floor = PYPROJECT["tool"]["coverage"]["report"]["fail_under"]
+    run = PYPROJECT["tool"]["coverage"]["run"]
 
-    pytest = _command("backend", r"-m pytest")
+    pytest = _command("backend-tests", r"-m pytest")
+    combine = _command("backend-coverage", r"coverage combine")
+    report = _command("backend-coverage", r"coverage report")
 
-    assert "--cov=app" in pytest
+    # each part measures the application and keeps its data under a name of its own; the floor holds
+    # for all of them together, in the job that combines them, never per part
+    assert "-m coverage run --parallel-mode --source=app -m pytest" in pytest
+    assert "fail-under" not in pytest and "--cov" not in pytest
     # a floor given on the command line would override pyproject's
-    assert "--cov-fail-under" not in pytest
+    assert "fail-under" not in combine + report
     assert floor >= 90
+    # the parts' data meet from two machines; the processes the tests start are measured too
+    assert run["relative_files"] is True
+    assert run["patch"] == ["subprocess"]
+
+
+def test_each_part_hands_its_coverage_on_and_the_floor_holds_before_the_images_are_built() -> None:
+    upload = next(
+        step for step in JOBS["backend-tests"]["steps"] if "upload-artifact@" in step.get("uses", "")
+    )
+    download = next(
+        step for step in JOBS["backend-coverage"]["steps"] if "download-artifact@" in step.get("uses", "")
+    )
+
+    # coverage's data files begin with a dot, which the upload leaves out unless told
+    assert upload["with"]["include-hidden-files"] is True
+    assert upload["with"]["retention-days"] == 1
+    assert upload["with"]["if-no-files-found"] == "error"
+    assert JOBS["backend-coverage"]["needs"] == "backend-tests"
+    assert download["with"]["merge-multiple"] is True
+    assert set(JOBS["images"]["needs"]) >= {"backend", "backend-tests", "backend-coverage", "frontend"}
 
 
 def test_the_database_and_object_store_tests_are_required_not_skipped() -> None:
-    environment = JOBS["backend"]["env"]
+    environment = JOBS["backend-tests"]["env"]
 
     # GitHub sets CI=true, which turns a missing test service into a failure (tests/conftest.py)
     assert environment["CURRICARTA_TEST_DATABASE_URL"].startswith("postgresql://")
@@ -132,7 +207,7 @@ def test_the_database_and_object_store_tests_are_required_not_skipped() -> None:
 
 
 def test_ci_tests_against_the_database_image_compose_runs() -> None:
-    service = JOBS["backend"]["services"]["postgres"]
+    service = JOBS["backend-tests"]["services"]["postgres"]
 
     assert service["image"] == COMPOSE["services"]["postgres"]["image"]
     # healthy once it listens on TCP, not while the first start's socket-only server runs
