@@ -16,6 +16,7 @@ import FreezeDialog from "@/components/FreezeDialog.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { freeze, freezeParts, missingParts, missingWords, partState, type IriPart } from "@/documentRevision";
 import { LOCALE, t } from "@/i18n/de";
+import { sayAnew } from "@/liveRegion";
 import type { Notice } from "@/notice";
 import { refusalText } from "@/refusals";
 import { isEditor } from "@/session";
@@ -70,7 +71,9 @@ async function ask(): Promise<void> {
   }
   if (missing.length) {
     owed.value = false;
-    problem.value = incomplete(missing);
+    // pressed again, the same words: said anew, or the alert stays as it was and a screen reader silent
+    const words = incomplete(missing);
+    problem.value = { ...words, text: sayAnew(problem.value?.text ?? "", words.text) };
     return;
   }
   asking.value = "freeze";

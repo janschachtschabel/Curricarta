@@ -203,6 +203,20 @@ describe("freezing a document", () => {
     expect(wrapper.emitted("changed")).toHaveLength(1);
   });
 
+  // a second press set the same words, and a screen reader said nothing (UI review 1, finding 13)
+  it("says what is missing anew at each press", async () => {
+    vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...BARE }));
+    const wrapper = section(BARE);
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+    const first = wrapper.get("[role=alert]").element.textContent;
+
+    await freezeButton(wrapper).trigger("click");
+    await flushPromises();
+
+    expect(wrapper.get("[role=alert]").element.textContent).not.toBe(first);
+  });
+
   it("takes its words back once the parts change", async () => {
     vi.spyOn(api, "getDocument").mockImplementation(() => Promise.resolve({ ...BARE }));
     const wrapper = section(BARE);
