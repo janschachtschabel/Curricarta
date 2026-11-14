@@ -57,6 +57,8 @@ def test_it_runs_where_what_the_converter_is_built_of_or_runs_changes() -> None:
         ".dockerignore",  # the image's build context
         "backend/app/conversion/**",
         "backend/app/jobs/**",
+        "backend/app/core/child.py",  # the converter's children: their memory limit, the peak line
+        "backend/app/core/logging.py",  # what the child configures its logging with
         "backend/tests/conversion/**",
         "backend/tests/conftest.py",  # loaded by the tests in the image, without the net
         "backend/tests/support.py",

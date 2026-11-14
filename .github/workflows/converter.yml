@@ -14,6 +14,8 @@ on:
       - .dockerignore
       - backend/app/conversion/**
       - backend/app/jobs/**
+      - backend/app/core/child.py
+      - backend/app/core/logging.py
       - backend/tests/conversion/**
       - backend/tests/conftest.py
       - backend/tests/support.py
