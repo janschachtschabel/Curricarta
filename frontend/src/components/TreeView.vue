@@ -271,11 +271,12 @@ defineExpose({ focusRow });
   transform: rotate(90deg);
 }
 
-/* Narrow, a deep row keeps its text's room: the indent stops growing past three levels, at half the step. Its level
-   is still said (aria-level) and drawn by the rows above it. */
+/* Narrow, every level keeps its own indent and a deep row keeps its text's room. At 320 px a row's text runs from
+   x 54.4 to 288 (233.6 px) before any indent; a level-7 row (depth 6) must keep 60 % of 320 px = 192 px, so six
+   steps may take 41.6 px: at most 6.9 px a step. 0.375rem = 6 px, the least that still tells two levels apart. */
 @media (max-width: 40rem) {
   .tree__row {
-    padding-inline-start: calc(min(var(--tree-depth), 3) * var(--space-1));
+    padding-inline-start: calc(var(--tree-depth) * 0.375rem);
   }
 }
 </style>

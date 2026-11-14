@@ -62,9 +62,16 @@ describe("the column heads of a stacked table", () => {
 });
 
 describe("a deep tree row on a narrow screen", () => {
-  it("keeps its indent within three levels", () => {
+  // Levels 4 to 7 shared one indent at 320 px (browser check 2, defect 3): every level is told apart by a step of
+  // at least 6 px, and a level-7 row (depth 6) keeps 60 % of 320 px for its text. Measured at 320 px, the text
+  // of a row without indent runs 233.6 px (x 54.4 to 288), so six steps may take at most 41.6 px.
+  it("tells every level apart by its indent and keeps a level-7 row's text room", () => {
     const file = "components/TreeView.vue";
     expect(source(file)).toContain("'--tree-depth'");
-    expect(narrowRule(file, ".tree__row")).toMatch(/padding-inline-start:\s*calc\(min\(var\(--tree-depth\), 3\)/);
+    const step = /padding-inline-start:\s*calc\(var\(--tree-depth\) \* ([\d.]+)rem\)/.exec(narrowRule(file, ".tree__row") ?? "")?.[1];
+    expect(step, "one step per level, in rem").toBeDefined();
+    const px = Number(step) * 16;
+    expect(px).toBeGreaterThanOrEqual(6);
+    expect(233.6 - 6 * px).toBeGreaterThanOrEqual(0.6 * 320);
   });
 });
