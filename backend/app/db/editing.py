@@ -73,14 +73,19 @@ UPDATE anchor a SET match_kind_scheme = NULL, match_kind_iri = NULL, match_score
     char_start = NULL, char_end = NULL
 WHERE {column} = %s AND EXISTS (SELECT FROM anchor_block ab WHERE ab.anchor_id = a.id)
 """
+# Each access names the document, so each goes by an index: the children by (document_id, parent_id), the
+# anchors by node and by statement apart - one OR of the two read the whole table (audit 2026-11-14)
 _SUBTREE = """
 WITH RECURSIVE under (id) AS (
     SELECT id FROM node WHERE id = %(id)s
-    UNION ALL SELECT n.id FROM node n JOIN under u ON n.parent_id = u.id
-), said AS (SELECT s.id FROM statement s JOIN under u ON s.node_id = u.id)
+    UNION ALL SELECT n.id FROM node n JOIN under u ON n.document_id = %(document)s AND n.parent_id = u.id
+), said AS (
+    SELECT s.id FROM statement s JOIN under u ON s.document_id = %(document)s AND s.node_id = u.id
+)
 SELECT array(SELECT id FROM under), array(SELECT id FROM said),
-    array(SELECT a.id FROM anchor a
-          WHERE a.node_id IN (SELECT id FROM under) OR a.statement_id IN (SELECT id FROM said))
+    array(SELECT a.id FROM anchor a JOIN under u ON a.document_id = %(document)s AND a.node_id = u.id
+          UNION
+          SELECT a.id FROM anchor a JOIN said s ON a.document_id = %(document)s AND a.statement_id = s.id)
 """
 
 
@@ -210,7 +215,7 @@ async def drop_node(
         if row is None:
             return None
         check_revision(row, revision)
-        cursor = await connection.execute(_SUBTREE, {"id": node_id})
+        cursor = await connection.execute(_SUBTREE, {"id": node_id, "document": target.document_id})
         found = await cursor.fetchone()
         assert found is not None  # noqa: S101 - arrays of a node that stands
         nodes, statements, anchors = found
