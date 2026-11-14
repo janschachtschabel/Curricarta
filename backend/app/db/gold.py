@@ -49,6 +49,17 @@ VALUES (%(item)s, %(account)s, %(verdict)s, %(reasons)s, %(expected)s, %(note)s)
 ON CONFLICT (item_id, judged_by) DO UPDATE SET verdict = excluded.verdict, reasons = excluded.reasons,
     expected = excluded.expected, note = excluded.note, judged_at = now()
 """
+# A sheet's judgement, decided in the statement: a new one is made, a changed one replaces the account's
+# own, one as it stands touches nothing (not even its time) and returns no row
+_JUDGE_SHEET = """
+INSERT INTO gold_judgement (item_id, judged_by, verdict, reasons, expected, note)
+VALUES (%(item)s, %(account)s, %(verdict)s, %(reasons)s, %(expected)s, %(note)s)
+ON CONFLICT (item_id, judged_by) DO UPDATE SET verdict = excluded.verdict, reasons = excluded.reasons,
+    expected = excluded.expected, note = excluded.note, judged_at = now()
+WHERE (gold_judgement.verdict, gold_judgement.reasons, gold_judgement.expected, gold_judgement.note)
+    IS DISTINCT FROM (excluded.verdict, excluded.reasons, excluded.expected, excluded.note)
+RETURNING xmax = 0 AS made
+"""
 # The latest of each item's judgements; of two at the same time, the account's id decides
 _JUDGEMENTS = """
 SELECT DISTINCT ON (j.item_id) j.item_id, j.verdict, j.reasons, j.expected, j.note
@@ -185,6 +196,39 @@ async def judge(
             "note": judgement.note,
         },
     )
+
+
+@dataclass(frozen=True)
+class Judged:
+    """What the judgements of one sheet did: made new, changed the account's own, or found it as it stood."""
+
+    new: int
+    changed: int
+    unchanged: int
+
+
+async def judge_all(
+    connection: psycopg.AsyncConnection, account_id: UUID, judgements: Sequence[tuple[int, Judgement]]
+) -> Judged:
+    """The account's judgements of the items, all in one transaction or none: two imports at once meet at
+    the key (item, account) and the later finds the earlier's. ForeignKeyViolation where an item is gone."""
+    new = changed = 0
+    async with connection.transaction():
+        for item_id, judgement in judgements:
+            cursor = await connection.execute(
+                _JUDGE_SHEET,
+                {
+                    "item": item_id,
+                    "account": account_id,
+                    "verdict": judgement.verdict,
+                    "reasons": list(judgement.reasons),
+                    "expected": judgement.expected,
+                    "note": judgement.note,
+                },
+            )
+            if (written := await cursor.fetchone()) is not None:
+                new, changed = (new + 1, changed) if written[0] else (new, changed + 1)
+    return Judged(new, changed, len(judgements) - new - changed)
 
 
 async def judgements_of(connection: psycopg.AsyncConnection, sample_id: int) -> dict[int, Judgement]:

@@ -10,3 +10,5 @@ data/seed/vergleichsdatensatz/*.csv -text
 # The tokenizer's encoding as tiktoken fetches it: its SHA-256 names these bytes (app/llm/budget.py);
 # 200,000 lines of base64 no diff should print
 *.tiktoken -text -diff
+# A judging sheet as a spreadsheet hands it back: its BOM and CRLF are what the importer is tested on
+backend/tests/quality/fixtures/bogen.csv -text

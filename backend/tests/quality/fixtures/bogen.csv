@@ -1,0 +1,8 @@
+﻿note;verdict;reasons;item;mark;stratum;wording;expected
+;correct;;1;676f35a0284b;content;Tabelle, Inhalt für Antwort.;n/a
+;imprecise;boundary, kind ;2;ed5cf4046cf1;learningOutcome;Vorgang Muster vergleichen in Ordnung.;n/a
+"Begriff; selbstständig
+Schritt";wrong;not_a_statement;3;a8fb47665142;learningOutcome;Antwort Auswahl von selbstständig Darstellung.;n/a
+;;;4;4eae29400b85;learningOutcome;Beispiel Zusammenhang eine zeigen Beobachtung sachgerecht Begriff.;n/a
+;correct  ;; 5 ; dfa2f70c49cc ;learningOutcome;Wirkung Beobachtung gemeinsam Begriff.;n/a
+;;;;;;;
