@@ -1,6 +1,7 @@
 """deploy/helm-values.example.yaml: what T6 can rely on when they build the chart from it."""
 
 import ipaddress
+import re
 from pathlib import Path
 from typing import Any
 
@@ -13,6 +14,16 @@ from app.core.settings import Settings
 VALUES: dict[str, Any] = yaml.safe_load(
     (Path(__file__).resolve().parents[3] / "deploy" / "helm-values.example.yaml").read_text(encoding="utf-8")
 )
+
+
+@pytest.mark.parametrize(("part", "name"), [("image", "curricarta"), ("webImage", "curricarta-web")])
+def test_no_image_is_taken_by_a_tag_someone_can_move(part: str, name: str) -> None:
+    # the names .github/workflows/release.yml pushes: X.Y.Z from a version tag, sha-<12> for each run
+    image = VALUES[part]
+
+    assert re.fullmatch(rf"ghcr\.io/[^/]+/{name}", image["repository"]), image
+    assert re.fullmatch(r"\d+\.\d+\.\d+|sha-[0-9a-f]{12}", image["tag"]), image
+    assert "latest" not in str(image)
 
 
 def test_the_probes_ask_the_internal_port() -> None:

@@ -694,6 +694,9 @@ Repository, für alle Nutzer des Rechners lesbar, weil die Container unter ander
 laufen; nur für Entwicklung). Ein vorhandenes Geheimnis bleibt stehen. Der erste Admin:
 `docker compose -f deploy/docker-compose.yml run --rm migrate python -m app.bootstrap NAME`.
 `down` hält die Daten, `down -v` löscht Datenbank und Objekte dieses Projekts (`curricarta`).
+Veröffentlichte Images liegen in GitHubs Container-Registry (`ghcr.io/<owner>/curricarta`, `…-web`,
+`…-convert`), getaggt `X.Y.Z` je Versions-Tag und `sha-<12 Zeichen des Commits>` je Lauf von
+`.github/workflows/release.yml`, nie `latest`.
 
 Konverter-Image (Paket 3b): dasselbe Image mit Docling, EasyOCR und torch ohne CUDA (rund 2 GB),
 `docker build -f deploy/api.Dockerfile --build-arg VENV=convert -t curricarta-convert:local .`. Ohne Argument

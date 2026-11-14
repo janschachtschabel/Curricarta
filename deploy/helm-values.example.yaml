@@ -3,11 +3,14 @@
 # docs/uebergabe/konfiguration.md. Reference for containers and hardening: deploy/docker-compose.yml.
 # No B-API: the service checks its own tokens (docs/uebergabe/anforderungen.md, 2).
 
+# Published by .github/workflows/release.yml: X.Y.Z for a version tag, sha-<12> for each run; <owner> is
+# the repository's owner in lower case. Never latest; in production by digest (repository@sha256:...),
+# as the run's summary lists it.
 image:
-  repository: <registry>/curricarta     # api.Dockerfile; the worker and the jobs use the same image
-  tag: "0.1.0"                                     # never latest in production
+  repository: ghcr.io/<owner>/curricarta       # api.Dockerfile; the worker and the jobs use the same image
+  tag: "0.1.0"
 webImage:
-  repository: <registry>/curricarta-web # web.Dockerfile: the SPA behind nginx-unprivileged
+  repository: ghcr.io/<owner>/curricarta-web   # web.Dockerfile: the SPA behind nginx-unprivileged
   tag: "0.1.0"
 
 env:                          # for every container of the service

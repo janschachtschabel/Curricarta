@@ -52,7 +52,7 @@ S3-Objektspeicher.
 | Abhängigkeiten? | `backend/uv.lock` für alle Plattformen, mit Prüfsummen; das Image installiert den Export `deploy/requirements-api.txt` per `pip --require-hashes`, nur Wheels |
 | Images? | `deploy/api.Dockerfile` (API und Worker, python:3.13-slim per Digest, Nutzer 10001, 244 MB, Stand M1) und `deploy/web.Dockerfile` (SPA hinter nginx-unprivileged per Digest, Nutzer 101, 61 MB, Stand M1). Dasselbe Dockerfile baut mit `VENV=convert` das Image des Konverters (Docling und OCR auf der CPU, `deploy/docker-compose.converter.yml`); es ist deutlich größer und läuft als eigener Dienst. Kein Code-Volume, keine Daten im Image: von der Ontologie nur die Modelle, Vokabulare und Profile, die der Dienst liest. Das Web-Image nennt keinen API-Host; im Cluster routet der Ingress `/api/v1/` und `/openapi.json` zur API |
 | CI? | `.github/workflows/ci.yml`: Ontologie-Prüfung, ruff, mypy, Tests mit PostgreSQL und MinIO in zwei parallelen Teilen, deren Abdeckung ein dritter Job zusammenführt und an der Grenze misst, Frontend-Tests und -Build, beide Images und ein Rauchtest des ganzen Dienstes in Compose (Vokabular geladen, beide Worker laufen, `/ready` je API-Replica, Trace-ID im Log); grün auf main seit 2026-10-31. `.github/workflows/converter.yml` (nur bei Änderungen am Konverter, sonst von Hand): Konverter-Image, Modelle, Docling-Tests im Image und der Dienst mit Konverter |
-| Versionen? | `app.__version__` folgt der Paketversion; Image-Tags `sha-<12 Zeichen>` je Commit und SemVer je Git-Tag sind geplant (mit der Registry) |
+| Versionen? | `app.__version__` folgt der Paketversion. `.github/workflows/release.yml` veröffentlicht die Images in GitHubs Container-Registry: `ghcr.io/<owner>/curricarta` (API und Worker), `ghcr.io/<owner>/curricarta-web` und `ghcr.io/<owner>/curricarta-convert`. Ein Git-Tag `vX.Y.Z` gibt die Tags `sha-<12 Zeichen des Commits>` und `X.Y.Z`, aber nur, wenn er der Version in `backend/pyproject.toml` gleicht (sonst bricht der Lauf vor dem Bau ab); von Hand läuft er für jeden Branch und vergibt nur `sha-…`, das Konverter-Image auf Wunsch. Nie `latest`. Labels nennen Quelle, Commit, Version und Lizenz (`org.opencontainers.image.*`); die Digests stehen in der Zusammenfassung des Laufs, und ein Job zieht die Images per Digest und startet damit den ganzen Dienst. In Produktion per Digest beziehen |
 
 ## 5. Deployment und Betrieb
 
@@ -75,7 +75,7 @@ S3-Objektspeicher.
 - [x] Konfiguration ([konfiguration.md](konfiguration.md)), erzeugt und geprüft
 - [x] Helm-Werte als Vorlage ([helm-values.example.yaml](../../deploy/helm-values.example.yaml))
 - [x] Compose für den lokalen Betrieb
-- [ ] CI-Lauf grün und Images in der Registry
+- [ ] CI-Lauf grün und Images in der Registry (`release.yml` steht; die erste Veröffentlichung ist Sache des Betreibers, siehe Offene Punkte)
 - [ ] Alarmregeln, Ressourcen-Baseline, Lasttest (M6)
 - [ ] Steckbrief für den Produktkatalog (mit dem ersten nutzbaren Stand, M1)
 
@@ -89,7 +89,8 @@ S3-Objektspeicher.
 
 ## Offene Punkte
 
-- Registry mit versionierten Images; gemessene Schwellen der Alarmregeln; Sicherung und Aufbewahrung.
+- Erste Veröffentlichung in der Registry (Betreiber): prüfen, dass Workflows Packages schreiben dürfen (Repository-Einstellungen, Actions, Workflow-Berechtigungen; ein schon vorhandenes Paket braucht Schreibzugriff für dieses Repository); den Tag `v0.1.0` setzen und pushen; der Lauf von `release.yml` muss grün sein, seine Zusammenfassung die Digests zeigen und der Job `start` grün sein (ein Image aus der Registry gestartet). Neue Pakete sind zunächst privat, `start` zieht aber ohne Anmeldung: nach dem ersten Push beide Pakete öffentlich stellen und `start` erneut laufen lassen.
+- Gemessene Schwellen der Alarmregeln; Sicherung und Aufbewahrung.
 - Abstimmung der Content-Types für Uploads und Dateiausgaben (M1).
 - Prüfsummen beim Objektspeicher: boto3 schickt seit 1.36 bei jedem Schreiben eine CRC32-Prüfsumme
   mit (`x-amz-checksum-crc32`, über HTTPS als `aws-chunked`), die manche S3-kompatiblen Dienste
