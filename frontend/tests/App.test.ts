@@ -181,4 +181,58 @@ describe("the shell while an account is held but not loaded", () => {
     expect(api.getToken()).toBeNull();
     expect(push).toHaveBeenCalledWith({ name: "login" });
   });
+
+  // one failed /me took the navigation away until a reload (UI review m1)
+  const ME = { id: "0190-a", name: "Erste Redaktion", roles: ["redaktion"] as api.Role[] };
+  const destinations = (wrapper: Awaited<ReturnType<typeof render>>) =>
+    wrapper.findAll("nav a").map((link) => link.attributes("href"));
+
+  it("keeps the destinations open to every account while the account cannot be loaded, and says so", async () => {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getMe").mockRejectedValue(new api.ApiError("network", 0));
+    vi.spyOn(api, "listSources").mockResolvedValue(page([]));
+
+    const wrapper = await render("/quellen");
+
+    expect(wrapper.get("nav").attributes("aria-label")).toBe(t("app.nav.label"));
+    expect(destinations(wrapper)).toEqual(["/", "/quellen"]);
+    expect(wrapper.get("[data-test=account-failed]").text()).toContain(t("app.accountFailed"));
+  });
+
+  it("loads the account again on the reader's word, the destinations of its roles with it", async () => {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getMe").mockRejectedValueOnce(new api.ApiError("network", 0)).mockResolvedValue(ME);
+    vi.spyOn(api, "listSources").mockResolvedValue(page([]));
+    const wrapper = await render("/quellen");
+
+    await wrapper.get("[data-test=account-retry]").trigger("click");
+    await flushPromises();
+
+    expect(destinations(wrapper)).toEqual(["/", "/quellen", "/lexikon"]);
+    expect(wrapper.get(".shell__account").text()).toContain("Erste Redaktion");
+    expect(wrapper.find("[data-test=account-failed]").exists()).toBe(false);
+  });
+
+  it("leaves saying it to the start, which says it with its own retry", async () => {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getMe").mockRejectedValue(new api.ApiError("network", 0));
+
+    const wrapper = await render();
+
+    expect(wrapper.find("[data-test=account-failed]").exists()).toBe(false);
+    expect(wrapper.text()).toContain(t("start.accountFailed"));
+  });
+
+  it("loads the account again on the next move to another page", async () => {
+    api.setToken("curricarta_token");
+    const me = vi.spyOn(api, "getMe").mockRejectedValueOnce(new api.ApiError("network", 0)).mockResolvedValue(ME);
+    vi.spyOn(api, "listSources").mockResolvedValue(page([]));
+    const wrapper = await render();
+
+    await router.push("/quellen");
+    await flushPromises();
+
+    expect(me).toHaveBeenCalledTimes(2);
+    expect(wrapper.get(".shell__account").text()).toContain("Erste Redaktion");
+  });
 });

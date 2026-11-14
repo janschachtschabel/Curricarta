@@ -36,6 +36,8 @@ export const messages = {
     signedInAs: "Angemeldet als",
     signIn: "Anmelden",
     signOut: "Abmelden",
+    // in the shell, a token held whose account did not load (App.vue)
+    accountFailed: "Dein Konto wurde nicht geladen.",
   },
   login: {
     heading: "Anmeldung",

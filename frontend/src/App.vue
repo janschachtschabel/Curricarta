@@ -4,7 +4,7 @@
  * navigation an account's roles open, who is signed in and the way out - or,
  * for a visitor, the way in. The routed page renders in the one main region.
  */
-import { computed, onMounted, onUnmounted } from "vue";
+import { computed, onMounted, onUnmounted, ref } from "vue";
 import { isNavigationFailure, NavigationFailureType, RouterLink, RouterView, useRoute, useRouter } from "vue-router";
 
 import { clearToken, getToken } from "@/api";
@@ -18,7 +18,22 @@ import { clearSession, ensureSession, session, sessionState } from "@/session";
 const route = useRoute();
 const router = useRouter();
 
-const destinations = computed(() => (session.value ? visibleDestinations(session.value.roles) : []));
+// A token held whose account is loading or did not load: the destinations every account has stay, so one failed
+// reading does not take the way around the app away; those of a role come with the account
+const accountHeld = computed(() => sessionState.value === "loading" || sessionState.value === "failed");
+const destinations = computed(() =>
+  session.value ? visibleDestinations(session.value.roles) : accountHeld.value ? visibleDestinations([]) : [],
+);
+const retrying = ref(false);
+
+async function retryAccount(): Promise<void> {
+  retrying.value = true;
+  try {
+    await ensureSession();
+  } finally {
+    retrying.value = false;
+  }
+}
 const roles = computed(() =>
   new Intl.ListFormat(LOCALE).format((session.value?.roles ?? []).map((role) => t(`app.roles.${role}`))),
 );
@@ -34,13 +49,20 @@ function current(destination: Destination): "page" | "true" | undefined {
 }
 
 let stopFocusRescue: (() => void) | null = null;
+// an account that did not load is asked for again on the next move: the server may be back
+const stopAskingAgain = router.afterEach((_to, _from, failure) => {
+  if (!failure && sessionState.value === "failed") void ensureSession();
+});
 
 onMounted(() => {
   void ensureSession();
   stopFocusRescue = keepFocusInPage(() => document.getElementById("main"));
 });
 
-onUnmounted(() => stopFocusRescue?.());
+onUnmounted(() => {
+  stopFocusRescue?.();
+  stopAskingAgain();
+});
 
 /** Only here: the token is gone from this tab; the server keeps it until an admin revokes it. */
 // The page is left first: a draft not yet saved is asked about while the account still holds it. The
@@ -66,7 +88,7 @@ async function signOut(): Promise<void> {
       <BrandMark :size="28" />
       <span class="shell__wordmark">{{ t("app.title") }}</span>
     </RouterLink>
-    <nav v-if="session" class="shell__nav" :aria-label="t('app.nav.label')">
+    <nav v-if="destinations.length" class="shell__nav" :aria-label="t('app.nav.label')">
       <ul class="shell__destinations">
         <li v-for="destination in destinations" :key="destination.name">
           <RouterLink class="shell__destination" :to="{ name: destination.name }" :aria-current="current(destination)">
@@ -77,6 +99,19 @@ async function signOut(): Promise<void> {
       </ul>
     </nav>
     <div class="shell__account">
+      <!-- not on the start, which says it itself, with its own retry -->
+      <p v-if="sessionState === 'failed' && route.name !== 'start'" class="shell__who" data-test="account-failed">
+        {{ t("app.accountFailed") }}
+        <button
+          type="button"
+          class="btn link"
+          data-test="account-retry"
+          :aria-disabled="retrying || undefined"
+          @click="retrying || retryAccount()"
+        >
+          {{ t("states.retry") }}
+        </button>
+      </p>
       <p v-if="session" class="shell__who">
         {{ t("app.signedInAs") }} <strong>{{ session.name }}</strong>
         <span class="shell__roles">{{ t("app.roleList", { roles }) }}</span>
