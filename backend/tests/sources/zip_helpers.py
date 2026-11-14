@@ -8,6 +8,7 @@ import struct
 import zipfile
 
 _DIRECTORY_ENTRY = b"PK\x01\x02"
+_END = b"PK\x05\x06"
 
 
 def make_zip(entries: dict[str, bytes], method: int = zipfile.ZIP_DEFLATED) -> bytes:
@@ -39,6 +40,45 @@ def with_zip64_locator(data: bytes) -> bytes:
     end = data.rindex(b"PK\x05\x06")
     locator = struct.pack("<4sIQI", b"PK\x06\x07", 0, 0, 1)
     return data[:end] + locator + data[end:]
+
+
+def end_signature_in_offset(data: bytes) -> bytes:
+    """``data`` (no archive comment) with the end record's signature written into the record's own
+    directory-offset field - a later copy of the signature than the record - and every entry's
+    local header offset shifted by the same amount: zipfile finds the directory and each part
+    through the difference ("concat"), so it reads the archive as before."""
+    out = bytearray(data)
+    end = len(out) - 22
+    size, offset = struct.unpack_from("<2I", out, end + 12)
+    planted = struct.unpack("<I", _END)[0]
+    entry = offset
+    while entry < offset + size:
+        name, extra, comment = struct.unpack_from("<3H", out, entry + 28)
+        (header,) = struct.unpack_from("<I", out, entry + 42)
+        struct.pack_into("<I", out, entry + 42, header + planted - offset)
+        entry += 46 + name + extra + comment
+    struct.pack_into("<I", out, end + 16, planted)
+    return bytes(out)
+
+
+def fake_end_record(directory_size: int) -> bytes:
+    """An end record stating ``directory_size``, to plant where a search may find it first."""
+    return struct.pack("<4s4H2IH", _END, 0, 0, 1, 1, directory_size, 0, 0)
+
+
+def with_fake_end_record_in_an_entry(parts: dict[str, bytes], archive_comment: bytes) -> bytes:
+    """A ZIP whose first part's entry comment holds a fake end record (stating a tiny directory),
+    and whose true end record has ``archive_comment`` after it - so zipfile searches for the record
+    and must take the last one, not the first."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
+        for index, (name, content) in enumerate(parts.items()):
+            info = zipfile.ZipInfo(name)
+            if index == 0:
+                info.comment = fake_end_record(46)
+            archive.writestr(info, content)
+        archive.comment = archive_comment
+    return buffer.getvalue()
 
 
 def directory_only(entries: int) -> bytes:

@@ -12,7 +12,7 @@ import struct
 import sys
 import zipfile
 import zlib
-from typing import BinaryIO
+from typing import BinaryIO, NamedTuple
 
 MAX_ARCHIVE_ENTRIES = 5000
 MAX_ARCHIVE_EXPANDED = 256 * 2**20
@@ -110,28 +110,66 @@ def _check(source: BinaryIO) -> None:
                 raise ArchiveTooLarge("a part unpacks past the size it states")
 
 
+class EndRecord(NamedTuple):
+    """The end record zipfile reads an archive's directory by, as zipfile found it."""
+
+    signature: bytes
+    entries: int
+    directory_size: int
+    directory_offset: int
+    comment_size: int
+    comment: bytes
+    location: int
+
+
+def end_record(source: BinaryIO) -> EndRecord:
+    """The end record of the archive ``source``, found by zipfile's own _EndRecData - the function
+    ZipFile calls (mode "r", the only one used here) and the only way it reaches the directory - so
+    the check and zipfile never take two different records. Its list is read by index: a zipfile
+    without the function, or whose answer has another shape, refuses the archive rather than skip
+    the check (tests/sources/test_archive_end_record.py pins the indices)."""
+    find = getattr(zipfile, "_EndRecData", None)
+    try:
+        record = find(source) if callable(find) else None
+    except (OSError, ValueError, struct.error) as error:
+        raise ArchiveUnreadable("no end record zipfile can read") from error
+    if not (isinstance(record, list) and len(record) == 10):
+        raise ArchiveUnreadable("no end record zipfile can read")
+    signature, _, _, _, entries, size, offset, comment_size, comment, location = record
+    found = EndRecord(signature, entries, size, offset, comment_size, comment, location)
+    if not all(isinstance(value, bytes | int) for value in found) or not isinstance(comment, bytes):
+        raise ArchiveUnreadable("no end record zipfile can read")
+    return found
+
+
 def _check_end_record(source: BinaryIO) -> None:
-    """Refuse an archive whose end record states a directory or a comment past its bound, or that
-    is a ZIP64 archive. An archive without an end record is left to zipfile to refuse."""
-    size = source.seek(0, io.SEEK_END)
-    tail_start = max(0, size - _END_RECORD.size - 0xFFFF)
-    source.seek(tail_start)
-    tail = source.read()
-    at = tail.rfind(_END)
-    if at < 0 or len(tail) - at < _END_RECORD.size:
-        return
-    *_, entries, directory_size, directory_offset, comment = _END_RECORD.unpack_from(tail, at)
-    if comment > MAX_ARCHIVE_COMMENT or len(tail) - at - _END_RECORD.size > MAX_ARCHIVE_COMMENT:
-        raise ArchiveTooLarge("the archive's comment is longer than a document's")
-    zip64 = tail_start + at >= len(_ZIP64_LOCATOR) + 16 and _locator_before(source, tail_start + at)
-    if zip64 or entries == 0xFFFF or 0xFFFFFFFF in (directory_size, directory_offset):
+    """Refuse an archive whose end record states a directory or a comment past its bound, that is
+    a ZIP64 archive, or whose record is not where it ends - the record and its comment last."""
+    record = end_record(source)
+    file_size = source.seek(0, io.SEEK_END)
+    if record.signature != _END:  # zipfile took the ZIP64 record
         raise ArchiveTooLarge("a ZIP64 archive: past every bound a document keeps to")
-    if directory_size > MAX_DIRECTORY_BYTES:
+    if record.comment_size != len(record.comment) or (
+        record.location + _END_RECORD.size + len(record.comment) != file_size
+    ):
+        raise ArchiveUnreadable("the end record is not where the archive ends")
+    if len(record.comment) > MAX_ARCHIVE_COMMENT:
+        raise ArchiveTooLarge("the archive's comment is longer than a document's")
+    if (
+        _locator_before(source, record.location)
+        or record.entries == 0xFFFF
+        or (0xFFFFFFFF in (record.directory_size, record.directory_offset))
+    ):
+        raise ArchiveTooLarge("a ZIP64 archive: past every bound a document keeps to")
+    if record.directory_size > MAX_DIRECTORY_BYTES:
         raise ArchiveTooLarge("the archive's directory is larger than a document's")
 
 
 def _locator_before(source: BinaryIO, end: int) -> bool:
-    """Whether a ZIP64 end locator stands right before the end record at ``end``."""
+    """Whether a ZIP64 end locator stands right before the end record at ``end`` (zipfile reads the
+    ZIP64 record only where one does; a locator without it is no document's either)."""
+    if end < 20:
+        return False
     source.seek(end - 20)
     return source.read(len(_ZIP64_LOCATOR)) == _ZIP64_LOCATOR
 
