@@ -509,7 +509,9 @@ ungültig.
   Fortschritt: `extract_profile`, `extract_outline`, `extract_segments`, `extract_frame`,
   `extract_statements` (fertig/gesamt), `check_document`. Endet mit
   `budget_exhausted` (Budget aufgebraucht: in X4 beginnt kein Paket mehr, die laufenden werden
-  fertig, Fertiges bleibt), `model_unanswered` (keine Antwort im Schema; in X4 bleiben nur solche
+  fertig, Fertiges bleibt), `run_over_budget` (nach X2 reicht der Rest der Quote voraussichtlich
+  nicht für X3 und X4; nichts davon wurde gefragt, siehe „Wacht nach X2“ unter „Kosten des
+  Modells“), `model_unanswered` (keine Antwort im Schema; in X4 bleiben nur solche
   Pakete offen), `model_not_configured` (kein `OPENAI_API_KEY` im Worker), `prefix_too_long`
   (nicht einmal ein Abschnitt passt neben Titelei und Rahmenteilen ins Kontextfenster),
   `document_gone` oder `document_has_tree` (Knoten oder Spezifikationen stehen schon, aber keine
@@ -679,6 +681,16 @@ Kosten des Modells: Ein Konto ohne Quote darf nichts verbrauchen, auch ein Admin
     einer Antwort außer Form kommen hinzu.
   - Geldbeträge nennt die App nicht, nur die Gewichte. Exit-Code 1: kein solches Dokument oder ein
     anderer Fehler (die Meldung steht auf stderr); 2: falscher Aufruf.
+- Wacht nach X2: Sind die Pakete geschnitten, rechnet der Job vor der ersten Anfrage von X3 oder X4,
+  was der Rest voraussichtlich bucht (wie `charged_expected`). Übersteigt das den Rest der Quote
+  (Grenze minus Verbrauch minus Reserviertes aller Jobs des Kontos), endet er mit `run_over_budget`.
+  Dann ist nichts von X3 und X4 gefragt oder gebucht; X1 und X2 bleiben, und ein neuer Start mit
+  mehr Budget setzt bei X3 fort. Eine Logzeile nennt Pakete, Präfix, Erwartung, Grenze und Rest.
+  Die Wacht ist ein Blick in einem Moment, keine Reservierung: Andere Jobs des Kontos können
+  inzwischen verbrauchen, und ein Lauf kann mehr buchen als erwartet. Er kann also weiter mit
+  `budget_exhausted` enden und behält dann seine fertigen Pakete. `EXTRACT_BUDGET_WATCH=false`
+  schaltet die Wacht ab; ein Konto ohne Grenze wird nicht bewacht. Soll ein Lauf nach X2 anhalten,
+  setzt der Betreiber die Grenze knapp über das, was X1 und X2 verbraucht haben.
 - Einen Modelljob darf ein Konto nur starten, solange es seine Grenze nicht verbraucht hat, sonst
   403 `no_budget`; was laufende Aufrufe reserviert halten, zählt dabei nicht. Höchstens
   `MAX_JOBS_IN_FLIGHT` (Standard 20) dürfen warten oder laufen, sonst 429 `too_many_jobs` mit

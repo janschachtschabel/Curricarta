@@ -191,6 +191,10 @@ class Settings(BaseSettings):
     # Units X4 asks the model about at once within one job (app/pipeline/x4_statements.py); each
     # holds its reservation while it waits, so more of them spend an account's budget faster
     extract_concurrency: Annotated[int, Field(ge=1, le=16)] = 4
+    # Whether a run, once X2 has cut the units, reckons what its rest is expected to charge and ends
+    # (run_over_budget) before X3 asks where the account's quota has not that much left
+    # (app/pipeline/watch.py); off, a run spends until a reservation finds too little
+    extract_budget_watch: bool = True
     # How long X5 may validate one document against the Kern's shapes, in a child process killed at
     # its end (app/pipeline/shacl.py): 43 s measured for 2,400 rows, room for a slower machine
     shacl_timeout_s: Annotated[int, Field(ge=10, le=1800)] = 300

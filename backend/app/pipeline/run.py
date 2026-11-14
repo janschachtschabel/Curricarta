@@ -1,7 +1,9 @@
 """The job ``extract.run`` (plan M1 6.6, 7b, 8): a document's stages one after the other - X1
 (profile, skeleton, outline; app/pipeline/x1_stage.py), X2 (work packages), X3 (the frame;
 app/pipeline/x3_stage.py), X4 (the units' statements; app/pipeline/x4_statements.py), X5 (the checks,
-no model; app/pipeline/x5_stage.py) - each stage of each attempt a run of its own
+no model; app/pipeline/x5_stage.py) - and between X2 and X3 the watch (app/pipeline/watch.py), which
+ends the job as ``run_over_budget`` where the account's quota will not hold the rest; each stage of each
+attempt a run of its own
 (``extraction_run``), written at once with its run's end under the attempt's lease; X4's units each
 written whole on their own, so a unit done stays done.
 A job goes on from the last stage done on the document - an attempt after a break (a worker gone,
@@ -30,6 +32,7 @@ from app.jobs.queue import Job, hold_lease
 from app.pipeline.extraction import KIND as KIND
 from app.pipeline.extraction import document_in
 from app.pipeline.progress import report
+from app.pipeline.watch import watch_budget
 from app.pipeline.x1_stage import run_x1
 from app.pipeline.x2_segments import work_packages
 from app.pipeline.x3_stage import run_x3
@@ -58,6 +61,8 @@ async def extract_document(context: JobContext, job: Job) -> dict[str, Any]:
         async with context.pool.connection() as connection:
             made = await stage_result(connection, document.id, "X2")
         packages = len((made or {}).get("packages", []))
+    if not {"X3", "X4"} <= done:  # before X3 or X4 asks: does the budget hold the rest?
+        await watch_budget(context, job, await _current(context, document.id), blocks, printed)
     if "X3" not in done:
         await run_x3(context, job, await _current(context, document.id), blocks, printed)
     if "X4" not in done:

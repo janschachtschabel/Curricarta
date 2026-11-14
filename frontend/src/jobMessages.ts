@@ -28,8 +28,9 @@ export const JOB_FAILURE_CODES = [
   "file_gone",
   "no_pages",
   "too_many_ocr_pages",
-  // extract.run (backend app/pipeline/run.py, asking.py, unit_question.py, side_by_side.py)
+  // extract.run (backend app/pipeline/run.py, asking.py, unit_question.py, side_by_side.py, watch.py)
   "budget_exhausted",
+  "run_over_budget",
   "model_unanswered",
   "answer_cut",
   "model_not_configured",

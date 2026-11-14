@@ -30,6 +30,7 @@ from tests.pipeline.test_run import (
     context_of,
     rows,
     setup,
+    unwatched,
 )
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -214,7 +215,8 @@ async def test_a_budget_spent_before_the_frame_is_asked_keeps_x1_and_x2_and_a_ne
             )
         return model(messages, info)
 
-    context = context_of(pool, tmp_path, answer, database_url)
+    # the watch after X2 off, which would end the job before X3 began (tests/pipeline/test_watch.py)
+    context = unwatched(context_of(pool, tmp_path, answer, database_url), database_url)
     with pytest.raises(PermanentError) as ended:
         await extract_document(context, await a_job(connection, document.id, document.owner_id))
 

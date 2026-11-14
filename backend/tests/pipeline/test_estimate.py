@@ -39,6 +39,7 @@ from tests.pipeline.test_run import (
     context_of,
     is_profile,
     setup,
+    unwatched,
 )
 from tests.pipeline.test_x4_statements import with_concurrency
 
@@ -81,7 +82,7 @@ async def after_x2(
     database_url: str,
 ) -> tuple[Document, JobContext]:
     """A document whose first job ended after X2, its budget spent: the outline's answer leaves the
-    account too little for X3's request."""
+    account too little for X3's request - the watch after X2 off, which would end it before."""
     pool, connection = setup
     document = await a_document(connection)
     model = Model()
@@ -95,7 +96,7 @@ async def after_x2(
 
     with pytest.raises(PermanentError) as ended:
         await extract_document(
-            context_of(pool, tmp_path, answer, database_url),
+            unwatched(context_of(pool, tmp_path, answer, database_url), database_url),
             await a_job(connection, document.id, document.owner_id),
         )
     assert ended.value.code == "budget_exhausted"

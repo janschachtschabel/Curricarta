@@ -649,6 +649,12 @@ export const messages = {
         "Das Token-Budget des Kontos, dem das Dokument gehört, ist aufgebraucht; die Extraktion ist beendet. " +
         "Was schon fertig war, bleibt erhalten: Mit mehr Budget setzt ein neuer Start dort fort, wo sie endete. " +
         "Bitte die Administration um mehr Budget.",
+      // the watch after X2 (backend app/pipeline/watch.py): neither the frame nor a part was asked or charged
+      run_over_budget:
+        "Das restliche Token-Budget des Kontos, dem das Dokument gehört, reicht voraussichtlich nicht für den " +
+        "Rest der Extraktion. Sie wurde deshalb beendet, bevor das Sprachmodell weiter gefragt wurde. Was " +
+        "schon fertig war, bleibt erhalten: Mit mehr Budget setzt ein neuer Start dort fort, wo sie endete. " +
+        "Bitte die Administration um mehr Budget.",
       model_unanswered:
         "Das Sprachmodell hat auch nach mehreren Versuchen keine verwertbare Antwort geliefert. Starte die " +
         "Extraktion später noch einmal; scheitert sie wieder, melde es der Administration.",

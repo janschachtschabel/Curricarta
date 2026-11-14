@@ -46,6 +46,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `MODEL_STARTS_PER_MINUTE` | Zahl ≥ 1 | 10 | – | Dienst |
 | `EXPORTS_PER_MINUTE` | Zahl ≥ 1 | 10 | – | Dienst |
 | `EXTRACT_CONCURRENCY` | Zahl ≥ 1, ≤ 16 | 4 | – | Dienst |
+| `EXTRACT_BUDGET_WATCH` | `true` \| `false` | `true` | – | Dienst |
 | `SHACL_TIMEOUT_S` | Zahl ≥ 10, ≤ 1800 | 300 | – | Dienst |
 | `X5_ANCHOR_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |
 | `CHILD_MEMORY_LIMIT_MB` | Zahl ≥ 256, ≤ 262144 | – | – | Dienst |
