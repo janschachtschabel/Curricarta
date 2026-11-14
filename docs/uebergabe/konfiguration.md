@@ -105,11 +105,11 @@ ein Test schlägt an, wenn sie veraltet.
   Objekt mit 403 statt 404), `s3:GetObject`, `s3:PutObject` und `s3:DeleteObject` auf seine Objekte.
 - `FORWARDED_ALLOW_IPS`: die Adressen oder Netze des Ingress, nie `*` und nie ein Netz `/0`.
 - Uploads: Das Formular eines Uploads liegt ab 1 MiB als temporäre Datei in `/tmp` (bzw.
-  `TMPDIR`), bis zu `MAX_UPLOAD_MB` + 1 MiB; danach hält die API die Datei einmal im
-  Arbeitsspeicher, solange sie sie prüft und ablegt. Je gleichzeitigem Upload braucht eine
-  API-Replica also bis zu `MAX_UPLOAD_MB` + 1 MiB in `/tmp` und rund `MAX_UPLOAD_MB` mehr
-  Arbeitsspeicher. Gleichzeitig nimmt ein API-Prozess höchstens `MAX_CONCURRENT_UPLOADS` Uploads
-  an (Standard 2); ein weiterer wartet bis zu 10 s auf einen freien Platz und bekommt dann 503
+  `TMPDIR`), bis zu `MAX_UPLOAD_MB` + 1 MiB; aus dieser Datei prüft die API sie und legt sie ab,
+  stückweise, ohne sie ganz in den Arbeitsspeicher zu laden (gemessen bei 8 MiB: rund 2 MiB, mit
+  beiden Speichern). Je gleichzeitigem Upload braucht eine API-Replica also bis zu
+  `MAX_UPLOAD_MB` + 1 MiB in `/tmp`. Gleichzeitig nimmt ein API-Prozess höchstens
+  `MAX_CONCURRENT_UPLOADS` Uploads an (Standard 2); ein weiterer wartet bis zu 10 s auf einen freien Platz und bekommt dann 503
   `uploads_busy` mit `Retry-After`. `/tmp` braucht daher mindestens `MAX_CONCURRENT_UPLOADS` ×
   (`MAX_UPLOAD_MB` + 1) MiB je API-Prozess (Standard: 2 × 51 = 102 MiB).
   `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto kann alle Plätze einer Replica belegen.

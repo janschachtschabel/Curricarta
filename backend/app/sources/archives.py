@@ -11,6 +11,7 @@ import io
 import sys
 import zipfile
 import zlib
+from typing import BinaryIO
 
 MAX_ARCHIVE_ENTRIES = 5000
 MAX_ARCHIVE_EXPANDED = 256 * 2**20
@@ -23,6 +24,7 @@ _PACKED_WITH = frozenset({zipfile.ZIP_STORED, zipfile.ZIP_DEFLATED})
 _ENCRYPTED = 0x1  # general-purpose bit 0
 _MEASURING_BLOCK = 2**16
 _DIRECTORY_ENTRY = b"PK\x01\x02"  # the signature each part's entry in the central directory starts with
+COUNTING_PIECE = 2**20  # the signatures are counted a piece at a time, never in the whole file
 
 
 class ArchiveUnreadable(ValueError):
@@ -34,7 +36,13 @@ class ArchiveTooLarge(ValueError):
 
 
 def check_archive(data: bytes) -> None:
-    """Refuse a ZIP whose parts would expand past the bounds above.
+    """``check_archive_file`` of bytes held in memory (a URL import's)."""
+    check_archive_file(io.BytesIO(data))
+
+
+def check_archive_file(source: BinaryIO) -> None:
+    """Refuse a ZIP, read from ``source`` from where it stands, whose parts would expand past the
+    bounds above; ``source`` is left where it stood.
 
     The central directory first: how many parts, the sizes they state, the bomb ratio, how
     they are packed. Then every part unpacked in blocks and counted, for those sizes are the
@@ -48,10 +56,19 @@ def check_archive(data: bytes) -> None:
     whole directory into objects first, and 50 MiB naming 1.1 million parts took 4.3 s and
     330 MiB. The count is at least the true one, as packed bytes may hold the signature too.
     """
-    if data.count(_DIRECTORY_ENTRY) > MAX_ARCHIVE_ENTRIES:
-        raise ArchiveTooLarge(f"more than {MAX_ARCHIVE_ENTRIES} parts")
+    start = source.tell()
     try:
-        archive = zipfile.ZipFile(io.BytesIO(data))
+        _check(source, start)
+    finally:
+        source.seek(start)
+
+
+def _check(source: BinaryIO, start: int) -> None:
+    if _signatures(source) > MAX_ARCHIVE_ENTRIES:
+        raise ArchiveTooLarge(f"more than {MAX_ARCHIVE_ENTRIES} parts")
+    source.seek(start)
+    try:
+        archive = zipfile.ZipFile(source)
     except (zipfile.BadZipFile, ValueError) as error:
         raise ArchiveUnreadable("not a readable archive") from error
     with archive:
@@ -72,6 +89,18 @@ def check_archive(data: bytes) -> None:
         for part in parts:
             if _unpacks_past_its_size(archive, part):
                 raise ArchiveTooLarge("a part unpacks past the size it states")
+
+
+def _signatures(source: BinaryIO) -> int:
+    """How often the directory entry's signature occurs in the rest of ``source``, counted a piece
+    at a time: each piece with the last three bytes of the one before, so a signature across two
+    pieces is counted once (it cannot overlap itself)."""
+    count, tail = 0, b""
+    while piece := source.read(COUNTING_PIECE):
+        joined = tail + piece
+        count += joined.count(_DIRECTORY_ENTRY)
+        tail = joined[-(len(_DIRECTORY_ENTRY) - 1) :]
+    return count
 
 
 def _unpacks_past_its_size(archive: zipfile.ZipFile, part: zipfile.ZipInfo) -> bool:

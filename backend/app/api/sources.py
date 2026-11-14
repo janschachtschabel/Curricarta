@@ -4,7 +4,8 @@
 The upload route has no body parameter on purpose: FastAPI reads such a body before it checks
 the token, so the form is read here, after it. BodyLimit (app/api/body_limit.py) bounds the body
 before anything reads it; the form parser spools the file in pieces and counts it, and a file
-past MAX_UPLOAD_MB is refused by that count before it is read into memory, once. A process takes
+past MAX_UPLOAD_MB is refused by that count before any of it is read. The spooled file is then
+examined and stored a piece at a time, never held whole in memory. A process takes
 MAX_CONCURRENT_UPLOADS uploads at once (audit 2026-11-14), each from before its form is read to
 after its file is stored: one more waits UPLOAD_WAIT_S, holding no connection, then is told to
 come back.
@@ -38,7 +39,7 @@ from app.sources.filetype import (
     DetectedType,
     UnsupportedType,
     base_name,
-    examine,
+    examine_file,
     stored_name,
 )
 from app.sources.register import Provenance, RegisterStatus, RightsStatus
@@ -138,23 +139,23 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
         await within_limit(
             connection, who.account_id, "source.upload", settings.uploads_per_minute, "too_many_uploads"
         )
-    async with _upload_slot(request.app.state.upload_slots):
-        async with request.form(max_files=1, max_fields=2) as form:
-            upload = form.get("file")
-            if not isinstance(upload, UploadFile):
-                raise Refusal(422, "file_missing", "The form holds no file.")
-            given_title = form.get("title")
-            data = await _read(upload, settings.max_upload_mb * MIB)
-            received = upload.filename or ""
-        detected, digest = await asyncio.to_thread(_examine, received, data)
+    # the slot first: a form waiting for one would hold its spooled file in /tmp
+    async with _upload_slot(request.app.state.upload_slots), request.form(max_files=1, max_fields=2) as form:
+        upload = form.get("file")
+        if not isinstance(upload, UploadFile):
+            raise Refusal(422, "file_missing", "The form holds no file.")
+        given_title = form.get("title")
+        received = upload.filename or ""
+        detected, digest, size = await asyncio.to_thread(_examined, upload, settings.max_upload_mb * MIB)
         file_name = stored_name(received, detected)
         title = _title(given_title if isinstance(given_title, str) else None, file_name)
         stored = StoredFile(
-            sha256=digest, size=len(data), mime=detected.mime, storage_key=f"sources/{digest.hex()}"
+            sha256=digest, size=size, mime=detected.mime, storage_key=f"sources/{digest.hex()}"
         )
         storage = request.app.state.storage
         if not await storage.exists(stored.storage_key):  # the same bytes are stored once
-            await storage.put(stored.storage_key, data)
+            # from the spooled file the digest was taken of; it goes with the form
+            await storage.put_file(stored.storage_key, upload.file, size)
     async with request.app.state.pool.connection() as connection, connection.transaction():
         source_id = await record_upload(
             connection,
@@ -164,7 +165,7 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
             received_name=base_name(received)[:MAX_NAME_SIGNS],
             title=title,
         )
-        details = {"sha256": digest.hex(), "size": len(data), "mime": detected.mime}
+        details = {"sha256": digest.hex(), "size": size, "mime": detected.mime}
         await record_audit(
             connection,
             who.account_id,
@@ -180,7 +181,7 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
         provenance="upload",
         rights_status="unklar",
         register_status="acquired",
-        file=SourceFileOut(name=file_name, mime=detected.mime, size=len(data), sha256=digest.hex()),
+        file=SourceFileOut(name=file_name, mime=detected.mime, size=size, sha256=digest.hex()),
     )
 
 
@@ -248,29 +249,25 @@ async def _upload_slot(slots: asyncio.Semaphore) -> AsyncIterator[None]:
         slots.release()
 
 
-async def _read(upload: UploadFile, limit: int) -> bytes:
-    """The file's bytes, read at once and so held once. The form parser counted them as it
-    spooled them (to /tmp past a MiB): a file past ``limit`` is refused before any is read."""
+def _examined(upload: UploadFile, limit: int) -> tuple[DetectedType, bytes, int]:
+    """``examine_file`` of the file the form parser spooled (to /tmp past a MiB), never held whole;
+    its refusals as the API words them. The parser counted the file as it spooled it: a file past
+    ``limit`` is refused before any of it is read. Blocks: run in a thread."""
     if upload.size is not None and upload.size > limit:
         raise _too_large(limit)
-    data = await upload.read()
-    if len(data) > limit:  # a file the parser did not count
-        raise _too_large(limit)
-    return data
-
-
-def _too_large(limit: int) -> Refusal:
-    return Refusal(413, "file_too_large", f"The file is larger than {limit // MIB} MB.")
-
-
-def _examine(name: str, data: bytes) -> tuple[DetectedType, bytes]:
-    """``examine``, its refusals as the API words them."""
     try:
-        return examine(name, data)
+        detected, digest, size = examine_file(upload.filename, upload.file)
     except (UnsupportedType, ArchiveUnreadable):
         raise Refusal(415, "unsupported_type", "The file is of no type a conversion reads.") from None
     except ArchiveTooLarge:
         raise Refusal(413, "archive_too_large", "The archive expands beyond what a document holds.") from None
+    if size > limit:  # a file the parser did not count
+        raise _too_large(limit)
+    return detected, digest, size
+
+
+def _too_large(limit: int) -> Refusal:
+    return Refusal(413, "file_too_large", f"The file is larger than {limit // MIB} MB.")
 
 
 def _title(given: str | None, file_name: str) -> str:

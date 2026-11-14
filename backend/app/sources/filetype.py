@@ -7,12 +7,14 @@ import), so none takes another way round it. Taken over from curriculum-extracto
 (services/filetype.py).
 """
 
+import codecs
 import hashlib
 from dataclasses import dataclass
 from pathlib import PurePosixPath, PureWindowsPath
+from typing import BinaryIO
 
 from app.core.auth import visible_only
-from app.sources.archives import check_archive
+from app.sources.archives import check_archive, check_archive_file
 
 # What the common file systems hold as one file's name
 MAX_NAME_SIGNS = 255
@@ -63,6 +65,7 @@ class DetectedType:
 
 
 PDF_SIGNATURE = b"%PDF"  # what a PDF begins with; the version and a dash may follow
+READ_PIECE = 2**20  # what examine_file reads at a time
 
 
 def detect_type(filename: str | None, data: bytes) -> DetectedType | None:
@@ -71,17 +74,29 @@ def detect_type(filename: str | None, data: bytes) -> DetectedType | None:
     A ZIP (``PK\\x03\\x04``) is taken for a DOCX, the only OOXML type in scope; a mislabelled
     XLSX or PPTX fails in the conversion, not here.
     """
-    if data.startswith(PDF_SIGNATURE):
+    signed = _signed_type(data)
+    if signed is not None:
+        return signed
+    text = _text_type(filename)
+    return text if text is not None and _is_utf8(data) else None
+
+
+def _signed_type(head: bytes) -> DetectedType | None:
+    """The type a file's first bytes name, if they name one."""
+    if head.startswith(PDF_SIGNATURE):
         return DetectedType(PDF_MIME, ".pdf")
-    if data.startswith(b"PK\x03\x04"):
+    if head.startswith(b"PK\x03\x04"):
         return DetectedType(DOCX_MIME, ".docx")
-    if data.startswith(b"{\\rtf"):
+    if head.startswith(b"{\\rtf"):
         return DetectedType("application/rtf", ".rtf")
+    return None
+
+
+def _text_type(filename: str | None) -> DetectedType | None:
+    """The text type a name names, its bytes yet to read as UTF-8."""
     suffix = PurePosixPath(base_name(filename)).suffix.lower()
     text_mime = _TEXT_TYPES.get(suffix)
-    if text_mime and _is_utf8(data):
-        return DetectedType(text_mime, suffix)
-    return None
+    return DetectedType(text_mime, suffix) if text_mime else None
 
 
 def accepted_type(filename: str | None, data: bytes) -> DetectedType:
@@ -103,6 +118,45 @@ def examine(filename: str | None, data: bytes) -> tuple[DetectedType, bytes]:
     """``accepted_type`` and the SHA-256 of the bytes: what every way a source comes in asks of a
     file. Unpacks an archive and hashes up to the upload limit, so callers run it in a thread."""
     return accepted_type(filename, data), hashlib.sha256(data).digest()
+
+
+def examine_file(filename: str | None, source: BinaryIO) -> tuple[DetectedType, bytes, int]:
+    """``examine`` of the rest of ``source``, read a piece at a time and never held whole (an
+    upload's spooled file): the type, the SHA-256 and the size. The same refusals as ``examine``;
+    ``source`` is left where it stood, for the store to read it from there. Blocks: callers on the
+    event loop run it in a thread."""
+    start = source.tell()
+    try:
+        piece = source.read(READ_PIECE)  # the head, which a signature is in
+        signed = _signed_type(piece)
+        detected = signed or _text_type(filename)
+        if detected is None:
+            raise UnsupportedType("not a file type any conversion reads")
+        # a text type is UTF-8 throughout: a sign may be split over two pieces
+        utf8 = None if signed else codecs.getincrementaldecoder("utf-8")()
+        digest, size = hashlib.sha256(), 0
+        while piece:
+            digest.update(piece)
+            size += len(piece)
+            _decoded(utf8, piece)
+            piece = source.read(READ_PIECE)
+        _decoded(utf8, b"", final=True)
+        if detected.mime == DOCX_MIME:
+            source.seek(start)
+            check_archive_file(source)
+        return detected, digest.digest(), size
+    finally:
+        source.seek(start)
+
+
+def _decoded(utf8: codecs.IncrementalDecoder | None, piece: bytes, final: bool = False) -> None:
+    """Nothing, if ``piece`` goes on the text as UTF-8 (or the file is no text); else UnsupportedType."""
+    if utf8 is None:
+        return
+    try:
+        utf8.decode(piece, final)
+    except UnicodeDecodeError:
+        raise UnsupportedType("not a file type any conversion reads") from None
 
 
 def answer_name(name: str, content_type: str | None, asked: str = "") -> str:

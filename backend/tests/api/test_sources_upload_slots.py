@@ -8,7 +8,7 @@ import asyncio
 import contextlib
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, BinaryIO, Literal
 from uuid import UUID
 
 import pytest
@@ -56,15 +56,20 @@ def the_slot_is_free(client: TestClient, slots: asyncio.Semaphore, header: dict[
 
 
 def drive(
-    client: TestClient, header: dict[str, str], receive: Receive, *, cancel: asyncio.Event | None
+    client: TestClient,
+    header: dict[str, str],
+    receive: Receive,
+    *,
+    cancel: asyncio.Event | None,
+    file_size: int = len(PDF),
 ) -> None:
-    """A POST of an upload form, its body through ``receive``, as a server drives the app; with
-    ``cancel``, the request is cancelled once the event is set, as a server does when its
-    connection is lost."""
+    """A POST of an upload form of a file of ``file_size``, its body through ``receive``, as a server
+    drives the app; with ``cancel``, the request is cancelled once the event is set, as a server does
+    when its connection is lost."""
     headers = [
         (b"host", b"testserver:8000"),
         (b"content-type", f"multipart/form-data; boundary={BOUNDARY}".encode()),
-        (b"content-length", str(len(HEAD) + len(PDF) + 64).encode()),
+        (b"content-length", str(len(HEAD) + file_size + 64).encode()),
     ] + [(k.lower().encode(), v.encode()) for k, v in header.items()]
     scope = {
         "type": "http",
@@ -152,14 +157,14 @@ def test_an_upload_whose_store_fails_gives_its_slot_back(
 ) -> None:
     client, slots = one_slot
     storage = client.app.state.storage  # type: ignore[attr-defined]
-    put = storage.put
+    put_file = storage.put_file
 
-    async def failing(key: str, data: bytes) -> None:
+    async def failing(key: str, source: BinaryIO, size: int) -> None:
         raise OSError("the store is full")
 
-    monkeypatch.setattr(storage, "put", failing)
+    monkeypatch.setattr(storage, "put_file", failing)
     assert upload(client, owner[1]).status_code == 500
-    monkeypatch.setattr(storage, "put", put)
+    monkeypatch.setattr(storage, "put_file", put_file)
 
     assert the_slot_is_free(client, slots, owner[1])
 
