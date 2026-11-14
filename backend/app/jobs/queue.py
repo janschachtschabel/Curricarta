@@ -214,6 +214,24 @@ async def last_jobs(connection: psycopg.AsyncConnection, unique_keys: Sequence[s
     }
 
 
+# Each half reads one partial index (job_waiting, job_running), so ended jobs - most of the table -
+# cost nothing. A waiting job's age counts from when it became due: a retried job's backoff is no wait
+_DEPTH = """
+SELECT kind, 'queued'::text, count(*)::int,
+    coalesce(extract(epoch FROM now() - min(run_after) FILTER (WHERE run_after <= now())), 0)::float8
+FROM job WHERE status = 'queued' GROUP BY kind
+UNION ALL
+SELECT kind, 'running'::text, count(*)::int, 0::float8 FROM job WHERE status = 'running' GROUP BY kind
+"""
+
+
+async def queue_depth(connection: psycopg.AsyncConnection) -> list[tuple[str, str, int, float]]:
+    """Per kind and status (queued, running): how many jobs, and the seconds the oldest due one has
+    waited (0 for running jobs, and for a kind none of whose waiting jobs is due yet)."""
+    cursor = await connection.execute(_DEPTH)
+    return [(kind, status, count, age) for kind, status, count, age in await cursor.fetchall()]
+
+
 def _request_trace() -> str | None:
     """The trace id of the request being served, else its request id (the SPA sends no tracing
     header), as the column takes it; ``None`` outside a request, or for an id it would refuse."""

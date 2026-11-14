@@ -18,6 +18,7 @@ from app.jobs.queue import (
     heartbeat,
     hold_lease,
     mark_cancelled,
+    queue_depth,
     release,
     request_cancel,
     requeue_expired,
@@ -402,3 +403,36 @@ async def test_a_lease_lost_or_run_out_is_held_no_more(connect: Any) -> None:
         async with db.transaction():
             with pytest.raises(LeaseLost):
                 await hold_lease(db, lost)
+
+
+async def test_the_waiting_and_running_jobs_are_counted_by_kind(connect: Any) -> None:
+    db = await connect()
+    for _ in range(3):
+        await enqueue(db, "test.work", "account-a")
+    await enqueue(db, "test.other", "account-b")
+    running = await claim(db, "w1", KINDS, LEASE_S)
+    ended = await claim(db, "w1", KINDS, LEASE_S)
+    assert running is not None and ended is not None
+    await complete(db, ended, None)  # an ended job waits for nothing
+
+    depth = {(kind, status): count for kind, status, count, _ in await queue_depth(db)}
+
+    assert depth == {("test.work", "queued"): 1, ("test.work", "running"): 1, ("test.other", "queued"): 1}
+
+
+async def test_the_oldest_waiting_job_s_age_is_said_and_one_not_yet_due_does_not_count(connect: Any) -> None:
+    db = await connect()
+    waiting = await enqueue(db, "test.work", "account-a")
+    await enqueue(db, "test.work", "account-a", run_after_s=3600)
+    await enqueue(db, "test.later", "account-a", run_after_s=3600)
+    # due two minutes ago: a retried job waits from when it became due, not from when it was made
+    await db.execute(
+        "UPDATE job SET run_after = now() - interval '120 s', created_at = now() - interval '1 h'"
+        " WHERE id = %s",
+        (waiting,),
+    )
+
+    oldest = {(kind, status): age for kind, status, _, age in await queue_depth(db)}
+
+    assert 120 <= oldest[("test.work", "queued")] < 130
+    assert oldest[("test.later", "queued")] == 0
