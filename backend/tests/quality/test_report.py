@@ -194,7 +194,7 @@ async def test_two_samples_of_one_document_are_one_entry(connection: psycopg.Asy
         await report(connection, [999_999])
 
 
-async def test_an_anchor_sample_is_told_over_all_strata_and_without_the_title_pages(
+async def test_an_anchor_sample_tells_the_found_anchors_precision_and_the_missed_wordings_apart(
     connection: psycopg.AsyncConnection,
 ) -> None:
     document = await document_of(connection, with_contents())
@@ -207,36 +207,48 @@ async def test_an_anchor_sample_is_told_over_all_strata_and_without_the_title_pa
         statements=(
             *(statement(f"{WORDS['outcome']} {n}", origin=IMPORTED, anchors=(on_cover,)) for n in range(6)),
             *(statement(f"{WORDS['content']} {n}", origin=IMPORTED, anchors=(in_body,)) for n in range(30)),
-            statement(WORDS["own"], origin=IMPORTED, anchors=(lost,)),
+            *(statement(f"{WORDS['own']} {n}", origin=IMPORTED, anchors=(lost,)) for n in range(2)),
         ),
     )  # fmt: skip
     await write_subtree(connection, document.id, root)
     await done(connection, document, "IM")
-    sample = await drawn(connection, document, "anchor")  # all 38
+    sample = await drawn(connection, document, "anchor")  # all 39, each judged
     strata = await by_stratum(connection, sample)
-    place = Judgement("wrong", ("wrong_place",), None, None)
-    for item, judgement in (
-        (strata["exact:node"][0], CORRECT),
-        (strata["exact:statement"][0], CORRECT),
-        (strata["exact:statement"][1], place),
-        (strata["front:statement"][0], place),
-        (strata["notFound:statement"][0], Judgement("wrong", ("missed",), None, None)),
-    ):
-        await judge(connection, item.id, document.owner_id, judgement)
+    place, missed = (
+        Judgement("wrong", ("wrong_place",), None, None),
+        Judgement("wrong", ("missed",), None, None),
+    )
+    verdicts = {
+        "exact:node": [CORRECT],
+        "exact:statement": [CORRECT] * 15 + [IMPRECISE] * 10 + [place] * 5,
+        "front:statement": [CORRECT] * 2 + [place] * 4,
+        "notFound:statement": [CORRECT, missed],  # rightly not found; there after all
+    }
+    for stratum, judgements in verdicts.items():
+        for item, judgement in zip(strata[stratum], judgements, strict=True):
+            await judge(connection, item.id, document.owner_id, judgement)
 
     [entry] = (await report(connection, [sample]))["documents"]
 
     anchors = entry["anchor"]
     assert entry["source_kind"] == "mem_import"
     assert anchors["title_pages"] == "set_apart"
-    assert anchors["missed"] == 1
-    # all: (1 * 1 + 30 * 1/2 + 6 * 0 + 1 * 0) / 38; without front: 16 / 32
-    assert anchors["weighted"]["precision_strict"] == round(16 / 38, 4)
-    assert anchors["pooled"]["precision_strict"] == 0.4
-    assert anchors["without_front"]["weighted"]["precision_strict"] == 0.5
-    assert anchors["without_front"]["pooled"]["precision_strict"] == 0.5
-    assert (anchors["without_front"]["judged"], anchors["without_front"]["open"]) == (4, 28)
-    assert anchors["reasons"] == {"boundary": 0, "wrong_place": 2, "missed": 1}
+    assert set(anchors["strata"]) == {"exact:node", "exact:statement", "front:statement"}  # found ones
+    # found, all: strict (1 + 15 + 2) / 37, lenient (1 + 25 + 2) / 37, wrong (5 + 4) / 37
+    assert anchors["weighted"] == {
+        "by": "frame_when_drawn",
+        "precision_strict": 0.4865, "precision_lenient": 0.7568, "wrong_rate": 0.2432,
+    }  # fmt: skip
+    assert (anchors["judged"], anchors["open"], anchors["pooled"]["precision_strict"]) == (37, 0, 0.4865)
+    # without the title pages: 16 / 31, 26 / 31, 5 / 31
+    without = anchors["without_front"]
+    assert (without["weighted"]["precision_strict"], without["weighted"]["precision_lenient"]) == (
+        0.5161,
+        0.8387,
+    )
+    assert (without["weighted"]["wrong_rate"], without["judged"], without["open"]) == (0.1613, 31, 0)
+    assert anchors["not_found"] == {"judged": 2, "missed": 1, "missed_rate": 0.5}
+    assert anchors["reasons"] == {"boundary": 10, "wrong_place": 9}
 
 
 def leaves(value: object, path: str = "") -> Iterator[tuple[str, object]]:

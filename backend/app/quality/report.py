@@ -8,8 +8,10 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
 - ``block``: recall - Σ min(found, expected) / Σ expected over the judged blocks, ``found`` the model's
   statements whose anchors name the block now, however reviewed -, the blocks missed, those expected
   empty but holding statements (apart), the surplus.
-- ``anchor``: as statements, over all strata and again without the title pages' (``front:*``), beside
-  ``title_pages`` as kept when drawn; ``missed``, the not-found rows whose wording is there.
+- ``anchor``: the found anchors' precision as statements', over the strata that are not ``notFound:*`` -
+  all of them, and again without the title pages' (``front:*``) -, beside ``title_pages`` as kept when
+  drawn; apart, ``not_found``: of the rows the import did not find, how many were judged and how many of
+  those hold a wording that is there after all (``missed``, ``missed_rate``).
 
 Each leaf is a number, a truth value, null or a code of ``LEAF``: no wording, quote or note can pass."""
 
@@ -35,11 +37,10 @@ log = logging.getLogger(__name__)
 
 LEAF = r"[A-Za-z0-9_.:/+-]{1,60}"  # no space: no wording passes
 STATEMENT_REASONS = ("not_a_statement", "not_in_document", "node", "boundary", "kind", "fields")
-ANCHOR_REASONS = ("boundary", "wrong_place", "missed")
+ANCHOR_REASONS = ("boundary", "wrong_place")  # of a found anchor; "missed" is not_found's
 FRONT = "front:"  # the strata of the title pages' anchors
 NOT_FOUND = "notFound:"
 _DIGITS = 4
-_NONE = Judgement(None, (), None, None)
 
 Section = dict[str, Any]
 
@@ -99,17 +100,31 @@ def _verdicts(
 
 
 def _anchors(sample: Sample, items: Sequence[Item], judgements: Mapping[int, Judgement]) -> Section:
-    every = _verdicts(sample.frame, items, judgements, ANCHOR_REASONS)
-    inside = [item for item in items if not item.stratum.startswith(FRONT)]
-    frame = {stratum: n for stratum, n in sample.frame.items() if not stratum.startswith(FRONT)}
-    without = _verdicts(frame, inside, judgements, ANCHOR_REASONS)
-    missed = sum(
-        1
-        for item in items
-        if item.stratum.startswith(NOT_FOUND) and judgements.get(item.id, _NONE).verdict == "wrong"
+    """The found anchors' precision - over the strata not ``notFound:*``, all of them and again without
+    the title pages' - and, beside it, the rows the import did not find: how many of those judged hold a
+    wording that is there after all (``missed``)."""
+    found = [item for item in items if not item.stratum.startswith(NOT_FOUND)]
+    frame = {stratum: n for stratum, n in sample.frame.items() if not stratum.startswith(NOT_FOUND)}
+    inside = [item for item in found if not item.stratum.startswith(FRONT)]
+    without = _verdicts(
+        {stratum: n for stratum, n in frame.items() if not stratum.startswith(FRONT)},
+        inside,
+        judgements,
+        ANCHOR_REASONS,
     )
-    return {"sample": sample.id, "title_pages": sample.title_pages, **every, "missed": missed} | {
-        "without_front": {key: without[key] for key in ("judged", "open", "weighted", "pooled")}
+    lost = [judgements[i.id].verdict for i in items if i.stratum.startswith(NOT_FOUND) and i.id in judgements]
+    judged = sum(1 for verdict in lost if verdict is not None)
+    missed = lost.count("wrong")
+    return {
+        "sample": sample.id,
+        "title_pages": sample.title_pages,
+        **_verdicts(frame, found, judgements, ANCHOR_REASONS),
+        "without_front": {key: without[key] for key in ("judged", "open", "weighted", "pooled")},
+        "not_found": {
+            "judged": judged,
+            "missed": missed,
+            "missed_rate": _rate(missed / judged) if judged else None,
+        },
     }
 
 
