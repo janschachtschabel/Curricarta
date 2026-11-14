@@ -20,6 +20,11 @@ updates:
       minor-and-patch:
         patterns: ["*"]
         update-types: [minor, patch]
+    ignore:
+      # the types of the Node the frontend is built and tested with (node-version in the workflows): a major
+      # moves with that version, not ahead of it
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
 
   # Security updates only: a limit of 0 turns version updates off and leaves security updates on.
   # The converter's stack (docling, docling-core, docling-ibm-models, docling-parse, torch, transformers,
