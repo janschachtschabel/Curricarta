@@ -69,7 +69,7 @@ class PurposeUsage:
     estimated_rows: int
     estimated_charged_tokens: int
     max_output_tokens: int  # the largest answer reported
-    cut_answers: int  # answers reported at the cap or beyond it
+    cut_answers: int  # answers reported at the cap given (today's) or beyond it
     reservations_left: int  # held and never booked
 
 

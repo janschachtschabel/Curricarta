@@ -4,16 +4,21 @@
 - ``by_purpose`` and ``total``: the ledger's requests (app/db/usage_measures.py) - the tokens the answers
   reported, the bookings at what was held for a request (``estimated_*``: sent and never answered, or an
   answer that reported nothing) apart, what the budget was charged, the largest answer against ``cap``
-  (LLM_MAX_OUTPUT_TOKENS) and the answers cut there, the reservations left;
+  - TODAY's LLM_MAX_OUTPUT_TOKENS, not the cap a run sent (the reservation that held it went with its
+  booking) - and the answers reaching it, the reservations left;
 - ``runs``: the runs by stage, how many ended how and how long they took; ``conversion``: its pages;
 - with ``--raw``: the usage the kept answers report (``runs/<run>/<stage>/<n>.json``, as many as the
-  ledger booked answers for), the reasoning tokens where an answer names them (null where none does: the
-  ledger keeps them in the output), and whether the reported tokens are the ledger's (``ledger_equals_raw``).
-  An answer gone or unreadable is counted and ends nothing.
+  ledger booked answers for, and any kept beyond them - read and counted, ``beyond_ledger``), the reasoning
+  tokens where an answer names them (null where none does: the ledger keeps them in the output), the
+  answers whose own finish reason says the cap cut them (``cut_by_finish_reason``: the cap the run sent),
+  and whether the reported tokens are the ledger's (``ledger_equals_raw``). An answer gone or unreadable is
+  counted and ends nothing.
 
-An answer cut at the cap is told by its reported output reaching the cap; how the pipeline finds and books
-cut answers may change - this count then needs a second look. Exit code 1 for a document that is not
-there, 2 for a call amiss (a label other than a plain one among them)."""
+How the pipeline finds and books cut answers may change: ``cut_answers``, ``beyond_ledger`` and how many
+answers a run was booked for (app/db/usage_measures.py) then need a second look. Read in one snapshot that
+refuses every write (app/db/snapshot.py); an output that is not counts and codes alone is refused
+(``report_not_closed``). Exit code 1 for a document that is not there or a refused output, 2 for a call
+amiss (a label other than a plain one among them)."""
 
 import argparse
 import asyncio
@@ -33,10 +38,11 @@ from app.core.logging import configure_logging
 from app.core.settings import Settings
 from app.core.storage import Storage, open_storage
 from app.db.documents import document_for_job
-from app.db.pool import CONNECTION_OPTIONS
+from app.db.snapshot import snapshot
 from app.db.usage_measures import answered_runs, conversion_usage_of, runs_summary, usage_by_purpose
 from app.llm.raw import kept_answers
 from app.llm.settings import LLMSettings
+from app.quality.closed import NOT_CLOSED, closed
 from app.quality.sample import LABEL, matching
 
 log = logging.getLogger("app.quality.usage_report")  # also when run as __main__
@@ -56,10 +62,12 @@ class RawUsage:
     gone: int = 0  # booked, not in the store
     unreadable: int = 0  # in the store, no answer
     unreported: int = 0  # an answer that reported no input: the ledger booked an estimate for it
+    beyond_ledger: int = 0  # kept beyond the answers the ledger booked: read all the same
     input_tokens: int = 0
     cached_input_tokens: int = 0
     output_tokens: int = 0
     reasoning_tokens: int | None = None
+    cut_by_finish_reason: int = 0  # answers that say the cap cut them
 
 
 def _read(raw: RawUsage, data: bytes | None) -> None:
@@ -78,6 +86,7 @@ def _read(raw: RawUsage, data: bytes | None) -> None:
         raw.unreadable += 1
         return
     for answer in answers:
+        raw.cut_by_finish_reason += answer.finish_reason == "length"
         usage = answer.usage
         if usage.input_tokens == 0:  # booked at what was held for it (app/llm/calls.py _answered)
             raw.unreported += 1
@@ -93,7 +102,9 @@ def _read(raw: RawUsage, data: bytes | None) -> None:
 async def _raw_usage(connection: psycopg.AsyncConnection, storage: Storage, document_id: UUID) -> RawUsage:
     raw = RawUsage()
     for run in await answered_runs(connection, document_id):
-        for data in await kept_answers(storage, run.run_id, run.stage.lower(), run.answers):
+        kept = await kept_answers(storage, run.run_id, run.stage.lower(), run.answers)
+        raw.beyond_ledger += max(len(kept) - run.answers, 0)
+        for data in kept:
             _read(raw, data)
     return raw
 
@@ -153,10 +164,7 @@ def _parser() -> argparse.ArgumentParser:
 
 async def _report(settings: Settings, cap: int, args: argparse.Namespace) -> dict[str, Any]:
     storage = open_storage(settings) if args.raw else None
-    url = settings.database_url.get_secret_value()
-    async with await psycopg.AsyncConnection.connect(
-        url, autocommit=True, **CONNECTION_OPTIONS
-    ) as connection:
+    async with snapshot(settings.database_url.get_secret_value()) as connection:  # read only, one snapshot
         return await usage_report(connection, storage, args.document, args.label, cap=cap, raw=args.raw)
 
 
@@ -169,6 +177,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         made = asyncio.run(_report(settings, cap, args), loop_factory=asyncio.SelectorEventLoop)
     except Refused as refused:
         log.error("%s", refused)
+        return 1
+    try:
+        closed(made)  # the keys come from the database: purposes, outcomes, the engine
+    except ValueError:
+        log.error("%s: a key or leaf is no count or code", NOT_CLOSED)
         return 1
     sys.stdout.buffer.write((json.dumps(made) + "\n").encode("utf-8"))
     sys.stdout.flush()

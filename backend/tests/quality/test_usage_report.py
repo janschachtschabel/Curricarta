@@ -13,7 +13,7 @@ from uuid import UUID
 
 import psycopg
 import pytest
-from pydantic_ai.messages import ModelMessagesTypeAdapter, ModelResponse, ToolCallPart
+from pydantic_ai.messages import FinishReason, ModelMessagesTypeAdapter, ModelResponse, ToolCallPart
 from pydantic_ai.usage import RequestUsage
 
 from app.core.ids import new_id
@@ -50,18 +50,26 @@ async def booked(
     *,
     estimated: bool = False,
     unanswered: int = 0,
+    requests: int = 1,
 ) -> None:
-    """A request booked as the ledger books it: input, of it cached, output; weights 0.1 and 5."""
+    """A request booked as the ledger books it: input, of it cached, output; weights 0.1 and 5. One sent
+    and never answered is booked with no request and one unanswered (app/llm/calls.py _book_cut_off)."""
     await connection.execute(
         "INSERT INTO llm_usage (account_id, run_id, purpose, model, input_tokens, cached_input_tokens,"
         " output_tokens, requests, unanswered_requests, estimated, cached_input_weight, output_weight)"
-        " VALUES (%s, %s, %s, 'gpt-6-luna', %s, %s, %s, 1, %s, %s, 0.1, 5)",
-        (document.owner_id, run, purpose, *spent, unanswered, estimated),
+        " VALUES (%s, %s, %s, 'gpt-6-luna', %s, %s, %s, %s, %s, %s, 0.1, 5)",
+        (document.owner_id, run, purpose, *spent, requests, unanswered, estimated),
     )
 
 
 def kept(
-    store: Path, run: UUID, stage: str, number: int, spent: tuple[int, int, int], **details: int
+    store: Path,
+    run: UUID,
+    stage: str,
+    number: int,
+    spent: tuple[int, int, int],
+    finish_reason: FinishReason | None = None,
+    **details: int,
 ) -> None:
     """An answer kept as app/llm/calls.py keeps it, reporting its usage."""
     usage = RequestUsage(
@@ -70,7 +78,8 @@ def kept(
     answer = ToolCallPart(
         "final_result", json.dumps({"statements": [{"verbatim": f"{MARKER} {WORDS['outcome']}"}]})
     )
-    data = ModelMessagesTypeAdapter.dump_json([ModelResponse(parts=[answer], usage=usage)])
+    response = ModelResponse(parts=[answer], usage=usage, finish_reason=finish_reason)
+    data = ModelMessagesTypeAdapter.dump_json([response])
     FileSystemStorage(store).put(answer_key(run, stage, number), data)
 
 
@@ -78,7 +87,7 @@ async def a_document_run(
     connection: psycopg.AsyncConnection, store: Path
 ) -> tuple[Document, dict[str, UUID]]:
     """A document whose X3 asked once and X4 twice, each answer booked and kept; X4's second answer names
-    its reasoning tokens, the first not."""
+    its reasoning tokens, the first not; the first says it was cut at the cap."""
     document = await a_document(connection)
     await connection.execute("UPDATE document SET title = %s WHERE id = %s", (MARKER, document.id))
     runs = {stage: await a_run(connection, document, stage) for stage in ("X3", "X4")}
@@ -89,7 +98,8 @@ async def a_document_run(
     ]
     for stage, purpose, number, spent, details in answers:
         await booked(connection, document, runs[stage], purpose, spent)
-        kept(store, runs[stage], stage.lower(), number, spent, **details)
+        cut: FinishReason | None = "length" if (stage, number) == ("X4", 1) else None
+        kept(store, runs[stage], stage.lower(), number, spent, cut, **details)
     return document, runs
 
 
@@ -138,13 +148,22 @@ async def test_estimated_bookings_are_counted_apart(
 ) -> None:
     document, runs = await a_document_run(connection, tmp_path)
     # sent and never answered: booked at what was held for it; and an answer cut at the cap
-    await booked(connection, document, runs["X4"], "x4.unit", (13_000, 0, CAP), estimated=True, unanswered=1)
+    await booked(
+        connection,
+        document,
+        runs["X4"],
+        "x4.unit",
+        (13_000, 0, CAP),
+        estimated=True,
+        unanswered=1,
+        requests=0,
+    )
     await booked(connection, document, runs["X4"], "x4.unit", (12_000, 9_000, CAP))
 
     made = await usage_report(connection, None, document.id, "pilot-1", cap=CAP)
 
     units = made["by_purpose"]["x4.unit"]
-    assert (units["requests"], units["unanswered_requests"]) == (4, 1)
+    assert (units["requests"], units["unanswered_requests"]) == (3, 1)
     assert (units["estimated_rows"], units["estimated_charged_tokens"]) == (1, 13_000 + 5 * CAP)
     assert units["input_tokens"] == 24_500 + 12_000  # the reported answers' alone
     assert units["output_tokens"] == 2_700 + CAP
@@ -179,9 +198,9 @@ async def test_the_raw_answers_usage_equals_the_ledger(
     sys.stdout.write(line.decode("utf-8") + "\n")  # the acceptance's sample output (pytest -s)
     made = json.loads(line)
     assert made["raw"] == {
-        "answers": 3, "gone": 0, "unreadable": 0, "unreported": 0,
+        "answers": 3, "gone": 0, "unreadable": 0, "unreported": 0, "beyond_ledger": 0,
         "input_tokens": 34_500, "cached_input_tokens": 18_000, "output_tokens": 3_600,
-        "reasoning_tokens": 300, "ledger_equals_raw": True,
+        "reasoning_tokens": 300, "cut_by_finish_reason": 1, "ledger_equals_raw": True,
     }  # fmt: skip
     assert made["cap"] == 16_000  # LLM_MAX_OUTPUT_TOKENS as the worker reads it, by default
 
@@ -193,13 +212,14 @@ async def test_a_raw_answer_gone_is_counted_and_ends_nothing(
     store = FileSystemStorage(tmp_path)
     store.delete(answer_key(runs["X4"], "x4", 1))
     store.put(answer_key(runs["X3"], "x3", 1), b"not an answer")
+    kept(tmp_path, runs["X3"], "x3", 2, (100, 0, 10))  # kept, never booked: read and told
 
     made = await usage_report(connection, store, document.id, "pilot-1", cap=CAP, raw=True)
 
     assert made["raw"] == {
-        "answers": 1, "gone": 1, "unreadable": 1, "unreported": 0,
-        "input_tokens": 12_500, "cached_input_tokens": 9_000, "output_tokens": 1_500,
-        "reasoning_tokens": 300, "ledger_equals_raw": False,
+        "answers": 2, "gone": 1, "unreadable": 1, "unreported": 0, "beyond_ledger": 1,
+        "input_tokens": 12_600, "cached_input_tokens": 9_000, "output_tokens": 1_510,
+        "reasoning_tokens": 300, "cut_by_finish_reason": 0, "ledger_equals_raw": False,
     }  # fmt: skip
     assert made["by_purpose"]["x4.unit"]["requests"] == 2  # the ledger as it is
 
