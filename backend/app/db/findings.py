@@ -148,6 +148,16 @@ async def drop_unit_findings(
     return cursor.rowcount
 
 
+async def rules_of_runs(connection: psycopg.AsyncConnection, run_ids: Sequence[UUID]) -> dict[str, int]:
+    """How many findings the runs wrote that are kept still, by rule."""
+    cursor = await connection.execute(
+        "SELECT rule, count(*)::int FROM validation_finding WHERE run_id = ANY (%s)"
+        " GROUP BY rule ORDER BY rule",
+        (list(run_ids),),
+    )
+    return {rule: count for rule, count in await cursor.fetchall()}
+
+
 async def drop_rule_findings(connection: psycopg.AsyncConnection, document_id: UUID, rule: str) -> int:
     """Drop the document's findings of ``rule``, whichever run found them; how many went."""
     cursor = await connection.execute(_DROP_RULE, (document_id, rule))
