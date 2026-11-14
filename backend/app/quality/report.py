@@ -45,7 +45,7 @@ from app.core.settings import Settings
 from app.core.storage import open_storage
 from app.db.gold import Sample, items_of, judgements_of, judges_of, sample_by_id
 from app.db.gold_report import head_of
-from app.db.pool import CONNECTION_OPTIONS
+from app.db.snapshot import snapshot
 from app.llm.settings import LLMSettings
 from app.pipeline.replay import Refused as ReplayRefused
 from app.quality.closed import NOT_CLOSED, closed, token
@@ -149,11 +149,7 @@ def _parser() -> argparse.ArgumentParser:
 
 
 async def _report(settings: Settings, sample_ids: Sequence[int], replayed: bool) -> dict[str, Any]:
-    url = settings.database_url.get_secret_value()
-    async with await psycopg.AsyncConnection.connect(
-        url, autocommit=True, **CONNECTION_OPTIONS
-    ) as connection:
-        await connection.execute("SET default_transaction_read_only = on")  # a report writes nothing
+    async with snapshot(settings.database_url.get_secret_value()) as connection:  # read only, one snapshot
         replay = None
         if replayed:
             replay = replay_of(connection, open_storage(settings), LLMSettings(), settings.ontology_dir)
@@ -170,6 +166,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
     except (Refused, ReplayRefused) as refused:  # a replay's: its document kept no answer of X4
         log.error("%s", refused)
+        return 1
+    try:
+        closed(made)  # report() checks it; checked again where it is printed
+    except ValueError:
+        log.error("%s: a key or leaf is no count, rate or code", NOT_CLOSED)
         return 1
     sys.stdout.buffer.write((json.dumps(made, indent=1) + "\n").encode("utf-8"))
     sys.stdout.flush()
