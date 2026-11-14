@@ -35,6 +35,7 @@ __all__ = ["migrated", "owner", "store"]  # the fixtures, taken over
 
 BOUNDARY = "curricarta"
 HEAD = f'--{BOUNDARY}\r\nContent-Disposition: form-data; name="file"; filename="a.pdf"\r\n\r\n'.encode()
+TAIL = f"\r\n--{BOUNDARY}--\r\n".encode()
 
 
 @pytest.fixture
@@ -61,16 +62,17 @@ def drive(
     receive: Receive,
     *,
     cancel: asyncio.Event | None,
-    file_size: int = len(PDF),
-) -> None:
-    """A POST of an upload form of a file of ``file_size``, its body through ``receive``, as a server
-    drives the app; with ``cancel``, the request is cancelled once the event is set, as a server does
-    when its connection is lost."""
+    file_size: int | None = len(PDF),
+) -> list[Message]:
+    """A POST of an upload form of a file of ``file_size`` (None: a body of no stated length), its
+    body through ``receive``, as a server drives the app; with ``cancel``, the request is cancelled
+    once the event is set, as a server does when its connection is lost. The messages it answered."""
     headers = [
         (b"host", b"testserver:8000"),
         (b"content-type", f"multipart/form-data; boundary={BOUNDARY}".encode()),
-        (b"content-length", str(len(HEAD) + file_size + 64).encode()),
     ] + [(k.lower().encode(), v.encode()) for k, v in header.items()]
+    if file_size is not None:
+        headers.append((b"content-length", str(len(HEAD) + file_size + len(TAIL)).encode()))
     scope = {
         "type": "http",
         "asgi": {"version": "3.0", "spec_version": "2.4"},
@@ -87,8 +89,10 @@ def drive(
         "state": {},
     }
 
+    answered: list[Message] = []
+
     async def sent(message: Message) -> None:
-        pass
+        answered.append(message)
 
     async def answer() -> None:
         # a client gone may end the request in an error; what the tests look at is the slot
@@ -101,6 +105,7 @@ def drive(
 
     assert client.portal is not None
     client.portal.call(answer)
+    return answered
 
 
 def test_an_upload_past_the_replica_s_slots_waits_and_is_then_told_to_come_back(
@@ -118,7 +123,7 @@ def test_an_upload_past_the_replica_s_slots_waits_and_is_then_told_to_come_back(
     pulled: list[bytes] = []
 
     def body() -> Iterator[bytes]:
-        for piece in (HEAD, PDF, f"\r\n--{BOUNDARY}--\r\n".encode()):
+        for piece in (HEAD, PDF, TAIL):
             pulled.append(piece)
             yield piece
 
@@ -205,6 +210,34 @@ def test_an_upload_cancelled_while_its_form_is_read_gives_its_slot_back(
     drive(client, owner[1], receive, cancel=reading)
 
     assert len(asked) == 2
+    assert the_slot_is_free(client, slots, owner[1])
+
+
+def test_an_upload_cancelled_while_it_waits_for_a_slot_takes_none(
+    one_slot: tuple[TestClient, asyncio.Semaphore],
+    owner: tuple[UUID, dict[str, str]],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    client, slots = one_slot
+    monkeypatch.setattr(sources, "UPLOAD_WAIT_S", 10.0)
+    assert client.portal is not None
+    client.portal.call(slots.acquire)  # another upload holds the only slot
+    waiting = asyncio.Event()
+    asked: list[int] = []
+
+    async def receive() -> Message:
+        asked.append(1)
+        raise AssertionError("a waiting upload reads no body")
+
+    async def soon_cancelled() -> None:
+        await asyncio.sleep(0.2)  # the upload is waiting for the slot by then
+        waiting.set()
+
+    client.portal.start_task_soon(soon_cancelled)
+    drive(client, owner[1], receive, cancel=waiting)
+    client.portal.call(slots.release)  # the other upload ends
+
+    assert asked == []
     assert the_slot_is_free(client, slots, owner[1])
 
 

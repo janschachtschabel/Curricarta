@@ -517,6 +517,11 @@ def test_the_uploads_a_replica_takes_at_once_are_bounded(value: int) -> None:
         make_settings(max_concurrent_uploads=value)
 
 
+@pytest.mark.parametrize("value", [1, 64])
+def test_a_replica_takes_one_to_sixty_four_uploads_at_once(value: int) -> None:
+    assert make_settings(max_concurrent_uploads=value).max_concurrent_uploads == value
+
+
 def test_x4_asks_four_units_at_once_by_default() -> None:
     assert make_settings().extract_concurrency == 4
 
