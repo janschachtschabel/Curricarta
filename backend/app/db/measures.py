@@ -18,15 +18,14 @@ _FIRST_BLOCK = """
     JOIN document_block b ON b.conversion_id = ab.conversion_id AND b.block_id = ab.block_id
     WHERE ab.anchor_id = ANY ({anchors}) ORDER BY b.seq LIMIT 1
 """
-# The model's statements as it wrote them: never changed by an editor (revision 1), not rejected; their
-# stratum the notation of their kind
+# The model's statements, however reviewed since (a review keeps the origin, an edit makes it orig_human);
+# their stratum the notation of their kind
 _OF_STATEMENT = "ARRAY(SELECT a.id FROM anchor a WHERE a.statement_id = s.id)"
 _STATEMENTS = f"""
 SELECT s.id, k.notation AS stratum, s.text_hash, ({_FIRST_BLOCK.format(anchors=_OF_STATEMENT)}) AS first_block
 FROM statement s
 JOIN vocab_concept k ON k.iri = s.statement_kind_iri
-WHERE s.document_id = %(document)s AND s.origin_iri = %(model)s AND s.revision = 1
-    AND s.review_status_iri <> %(rejected)s
+WHERE s.document_id = %(document)s AND s.origin_iri = %(model)s
 ORDER BY s.id
 """  # noqa: S608 - fixed parts
 # The rows of an import still as imported, with a match kind - a node's title, a statement not rejected;
@@ -49,8 +48,9 @@ WHERE a.document_id = %s AND a.node_id IS NOT NULL
 
 
 async def model_statements(connection: psycopg.AsyncConnection, document_id: UUID) -> list[ItemDraft]:
-    """The statements of the document the model wrote and no editor touched or rejected, by id."""
-    values = {"document": document_id, "model": CV + "orig_model", "rejected": CV + "rev_rejected"}
+    """The statements of the document the model wrote, confirmed and rejected ones too, by id: an editor's
+    rewording makes a statement the editor's."""
+    values = {"document": document_id, "model": CV + "orig_model"}
     async with connection.cursor(row_factory=dict_row) as cursor:
         await cursor.execute(_STATEMENTS, values)
         rows = await cursor.fetchall()

@@ -5,6 +5,7 @@ running text, an import's anchors by how they were found; drawn again under its 
 import asyncio
 from collections.abc import AsyncIterator
 from typing import Any
+from uuid import UUID
 
 import psycopg
 import pytest
@@ -14,7 +15,10 @@ from app.db.documents import Document
 from app.db.gold import items_of
 from app.db.migrate import migrate
 from app.db.nodes import write_subtree
+from app.db.review import ReviewItem, set_review
 from app.db.runs import RunStart, Stage, finish_run, start_run
+from app.db.source_queries import Reader
+from app.db.statement_editing import edit_statement
 from app.domain.l1 import AnchorDraft, NodeDraft, StatementDraft
 from app.domain.wording import text_hash
 from app.quality.sample import Drawn, Refused, Request, draw
@@ -31,8 +35,9 @@ PROPOSED = CV + "rev_proposed"
 WORDS = {
     "outcome": "Die Lernenden ordnen Kiesel und Sand nach ihrer Farbe.",
     "content": "Kiesel, Sand und Lehm im Wechsel der Jahreszeiten.",
+    "confirmed": "Die Lernenden messen den Bach am Morgen.",
     "rejected": "Die Lernenden zählen die Kiesel am Bach.",
-    "edited": "Die Lernenden zeichnen den Lauf des Baches.",
+    "reworded": "Die Lernenden zeichnen den Lauf des Baches.",
     "own": "Die Lernenden sammeln Blätter am Ufer.",
 }
 LONG = "Am Ufer liegen Kiesel, Sand und Lehm, und der Bach trägt sie langsam weiter."  # 40 signs and more
@@ -85,8 +90,7 @@ def statement(verbatim: str, blocks: tuple[str, ...] = ("p1-b2",), **fields: Any
 
 
 async def a_document(connection: psycopg.AsyncConnection) -> Document:
-    """A document whose model wrote five statements: one rejected since, one an editor changed, one an
-    editor wrote."""
+    """A document whose model wrote five statements, and an editor one."""
     document = await document_of(
         connection, [block("p1-b1", "Am Bach"), block("p1-b2", LONG), block("p1-b3", LONG)]
     )
@@ -96,34 +100,65 @@ async def a_document(connection: psycopg.AsyncConnection) -> Document:
         statements=(
             statement(WORDS["outcome"], ("p1-b3", "p1-b2")),  # its first block in reading order
             statement(WORDS["content"], kind=CV + "kind_content"),
+            statement(WORDS["confirmed"]),
             statement(WORDS["rejected"]),
-            statement(WORDS["edited"]),
+            statement(WORDS["reworded"]),
             statement(WORDS["own"], origin=HUMAN),
         ),
     )  # fmt: skip
     await write_subtree(connection, document.id, root)
-    await reject(connection, WORDS["rejected"])
-    await connection.execute("UPDATE statement SET revision = 2 WHERE verbatim = %s", (WORDS["edited"],))
     return document
 
 
-async def test_statements_the_editors_touched_or_rejected_are_not_drawn(
-    connection: psycopg.AsyncConnection,
-) -> None:
+async def statement_id(connection: psycopg.AsyncConnection, verbatim: str) -> UUID:
+    cursor = await connection.execute("SELECT id FROM statement WHERE verbatim = %s", (verbatim,))
+    [(found,)] = await cursor.fetchall()
+    return UUID(str(found))
+
+
+async def a_reviewed_document(connection: psycopg.AsyncConnection) -> Document:
+    """The document after X4, as the app leaves it once editors looked: one statement confirmed, one
+    rejected - a review counts the revision up and keeps the origin -, one reworded, the editor's since."""
     document = await a_document(connection)
     await done(connection, document, "X4")
+    for verbatim, status in (
+        (WORDS["confirmed"], CV + "rev_confirmed"),
+        (WORDS["rejected"], CV + "rev_rejected"),
+    ):
+        await set_review(
+            connection,
+            document.id,
+            status,
+            [ReviewItem("statement", await statement_id(connection, verbatim), 1)],
+        )
+    reworded = await statement_id(connection, WORDS["reworded"])
+    reader = Reader(document.owner_id, sees_all=False)
+    assert (
+        await edit_statement(connection, reader, reworded, 1, {"verbatim": WORDS["reworded"] + " Neu."}) == 2
+    )
+    return document
+
+
+async def test_the_model_s_statements_are_drawn_however_reviewed_but_a_reworded_one_is_not(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    document = await a_reviewed_document(connection)
 
     drawn = await draw(
         connection, Request(document.id, "statement", "pilot-1", await owner(connection, document))
     )
 
-    assert drawn.strata == {"content": (1, 1), "learningOutcome": (1, 1)}  # by kind: in the frame, drawn
+    assert drawn.strata == {"content": (1, 1), "learningOutcome": (3, 3)}  # by kind: in the frame, drawn
     assert not drawn.drawn_before
     items = await items_of(connection, drawn.sample)
-    assert sorted((item.stratum, item.text_hash, item.first_block) for item in items) == [
-        ("content", text_hash(WORDS["content"]), "p1-b2"),
-        ("learningOutcome", text_hash(WORDS["outcome"]), "p1-b2"),
-    ]
+    assert sorted((item.stratum, item.text_hash, item.first_block) for item in items) == sorted(
+        [
+            ("content", text_hash(WORDS["content"]), "p1-b2"),
+            ("learningOutcome", text_hash(WORDS["outcome"]), "p1-b2"),
+            ("learningOutcome", text_hash(WORDS["confirmed"]), "p1-b2"),
+            ("learningOutcome", text_hash(WORDS["rejected"]), "p1-b2"),
+        ]
+    )
     assert all(item.statement_id is not None and item.node_id is None for item in items)
 
 
@@ -254,13 +289,12 @@ async def test_an_import_s_anchors_on_the_title_pages_are_a_stratum_apart(
 
 
 async def test_a_sample_drawn_again_is_the_one_there(connection: psycopg.AsyncConnection) -> None:
-    document = await a_document(connection)
-    await done(connection, document, "X4")
+    document = await a_reviewed_document(connection)
     account = await owner(connection, document)
     first = await draw(connection, Request(document.id, "statement", "pilot-1", account))
     before = await items_of(connection, first.sample)
     await connection.execute(
-        "UPDATE statement SET revision = 1 WHERE verbatim = %s", (WORDS["edited"],)
+        "UPDATE statement SET origin_iri = %s WHERE verbatim = %s", (MODEL, WORDS["own"])
     )  # one more to draw from
 
     again = await draw(connection, Request(document.id, "statement", "pilot-2", account, size=5))
@@ -275,8 +309,7 @@ async def test_a_sample_drawn_again_is_the_one_there(connection: psycopg.AsyncCo
 async def test_two_draws_at_once_keep_one_sample(
     connection: psycopg.AsyncConnection, database_url: str
 ) -> None:
-    document = await a_document(connection)
-    await done(connection, document, "X4")
+    document = await a_reviewed_document(connection)
     request = Request(document.id, "statement", "pilot-1", await owner(connection, document))
 
     async def drawing() -> Drawn:
@@ -286,12 +319,11 @@ async def test_two_draws_at_once_keep_one_sample(
     first, second = await asyncio.gather(drawing(), drawing())
 
     assert first.sample == second.sample
-    assert (await count(connection, "gold_sample"), await count(connection, "gold_item")) == (1, 2)
+    assert (await count(connection, "gold_sample"), await count(connection, "gold_item")) == (1, 4)
 
 
 async def test_an_account_that_is_not_there_is_refused(connection: psycopg.AsyncConnection) -> None:
-    document = await a_document(connection)
-    await done(connection, document, "X4")
+    document = await a_reviewed_document(connection)
 
     with pytest.raises(Refused) as refused:
         await draw(connection, Request(document.id, "statement", "pilot-1", "niemand"))

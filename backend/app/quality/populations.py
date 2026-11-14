@@ -1,6 +1,9 @@
 """The populations the gold standard's samples are drawn from (plan H-3 §3.2), each unit an item to judge:
 
-- ``statement``: the statements the model wrote and no editor touched or rejected, by their kind.
+- ``statement``: the statements the model wrote, by their kind, whatever a reviewer did with them since: a
+  confirmed and a rejected one are the model's output as much as the rest (a review counts the revision up
+  and keeps the origin, app/db/review.py); one an editor reworded is the editor's (``orig_human``) and
+  stays out.
 - ``block``: the blocks of the running text - no header or footer, none of the contents, none on the title
   pages, no node's heading, 40 signs at least - by the third of the document they stand in and whether
   they are text or a table.

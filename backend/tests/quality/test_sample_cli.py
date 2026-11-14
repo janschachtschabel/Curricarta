@@ -49,7 +49,7 @@ async def test_the_command_prints_the_sample_and_its_strata(
     assert printed == {
         "sample": printed["sample"], "kind": "statement", "seed": SEED, "drawn_before": False,
         "title_pages": None,
-        "strata": {"content": {"frame": 1, "drawn": 1}, "learningOutcome": {"frame": 1, "drawn": 1}},
+        "strata": {"content": {"frame": 1, "drawn": 1}, "learningOutcome": {"frame": 4, "drawn": 2}},
     }  # fmt: skip
     assert isinstance(printed["sample"], int)
     assert (refused.returncode, refused.stdout) == (1, b"")
