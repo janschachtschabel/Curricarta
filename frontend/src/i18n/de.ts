@@ -81,6 +81,8 @@ export const messages = {
   // The source register: the curriculum documents and what may be done with them.
   sources: {
     heading: "Quellen",
+    // an entry with neither title, address nor file (registerWords.ts entryName)
+    untitled: "Eintrag ohne Titel",
     intro:
       "Das Register der Lehrplandokumente: was hochgeladen oder von einer Adresse abgerufen " +
       "wurde, wie weit es ist und unter welchen Rechten es steht.",
@@ -246,6 +248,11 @@ export const messages = {
     // the page's heading until the entry names it
     heading: "Registereintrag",
     back: "Zurück zum Register",
+    // a seed's candidate without its file: no route fetches or checks one entry (backend app/api/source_checks.py)
+    candidateNext:
+      "Eine Datei holt die Anwendung für diesen Kandidaten nicht. Ob seine Adresse erreichbar ist, prüft die " +
+      "Administration für alle Kandidaten zugleich im Register („Saat prüfen“). Willst du mit dem Dokument " +
+      "arbeiten, lade es im Register hoch oder gib dort seine Adresse an – daraus entsteht ein eigener Eintrag.",
     loadFailed: "Der Eintrag wurde nicht geladen.",
     notFoundTitle: "Diesen Eintrag gibt es nicht",
     notFoundBody: "Oder dein Konto sieht ihn nicht. Das Register zeigt alle Einträge, die du sehen darfst.",

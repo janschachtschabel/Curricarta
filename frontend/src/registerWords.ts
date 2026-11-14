@@ -2,6 +2,16 @@
 // backend knows (tests/registerLabels.test.ts); a value it has none for yet is
 // shown as it is, rather than as an empty cell.
 
+import { t } from "@/i18n/de";
+
+/**
+ * What names an entry wherever it is shown - its title, else its address, else its file's name, else a word for
+ * an untitled one: an entry with none of the first three gave an empty link and an empty heading.
+ */
+export function entryName(entry: { title: string; url: string | null; file: { name: string } | null }): string {
+  return entry.title || entry.url || entry.file?.name || t("sources.untitled");
+}
+
 /** The word for `value` in `words`, or the value itself. */
 export function word(words: Readonly<Record<string, string>>, value: string): string {
   return words[value] ?? value;

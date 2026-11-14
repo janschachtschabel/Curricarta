@@ -310,6 +310,36 @@ describe("a register entry's page", () => {
     expect(wrapper.find("#source-check").exists()).toBe(false);
   });
 
+  // a candidate's page offered no next step (UI review m2): no route fetches or checks one entry, so it says
+  // what happens and who does it
+  it("says what becomes of a candidate without its file, and who does it", async () => {
+    vi.spyOn(api, "getSource").mockResolvedValue(detail());
+    const wrapper = await open();
+
+    expect(wrapper.get("[data-test=candidate-next]").text()).toBe(t("entryPage.candidateNext"));
+  });
+
+  it.each([
+    ["an entry with its file", { file: { name: "physik.pdf", mime: "application/pdf", size: 10, sha256: "a" } }],
+    ["an entry of an account", { seed: null, provenance: "url" as const, mine: true }],
+  ])("says nothing of a candidate's next step for %s", async (_what, changes) => {
+    vi.spyOn(api, "getSource").mockResolvedValue(detail(changes));
+    const wrapper = await open();
+
+    expect(wrapper.find("[data-test=candidate-next]").exists()).toBe(false);
+  });
+
+  // an entry with neither title nor address gave an empty h1 (UI review m9)
+  it.each([
+    ["its file's name", { title: "", url: null, file: { name: "plan.pdf", mime: "application/pdf", size: 10, sha256: "a" } }, "plan.pdf"],
+    ["a word for an untitled entry", { title: "", url: null, file: null }, t("sources.untitled")],
+  ])("is named by %s where it has neither title nor address", async (_what, changes, name) => {
+    vi.spyOn(api, "getSource").mockResolvedValue(detail(changes));
+    const wrapper = await open();
+
+    expect(wrapper.get("h1").text()).toBe(name);
+  });
+
   it("shows an address that is no web address as text, not as a link", async () => {
     vi.spyOn(api, "getSource").mockResolvedValue(detail({ url: "javascript:alert(1)" }));
     const wrapper = await open();

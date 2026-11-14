@@ -69,6 +69,21 @@ describe("the register page", () => {
     expect(wrapper.find("tbody tr [data-test=address]").exists()).toBe(false);
   });
 
+  // an entry with neither title nor address gave a link without a name (UI review m9)
+  it("names an entry with neither title nor address by its file, else as untitled", async () => {
+    vi.spyOn(api, "listSources").mockResolvedValue(
+      page([entry("a", "", { url: null }), entry("b", "", { url: null, file: null })]),
+    );
+    const wrapper = mount(SourcesView, { global: { plugins: [router] } });
+
+    await flushPromises();
+
+    const names = wrapper.findAll("tbody tr .register__title").map((link) => link.text());
+    expect(names[0]).not.toBe("");
+    expect(names[0]).toBe(entry("a", "").file?.name);
+    expect(names[1]).toBe(t("sources.untitled"));
+  });
+
   it("tells candidates of one title apart by their address, as text and not as a second link", async () => {
     const title = "Bayern · Biologie · Erster Schulabschluss (ESA)";
     const candidate = (id: string, grade: number) =>

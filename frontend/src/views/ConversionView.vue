@@ -20,6 +20,7 @@ import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
 import { pageTitle } from "@/pageTitle";
+import { entryName } from "@/registerWords";
 
 /** The refusals that say there are no blocks yet, and why, in the refusal's own words. */
 const NOT_CONVERTED: ReadonlySet<string> = new Set(["no_conversion", "no_file", "not_converted"]);
@@ -170,7 +171,7 @@ watch(
 );
 // The tab names the entry and the page; the router names the page alone on each move, before this.
 watch([source, page], ([entry, number]) => {
-  const title = entry ? entry.title || entry.url || t("app.titles.source") : null;
+  const title = entry ? entryName(entry) : null;
   if (title) document.title = pageTitle(t("conversionPage.tabTitle", { title, page: number }));
 });
 </script>
@@ -180,7 +181,7 @@ watch([source, page], ([entry, number]) => {
     <p class="conversion-page__back">
       <RouterLink :to="{ name: 'source', params: { id } }">{{ t("conversionPage.back") }}</RouterLink>
     </p>
-    <h1 v-if="source"><bdi class="conversion-page__title">{{ source.title || source.url }}</bdi></h1>
+    <h1 v-if="source"><bdi class="conversion-page__title">{{ entryName(source) }}</bdi></h1>
     <h1 v-else>{{ t("conversionPage.heading") }}</h1>
     <p class="conversion-page__lead">{{ t("conversionPage.intro") }}</p>
 

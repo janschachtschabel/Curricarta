@@ -43,6 +43,14 @@ afterEach(async () => {
 });
 
 describe("an entry's blocks", () => {
+  // an entry with neither title nor address gave an empty heading (UI review m9)
+  it("name an entry with neither title nor address by its file", async () => {
+    vi.mocked(api.getSource).mockResolvedValue(detail({ file: PDF, mine: true, title: "", url: null }));
+    const wrapper = await open();
+
+    expect(wrapper.get("h1").text()).toBe("physik.pdf");
+  });
+
   it("say they load, then name the entry, the page and its blocks, each with its id", async () => {
     vi.mocked(api.getBlocks).mockResolvedValue(
       blockPage(1, [

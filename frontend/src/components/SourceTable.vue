@@ -10,7 +10,7 @@ import { RouterLink } from "vue-router";
 import type { RegisterStatus, SourceEntry } from "@/api";
 import { LOCALE, messages, t } from "@/i18n/de";
 import { readableAddress } from "@/readableAddress";
-import { word } from "@/registerWords";
+import { entryName, word } from "@/registerWords";
 
 defineProps<{ entries: SourceEntry[]; total: number; loadingMore?: boolean }>();
 defineEmits<{ more: [] }>();
@@ -61,7 +61,7 @@ const dateFormat = new Intl.DateTimeFormat(LOCALE, { dateStyle: "medium" });
             <td>
               <!-- an import is titled by its file's name, once the fetch has the file -->
               <RouterLink class="register__title" :to="{ name: 'source', params: { id: entry.id } }">
-                <bdi>{{ entry.title || entry.url }}</bdi>
+                <bdi>{{ entryName(entry) }}</bdi>
               </RouterLink>
               <span class="register__aside">
                 <bdi v-if="entry.file">{{ entry.file.name }}</bdi>

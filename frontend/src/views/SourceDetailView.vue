@@ -23,7 +23,7 @@ import { LOCALE, messages, momentFormat, t } from "@/i18n/de";
 import { failureNotice, type Notice } from "@/notice";
 import { pageTitle } from "@/pageTitle";
 import { isWebAddress } from "@/readableAddress";
-import { word } from "@/registerWords";
+import { entryName, word } from "@/registerWords";
 import { isEditor } from "@/session";
 
 const props = defineProps<{ id: string }>();
@@ -72,7 +72,7 @@ onMounted(load);
 // The tab names the entry once it is known; until then the router's name for the page stands.
 // A watcher stops with the page: an answer that comes after the reader left renames nothing.
 watch(source, (found) => {
-  if (found) document.title = pageTitle(found.title || found.url || t("app.titles.source"));
+  if (found) document.title = pageTitle(entryName(found));
 });
 // another entry: the one before is not shown under its address while it loads
 watch(
@@ -106,7 +106,7 @@ function grades(seed: SeedFields): string | null {
     <p class="source__back">
       <RouterLink :to="registerBack">{{ t("entryPage.back") }}</RouterLink>
     </p>
-    <h1 v-if="source"><bdi class="source__title">{{ source.title || source.url }}</bdi></h1>
+    <h1 v-if="source"><bdi class="source__title">{{ entryName(source) }}</bdi></h1>
     <h1 v-else>{{ t("entryPage.heading") }}</h1>
 
     <LoadingState v-if="loading && !source" />
@@ -160,6 +160,10 @@ function grades(seed: SeedFields): string | null {
             <template v-else>{{ t("sources.register.noFile") }}</template>
           </dd>
         </dl>
+        <!-- no route fetches or checks one candidate: what happens to it, and who does it -->
+        <p v-if="source.seed && !source.file" class="source__lead" data-test="candidate-next">
+          {{ t("entryPage.candidateNext") }}
+        </p>
       </section>
 
       <section v-if="source.acquisitions.length" class="source__section" aria-labelledby="source-acquisitions">
