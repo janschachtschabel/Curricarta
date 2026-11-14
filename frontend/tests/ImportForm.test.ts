@@ -67,6 +67,29 @@ describe("the import form", () => {
     expect(wrapper.get("#import-url").attributes("aria-describedby")).toContain("import-error");
   });
 
+  // the error stood under the optional title and the keyboard stayed on the button (UI review m3)
+  it("says a missing address inside its field and takes the keyboard there from the button", async () => {
+    const wrapper = mount(ImportForm, { attachTo: document.body });
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+
+    await submit(wrapper);
+
+    expect(wrapper.get("#import-error").element.closest(".field")).toBe(wrapper.get("#import-url").element.closest(".field"));
+    expect(document.activeElement).toBe(wrapper.get("#import-url").element);
+    wrapper.unmount();
+  });
+
+  it("says a refused title inside the title's field", async () => {
+    vi.spyOn(api, "importSource").mockRejectedValue(new ApiError("server", 422, "title_invalid"));
+    const wrapper = mount(ImportForm, { attachTo: document.body });
+    await wrapper.get("#import-url").setValue("https://example.org/a.pdf");
+
+    await submit(wrapper);
+
+    expect(wrapper.get("#import-error").element.closest(".field")).toBe(wrapper.get("#import-title").element.closest(".field"));
+    wrapper.unmount();
+  });
+
   it.each(["ftp://example.org/a.pdf", "example.org/a.pdf", "javascript:alert(1)"])(
     "says that %s is no web address, and sends nothing",
     async (address) => {

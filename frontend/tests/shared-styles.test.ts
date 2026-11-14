@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { ANCHORS, SRC, formControlRules, scanned, sourceFiles } from "./sources";
+import { ANCHORS, SRC, cssRules, formControlRules, scanned, sourceFiles } from "./sources";
 
 /**
  * Shared rules live once, in style.css. In the old app every one of them had
@@ -176,6 +176,24 @@ describe("shared component classes", () => {
     );
 
     expect(offenders).toEqual([]);
+  });
+});
+
+describe("an invalid field", () => {
+  // aria-invalid looked like a valid field: the same border (UI review m3); a second signal beside the icon and text
+  it("is drawn apart from a valid one, by a token's colour and a border twice as wide", () => {
+    const rule = cssRules(STYLESHEET).find(({ selectors }) => selectors.some((one) => one.includes('[aria-invalid="true"]')));
+
+    expect(rule?.body).toMatch(/border-color:\s*var\(--danger\)/);
+    // the second pixel inset, so the field does not move
+    expect(rule?.body).toMatch(/box-shadow:\s*inset 0 0 0 1px var\(--danger\)/);
+    // for every control, and as strong as the hover rule it has to beat
+    expect(rule?.selectors).toEqual([
+      'input[aria-invalid="true"]:not(:disabled)',
+      'select[aria-invalid="true"]:not(:disabled)',
+      'textarea[aria-invalid="true"]:not(:disabled)',
+    ]);
+    expect(STYLESHEET.indexOf('input[aria-invalid="true"]')).toBeGreaterThan(STYLESHEET.indexOf("input:hover:not(:disabled)"));
   });
 });
 

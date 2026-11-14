@@ -4,12 +4,13 @@
  * against the upload limit before its megabytes travel, and sent. It reports
  * the entry it made; reading the register again is the page's business.
  */
-import { computed, ref } from "vue";
+import { computed, nextTick, ref } from "vue";
 
 import { ApiError, MAX_TITLE_SIGNS, MIB, uploadSource, type SourceOut } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
@@ -33,6 +34,7 @@ const title = ref("");
 const busy = ref(false);
 const status = ref("");
 const failure = ref<Notice | null>(null);
+const submitButton = ref<HTMLButtonElement | null>(null);
 const failedField = ref<Field | null>(null);
 
 const fileHint = computed(() =>
@@ -50,11 +52,17 @@ function onChosen(event: Event): void {
   file.value = (event.target as HTMLInputElement).files?.[0] ?? null;
 }
 
-/** The refusal to show; the same one again is read out again (liveRegion.ts). */
-function refuse(notice: Notice, field: Field | null): void {
+/**
+ * The refusal to show, at its field where it is one field's; the same one again is read out again
+ * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form.
+ */
+async function refuse(notice: Notice, field: Field | null): Promise<void> {
   failure.value = { ...notice, text: sayAnew(failure.value?.text ?? "", notice.text) };
   failedField.value = field;
   status.value = "";
+  if (!field) return;
+  await nextTick();
+  if (document.activeElement === submitButton.value || focusIsFree()) document.getElementById(`upload-${field}`)?.focus();
 }
 
 function tooLarge(): string {
@@ -95,7 +103,7 @@ async function onSubmit(): Promise<void> {
     if (fileInput.value) fileInput.value.value = "";
     emit("uploaded", source);
   } catch (error) {
-    refuse(uploadFailure(error), fieldOf(error));
+    await refuse(uploadFailure(error), fieldOf(error));
   } finally {
     busy.value = false;
   }
@@ -117,6 +125,9 @@ async function onSubmit(): Promise<void> {
         @change="onChosen"
       />
       <p id="upload-file-hint" class="field__hint">{{ fileHint }}</p>
+      <p v-if="failure && failedField === 'file'" id="upload-error" class="field__error" role="alert">
+        <AppIcon name="warning" /> <NoticeText :notice="failure" />
+      </p>
     </div>
     <div class="field">
       <label for="upload-title">{{ t("sources.upload.titleLabel") }}</label>
@@ -130,13 +141,17 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('title')"
       />
       <p id="upload-title-hint" class="field__hint">{{ t("sources.upload.titleHint") }}</p>
+      <p v-if="failure && failedField === 'title'" id="upload-error" class="field__error" role="alert">
+        <AppIcon name="warning" /> <NoticeText :notice="failure" />
+      </p>
     </div>
 
-    <p v-if="failure" id="upload-error" class="field__error source-form__error" role="alert">
+    <!-- a refusal of no one field, below them -->
+    <p v-if="failure && !failedField" id="upload-error" class="field__error source-form__error" role="alert">
       <AppIcon name="warning" /> <NoticeText :notice="failure" />
     </p>
     <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
-    <button type="submit" class="btn primary" :aria-disabled="busy || undefined">
+    <button ref="submitButton" type="submit" class="btn primary" :aria-disabled="busy || undefined">
       {{ t("sources.upload.submit") }}
     </button>
     <!-- Always in the page, so a screen reader hears each change of its text -->

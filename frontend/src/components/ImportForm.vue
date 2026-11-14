@@ -5,12 +5,13 @@
  * at all is the server's to decide (no address inside its network). It reports
  * the entry and its job; following the job is the page's business.
  */
-import { ref } from "vue";
+import { nextTick, ref } from "vue";
 
 import { ApiError, importSource, MAX_TITLE_SIGNS, MAX_URL_SIGNS, type ImportStarted } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
@@ -23,6 +24,7 @@ const title = ref("");
 const busy = ref(false);
 const status = ref("");
 const failure = ref<Notice | null>(null);
+const submitButton = ref<HTMLButtonElement | null>(null);
 
 type Field = "url" | "title";
 // a refusal of one field, said at that field too; any other below the form alone
@@ -61,11 +63,17 @@ function addressFault(candidate: string): string | null {
   return parsed.username || parsed.password ? "sources.import.errors.credentials" : null;
 }
 
-/** The refusal to show; the same one again is read out again (liveRegion.ts). */
-function refuse(notice: Notice, field: Field | null): void {
+/**
+ * The refusal to show, at its field where it is one field's; the same one again is read out again
+ * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form.
+ */
+async function refuse(notice: Notice, field: Field | null): Promise<void> {
   failure.value = { ...notice, text: sayAnew(failure.value?.text ?? "", notice.text) };
   failedField.value = field;
   status.value = "";
+  if (!field) return;
+  await nextTick();
+  if (document.activeElement === submitButton.value || focusIsFree()) document.getElementById(`import-${field}`)?.focus();
 }
 
 async function onSubmit(): Promise<void> {
@@ -85,7 +93,7 @@ async function onSubmit(): Promise<void> {
     title.value = "";
     emit("imported", started, address);
   } catch (error) {
-    refuse(failureNotice(error, t("sources.import.failed")), fieldOf(error));
+    await refuse(failureNotice(error, t("sources.import.failed")), fieldOf(error));
   } finally {
     busy.value = false;
   }
@@ -108,6 +116,9 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('url')"
       />
       <p id="import-url-hint" class="field__hint">{{ t("sources.import.urlHint") }}</p>
+      <p v-if="failure && failedField === 'url'" id="import-error" class="field__error" role="alert">
+        <AppIcon name="warning" /> <NoticeText :notice="failure" />
+      </p>
     </div>
     <div class="field">
       <label for="import-title">{{ t("sources.import.titleLabel") }}</label>
@@ -121,13 +132,17 @@ async function onSubmit(): Promise<void> {
         :aria-describedby="describedBy('title')"
       />
       <p id="import-title-hint" class="field__hint">{{ t("sources.import.titleHint") }}</p>
+      <p v-if="failure && failedField === 'title'" id="import-error" class="field__error" role="alert">
+        <AppIcon name="warning" /> <NoticeText :notice="failure" />
+      </p>
     </div>
 
-    <p v-if="failure" id="import-error" class="field__error source-form__error" role="alert">
+    <!-- a refusal of no one field, below them -->
+    <p v-if="failure && !failedField" id="import-error" class="field__error source-form__error" role="alert">
       <AppIcon name="warning" /> <NoticeText :notice="failure" />
     </p>
     <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
-    <button type="submit" class="btn primary" :aria-disabled="busy || undefined">
+    <button ref="submitButton" type="submit" class="btn primary" :aria-disabled="busy || undefined">
       {{ t("sources.import.submit") }}
     </button>
     <!-- Always in the page, so a screen reader hears each change of its text -->

@@ -77,6 +77,32 @@ describe("the upload form", () => {
     expect(input.attributes("aria-describedby")).toContain("upload-error");
   });
 
+  // the error stood under the optional title and the keyboard stayed on the button (UI review m3)
+  it("says the missing file inside its field and takes the keyboard there from the button", async () => {
+    const wrapper = mount(UploadForm, { props: { maxUploadMb: 50 }, attachTo: document.body });
+    (wrapper.get("button[type=submit]").element as HTMLElement).focus();
+
+    await submit(wrapper);
+
+    expect(wrapper.get("#upload-error").element.closest(".field")).toBe(wrapper.get("#upload-file").element.closest(".field"));
+    expect(document.activeElement).toBe(wrapper.get("#upload-file").element);
+    wrapper.unmount();
+  });
+
+  it("says a refusal of no field below the fields, the keyboard left where it is", async () => {
+    vi.spyOn(api, "uploadSource").mockRejectedValue(new ApiError("server", 500));
+    const wrapper = mount(UploadForm, { props: { maxUploadMb: 50 }, attachTo: document.body });
+    await choose(wrapper, pdf());
+    const button = wrapper.get("button[type=submit]").element as HTMLElement;
+    button.focus();
+
+    await submit(wrapper);
+
+    expect(wrapper.get("#upload-error").element.closest(".field")).toBeNull();
+    expect(document.activeElement).toBe(button);
+    wrapper.unmount();
+  });
+
   it("refuses a file over the limit before sending its megabytes", async () => {
     const upload = vi.spyOn(api, "uploadSource");
     const wrapper = mount(UploadForm, { props: { maxUploadMb: 50 } });

@@ -285,6 +285,15 @@ input:hover:not(:disabled), select:hover:not(:disabled), textarea:hover:not(:dis
   border-color: var(--text);
 }
 
+/* A field said invalid looks it, hovered too: the danger ink and a wider border, a second signal beside the
+   icon and words of its error (SC 1.4.1). The second pixel is an inset shadow, not a wider border, so nothing
+   moves when the field turns invalid. */
+input[aria-invalid="true"]:not(:disabled), select[aria-invalid="true"]:not(:disabled),
+textarea[aria-invalid="true"]:not(:disabled) {
+  border-color: var(--danger);
+  box-shadow: inset 0 0 0 1px var(--danger);
+}
+
 /* The select's own size, on top of the shell the element rule above gives every
    control. Components that need another size declare one; they may not restate
    this. */
