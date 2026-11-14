@@ -188,6 +188,8 @@ def _converter(models: Path, ocr: bool) -> tuple[Any, Collection[Any]]:
         options.ocr_options = EasyOcrOptions(lang=["de"], download_enabled=False)
     options.table_structure_options.mode = TableFormerMode.ACCURATE
     options.table_structure_options.do_cell_matching = False
+    # docling-parse still renders each page itself, unused: render_pages=False would also drop the shapes
+    # preprocessing reads (get_shape_lines)
     backend = pdfium_image_backend()  # the page images the models were measured on (docling_images.py)
     converter = DocumentConverter(
         format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options, backend=backend)}
