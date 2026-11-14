@@ -4,6 +4,7 @@ skipped, but where CURRICARTA_REQUIRE_DOCLING is set (.github/workflows/converte
 What the engine makes of Docling's result is tested without it (test_docling_pages.py,
 test_docling_blocks.py)."""
 
+import asyncio
 import os
 import re
 from importlib.metadata import version
@@ -15,7 +16,7 @@ import pytest
 from app.conversion.base import Conversion, Engine, engine
 from app.conversion.convert import ConversionRefused, convert_file
 from app.conversion.models import MODELS_DIR, missing
-from app.conversion.runners import ChildLog, convert_in_child
+from app.conversion.runners import ChildLog, ConversionDied, convert_in_child
 from app.conversion.text_layer import UnreadablePdf
 from tests.conversion.raw_pdf import SENTENCE, pages_pdf
 from tests.conversion.test_pdfplumber_blocks import SEEN, SENTENCE_READ, turned_pdf
@@ -459,6 +460,7 @@ def test_a_table_within_a_docx_cell_is_read_as_a_table_of_its_own(docling: Engin
 
 # --- the child's memory (audit 2026-11-14): the numbers CHILD_MEMORY_LIMIT_MB is sized by ---------------
 
+GRID_DEADLINE_S = 300  # the vast grid's child: refused at once, or a deadline that tells a walk
 PEAK = re.compile(r"peak memory: rss=(?P<rss>\d+) MiB, virtual=(?P<virtual>\d+) MiB")
 
 
@@ -485,16 +487,27 @@ async def test_an_html_table_that_states_a_vast_grid_is_refused_before_docling_l
     tmp_path: Path,
 ) -> None:
     # Docling's own HTML backend reads the spans: the cap holds only if it hands the grid's size over
-    # before it lays the grid out. In a child under a bound: should Docling lay it out first, the test
-    # ends died (ConversionDied), not the workflow's runner out of memory
-    path = tmp_path / "raster.html"
-    path.write_text(
-        '<html><body><table><tr><td colspan="1000000" rowspan="1000000">x</td></tr></table></body></html>',
-        encoding="utf-8",
-    )
+    # before it lays the grid out. In a child under a bound and a deadline - the runner kills the child as
+    # the wait is cancelled (app/core/child.py, run_in_child) -, so neither memory nor time of the
+    # workflow's runner is spent on it, and each of its three ends is told by its word
     bounded = ChildLog(level="WARNING", format="text", request_id="-", memory_mb=8192)
+    page = "<html><body><p>Kompetenzraster</p><table><tr><td{spans}>x</td></tr></table></body></html>"
+    plain, vast = tmp_path / "raster.html", tmp_path / "weit.html"
+    plain.write_text(page.format(spans=""), encoding="utf-8")
+    vast.write_text(page.format(spans=' colspan="1000000" rowspan="1000000"'), encoding="utf-8")
 
-    with pytest.raises(ConversionRefused) as refused:
-        await convert_in_child(path, engine="docling", max_pages=800, child_log=bounded)
+    # the control: the page without its spans converts under the same bound, so a "died" below is the grid's
+    async with asyncio.timeout(GRID_DEADLINE_S):
+        await convert_in_child(plain, engine="docling", max_pages=800, child_log=bounded)
 
-    assert refused.value.code == "too_dense"
+    try:
+        async with asyncio.timeout(GRID_DEADLINE_S):
+            await convert_in_child(vast, engine="docling", max_pages=800, child_log=bounded)
+    except ConversionRefused as refused:
+        assert refused.code == "too_dense", f"refused as {refused.code}, not too_dense"
+    except ConversionDied:
+        pytest.fail("died: Docling laid the stated grid out before the cap saw it", pytrace=False)
+    except TimeoutError:
+        pytest.fail(f"deadline: Docling walked the stated grid past {GRID_DEADLINE_S} s", pytrace=False)
+    else:
+        pytest.fail("converted: the stated grid was neither capped nor refused", pytrace=False)
