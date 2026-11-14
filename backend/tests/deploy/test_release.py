@@ -88,21 +88,53 @@ def test_only_the_jobs_that_push_may_write_packages() -> None:
     assert permissions == {"images": PUSH, "converter": PUSH, "start": {"contents": "read"}}
 
 
+LOGIN = """printf '%s' "$GITHUB_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin"""
+TOKEN = {"GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"}
+
+
 def test_the_only_secret_it_reads_is_the_run_s_own_token() -> None:
     text = _text()
-    logins = re.findall(r"docker login[^\n]*", text)
 
     # (not the name of deploy/make-secrets.py)
     assert set(re.findall(r"(?<![\w/-])secrets\.(\w+)", text)) == {"GITHUB_TOKEN"}
-    assert len(logins) == 2
-    # on stdin, never on the command line, where the process list and the log could show it
-    for login in logins:
-        assert login.endswith("--password-stdin"), login
-        assert not re.search(r"\s(-p|--password)(\s|=)", login), login
-    for job in ("images", "converter"):
-        login = next(step for step in _jobs()[job]["steps"] if "docker login" in str(step.get("run", "")))
-        assert login["env"] == {"GITHUB_TOKEN": "${{ secrets.GITHUB_TOKEN }}"}
+    assert "github.token" not in text
+    # to GitHub's registry, on stdin: never on the command line, where the process list and the log show it
+    assert re.findall(r"[^\n]*docker login[^\n]*", text) == [f"          {LOGIN}"] * 2
     assert not any("docker login" in run for run in _runs("start"))
+
+
+def test_the_token_reaches_the_two_push_steps_alone_and_only_after_every_build() -> None:
+    # no env for a whole workflow or job: each step names what it gets
+    assert "env" not in _workflow()
+    assert not any("env" in job for job in _jobs().values())
+    envs = {
+        (name, step["name"]): step["env"]
+        for name, job in _jobs().items()
+        for step in job["steps"]
+        if "env" in step
+    }
+    assert envs == {
+        ("images", "Push the images"): TOKEN,
+        ("converter", "Push the converter's image"): TOKEN,
+        ("start", "Pull the pushed images by their digests"): {
+            "API": "${{ needs.images.outputs.api }}",
+            "WEB": "${{ needs.images.outputs.web }}",
+        },
+    }
+    for name in ("images", "converter"):
+        steps = _jobs()[name]["steps"]
+        [login] = [index for index, step in enumerate(steps) if LOGIN in str(step.get("run", ""))]
+        builds = [
+            index
+            for index, step in enumerate(steps)
+            if re.search(r"npm|docker build", str(step.get("run", "")))
+        ]
+        # the dependencies' code and the builds run before the credential is stored, and it is removed
+        # however the push ends
+        assert builds and max(builds) < login, name
+        assert steps[login + 1 :] == [
+            {"name": "Log out of the registry", "if": "always()", "run": "docker logout ghcr.io"}
+        ]
 
 
 def test_no_run_step_expands_an_expression_into_the_shell() -> None:
