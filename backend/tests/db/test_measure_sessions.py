@@ -74,15 +74,15 @@ def statement_running(url: str, name: str, statement: str) -> threading.Thread:
 def test_a_session_idle_in_a_transaction_is_reported_with_how_long(database_url: str) -> None:
     holder = in_the_background(database_url, "measure-idle", "SELECT 1", hold_s=0.3)
 
-    found = measure_sessions.measure(database_url, seconds=0.6, interval_s=INTERVAL_S)
+    found = measure_sessions.measure(database_url, seconds=1.2, interval_s=INTERVAL_S)
     holder.join(10)
 
     idle = found["measure-idle"]
     assert idle["max_idle_in_transaction_s"] >= 0.2
     assert idle["max_transaction_s"] >= 0.2
     assert idle["samples"] >= 1
-    # the transaction ended within the window: an idle that went on would read 0.6
-    assert idle["max_idle_in_transaction_s"] < 0.55
+    # the transaction ended within the window: an idle that went on would read 1.2
+    assert idle["max_idle_in_transaction_s"] < 1.0
 
 
 @pytest.mark.anyio

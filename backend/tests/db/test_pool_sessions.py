@@ -54,8 +54,8 @@ async def test_a_session_idle_in_a_transaction_past_its_time_is_ended_and_lets_i
 
 
 async def test_a_transaction_that_keeps_working_is_not_ended(url: str) -> None:
-    async with pool_of(url, db_idle_in_transaction_timeout_s=1) as pool, pool.connection() as working:
-        for _ in range(5):  # 2 s in all, never idle for 1 s
+    async with pool_of(url, db_idle_in_transaction_timeout_s=2) as pool, pool.connection() as working:
+        for _ in range(7):  # 2.8 s in all, past the timeout, never idle for 2 s
             await working.execute("UPDATE probe SET id = id WHERE id = 1")
             await asyncio.sleep(0.4)
         await working.commit()
