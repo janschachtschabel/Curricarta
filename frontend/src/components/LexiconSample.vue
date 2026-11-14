@@ -19,6 +19,7 @@ import { LOCALE, t } from "@/i18n/de";
 import { decidedIn, judgedCue } from "@/lexiconReview";
 import { ANY_CUE, SAMPLE_PAGE, chosen, type CueChoice } from "@/lexiconStrata";
 import { labelList, sectorWord } from "@/lexiconWords";
+import { sayAnew } from "@/liveRegion";
 import { useOpenEntries } from "@/openEntries";
 import { useSectionReading } from "@/sectionReading";
 
@@ -52,6 +53,14 @@ watch([choice, openOnly], () => {
   pageEnd.value = Math.max(SAMPLE_PAGE, lastHeld + 1);
 });
 
+// the choice's result, heard: the counts beside it are not a live region
+const choiceStatus = ref("");
+watch(choice, () => {
+  const words = inChoice.value.length
+    ? t("lexicon.list.openCount", { open: open.value, total: inChoice.value.length })
+    : t("lexicon.sample.filter.none");
+  choiceStatus.value = sayAnew(choiceStatus.value, words);
+});
 
 const itemsBox = ref<HTMLElement | null>(null);
 
@@ -172,6 +181,7 @@ onMounted(load);
     </template>
     <!-- in the page from the start, so a failure of a later reading is heard -->
     <PartialState :notice="list !== null ? failure : null" retry @retry="retry()" />
+    <p class="visually-hidden" role="status" data-test="choice-status">{{ choiceStatus }}</p>
   </section>
 </template>
 

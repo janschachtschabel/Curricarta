@@ -365,6 +365,25 @@ describe("a long sample", () => {
     expect(wrapper.emitted("dirty")).toEqual([[true]]);
   });
 
+  // a reader changing the choice heard nothing of what it left (UI review 1, finding 10)
+  it("says what a choice leaves in a status region that is there from the start", async () => {
+    const items = [
+      reviewCue({ iri: `${SCHOOL}a`, surface_form: "Inhaltsfeld", regions: [REGION + "DE-NW"] }),
+      reviewCue({ iri: `${SCHOOL}b`, surface_form: "Lernfeld", sector: "vocational", regions: [REGION + "DE-BY"] }),
+    ];
+    vi.spyOn(api, "getReview").mockImplementation(() => Promise.resolve(review({ items })));
+    const wrapper = await section();
+    const status = wrapper.get("[data-test=choice-status]");
+    expect(status.attributes("role")).toBe("status");
+    expect(status.text()).toBe("");
+
+    await wrapper.get("#lexicon-sector").setValue("school");
+    expect(status.text()).toBe(t("lexicon.list.openCount", { open: 1, total: 1 }));
+
+    await wrapper.get("#lexicon-region").setValue(REGION + "DE-BY");
+    expect(status.text()).toBe(t("lexicon.sample.filter.none"));
+  });
+
   it("names each button to decide by its cue", async () => {
     const wrapper = await section();
 
