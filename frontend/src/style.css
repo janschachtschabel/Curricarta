@@ -230,6 +230,12 @@ html {
   outline-offset: 2px;
 }
 
+/* An element the keyboard is sent to (a heading, focusById) and scrolled to the
+   viewport's top keeps its focus ring above it in sight: ring and offset take 5px. */
+[tabindex="-1"] {
+  scroll-margin-block-start: var(--space-1);
+}
+
 a {
   color: var(--accent);
   text-underline-offset: 0.18em;

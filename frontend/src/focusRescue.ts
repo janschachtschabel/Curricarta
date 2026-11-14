@@ -64,12 +64,16 @@ export function focusIsFree(): boolean {
 }
 
 /**
- * Send the keyboard to the element with this id, which the browser scrolls
- * into view; nothing happens where there is none. Not the address's fragment:
- * the router would take that for a move.
+ * Send the keyboard to the element with this id and bring it to the top of the
+ * viewport; nothing happens where there is none. Not the address's fragment:
+ * the router would take that for a move. focus() alone scrolls only as far as
+ * needed, which can leave a section's heading on the viewport's last line. The
+ * scroll follows the page's scroll-behavior, which is never smooth here.
  */
 export function focusById(id: string): void {
-  document.getElementById(id)?.focus();
+  const element = document.getElementById(id);
+  element?.focus({ preventScroll: true });
+  element?.scrollIntoView({ block: "start" });
 }
 
 /** The first control of the open modal dialog -- the last one in the page, where several are. */

@@ -1,7 +1,12 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { flushPromises } from "@vue/test-utils";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { focusById, focusIsFree, keepFocusInPage } from "@/focusRescue";
+
+import { SRC, cssRules } from "./sources";
 
 /**
  * The keyboard's place survives the removal of what had focus (old app, audit
@@ -147,6 +152,25 @@ describe("focusById", () => {
     focusById("target");
 
     expect(document.activeElement?.id).toBe("target");
+  });
+
+  // focus() alone scrolled only as far as needed, which left a section's heading on the viewport's last line
+  // (browser check 2, defect 4): the element stands at the top, scrolled once, by the page's own scroll behaviour
+  it("brings the element to the top of the viewport", () => {
+    document.body.innerHTML = '<button id="first">a</button><h2 id="target" tabindex="-1">b</h2>';
+    const target = document.getElementById("target") as HTMLElement;
+    const focus = vi.spyOn(target, "focus");
+    const scroll = vi.spyOn(target, "scrollIntoView");
+
+    focusById("target");
+
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true });
+    expect(scroll).toHaveBeenCalledWith({ block: "start" });
+  });
+
+  it("gives an element the keyboard is sent to room above it for its focus ring", () => {
+    const rule = cssRules(readFileSync(join(SRC, "style.css"), "utf8")).find((one) => one.selectors.includes('[tabindex="-1"]'));
+    expect(rule?.body).toMatch(/scroll-margin-block-start:\s*var\(--space-1\)/);
   });
 
   it("leaves focus where it was when no element has that id", () => {
