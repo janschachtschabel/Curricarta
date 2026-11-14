@@ -1,7 +1,8 @@
 """``python -m app.quality.report``: precision, recall and the anchors' judgements of gold samples as counts
 and rates (plan H-3 §3.4) - each document one entry, a statement's precision weighted by the strata's
 populations kept when drawn beside the pooled rate, recall by the statements found in the judged blocks
-now, an anchor sample's figures over all strata and without the title pages. Never a wording."""
+now; an anchor sample's precision over its found anchors - all, and without the title pages - and its
+rows not found apart (the anchor section's own tests: test_report_anchors.py). Never a wording."""
 
 import psycopg
 import pytest
@@ -20,7 +21,6 @@ from tests.db.document_of import document_of
 from tests.quality.gold_documents import (
     CV,
     HUMAN,
-    IMPORTED,
     MODEL,
     PART,
     PROPOSED,
@@ -216,60 +216,3 @@ async def test_two_samples_of_one_document_are_one_entry(connection: psycopg.Asy
         await report(connection, [statements, (await draw(connection, again)).sample])
     with pytest.raises(Refused, match="unknown_sample"):
         await report(connection, [999_999])
-
-
-async def test_an_anchor_sample_tells_the_found_anchors_precision_and_the_missed_wordings_apart(
-    connection: psycopg.AsyncConnection,
-) -> None:
-    document = await document_of(connection, with_contents())
-    on_cover = AnchorDraft(("p1-b1",), page_start=1, match_kind=CV + "match_whitespace")
-    in_body = AnchorDraft(("p3-b3",), page_start=3, match_kind=CV + "match_exact")
-    lost = AnchorDraft((), page_start=1, match_kind=CV + "match_notFound")
-    root = NodeDraft(
-        function=CV + "fn_area", origin=IMPORTED, review_status=PROPOSED, original_title=f"1 {PART} 1",
-        anchors=(AnchorDraft(("p3-b2",), page_start=3, match_kind=CV + "match_exact"),),
-        statements=(
-            *(statement(f"{WORDS['outcome']} {n}", origin=IMPORTED, anchors=(on_cover,)) for n in range(6)),
-            *(statement(f"{WORDS['content']} {n}", origin=IMPORTED, anchors=(in_body,)) for n in range(30)),
-            *(statement(f"{WORDS['own']} {n}", origin=IMPORTED, anchors=(lost,)) for n in range(2)),
-        ),
-    )  # fmt: skip
-    await write_subtree(connection, document.id, root)
-    await done(connection, document, "IM")
-    sample = await drawn(connection, document, "anchor")  # all 39, each judged
-    strata = await by_stratum(connection, sample)
-    place, missed = (
-        Judgement("wrong", ("wrong_place",), None, None),
-        Judgement("wrong", ("missed",), None, None),
-    )
-    verdicts = {
-        "exact:node": [CORRECT],
-        "exact:statement": [CORRECT] * 15 + [IMPRECISE] * 10 + [place] * 5,
-        "front:statement": [CORRECT] * 2 + [place] * 4,
-        "notFound:statement": [CORRECT, missed],  # rightly not found; there after all
-    }
-    for stratum, judgements in verdicts.items():
-        for item, judgement in zip(strata[stratum], judgements, strict=True):
-            await judge(connection, item.id, document.owner_id, judgement)
-
-    [entry] = (await report(connection, [sample]))["documents"]
-
-    anchors = entry["anchor"]
-    assert entry["source_kind"] == "mem_import"
-    assert anchors["title_pages"] == "set_apart"
-    assert set(anchors["strata"]) == {"exact:node", "exact:statement", "front:statement"}  # found ones
-    # found, all: strict (1 + 15 + 2) / 37, lenient (1 + 25 + 2) / 37, wrong (5 + 4) / 37
-    assert anchors["weighted"] == {
-        "by": "frame_when_drawn", "open": 0,
-        "precision_strict": 0.4865, "precision_lenient": 0.7568, "wrong_rate": 0.2432,
-    }  # fmt: skip
-    assert (anchors["judged"], anchors["open"], anchors["pooled"]["precision_strict"]) == (37, 0, 0.4865)
-    # without the title pages: 16 / 31, 26 / 31, 5 / 31
-    without = anchors["without_front"]
-    assert (without["weighted"]["precision_strict"], without["weighted"]["precision_lenient"]) == (
-        0.5161,
-        0.8387,
-    )
-    assert (without["weighted"]["wrong_rate"], without["judged"], without["open"]) == (0.1613, 31, 0)
-    assert anchors["not_found"] == {"judged": 2, "missed": 1, "missed_rate": 0.5}
-    assert anchors["reasons"] == {"boundary": 10, "wrong_place": 9}

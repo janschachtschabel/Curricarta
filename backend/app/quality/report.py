@@ -11,8 +11,11 @@ measure (plan H-3 §3.4), as JSON on stdout - each document one entry, whatever 
   empty but holding statements (apart), the surplus.
 - ``anchor``: the found anchors' precision as statements', over the strata that are not ``notFound:*`` -
   all of them, and again without the title pages' (``front:*``) -, beside ``title_pages`` as kept when
-  drawn; apart, ``not_found``: of the rows the import did not find, how many were judged and how many of
-  those hold a wording that is there after all (``missed``, ``missed_rate``).
+  drawn; apart, ``not_found``: the rows the import did not find - in the frame, drawn, judged, open - and
+  how many of those judged hold a wording that is there after all (``missed``, ``missed_rate``).
+
+A weighted rate is said once no drawn item is open in the strata that enter that measure: the anchors'
+precision waits for the found strata alone, the figure without the title pages for those not ``front:*``.
 
 Each leaf is a number, a truth value, null or a code of ``LEAF``: no wording, quote or note can pass."""
 
@@ -116,16 +119,21 @@ def _anchors(sample: Sample, items: Sequence[Item], judgements: Mapping[int, Jud
         judgements,
         ANCHOR_REASONS,
     )
-    lost = [judgements[i.id].verdict for i in items if i.stratum.startswith(NOT_FOUND) and i.id in judgements]
+    unfound = [item for item in items if item.stratum.startswith(NOT_FOUND)]
+    lost = [judgements[item.id].verdict for item in unfound if item.id in judgements]
     judged = sum(1 for verdict in lost if verdict is not None)
     missed = lost.count("wrong")
+    population = sum(n for stratum, n in sample.frame.items() if stratum.startswith(NOT_FOUND))
     return {
         "sample": sample.id,
         "title_pages": sample.title_pages,
         **_verdicts(frame, found, judgements, ANCHOR_REASONS),
         "without_front": {key: without[key] for key in ("judged", "open", "weighted", "pooled")},
         "not_found": {
+            "frame": population,
+            "drawn": len(unfound),
             "judged": judged,
+            "open": len(unfound) - judged,
             "missed": missed,
             "missed_rate": _rate(missed / judged) if judged else None,
         },
