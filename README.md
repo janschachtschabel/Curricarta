@@ -497,8 +497,9 @@ ungültig.
   ungeprüft, und X5 endet fertig mit dem Verstoß `x5.anchors_unchecked`. Ein neuer Start der
   Extraktion setzt diese Prüfung nicht fort, „Erneut prüfen“ (`POST /api/v1/documents/{id}/check`)
   prüft die übrigen Fundstellen. Ein neuer Start der
-  Extraktion prüft ein Dokument, dessen X5 fertig ist, nicht erneut; das tut erst eine Reparatur,
-  die Arbeitspakete neu schreibt, dann mit der geltenden Frist. Stirbt der Prüfprozess
+  Extraktion prüft ein Dokument, dessen X5 fertig ist, nur dann erneut, wenn seither eine Reparatur
+  oder eine Bearbeitung eine Prüfung schuldet, dann mit der geltenden Frist; „Erneut prüfen“ prüft
+  immer. Stirbt der Prüfprozess
   (Speichermangel) oder bricht
   er ab, scheitert der Lauf (`ShaclCrashed`), und der Job wird bis zu seiner Versuchsgrenze
   wiederholt (`handler_error`). Jede Stufe jedes Versuchs ist ein
