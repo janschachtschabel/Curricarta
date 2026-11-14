@@ -52,6 +52,15 @@ describe("the register's filter in the address", () => {
     expect(filtersFromQuery({ suche: "x".repeat(250) }).q).toHaveLength(MAX_SEARCH_SIGNS);
   });
 
+  // the server counts signs as Python does, by code point; a cut inside a pair left half a sign (UI review 1, NIT 17)
+  it("cuts a search by signs, never between the halves of one, and without its outer spaces", () => {
+    const astral = "\u{1D53B}"; // one sign, two UTF-16 units
+    const cut = filtersFromQuery({ suche: astral.repeat(250) }).q;
+    expect([...cut]).toHaveLength(MAX_SEARCH_SIGNS);
+    expect(cut).toBe(astral.repeat(MAX_SEARCH_SIGNS));
+    expect(filtersFromQuery({ suche: "  Physik " }).q).toBe("Physik");
+  });
+
   it("asks the server for the search without its outer spaces, and not for a blank one", () => {
     expect(askedOf({ candidates: false, status: "", q: "  Physik ", country: "DE-BY" })).toEqual({
       q: "Physik",

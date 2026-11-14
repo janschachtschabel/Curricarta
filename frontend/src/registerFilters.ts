@@ -4,7 +4,7 @@
 import type { LocationQuery, LocationQueryRaw } from "vue-router";
 
 import type { RegisterStatus, SourceFilters } from "@/api";
-import { messages, t } from "@/i18n/de";
+import { LOCALE, messages, t } from "@/i18n/de";
 
 export interface RegisterFilters {
   candidates: boolean;
@@ -23,10 +23,10 @@ type CountryCode = keyof typeof messages.sources.countries;
 
 /** The Länder the filter offers - those the register's seeds name - by their name. */
 export const COUNTRIES: readonly CountryCode[] = (Object.keys(messages.sources.countries) as CountryCode[]).sort(
-  (a, b) => messages.sources.countries[a].localeCompare(messages.sources.countries[b], "de"),
+  (a, b) => messages.sources.countries[a].localeCompare(messages.sources.countries[b], LOCALE),
 );
 
-/** The longest search the server reads (backend SearchText). */
+/** The longest search the server reads (backend SearchText), in signs as Python counts them: code points. */
 export const MAX_SEARCH_SIGNS = 200;
 
 function single(value: LocationQuery[string]): string {
@@ -40,7 +40,9 @@ export function filtersFromQuery(query: LocationQuery): RegisterFilters {
   return {
     candidates: query.kandidaten === "1",
     status: status ?? "",
-    q: single(query.suche).slice(0, MAX_SEARCH_SIGNS),
+    // as the page sends it - trimmed -, so the address read back is no other search; cut by code point, never
+    // between the two halves of a sign beyond the BMP
+    q: [...single(query.suche).trim()].slice(0, MAX_SEARCH_SIGNS).join(""),
     country: country ?? "",
   };
 }

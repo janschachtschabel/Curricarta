@@ -4,7 +4,7 @@
  * seeds' candidates alone - entries of no account still without their file, which the check
  * looks at - and how far the register has come with an entry. Each change hands on a new value;
  * the page reads the register again with it. The search goes when sent, not at each sign typed:
- * each value is a reading of the register and a step of the address.
+ * each value is a reading of the register, and the address's filter replaced (not a step of the history).
  */
 import { computed, ref, watch } from "vue";
 
