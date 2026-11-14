@@ -251,6 +251,9 @@ ungültig.
   Worker mit `WORKER_KINDS=source.convert` vorsehen, ein Job je Pod, und für Docling Worker des
   Konverter-Images mit `WORKER_KINDS=source.convert_docling` (unten). Nur ein Worker, in dem Docling
   installiert ist, kennt diese Job-Art; ohne die Modelle unter `/models` startet er nicht.
+  `CHILD_MEMORY_LIMIT_MB` (ohne Standard) begrenzt unter Linux zusätzlich den Speicher jedes
+  Kindprozesses, der Umwandlung wie der SHACL-Prüfung; was eine Anforderung über der Grenze
+  beendet, steht in `docs/uebergabe/konfiguration.md`.
 - Formular: `GET /api/v1/profiles/{bereich}/form` (jedes Konto; `bereich` wie `school`) nennt die
   Felder eines Knotens und einer Aussage mit Art, Pflicht, Mehrfachwert und Höchstlänge und je
   Auswahlliste die aktiven Werte des Profils, nach Label geordnet – Knotentypen und Unterarten mit
@@ -512,7 +515,11 @@ ungültig.
   `budget_exhausted` (Budget aufgebraucht: in X4 beginnt kein Paket mehr, die laufenden werden
   fertig, Fertiges bleibt), `run_over_budget` (nach X2 reicht der Rest der Quote voraussichtlich
   nicht für X3 und X4; nichts davon wurde gefragt, siehe „Wacht nach X2“ unter „Kosten des
-  Modells“), `model_unanswered` (keine Antwort im Schema; in X4 bleiben nur solche
+  Modells“), `answer_cut` (eine Antwort wurde an der Grenze `LLM_MAX_OUTPUT_TOKENS` abgeschnitten;
+  in X4 bleibt die Einheit offen und wird erst unter einer höheren Grenze wieder gefragt),
+  `model_refused` (der Anbieter hat eine Anfrage von X4 endgültig abgelehnt – ein 4xx außer 408 und 429,
+  oder ein 429, nach dem das Guthaben beim Anbieter aufgebraucht ist: Schlüssel, Modellname oder
+  Anfrage; ein neuer Start hilft nicht), `model_unanswered` (keine Antwort im Schema; in X4 bleiben nur solche
   Pakete offen), `model_not_configured` (kein `OPENAI_API_KEY` im Worker), `prefix_too_long`
   (nicht einmal ein Abschnitt passt neben Titelei und Rahmenteilen ins Kontextfenster; passt das
   Fenster eines Pakets von X4 nicht, endet der Job schon vor X3, der sonst umsonst bezahlt wäre),
