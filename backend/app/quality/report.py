@@ -22,9 +22,11 @@ are named:
 A weighted rate is said once no drawn item is open in the strata that enter that measure: the anchors'
 precision waits for the found strata alone, the figure without the title pages for those not ``front:*``.
 
-An item no longer what was drawn (app/quality/stale.py: its row gone since the draw, its wording changed)
-is counted apart - ``stale: {gone, changed}`` in the statement and anchor sections - and nowhere else:
-not among the drawn, the judged or the open, its judgement left out of every rate.
+An item no longer what was drawn (app/quality/stale.py: its row gone since the draw, or its wording, origin
+or first block changed) and not judged is counted apart - ``stale: {gone, changed}`` in the statement and
+anchor sections - and nowhere else: not among the drawn or the open, in no denominator. One judged while it
+was as drawn stays among the judged and in every rate - a row changed afterwards does not undo what was
+seen, and editors and repairs change what was wrong -; ``stale.judged_before`` counts those.
 
 Each leaf is a number, a truth value, null or a code of ``LEAF``: no wording, quote or note can pass."""
 
@@ -95,9 +97,11 @@ async def _entry(
         if sample.kind == "block":  # a block is never stale
             section = await blocks(connection, sample, items, judgements)
         else:
-            stale = await stale_items(connection, sample.document_id, items)
-            kept = [item for item in items if item.id not in stale]  # still what was drawn
-            apart = {"stale": {state: list(stale.values()).count(state) for state in STALE}}
+            stale = await stale_items(connection, sample, items)
+            open_stale = {key: state for key, state in stale.items() if key not in judgements}
+            kept = [item for item in items if item.id not in open_stale]  # as drawn, or judged so
+            counted = {state: list(open_stale.values()).count(state) for state in STALE}
+            apart = {"stale": counted | {"judged_before": len(stale) - len(open_stale)}}
             if sample.kind == "anchor":
                 section = anchors(sample, kept, judgements) | apart
             else:

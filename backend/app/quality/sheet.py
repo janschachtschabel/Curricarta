@@ -3,8 +3,8 @@
 H-3 §3.3) - one row per item with its wording and where to look, the cells to judge (``verdict``,
 ``reasons``, ``expected``, ``note``) empty, ``n/a`` where a cell is not asked: a block is judged by a count,
 a statement or anchor by a verdict; an item no longer what was drawn says so (app/quality/stale.py:
-``kind`` = ``gone`` where its row is gone since the draw, ``changed`` where an editor changed its
-wording), its verdict ``n/a``. ``python -m app.quality.judge`` reads it back.
+``kind`` = ``gone`` where its row is gone since the draw, ``changed`` where its wording, origin or first
+block changed), its verdict ``n/a``. ``python -m app.quality.judge`` reads it back.
 
 The sheet holds the document's wordings: it is written to stdout alone. Where the code lies in a working
 tree and stdout is a file, the file must lie under ``data/gold-local/`` (ignored by git and the images) -
@@ -35,7 +35,7 @@ from app.db.documents import document_for_job
 from app.db.gold import Item, items_of, sample_by_id
 from app.db.gold_rows import Shown, blocks_shown, node_names, nodes_shown, statements_shown
 from app.db.pool import CONNECTION_OPTIONS
-from app.quality.stale import state_of
+from app.quality.stale import stale_items
 
 log = logging.getLogger(__name__)
 
@@ -99,6 +99,7 @@ async def sheet_rows(connection: psycopg.AsyncConnection, sample_id: int, base_u
         connection, document.conversion_id, [i.block_id for i in items if i.block_id is not None]
     )
     names = await node_names(connection, document.id)
+    stales = await stale_items(connection, sample, items)
     base = base_url.rstrip("/")
     rows: list[Row] = []
     for item in items:
@@ -123,7 +124,7 @@ async def sheet_rows(connection: psycopg.AsyncConnection, sample_id: int, base_u
                 found = nodes.get(item.node_id) if item.node_id is not None else None
             page = _page_of(item.first_block) or (found.page if found else None)
             at = f"seite={page}" if page is not None else ""
-            stale = state_of(item, found)
+            stale = stales.get(item.id)
             if found is not None:
                 row |= {"kind": found.kind, "wording": found.wording or "", "lead_in": found.lead_in or ""}
                 row |= {"quote": found.quote or "", "path": _path(names, found.under)}

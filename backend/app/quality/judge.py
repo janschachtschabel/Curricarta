@@ -159,7 +159,7 @@ async def take_in(connection: psycopg.AsyncConnection, sample_id: int, account: 
         raise Refused("unknown_sample", f"no sample {sample_id}")
     lines = read_sheet(data)
     items = {item.id: item for item in await items_of(connection, sample_id)}
-    stale = await stale_items(connection, sample.document_id, list(items.values()))
+    stale = await stale_items(connection, sample, list(items.values()))
     judgements, left_empty = judgements_in(lines, items, sample.kind, stale)
     try:
         judged = await judge_all(connection, found[0], judgements)

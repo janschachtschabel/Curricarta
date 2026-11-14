@@ -4,6 +4,8 @@ judged - by its stratum, and what names it beyond its row: the hash of its wordi
 A unit's first block is the first of its anchors' blocks in reading order, None where they name none (an
 editor's or the import's notFound)."""
 
+from collections.abc import Collection
+from dataclasses import dataclass
 from uuid import UUID
 
 import psycopg
@@ -40,6 +42,23 @@ LEFT JOIN node n ON n.id = a.node_id
 WHERE a.document_id = %(document)s AND coalesce(s.origin_iri, n.origin_iri) = %(imported)s
     AND s.review_status_iri IS DISTINCT FROM %(rejected)s
 ORDER BY coalesce(a.statement_id, a.node_id), a.created_at, a.id
+"""  # noqa: S608 - fixed parts
+# The rows items point at as they stand now, measured as the draws above measure them: a statement's first
+# block over all its anchors (the model's) and over its first anchor with a match kind (an import's); a node
+# title's over its first anchor with a match kind
+_FIRST_FOUND = (
+    "ARRAY(SELECT a.id FROM anchor a WHERE a.{owner} = {row}.id AND a.match_kind_iri IS NOT NULL"
+    " ORDER BY a.created_at, a.id LIMIT 1)"
+)
+_STATEMENTS_NOW = f"""
+SELECT s.id, s.origin_iri, s.text_hash, ({_FIRST_BLOCK.format(anchors=_OF_STATEMENT)}) AS first_block,
+    ({_FIRST_BLOCK.format(anchors=_FIRST_FOUND.format(owner="statement_id", row="s"))}) AS found_block
+FROM statement s WHERE s.document_id = %s AND s.id = ANY (%s)
+"""  # noqa: S608 - fixed parts
+_NODES_NOW = f"""
+SELECT n.id, n.origin_iri, n.original_title,
+    ({_FIRST_BLOCK.format(anchors=_FIRST_FOUND.format(owner="node_id", row="n"))}) AS found_block
+FROM node n WHERE n.document_id = %s AND n.id = ANY (%s)
 """  # noqa: S608 - fixed parts
 _TITLE_BLOCKS = """
 SELECT DISTINCT ab.block_id FROM anchor a JOIN anchor_block ab ON ab.anchor_id = a.id
@@ -98,3 +117,31 @@ async def conversion_pages(connection: psycopg.AsyncConnection, conversion_id: U
     cursor = await connection.execute("SELECT pages FROM conversion WHERE id = %s", (conversion_id,))
     found = await cursor.fetchone()
     return None if found is None else found[0]
+
+
+@dataclass(frozen=True)
+class RowNow:
+    """A statement or node as an item's draw would measure it now: its origin, its wording's hash, its first
+    block as a statement sample takes it (over all anchors) and as an anchor sample does (its first found)."""
+
+    origin: str
+    text_hash: str | None
+    first_block: str | None
+    found_block: str | None
+
+
+async def rows_now(
+    connection: psycopg.AsyncConnection,
+    document_id: UUID,
+    statements: Collection[UUID],
+    nodes: Collection[UUID],
+) -> dict[UUID, RowNow]:
+    """The statements and nodes of the document among these ids, by id; one taken away absent."""
+    found: dict[UUID, RowNow] = {}
+    cursor = await connection.execute(_STATEMENTS_NOW, (document_id, list(statements)))
+    for row, origin, hashed, first, found_block in await cursor.fetchall():
+        found[row] = RowNow(origin, hashed, first, found_block)
+    cursor = await connection.execute(_NODES_NOW, (document_id, list(nodes)))
+    for row, origin, title, found_block in await cursor.fetchall():
+        found[row] = RowNow(origin, None if title is None else text_hash(title), found_block, found_block)
+    return found

@@ -56,7 +56,8 @@ async def test_a_statement_replaced_with_the_same_wording_at_the_same_block_keep
     ]
 
     assert asked == [document.id]
-    assert measures["stale"] == {"gone": 1, "changed": 0}  # its row is gone: no longer what was drawn ...
+    # its row is gone - no longer what was drawn -, judged before: it stays in the rates ...
+    assert measures["stale"] == {"gone": 0, "changed": 0, "judged_before": 1}
     assert measures["replayed"] == {
         "kept_correct": 5, "kept_imprecise": 0, "kept_wrong": 0,
         "gone_correct": 0, "gone_imprecise": 0, "gone_wrong": 0,

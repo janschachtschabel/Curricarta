@@ -92,7 +92,10 @@ async def test_a_mark_of_digits_alone_comes_back_as_it_went(connection: psycopg.
     await write_subtree(connection, document.id, under)
     draft = SampleDraft("statement", document.id, "pilot-1", "s", 1, {"content": 1}, document.owner_id, None)
     item = ItemDraft(
-        "content", statement_id=await statement_id(connection, wording), text_hash=text_hash(wording)
+        "content",
+        statement_id=await statement_id(connection, wording),
+        text_hash=text_hash(wording),
+        first_block="p1-b2",  # where statement() anchors it
     )
     sample = await add_sample(connection, draft, [item])
     [row] = await sheet_rows(connection, sample, "http://127.0.0.1:18080")
