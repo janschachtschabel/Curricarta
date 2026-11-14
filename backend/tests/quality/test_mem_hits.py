@@ -29,7 +29,7 @@ def test_the_rows_past_the_search_s_time_are_the_last_in_its_order() -> None:
     rows = [Row(f"https://example.org/p/{n}", "x", False) for n in range(4)]
 
     assert rows_left(rows, 0) == frozenset() and rows_left(None, 0) == frozenset()
-    assert rows_left(rows, 2) == {"https://example.org/p/2", "https://example.org/p/3"}
+    assert rows_left(rows, 2) == frozenset({"https://example.org/p/2", "https://example.org/p/3"})
     assert rows_left(rows, 4) is None  # every row: the plan's own title among them keeps no MEM IRI
     assert rows_left(None, 1) is None
     assert rows_left([*rows, Row("urn:x y", "x", False)], 1) is None  # an IRI the rows keep not
