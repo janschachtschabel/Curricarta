@@ -20,12 +20,27 @@ SERVICE_VERBS = {"create", "exec", "run", "start", "stop", "restart", "up"}
 VALUED = {"--index", "-e", "-u", "--user", "-w", "--workdir"}
 
 
+SETUP = ["set -eu", "export MSYS_NO_PATHCONV=1"]
+
+
+def _blocks() -> tuple[list[str], list[str]]:
+    """The commands of the document's two scripts for Compose: the backup, the restore."""
+    section = DOC[DOC.index("## Befehle für Compose") :].split("\n## ", 1)[0]
+    blocks = [
+        [line for line in block.splitlines() if line.strip() and not line.startswith("#")]
+        for block in re.findall(r"```bash\n(.*?)```", section, re.DOTALL)
+    ]
+    assert len(blocks) == 2
+    return blocks[0], blocks[1]
+
+
 def _block() -> list[str]:
-    """The commands of the document's block for Compose."""
-    after = DOC[DOC.index("Befehle für Compose") :]
-    block = re.search(r"```bash\n(.*?)```", after, re.DOTALL)
-    assert block
-    return [line for line in block.group(1).splitlines() if line.strip() and not line.startswith("#")]
+    """Every command of both scripts, those a trap runs among them."""
+    lines: list[str] = []
+    for line in [*_blocks()[0], *_blocks()[1]]:
+        words = shlex.split(line, posix=True)
+        lines.append(shlex.join(shlex.split(words[1])) if words[0] == "trap" else line)
+    return lines
 
 
 def _services(words: list[str]) -> set[str]:
@@ -73,8 +88,33 @@ def test_every_service_and_volume_the_commands_name_is_one_compose_has() -> None
 
 def test_the_block_stops_at_the_first_failure_and_hands_docker_its_paths_unchanged() -> None:
     # without set -e a failed unpack is followed by pg_restore and up -d: a restore silently partial;
-    # Git Bash rewrites "/data" in docker's arguments to a Windows path unless told not to
-    assert _block()[:2] == ["set -e", "export MSYS_NO_PATHCONV=1"]
+    # set -u stops at a folder never named; Git Bash rewrites "/data" in docker's arguments to a
+    # Windows path unless told not to. Each script runs alone, so each says so itself.
+    backup, restore = _blocks()
+
+    assert backup[:2] == SETUP
+    assert restore[:2] == SETUP
+
+
+def test_the_restore_checks_the_backup_before_it_removes_anything() -> None:
+    _backup, restore = _blocks()
+    destructive = next(
+        index for index, line in enumerate(restore) if line.endswith(" down") or "volume rm" in line
+    )
+    # two lines, not joined by &&: set -e does not stop at a failing member before the last
+    checks = [restore.index('test -s "$dir/db.dump"'), restore.index('test -s "$dir/objects.tar"')]
+
+    assert restore[2].startswith('dir="data/backup/')
+    assert max(checks) < destructive
+
+
+def test_minio_starts_again_whatever_becomes_of_the_archive() -> None:
+    backup, _restore = _blocks()
+    compose = "docker compose -f deploy/docker-compose.yml"
+    stop = backup.index(f"{compose} stop minio")
+
+    assert backup[stop + 1] == f"trap '{compose} start minio' EXIT"
+    assert f"{compose} start minio" not in backup
 
 
 def test_the_database_s_user_and_name_are_those_compose_gives_it() -> None:

@@ -77,23 +77,37 @@ noch die Images lesen (`.gitignore`, `.dockerignore`). Während das Archiv der O
 MinIO gestoppt: Uploads und Jobs, die den Speicher brauchen, scheitern so lange. Das Archiv macht das
 Postgres-Image, das Compose schon per Digest festlegt; kein weiteres Image kommt ins Spiel.
 
-Die ersten beiden Zeilen gehören vor jeden der beiden Teile (Sichern, Zurück), die je als eigenes
-Skript laufen (`bash sichern.sh`), nicht Zeile für Zeile in einer offenen Shell, die `set -e` beim
-ersten Fehler selbst beenden würde. `set -e` hält beim ersten Fehler an: Ohne es folgten auf ein
+Sichern und Zurückspielen sind je ein eigenes Skript (etwa `bash sichern.sh`), nicht Zeilen für eine
+offene Shell, die `set -e` beim ersten Fehler selbst beenden würde. Beide beginnen gleich: `set -eu`
+hält beim ersten Fehler und bei einer nie gesetzten Variable an; ohne es folgten auf ein
 gescheitertes Entpacken `pg_restore` und `up -d`, und der Dienst liefe mit einer Datenbank, der
 Objekte fehlen. `MSYS_NO_PATHCONV=1` hält Git Bash unter Windows davon ab, `/data` in den Argumenten
-an docker in einen Windows-Pfad umzuschreiben; unter Linux ändert es nichts.
+an docker in einen Windows-Pfad umzuschreiben; unter Linux ändert es nichts. Beim Sichern startet
+`trap … EXIT` MinIO wieder, wie das Archiv auch ausgeht.
 
 ```bash
-set -e
+set -eu
 export MSYS_NO_PATHCONV=1
 # Sichern: erst die Datenbank, dann die Objekte
-dir="data/backup/$(date -u +%Y%m%dT%H%M%SZ)" && mkdir -p "$dir"
+dir="data/backup/$(date -u +%Y%m%dT%H%M%SZ)"
+mkdir -p "$dir"
 docker compose -f deploy/docker-compose.yml exec -T postgres pg_dump -U curricarta -Fc curricarta > "$dir/db.dump"
 docker compose -f deploy/docker-compose.yml stop minio
+trap 'docker compose -f deploy/docker-compose.yml start minio' EXIT
 docker run --rm -v curricarta_miniodata:/data:ro pgvector/pgvector:pg17@sha256:cf134a767f474095eeba57e0117be8e568e011a63f33fbf252f14c9b760f8e6f tar --numeric-owner -cf - -C /data . > "$dir/objects.tar"
-docker compose -f deploy/docker-compose.yml start minio
-# Zurück: erst die Objekte, dann die Datenbank (dir zeigt auf die Sicherung)
+```
+
+Zum Zurückspielen in der dritten Zeile den Ordner der Sicherung eintragen. Die beiden `test -s`
+brechen ab, bevor etwas gelöscht wird, wenn `db.dump` oder `objects.tar` fehlt oder leer ist; je
+eine Zeile, denn `set -e` hält bei einem scheiternden Glied vor dem letzten einer `&&`-Kette nicht an.
+
+```bash
+set -eu
+export MSYS_NO_PATHCONV=1
+dir="data/backup/<Zeitstempel>"
+test -s "$dir/db.dump"
+test -s "$dir/objects.tar"
+# Zurück: erst die Objekte, dann die Datenbank
 docker compose -f deploy/docker-compose.yml down
 docker volume rm curricarta_pgdata curricarta_miniodata
 docker compose -f deploy/docker-compose.yml up -d --wait postgres
@@ -103,8 +117,8 @@ docker compose -f deploy/docker-compose.yml exec -T postgres pg_restore -U curri
 docker compose -f deploy/docker-compose.yml up -d
 ```
 
-`docker volume rm` löscht die Daten des Projekts `curricarta`: erst ausführen, wenn `db.dump` und
-`objects.tar` der Sicherung da sind und nicht leer. `create minio` legt das Volume von MinIO an, ohne
+`docker volume rm` löscht die Daten des Projekts `curricarta`; die Sicherung unter `data/backup/`
+bleibt. `create minio` legt das Volume von MinIO an, ohne
 MinIO zu starten: Auf dem leeren Volume schriebe es sonst einen frischen Zustand, den das Archiv nur
 teilweise überschreibt. `pg_restore` legt auch die Erweiterungen
 (`vector`, `pg_trgm`, `unaccent`) an und braucht dafür die Rechte eines Superusers; in Compose hat
