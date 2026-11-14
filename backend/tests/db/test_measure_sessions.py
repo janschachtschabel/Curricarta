@@ -122,3 +122,24 @@ def test_without_queries_asked_for_no_statement_s_text_is_printed(
     assert json.loads(printed[False])["measure-text"]["max_statement_s"] > 0
     # the same run with --queries names it: the first test is not empty for want of the session
     assert "marker_of_the_statement" in printed[True]
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    [
+        ["--seconds", "0"],
+        ["--seconds", "86401"],
+        ["--seconds", "1", "--interval-ms", "0"],
+        ["--seconds", "1", "--interval-ms", "-5"],
+        ["--seconds", "1", "--interval-ms", "60001"],
+    ],
+)
+def test_a_run_without_an_end_or_in_a_tight_loop_is_refused(
+    arguments: list[str], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv("CURRICARTA_TEST_DATABASE_URL", raising=False)  # refused before it would connect
+
+    with pytest.raises(SystemExit) as refused:
+        measure_sessions.main(arguments)
+
+    assert refused.value.code == 2

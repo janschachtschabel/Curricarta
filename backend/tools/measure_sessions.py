@@ -10,6 +10,11 @@ longest of each measure seen and in how many samples the name was seen. A number
 between two samples, or shorter than one interval, is not seen whole. --queries adds the first 80 characters
 of the statement behind each longest value - for synthetic data only: the text may quote what a statement
 writes. Without it no statement's text is read at all.
+
+Only against a server that is yours: the sample is server-wide (every database, every application on it),
+and --queries prints other applications' statements too. Sessions of other roles are seen only by a member
+of pg_read_all_stats (or a superuser); without that privilege they drop out without a word, and a run looks
+clean that saw nothing. --seconds runs up to a day, --interval-ms from 10 ms to a minute.
 """
 
 import argparse
@@ -17,6 +22,7 @@ import json
 import os
 import sys
 import time
+from collections.abc import Callable
 from typing import Any
 
 import psycopg
@@ -25,6 +31,8 @@ from psycopg import sql
 URL_VARIABLE = "CURRICARTA_TEST_DATABASE_URL"
 MEASURES = ("max_idle_in_transaction_s", "max_transaction_s", "max_statement_s", "max_lock_wait_s")
 QUERY_CHARS = 80
+MAX_SECONDS = 86_400.0
+INTERVAL_MS = (10.0, 60_000.0)
 
 # Seconds as the server's clock has them at the sample; a lock wait from pg_locks.waitstart, which can be
 # null for a moment after the wait began (then 0). Only client sessions, never this one.
@@ -81,10 +89,32 @@ def measure(url: str, *, seconds: float, interval_s: float = 0.05, queries: bool
     return dict(sorted(found.items()))
 
 
+def _bounded(low: float, high: float, *, low_included: bool) -> Callable[[str], float]:
+    """An argparse type: a number within the bounds, else the parser's own error (exit code 2)."""
+
+    def parse(text: str) -> float:
+        value = float(text)
+        if not (low <= value if low_included else low < value) or value > high:
+            raise argparse.ArgumentTypeError(f"must lie between {low:g} and {high:g}")
+        return value
+
+    return parse
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__.splitlines()[0] if __doc__ else None)
-    parser.add_argument("--seconds", type=float, required=True, help="how long to sample")
-    parser.add_argument("--interval-ms", type=float, default=50.0, help="time between two samples")
+    parser.add_argument(
+        "--seconds",
+        type=_bounded(0, MAX_SECONDS, low_included=False),
+        required=True,
+        help="how long to sample",
+    )
+    parser.add_argument(
+        "--interval-ms",
+        type=_bounded(*INTERVAL_MS, low_included=True),
+        default=50.0,
+        help="between two samples",
+    )
     parser.add_argument(
         "--queries", action="store_true", help="name each longest value's statement (synthetic data only)"
     )
