@@ -15,7 +15,7 @@ from app.jobs.queue import Job, account_lane, claim, enqueue
 from app.pipeline.extraction import CHECK_KIND
 from app.pipeline.x5_check import check_document
 from app.usage.admission import MODEL_JOB_KINDS
-from tests.pipeline.test_run import CV, a_document, context_of, rows, setup
+from tests.pipeline.test_run import CV, a_document, assert_checked, context_of, last_x5_check, rows, setup
 from tests.pipeline.test_x4_statements import FIELDS
 from tests.pipeline.test_x6_repair import Quoting, extracted, not_found, runs_of
 
@@ -112,6 +112,7 @@ async def test_an_import_whose_tree_is_written_is_checked_with_no_x5_before(
 
     assert made == {"document_id": str(document.id), "checked": True}
     assert not await x5_owed(connection, document.id)
+    assert_checked(await last_x5_check(connection, document.id))
 
 
 async def test_a_draft_copy_is_checked_with_no_x5_of_its_own_and_x5_owes_it_nothing_after(

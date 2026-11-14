@@ -22,7 +22,19 @@ from app.pipeline.run import extract_document
 from app.pipeline.x5_stage import run_x5
 from app.usage.admission import MODEL_JOB_KINDS
 from app.usage.ledger import usage_of
-from tests.pipeline.test_run import BODY, CV, Model, a_document, a_job, a_statement, context_of, rows, setup
+from tests.pipeline.test_run import (
+    BODY,
+    CV,
+    Model,
+    a_document,
+    a_job,
+    a_statement,
+    assert_checked,
+    context_of,
+    last_x5_check,
+    rows,
+    setup,
+)
 from tests.pipeline.test_x3_frame import prompt_of
 from tests.pipeline.test_x4_statements import FIELDS, with_concurrency
 from tests.support import make_settings
@@ -136,6 +148,8 @@ async def test_a_repair_asks_again_only_the_packages_with_defects_and_checks_the
         document.id,
     ) == [("E2", 0), ("E3", 1), ("E4", 0)]
     assert made == {"document_id": str(document.id), "units": 1, "checked": True}
+    # the check after the repair: its SHACL findings replaced the first X5's
+    assert_checked(await last_x5_check(connection, document.id))
 
 
 async def test_a_repair_s_prefix_is_x4_s_byte_for_byte(

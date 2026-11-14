@@ -34,6 +34,7 @@ from app.sources.mem.import_job import KIND, import_document
 from app.sources.mem.sparql import MemUnavailable
 from app.vocab.store import load_vocabulary
 from tests.db.document_of import document_of
+from tests.pipeline.test_run import assert_checked, last_x5_check
 from tests.support import make_settings, ontology_vocabulary
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -182,6 +183,7 @@ async def test_an_import_writes_the_plan_s_tree_as_imported_rows_then_checks_it(
         CV, document.id,
     )  # fmt: skip
     assert kinds == [("match_exact",)]
+    assert_checked(await last_x5_check(connection, document.id))
 
 
 async def test_the_plan_s_answers_are_kept_raw_under_the_run(

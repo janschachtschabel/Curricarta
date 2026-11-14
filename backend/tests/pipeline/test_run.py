@@ -8,7 +8,7 @@ import json
 import re
 from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import Any
+from typing import Any, NamedTuple
 from uuid import UUID
 
 import psycopg
@@ -244,6 +244,39 @@ async def a_job(connection: psycopg.AsyncConnection, document_id: UUID | str, ow
 async def rows(connection: psycopg.AsyncConnection, query: str, *params: Any) -> list[tuple[Any, ...]]:
     cursor = await connection.execute(query, params)
     return await cursor.fetchall()
+
+
+class X5Check(NamedTuple):
+    run_id: UUID
+    result: dict[str, Any]
+    written: dict[str, int]  # the findings written under the run, by severity
+    shacl_runs: set[UUID]  # the runs the document's findings of the SHACL check were written under
+
+
+async def last_x5_check(connection: psycopg.AsyncConnection, document_id: UUID) -> X5Check:
+    """The document's latest X5 run, what it counted and wrote, and where its SHACL findings stand."""
+    [(run_id, result)] = await rows(
+        connection,
+        "SELECT id, result FROM extraction_run WHERE document_id = %s AND stage_iri = %s"
+        " ORDER BY started_at DESC LIMIT 1",
+        document_id, CV + "stage_X5",
+    )  # fmt: skip
+    written = await rows(
+        connection, "SELECT severity, count(*) FROM validation_finding WHERE run_id = %s GROUP BY 1", run_id
+    )
+    shacl = await rows(
+        connection,
+        "SELECT DISTINCT run_id FROM validation_finding WHERE document_id = %s AND rule LIKE 'shacl.%%'",
+        document_id,
+    )
+    return X5Check(run_id, result, dict(written), {found for (found,) in shacl})
+
+
+def assert_checked(check: X5Check) -> None:
+    """The run's SHACL check ran and its findings are the run's: counted as written, none of another run."""
+    assert check.result["shacl"] == "done"
+    assert {severity: count for severity, count in check.result["findings"].items() if count} == check.written
+    assert check.shacl_runs == {check.run_id}
 
 
 async def test_a_document_is_extracted_stage_by_stage_each_a_run(
