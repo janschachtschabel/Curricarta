@@ -569,7 +569,8 @@ ungültig.
   selbst und umgeht das Limit. Aus demselben Grund wird ein Netz `/0` abgewiesen, und ein Netz
   mit gesetzten Hostbits (`10.42.1.5/16`) ebenso, statt still erweitert zu werden.
 - `AUTH_FAILURE_LIMIT` (Standard 10) Fehlversuche je IPv4-Adresse oder IPv6-/64 innerhalb
-  `AUTH_FAILURE_WINDOW_S` (Standard 900 s), danach 429. Ein gültiges Token kommt immer durch.
+  `AUTH_FAILURE_WINDOW_S` (Standard 900 s), danach 429. Gezählt wird nur ein Header in Tokenform;
+  jeder andere bekommt 401, ungezählt. Ein gültiges Token kommt immer durch.
 - `DB_POOL_TIMEOUT_S` (Standard 5 s): so lange wartet eine Anfrage auf eine Verbindung, dann
   antwortet sie 503 mit `Retry-After`.
 

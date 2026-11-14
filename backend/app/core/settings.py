@@ -142,7 +142,8 @@ class Settings(BaseSettings):
     # networks, never "*" - with it every client could name its own address and dodge the limit
     forwarded_allow_ips: str = "127.0.0.1,::1"
     # Failed sign-ins per source (address, IPv6 /64) before its further failures get 429 for
-    # the window; a valid token always passes
+    # the window; only a header in a token's form counts, any other gets 401, uncounted; a valid
+    # token always passes
     auth_failure_limit: Annotated[int, Field(ge=1)] = 10
     auth_failure_window_s: Annotated[float, Field(gt=0)] = 900.0
     # A job's lease; the worker renews it at a third. A worker gone silent loses its job after this
