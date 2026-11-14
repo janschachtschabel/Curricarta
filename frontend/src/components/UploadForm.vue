@@ -4,16 +4,15 @@
  * against the upload limit before its megabytes travel, and sent. It reports
  * the entry it made; reading the register again is the page's business.
  */
-import { computed, nextTick, ref } from "vue";
+import { computed, ref } from "vue";
 
 import { ApiError, MAX_TITLE_SIGNS, MIB, uploadSource, type SourceOut } from "@/api";
 import { isolate } from "@/bidi";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
+import { useFieldRefusal } from "@/fieldRefusal";
 import { requiredLabel } from "@/formWords";
-import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
-import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
 
 const props = defineProps<{
@@ -34,9 +33,18 @@ const file = ref<File | null>(null);
 const title = ref("");
 const busy = ref(false);
 const status = ref("");
-const failure = ref<Notice | null>(null);
 const submitButton = ref<HTMLButtonElement | null>(null);
-const failedField = ref<Field | null>(null);
+const LABELS: Readonly<Record<Field, () => string>> = {
+  file: () => t("sources.upload.fileLabel"),
+  title: () => t("sources.upload.titleLabel"),
+};
+// a refusal of one field said at that field, any other below the form (fieldRefusal.ts)
+const { failure, failedField, describedBy, refuse, clear } = useFieldRefusal<Field>({
+  prefix: "upload",
+  label: (field) => LABELS[field](),
+  submit: submitButton,
+  status,
+});
 
 const fileHint = computed(() =>
   props.maxUploadMb
@@ -44,34 +52,8 @@ const fileHint = computed(() =>
     : t("sources.upload.fileHintNoLimit"),
 );
 
-/** The help, and the error where it is this field's. */
-function describedBy(field: Field): string {
-  return failedField.value === field ? `upload-${field}-hint upload-error` : `upload-${field}-hint`;
-}
-
 function onChosen(event: Event): void {
   file.value = (event.target as HTMLInputElement).files?.[0] ?? null;
-}
-
-// each field by its name, for the status where the keyboard stays elsewhere
-const LABELS: Readonly<Record<Field, () => string>> = {
-  file: () => t("sources.upload.fileLabel"),
-  title: () => t("sources.upload.titleLabel"),
-};
-
-/**
- * The refusal to show, at its field where it is one field's; the same one again is read out again
- * (liveRegion.ts). The keyboard goes to that field from the button or from nothing, as in every other form, and
- * the field reads it; resting elsewhere, the status says it with the field's name - read once either way.
- */
-async function refuse(notice: Notice, field: Field | null): Promise<void> {
-  failure.value = { ...notice, text: sayAnew(failure.value?.text ?? "", notice.text) };
-  failedField.value = field;
-  status.value = "";
-  if (!field) return;
-  await nextTick();
-  if (document.activeElement === submitButton.value || focusIsFree()) document.getElementById(`upload-${field}`)?.focus();
-  else status.value = sayAnew(status.value, t("forms.fieldProblem", { field: LABELS[field](), problem: notice.text }));
 }
 
 function tooLarge(): string {
@@ -101,8 +83,7 @@ async function onSubmit(): Promise<void> {
     return refuse({ text: tooLarge(), failed: true }, "file");
   }
   busy.value = true;
-  failure.value = null;
-  failedField.value = null;
+  clear();
   status.value = t("sources.upload.busy");
   try {
     const source = await uploadSource(chosen, title.value);
