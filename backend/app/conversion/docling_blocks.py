@@ -2,7 +2,8 @@
 
 Docling reads the file eight pages at a time - the old app's measure, near 1.8 GB at its height - with the
 layout model and TableFormer (accurate, its own cell boxes) from MODELS_DIR, never from the net
-(app/conversion/models.py), and docling-parse's words of each page kept (``generate_parsed_pages``). Each
+(app/conversion/models.py), on page images pdfium draws (app/conversion/docling_images.py), and
+docling-parse's words of each page kept (``generate_parsed_pages``). Each
 block's result becomes the app's own pages (app/conversion/docling_pages.py) before the next is read, and
 those a conversion as the other engine's do (app/conversion/assemble.py); each word's size is that of
 pdfplumber's signs under it (``sized``), as the other engine measures - docling-parse gives none.
@@ -41,6 +42,7 @@ from app.conversion.assemble import assemble
 from app.conversion.base import Conversion, EngineUnavailable
 from app.conversion.convert import MAX_PAGE_SIGNS
 from app.conversion.docling_flow import FLOW_SUFFIXES, ConvertBytes, flow_converter, read_flow
+from app.conversion.docling_images import pdfium_image_backend
 from app.conversion.docling_pages import DoclingItem, DoclingPage, DoclingTableCell, DoclingWord, raw_pages
 from app.conversion.flow import flow_conversion
 from app.conversion.layout import Box, RawPage
@@ -186,7 +188,10 @@ def _converter(models: Path, ocr: bool) -> tuple[Any, Collection[Any]]:
         options.ocr_options = EasyOcrOptions(lang=["de"], download_enabled=False)
     options.table_structure_options.mode = TableFormerMode.ACCURATE
     options.table_structure_options.do_cell_matching = False
-    converter = DocumentConverter(format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options)})
+    backend = pdfium_image_backend()  # the page images the models were measured on (docling_images.py)
+    converter = DocumentConverter(
+        format_options={InputFormat.PDF: PdfFormatOption(pipeline_options=options, backend=backend)}
+    )
     converter.initialize_pipeline(InputFormat.PDF)
     return converter, {ContentLayer.BODY, ContentLayer.FURNITURE}
 
