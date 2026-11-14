@@ -15,7 +15,8 @@ units wrote (``extraction_unit``), the units whose count differs; the findings o
 the X4 runs wrote, by rule; and the lexicon's release then - of the last X4 run that ended done, while the
 answers of every answered X4 run are read - and now: the reader reads with X3's choice lists and the
 lexicon as they stand, so a replay after a change of the vocabularies measures both. The question's own
-findings (``x4.pattern_timeout``) and ``x4.unanswered`` are the run's, never the reader's.
+findings (``x4.pattern_timeout``), ``x4.unanswered`` and ``x4.answer_cut`` are the run's, never the
+reader's: they may stand in ``findings_stored``, never in ``findings_now``.
 
 Two limits to read the counts by. The database is one snapshot (app/db/snapshot.py), the store is not: a
 job writing meanwhile can keep answers the snapshot's ledger has not booked yet (``beyond_ledger``, read all

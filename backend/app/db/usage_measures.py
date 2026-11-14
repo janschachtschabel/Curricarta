@@ -45,8 +45,8 @@ JOIN conversion_usage u ON u.conversion_id = d.conversion_id
 WHERE d.id = %s
 """
 # How many answers each run of the document was booked for, in the order the runs began: a request booked
-# as answered - reported, or at what was held where the answer reported nothing (app/llm/calls.py
-# _answered) -, not one refused (no tokens), cut off unanswered, or abandoned with its job
+# as answered - reported, or at what was held where the answer reported nothing (app/llm/booking.py
+# answered) -, not one refused (no tokens), cut off unanswered, or abandoned with its job
 _ANSWERED = """
 SELECT r.id, r.stage_iri, count(u.id) FILTER (
     WHERE u.requests > 0 AND u.unanswered_requests = 0 AND (u.input_tokens > 0 OR u.estimated)

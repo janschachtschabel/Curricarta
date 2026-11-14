@@ -14,8 +14,10 @@
   and whether the reported tokens are the ledger's (``ledger_equals_raw``). An answer gone or unreadable is
   counted and ends nothing.
 
-How the pipeline finds and books cut answers may change: ``cut_answers``, ``beyond_ledger`` and how many
-answers a run was booked for (app/db/usage_measures.py) then need a second look. Read in one snapshot that
+The reported tokens are the ledger's (``ledger_equals_raw``) also for answers cut at the cap, requests
+cancelled, repairs and a run the watch after X2 stopped (it books nothing). Two cases are counted, not
+hidden: an answer booked and cancelled before it was kept (``gone``), and a late answer kept after the
+sweep booked its job's reservations (``beyond_ledger``). Read in one snapshot that
 refuses every write (app/db/snapshot.py); an output that is not counts and codes alone is refused
 (``report_not_closed``). Exit code 1 for a document that is not there or a refused output, 2 for a call
 amiss (a label other than a plain one among them)."""
@@ -88,7 +90,7 @@ def _read(raw: RawUsage, data: bytes | None) -> None:
     for answer in answers:
         raw.cut_by_finish_reason += answer.finish_reason == "length"
         usage = answer.usage
-        if usage.input_tokens == 0:  # booked at what was held for it (app/llm/calls.py _answered)
+        if usage.input_tokens == 0:  # booked at what was held for it (app/llm/booking.py answered)
             raw.unreported += 1
             continue
         raw.answers += 1
