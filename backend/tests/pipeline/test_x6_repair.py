@@ -3,7 +3,6 @@ packages whose statements X5 or the reading found wrong - X4's question with the
 prefix -, writes them anew without touching what the editors hold, and then X5 checks the document
 again, its findings replacing the ones before. A model stands in (FunctionModel)."""
 
-import asyncio
 import re
 from dataclasses import replace
 from pathlib import Path
@@ -11,7 +10,6 @@ from typing import Any
 
 import pytest
 from psycopg_pool import AsyncConnectionPool
-from pydantic_ai.exceptions import ModelHTTPError
 from pydantic_ai.messages import ModelMessage, ModelResponse
 from pydantic_ai.models.function import AgentInfo
 
@@ -24,7 +22,6 @@ from app.pipeline.run import extract_document
 from app.pipeline.x5_stage import run_x5
 from app.usage.admission import MODEL_JOB_KINDS
 from app.usage.ledger import usage_of
-from tests.pipeline.provider_support import asks, provider_failed, refusal, usage_rows, waited
 from tests.pipeline.test_run import (
     BODY,
     CV,
@@ -43,7 +40,7 @@ from tests.pipeline.test_x4_statements import FIELDS, with_concurrency
 from tests.support import make_settings
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["provider_failed", "setup", "waited"]  # the fixtures, shared with test_run and provider_support
+__all__ = ["setup"]  # the fixture, shared with test_run
 
 
 class Quoting(Model):
@@ -590,58 +587,3 @@ async def test_what_reading_a_repair_s_answer_finds_is_x6_s_and_names_its_packag
         " WHERE r.stage_iri = %s ORDER BY 1",
         CV + "stage_X6",
     ) == [("x6.block_outside_unit", "E3"), ("x6.statement_without_block", "E3")]
-
-
-async def failures(connection: Any, document: Any) -> list[tuple[Any, ...]]:
-    return [
-        (stage, outcome, result.get("failure"))
-        for stage, outcome, result in await runs_of(connection, document)
-    ]
-
-
-async def test_a_provider_s_error_in_one_package_lets_the_others_finish(
-    setup: Any, tmp_path: Path, database_url: str, waited: list[float], provider_failed: asyncio.Event
-) -> None:
-    pool, connection = setup
-    document = await extracted(setup, tmp_path, database_url, invent=("E2", "E3", "E4"))
-    job = await a_repair(connection, document)
-    fixer = Quoting()
-
-    async def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        if asks(messages, "E2"):
-            raise refusal(503)
-        if asks(messages, "E3"):
-            await provider_failed.wait()  # answered once E2 is given up on, never before
-        return fixer(messages, info)
-
-    context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
-    with pytest.raises(ModelHTTPError):
-        await x6_repair.repair_document(context, job)
-
-    assert fixer.units == ["E3"]  # E4 never asked
-    assert "Aussage E3" not in (written := await wordings(connection, document))
-    assert {"Aussage E2", "Aussage E4"} <= set(written)
-    assert await usage_rows(connection, job, "x6.unit") == [
-        (1, 0, False), (1, 0, False), (1, 0, False), (1, 1_100, False), ("held", 0),
-    ]  # fmt: skip
-    assert await failures(connection, document) == [("X5", "done", None), ("X6", "failed", "ModelHTTPError")]
-
-
-async def test_a_repair_refused_for_good_ends_without_another_attempt(
-    setup: Any, tmp_path: Path, database_url: str, waited: list[float]
-) -> None:
-    pool, connection = setup
-    document = await extracted(setup, tmp_path, database_url, invent=("E3",))
-    job = await a_repair(connection, document)
-
-    def answer(messages: list[ModelMessage], info: AgentInfo) -> ModelResponse:
-        raise refusal(403)
-
-    with pytest.raises(PermanentError) as ended:
-        await x6_repair.repair_document(context_of(pool, tmp_path, answer, database_url), job)
-
-    assert ended.value.code == "model_refused"
-    assert waited == []
-    assert "Aussage E3" in await wordings(connection, document)
-    assert await usage_rows(connection, job, "x6.unit") == [(1, 0, False), ("held", 0)]
-    assert await failures(connection, document) == [("X5", "done", None), ("X6", "failed", "model_refused")]

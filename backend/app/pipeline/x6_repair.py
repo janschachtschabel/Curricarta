@@ -67,7 +67,8 @@ async def repair_document(context: JobContext, job: Job) -> dict[str, Any]:
         try:
             await run_x6(context, job, document, blocks, printed)
         except PermanentError as ending:
-            if ending.code == "budget_exhausted":  # what was repaired is checked all the same
+            # what was repaired - beside a request refused for good too - is checked all the same
+            if ending.code in ("budget_exhausted", "model_refused"):
                 await _check(context, job, document.id)
             raise
     await _check(context, job, document.id)
