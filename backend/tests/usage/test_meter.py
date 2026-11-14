@@ -195,7 +195,7 @@ class Answering(LedgerMeter):
     async def reserve(self, input_tokens: int, output_tokens: int) -> Reservation:
         held = await super().reserve(input_tokens, output_tokens)
         self.holding.set()
-        await self.answered.wait()
+        await asyncio.wait_for(self.answered.wait(), 10)
         return held
 
 
@@ -209,7 +209,7 @@ async def test_a_reservation_a_cancel_came_upon_is_handed_back_though_a_second_c
     async with AsyncConnectionPool(database_url, min_size=1, max_size=2, open=False) as pool:
         meter = Answering(pool, charge)
         task = asyncio.create_task(ask(a_stage(reports), CONTENT, meter=meter))
-        await meter.holding.wait()
+        await asyncio.wait_for(meter.holding.wait(), 10)
         task.cancel()
         await asyncio.sleep(0)  # the first cancel is taken: the call waits for the reservation
         task.cancel()  # as the loop's teardown would

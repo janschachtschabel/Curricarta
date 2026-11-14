@@ -41,7 +41,9 @@ async def test_a_provider_s_error_in_one_package_lets_the_others_finish(
         if asks(messages, "E2"):
             raise refusal(503)
         if asks(messages, "E3"):
-            await provider_failed.wait()  # answered once E2 is given up on, never before
+            await asyncio.wait_for(
+                provider_failed.wait(), 10
+            )  # answered once E2 is given up on, never before
         return fixer(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
@@ -90,7 +92,7 @@ async def test_a_repair_refused_for_good_still_checks_what_the_packages_beside_i
         if asks(messages, "E2"):
             raise refusal(401)
         if asks(messages, "E3"):
-            await provider_failed.wait()
+            await asyncio.wait_for(provider_failed.wait(), 10)
         return fixer(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)

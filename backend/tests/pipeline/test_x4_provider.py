@@ -34,7 +34,9 @@ async def test_a_provider_s_error_in_one_unit_lets_those_asking_beside_it_finish
         if asks(messages, "E2"):
             raise refusal(500)
         if asks(messages, "E3"):
-            await provider_failed.wait()  # answered once E2 is given up on, never before
+            await asyncio.wait_for(
+                provider_failed.wait(), 10
+            )  # answered once E2 is given up on, never before
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
@@ -122,7 +124,7 @@ async def test_an_answer_no_model_could_read_lets_those_asking_beside_it_finish(
         if asks(messages, "E2"):
             raise UnexpectedModelBehavior("an answer no model could read (invented)")
         if asks(messages, "E3"):
-            await provider_failed.wait()
+            await asyncio.wait_for(provider_failed.wait(), 10)
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
@@ -175,7 +177,7 @@ async def test_a_provider_that_never_answered_in_time_lets_those_asking_beside_i
         if asks(messages, "E2"):
             raise ModelAPIError("gpt-6-luna", "Request timed out (invented)")
         if asks(messages, "E3"):
-            await provider_failed.wait()
+            await asyncio.wait_for(provider_failed.wait(), 10)
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)
@@ -236,7 +238,7 @@ async def test_the_next_attempt_after_a_provider_s_error_asks_only_the_units_not
         if asks(messages, "E2"):
             raise refusal(503)
         if asks(messages, "E3"):
-            await provider_failed.wait()
+            await asyncio.wait_for(provider_failed.wait(), 10)
         return model(messages, info)
 
     context = with_concurrency(context_of(pool, tmp_path, answer, database_url), database_url, 2)

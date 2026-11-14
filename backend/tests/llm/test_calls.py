@@ -579,7 +579,7 @@ class Committing(Ledger):
     async def reserve(self, input_tokens: int, output_tokens: int) -> int:
         held = await super().reserve(input_tokens, output_tokens)
         self.holding.set()
-        await self.answered.wait()
+        await asyncio.wait_for(self.answered.wait(), 10)
         return held
 
 
@@ -591,7 +591,7 @@ async def test_a_call_cancelled_as_its_reservation_was_made_lets_it_go_unspent()
     built, seen = stage(['{"title": "Zahlen"}'])
 
     task = asyncio.create_task(ask(built, "Text", meter=ledger))
-    await ledger.holding.wait()
+    await asyncio.wait_for(ledger.holding.wait(), 10)
     task.cancel()
     await asyncio.sleep(0)  # the cancel reaches the call before the commit answers
     ledger.answered.set()
