@@ -10,7 +10,6 @@ import pytest
 from pydantic_ai import Agent
 from pydantic_ai.exceptions import ModelHTTPError
 from pydantic_ai.models.openai import OpenAIResponsesModel
-from pydantic_ai.profiles.openai import openai_model_profile
 from pydantic_ai.providers.openai import OpenAIProvider
 
 from app.core.tracing import CLIENT_TRACE, continue_trace, end_trace
@@ -143,12 +142,14 @@ async def test_the_key_shows_in_no_error_and_no_log_line(caplog: pytest.LogCaptu
     assert all(INVENTED_KEY not in repr(record.args) for record in caplog.records)
 
 
-# Laid over the library's profile, so a misspelt flag would go unnoticed: every one is read back
+# Measured with real calls on 2026-09-25 (old app): efforts none to max but not minimal, reasoning
+# context and encrypted reasoning, the cache only behind a breakpoint. The library describes the
+# model so since pydantic-ai 2.5x, and the app relies on it: a release that says otherwise would drop
+# the breakpoint or the reasoning silently, and fails here instead
 MEASURED_FLAGS = {
     "supports_thinking": True,
     "thinking_always_enabled": False,
     "openai_supports_reasoning": True,
-    "openai_reasoning_enabled_by_default": True,
     "openai_supports_reasoning_effort_none": True,
     "openai_supports_minimal_reasoning_effort": False,
     "openai_responses_supports_reasoning_mode": True,
@@ -163,21 +164,23 @@ MEASURED_FLAGS = {
 def test_gpt_6_luna_is_described_as_measured(provider: str, name: str) -> None:
     profile = build_model(llm_settings(llm_provider=provider, openai_model=name)).profile
 
-    assert {flag: profile.get(flag) for flag in MEASURED_FLAGS} == MEASURED_FLAGS
+    assert {flag: profile.get(flag, False) for flag in MEASURED_FLAGS} == MEASURED_FLAGS
 
 
-@pytest.mark.parametrize("name", ["gpt-5.4-mini", "gpt-6-luna-mini", "gpt-6-luna-pro"])
-def test_a_model_outside_the_measured_ones_keeps_the_library_s_own_profile(name: str) -> None:
-    # not a variant of the measured model either: the library lists variants apart, they differ
+@pytest.mark.parametrize("name", ["gpt-5.4-mini", "gpt-6-luna", "gpt-6-luna-mini", "gpt-6-luna-pro"])
+def test_a_model_has_the_library_s_own_profile(name: str) -> None:
+    # no entry of ours lies over it
     built = build_model(llm_settings(openai_model=name))
     plain = OpenAIResponsesModel(name, provider=OpenAIProvider(api_key=INVENTED_KEY))
 
     assert built.profile == plain.profile
 
 
-def test_the_library_does_not_know_gpt_6_luna_yet() -> None:
-    # the day it does, the measured entry has done its job: drop it, let the library speak
-    assert not openai_model_profile("gpt-6-luna").get("openai_supports_prompt_cache_breakpoints")
+def test_the_library_s_banner_is_turned_off() -> None:
+    # an advertisement on stderr is no line of a service's log (app/llm/client.py)
+    import pydantic_ai
+
+    assert pydantic_ai.BANNER_ENABLED is False
 
 
 @pytest.mark.parametrize(

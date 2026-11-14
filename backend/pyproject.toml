@@ -14,10 +14,10 @@ dependencies = [
     "psycopg[binary,pool]>=3.3",
     "prometheus-client>=0.26",
     "rdflib>=7.6",
-    # the language model, OpenAI-compatible; the same versions the old app runs (pydantic-ai 2.42
-    # does not know gpt-6-luna, app/llm/client.py describes it as measured)
-    "openai>=3.25",
-    "pydantic-ai-slim[openai]>=2.42",
+    # the language model, OpenAI-compatible; pydantic-ai from the release on that knows gpt-6-luna
+    # as it was measured (a test holds it to that) and carries the fixes of the advisories of 2026-11
+    "openai>=3.51",
+    "pydantic-ai-slim[openai]>=2.68",
     # the HTTP client app/llm/client.py hands the SDK, and the one starlette's TestClient takes
     # (with plain httpx it warns that support ends)
     "httpx2>=2.13",
@@ -51,12 +51,14 @@ dev = [
     "pyyaml>=6.0.3",
 ]
 # Docling and its stack on the CPU, for the converter's image alone (plan M1 3b): the API's image and
-# the development's environment never carry them. The versions the old app measured its tables with.
+# the development's environment never carry them. Docling from the release on that carries the fixes
+# of the advisories of 2026-11 (with it docling-ibm-models 4 and pillow 13); the converter's workflow
+# measures the fixtures with them.
 convert = [
-    "docling==2.117.0",
-    "docling-core==2.95.0",
-    "docling-ibm-models==3.15.0",
-    "docling-parse==7.18.0",
+    "docling==2.150.1",
+    "docling-core==2.107.0",
+    "docling-ibm-models==4.0.4",
+    "docling-parse==7.26.0",
     "easyocr==1.7.2",
     # the layout and table models' runtime, as the old app ran them (a stale index gave 5.8);
     # docling-ibm-models caps it at 5.8 on macOS alone

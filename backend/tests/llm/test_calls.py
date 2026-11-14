@@ -12,7 +12,14 @@ import httpx2
 import pytest
 from pydantic_ai import Agent
 from pydantic_ai.exceptions import ModelAPIError, ModelHTTPError, UnexpectedModelBehavior
-from pydantic_ai.messages import CachePoint, ModelMessage, ModelResponse, RetryPromptPart, ToolCallPart
+from pydantic_ai.messages import (
+    CachePoint,
+    ModelMessage,
+    ModelResponse,
+    RetryPromptPart,
+    ToolCallPart,
+    ToolReturnPart,
+)
 from pydantic_ai.models.function import AgentInfo, FunctionModel
 from pydantic_ai.usage import RequestUsage
 
@@ -133,7 +140,9 @@ async def test_an_answer_out_of_form_is_asked_again_each_time_reserved_anew() ->
     assert answer.output == {"title": "Zahlen"}
     assert (len(ledger.reserved), len(ledger.booked), len(kept.answers)) == (2, 2, 2)
     assert ledger.reserved[1][0] > ledger.reserved[0][0]  # the retry replays the first answer
-    retry = [part for part in seen[1][-1].parts if isinstance(part, RetryPromptPart)]
+    # what is wrong with the answer goes back to the model as the tool's answer (a RetryPromptPart
+    # before pydantic-ai 2.5x, a ToolReturnPart since)
+    retry = [part for part in seen[1][-1].parts if isinstance(part, RetryPromptPart | ToolReturnPart)]
     assert retry and "$.title: a string" in str(retry[0].content)
     assert answer.spent.requests == 2
 

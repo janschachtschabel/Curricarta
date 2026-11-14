@@ -5,9 +5,11 @@ verbosity; ``openai-compatible`` over Chat Completions, which carries the effort
 caps its answer at LLM_MAX_OUTPUT_TOKENS, is counted into the call that sent it
 (app/llm/attempts.py), carries the trace of its request or job, and is sent once: the SDK does
 not ask again on its own. No network call happens here: the client connects on the first
-request, so the app starts without the provider. pydantic-ai 2.42 does not know gpt-6-luna and
-would silently drop its prompt cache breakpoint and encrypted reasoning; the model is described
-as it was measured instead.
+request, so the app starts without the provider. The model's profile is the library's: since
+pydantic-ai knows gpt-6-luna as it was measured (prompt cache breakpoint, reasoning context,
+encrypted reasoning, no effort ``minimal``), no entry of ours lies over it; a test holds the
+library to those flags (tests/llm/test_client.py). The library's first-run banner is turned off:
+this process owns what it writes.
 """
 
 import re
@@ -15,6 +17,7 @@ from decimal import Decimal
 from typing import Any, cast
 
 import httpx2
+import pydantic_ai
 from openai import AsyncOpenAI
 from pydantic_ai.models.openai import (
     OpenAIChatModel,
@@ -22,7 +25,6 @@ from pydantic_ai.models.openai import (
     OpenAIResponsesModel,
     OpenAIResponsesModelSettings,
 )
-from pydantic_ai.profiles import merge_profile
 from pydantic_ai.profiles.openai import OpenAIModelProfile
 from pydantic_ai.providers.openai import OpenAIProvider
 
@@ -30,6 +32,10 @@ from app.core.tracing import outgoing_headers
 from app.llm.attempts import count_attempt
 from app.llm.metering import Weights
 from app.llm.settings import LLMSettings
+
+# An advertisement for a tracing service on stderr, to a terminal or a coding agent: a service's
+# stderr is its operator's log
+pydantic_ai.BANNER_ENABLED = False
 
 # The smallest context window the app is meant for, for a model it does not know
 DEFAULT_CONTEXT_TOKENS = 128_000
@@ -39,22 +45,6 @@ _CONTEXT_TOKENS: dict[str, int] = {"gpt-6-luna": 272_000}
 # What a cached input token and an output token cost beside an uncached one: gpt-6-luna at
 # 0.10 $, 0.01 $ and 0.50 $ for a million (the official price page, plan M1 Nachtrag 11.2)
 _COST_WEIGHTS: dict[str, tuple[str, str]] = {"gpt-6-luna": ("0.1", "5")}
-# Measured with real calls on 2026-09-25 (old app, plan 2026-09-24): efforts none to max but
-# not minimal, reasoning context and encrypted reasoning, the cache only behind a breakpoint
-_MEASURED_PROFILES: dict[str, dict[str, bool]] = {
-    "gpt-6-luna": {
-        "supports_thinking": True,
-        "thinking_always_enabled": False,
-        "openai_supports_reasoning": True,
-        "openai_reasoning_enabled_by_default": True,
-        "openai_supports_reasoning_effort_none": True,
-        "openai_supports_minimal_reasoning_effort": False,
-        "openai_responses_supports_reasoning_mode": True,
-        "openai_responses_supports_reasoning_context": True,
-        "openai_supports_encrypted_reasoning_content": True,
-        "openai_supports_prompt_cache_breakpoints": True,
-    },
-}
 
 
 class LLMNotConfigured(Exception):
@@ -86,7 +76,6 @@ def build_model(
         max_retries=0,
     )
     provider = OpenAIProvider(openai_client=sdk)
-    profile = _measured_profile(settings.openai_model)
     # max_output_tokens (Responses) or max_completion_tokens (Chat): what an answer may cost at
     # most, reasoning included - the reservation counts on it
     cap = settings.llm_max_output_tokens
@@ -96,11 +85,9 @@ def build_model(
             openai_reasoning_effort=settings.openai_reasoning_effort,
             openai_text_verbosity=settings.openai_text_verbosity,
         )
-        return OpenAIResponsesModel(
-            settings.openai_model, provider=provider, settings=responses, profile=profile
-        )
+        return OpenAIResponsesModel(settings.openai_model, provider=provider, settings=responses)
     chat = OpenAIChatModelSettings(max_tokens=cap, openai_reasoning_effort=settings.openai_reasoning_effort)
-    return OpenAIChatModel(settings.openai_model, provider=provider, settings=chat, profile=profile)
+    return OpenAIChatModel(settings.openai_model, provider=provider, settings=chat)
 
 
 class LazyModel:
@@ -134,9 +121,9 @@ def check_reasoning_effort(settings: LLMSettings) -> None:
 
     pydantic-ai sends whatever effort it is given, and gpt-6-luna answers ``minimal`` with a
     400 in the middle of a paid job (old app, audit E-84). The profile is the one the model
-    gets - the library's, with what was measured laid over it - and only what it says against
-    an effort refuses it: a model the library does not describe, a gateway's, is not refused
-    what nobody knows. No key is needed, so the start checks it before the key is set.
+    gets - the library's - and only what it says against an effort refuses it: a model the library
+    does not describe, a gateway's, is not refused what nobody knows. No key is needed, so the start
+    checks it before the key is set.
     """
     profile = _profile(settings.openai_model)
     effort = settings.openai_reasoning_effort
@@ -181,11 +168,5 @@ def _known[T](table: dict[str, T], model_name: str) -> T | None:
 
 
 def _profile(model_name: str) -> OpenAIModelProfile:
-    """As pydantic-ai resolves it for the model, for the keys the library and we set."""
-    library = OpenAIProvider.model_profile(model_name)
-    return cast(OpenAIModelProfile, merge_profile(library, _measured_profile(model_name)))
-
-
-def _measured_profile(model_name: str) -> OpenAIModelProfile | None:
-    flags = _known(_MEASURED_PROFILES, model_name)
-    return None if flags is None else cast(OpenAIModelProfile, flags)
+    """As pydantic-ai resolves it for the model."""
+    return cast(OpenAIModelProfile, OpenAIProvider.model_profile(model_name) or {})
