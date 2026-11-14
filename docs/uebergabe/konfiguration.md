@@ -133,8 +133,11 @@ ein Test schlägt an, wenn sie veraltet.
   `MAX_UPLOAD_MB`) und hält sie einmal im Arbeitsspeicher; der Kindprozess, der sie umwandelt,
   braucht je nach PDF ein Vielfaches davon (gemessen wird in M6). Unter Linux nimmt der Kernel
   bei Speichermangel zuerst ihn (`oom_score_adj` 1000), nicht den Worker; die Konvertierung
-  endet dann mit `died`. Eine Tabelle, die mehr als 200.000 Zellen angibt, lehnt die
-  Konvertierung mit `too_dense` ab, bevor sie das Raster anlegt.
+  endet dann mit `died`. Eine Tabelle, deren Raster mehr als 200.000 Plätze hat, lehnt die
+  Konvertierung mit `too_dense` ab, bevor sie das Raster anlegt. Bloß angegebene Spannen einer
+  HTML-Tabelle (`colspan`, `rowspan`) zählen dabei nicht: Docling hält das Raster seit 2.150 an
+  den vorhandenen Zellen fest, eine Seite mit einer Zelle und einer Million angegebener Spalten
+  wird als die eine Zelle gelesen.
 - Speichergrenze der Kindprozesse (`CHILD_MEMORY_LIMIT_MB`, ohne Standard): Die Grenzen der
   Container sind die erste Linie. Zusätzlich begrenzt die Einstellung unter Linux den Adressraum
   jedes Kindprozesses (Konvertierung, SHACL-Prüfung; `RLIMIT_AS`); auf anderen Systemen wird sie
@@ -145,7 +148,11 @@ ein Test schlägt an, wenn sie veraltet.
   endet die Konvertierung mit `unreadable` oder `crashed` oder als wiederholter Handler-Fehler.
   `RLIMIT_AS` zählt virtuellen Speicher, nicht den belegten: Jedes Kind schreibt am Ende eine Zeile
   `peak memory: rss=… MiB, virtual=… MiB` (INFO); die Grenze auf das Doppelte des gemessenen
-  `virtual` setzen, nie nach `rss`. Zu knapp, und eine Konvertierung mit Docling endet meist schon
+  `virtual` setzen, nie nach `rss`. Gemessen im Konverter-Image mit Docling 2.150.1 auf einem
+  gehosteten CI-Läufer (zwei Testdateien von wenigen Seiten, also die Untergrenze, die das Laden
+  der Modelle setzt): Text-PDF `rss` 1.227 MiB, `virtual` 4.051 MiB; Scan mit Texterkennung `rss`
+  3.308 MiB, `virtual` 6.745 MiB – für den Konverter also nicht unter 13.500 MiB. Echte
+  Lehrpläne sind damit nicht gemessen. Zu knapp, und eine Konvertierung mit Docling endet meist schon
   beim Laden seiner Modelle mit `died` (pdfplumber lädt keine); scheitert das Laden anders als in
   Python, wird der Job wiederholt.
 - Prüfung (X5): Gegen die SHACL-Formen prüft ein Kindprozess des Workers, mit derselben Regel für
