@@ -13,6 +13,7 @@ import { t } from "@/i18n/de";
 import { router } from "@/router";
 import SourcesView from "@/views/SourcesView.vue";
 
+import { violations } from "./axe";
 import { deferred, detail, entry, page } from "./registerEntries";
 import { SRC, cssRules, stylesOf } from "./sources";
 
@@ -33,7 +34,7 @@ beforeEach(async () => {
 
 describe("the register's filter", () => {
   it("names its controls and says what a candidate is", () => {
-    const wrapper = mount(RegisterFilter, { props: { modelValue: { candidates: false, status: "" } } });
+    const wrapper = mount(RegisterFilter, { props: { modelValue: { candidates: false, status: "", q: "", country: "" } } });
 
     const box = wrapper.get<HTMLInputElement>("input[type=checkbox]");
     const hint = wrapper.get(`#${box.attributes("aria-describedby")}`);
@@ -51,16 +52,103 @@ describe("the register's filter", () => {
   });
 
   it("hands on each change as a new value", async () => {
-    const wrapper = mount(RegisterFilter, { props: { modelValue: { candidates: false, status: "" } } });
+    const wrapper = mount(RegisterFilter, { props: { modelValue: { candidates: false, status: "", q: "", country: "" } } });
 
     await wrapper.get("input[type=checkbox]").setValue(true);
-    await wrapper.setProps({ modelValue: { candidates: true, status: "" } });
+    await wrapper.setProps({ modelValue: { candidates: true, status: "", q: "", country: "" } });
     await wrapper.get("select").setValue("unreachable");
 
     expect(wrapper.emitted("update:modelValue")).toEqual([
-      [{ candidates: true, status: "" }],
-      [{ candidates: true, status: "unreachable" }],
+      [{ candidates: true, status: "", q: "", country: "" }],
+      [{ candidates: true, status: "unreachable", q: "", country: "" }],
     ]);
+  });
+});
+
+describe("the register's search and Land", () => {
+  const NONE = { candidates: false, status: "" as const, q: "", country: "" };
+
+  it("names the search field and the Land list, the list from every Land onwards", () => {
+    const wrapper = mount(RegisterFilter, { props: { modelValue: NONE } });
+
+    const search = wrapper.get<HTMLInputElement>("input[type=search]");
+    expect(wrapper.get(`label[for=${search.attributes("id")}]`).text()).toBe(t("sources.filter.search"));
+    expect(search.attributes("maxlength")).toBe("200");
+    expect(wrapper.get("form").attributes("role")).toBe("search");
+    const land = wrapper.get<HTMLSelectElement>("#register-country");
+    expect(wrapper.get("label[for=register-country]").text()).toBe(t("sources.filter.country"));
+    const options = [...land.element.options];
+    expect(options[0].text).toBe(t("sources.filter.anyCountry"));
+    expect(options.map((option) => option.value)).toContain("DE-TH");
+    expect(options.find((option) => option.value === "DE-TH")?.text).toBe("Thüringen");
+  });
+
+  it("hands on the search when it is sent, not at each sign typed", async () => {
+    const wrapper = mount(RegisterFilter, { props: { modelValue: NONE } });
+
+    await wrapper.get("input[type=search]").setValue("Physik");
+    expect(wrapper.emitted("update:modelValue")).toBeUndefined();
+    await wrapper.get("form").trigger("submit");
+
+    expect(wrapper.emitted("update:modelValue")).toEqual([[{ ...NONE, q: "Physik" }]]);
+  });
+
+  it("hands on a Land chosen", async () => {
+    const wrapper = mount(RegisterFilter, { props: { modelValue: NONE } });
+
+    await wrapper.get("#register-country").setValue("DE-BY");
+
+    expect(wrapper.emitted("update:modelValue")).toEqual([[{ ...NONE, country: "DE-BY" }]]);
+  });
+
+  it("shows the search the address holds, and follows it when the address changes", async () => {
+    const wrapper = mount(RegisterFilter, { props: { modelValue: { ...NONE, q: "Optik" } } });
+    expect(wrapper.get<HTMLInputElement>("input[type=search]").element.value).toBe("Optik");
+
+    await wrapper.setProps({ modelValue: NONE });
+
+    expect(wrapper.get<HTMLInputElement>("input[type=search]").element.value).toBe("");
+  });
+
+  it("reads the register with the search and the Land, and keeps both in the address", async () => {
+    const listed = vi.spyOn(api, "listSources").mockResolvedValue(page([entry("a", "Lehrplan Physik")], 120));
+    const wrapper = mount(SourcesView, { global: { plugins: [router] } });
+    await flushPromises();
+
+    await wrapper.get("input[type=search]").setValue(" Physik ");
+    await wrapper.get("form[role=search]").trigger("submit");
+    await flushPromises();
+    await wrapper.get("#register-country").setValue("DE-TH");
+    await flushPromises();
+
+    expect(listed).toHaveBeenNthCalledWith(2, { q: "Physik" }, { limit: 50 });
+    expect(listed).toHaveBeenLastCalledWith({ q: "Physik", country: "DE-TH" }, { limit: 50 });
+    expect(router.currentRoute.value.query).toEqual({ suche: "Physik", land: "DE-TH" });
+  });
+
+  it("opens with the search and the Land of its address", async () => {
+    await router.replace({ query: { suche: "Optik", land: "DE-BY" } });
+    const listed = vi.spyOn(api, "listSources").mockResolvedValue(page([entry("a", "Optik")]));
+    const wrapper = mount(SourcesView, { global: { plugins: [router] } });
+    await flushPromises();
+
+    expect(listed).toHaveBeenCalledWith({ q: "Optik", country: "DE-BY" }, { limit: 50 });
+    expect(wrapper.get<HTMLInputElement>("input[type=search]").element.value).toBe("Optik");
+    expect(wrapper.get<HTMLSelectElement>("#register-country").element.value).toBe("DE-BY");
+  });
+
+  it("says when the search lets nothing through, and how to go on", async () => {
+    vi.spyOn(api, "listSources").mockResolvedValueOnce(page([entry("a", "Lehrplan Physik")])).mockResolvedValue(page([]));
+    const wrapper = mount(SourcesView, { global: { plugins: [router] } });
+    await flushPromises();
+
+    await wrapper.get("input[type=search]").setValue("Zoologie");
+    await wrapper.get("form[role=search]").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.text()).toContain(t("sources.filter.emptyBody.search"));
+    expect(wrapper.get("[data-test=filter-status]").text()).toBe(t("sources.filter.none"));
+    expect(await violations(wrapper.html())).toEqual([]);
   });
 });
 

@@ -177,6 +177,11 @@ export const messages = {
         "Prüfung der Saat ansieht.",
       status: "Stand",
       anyStatus: "jeder Stand",
+      // in the title or the address, sent with its button or Enter
+      search: "Titel oder Adresse durchsuchen",
+      searchButton: "Suchen",
+      country: "Land",
+      anyCountry: "jedes Land",
       none: "Kein Eintrag passt zu diesem Filter.",
       emptyTitle: "Kein Eintrag passt",
       // by what is set; {label} is the checkbox's own label, {any} the status list's first choice
@@ -184,6 +189,7 @@ export const messages = {
         candidates: "Nimm „{label}“ zurück, um alle Einträge zu sehen.",
         status: "Wähle einen anderen Stand oder „{any}“.",
         both: "Nimm „{label}“ zurück oder wähle einen anderen Stand.",
+        search: "Ändere die Suche oder das Land, oder nimm sie zurück.",
       },
     },
     // Where an entry comes from (backend app/sources/register.py, Provenance). Read
