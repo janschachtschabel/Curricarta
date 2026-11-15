@@ -30,6 +30,7 @@ from app.core.storage import (
     StorageNotConfigured,
     check_key,
     check_prefix,
+    is_key,
 )
 
 # The codes S3 and MinIO answer a missing object with: get_object names it, head_object has no
@@ -109,7 +110,8 @@ class S3Storage:
         pages = self.client.get_paginator("list_objects_v2").paginate(
             Bucket=self.bucket, Prefix=check_prefix(prefix)
         )
-        return (item["Key"] for page in pages for item in page.get("Contents", []))
+        # only keys a store key could be, as the file store lists: a console's folder marker is none
+        return (key for page in pages for item in page.get("Contents", []) if is_key(key := item["Key"]))
 
 
 class Window:

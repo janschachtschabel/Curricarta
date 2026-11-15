@@ -190,6 +190,28 @@ async def test_a_garbage_entry_naming_one_object_takes_that_object_alone(
     assert garbage(setup) == []
 
 
+async def test_a_place_the_store_refuses_is_passed_by_and_the_others_are_emptied(
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    files: FileSystemStorage,
+) -> None:
+    # a device's name passes the CHECK, the store refuses it as a key for good: noted first, it stops nothing
+    setup.execute(
+        "INSERT INTO storage_garbage (prefix, noted_at) VALUES ('runs/con/', now() - interval '1 day'),"
+        " ('sources/nul.json', now() - interval '1 day')"
+    )
+    run = add_ended_run(setup, made["document"], ended_days_ago=31)
+    keep_answers(files, run, 1)
+
+    swept = await sweep(connection, AsyncStorage(files), POLICY, dry_run=False)
+
+    assert (swept.objects, swept.refused) == (1, 2)
+    assert kept(files) == []
+    assert garbage(setup) == ["runs/con/", "sources/nul.json"]  # left noted, for the operator to look at
+    assert (await sweep(connection, AsyncStorage(files), POLICY, dry_run=True)).refused == 2
+
+
 async def test_a_place_already_empty_is_forgotten(
     setup: psycopg.Connection, connection: psycopg.AsyncConnection, files: FileSystemStorage
 ) -> None:
@@ -301,11 +323,26 @@ async def test_the_command_prints_counts_and_no_wording(
     assert done.returncode == 0, done.stderr
     lines = done.stdout.splitlines()
     assert len(lines) == 1
-    assert json.loads(lines[0]) == {"jobs": 1, "audit_entries": 1, "runs": 1, "objects": 1}
+    assert json.loads(lines[0]) == {"jobs": 1, "audit_entries": 1, "runs": 1, "objects": 1, "refused": 0}
     for told in (done.stdout, done.stderr):
         assert str(run) not in told and str(made["document"]) not in told
         assert "runs/" not in told and "Erdkunde" not in told
     assert (raw_key(setup, run) is None) is (arguments == [])
+
+
+def test_a_place_the_store_refuses_ends_the_command_with_1_in_one_log_line(
+    database_url: str, setup: psycopg.Connection, tmp_path: Path
+) -> None:
+    setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('runs/con/'), ('exports/old/')")
+
+    done = run_command(database_url, tmp_path / "objects")
+
+    assert done.returncode == 1
+    assert json.loads(done.stdout) == {"jobs": 0, "audit_entries": 0, "runs": 0, "objects": 0, "refused": 1}
+    [line] = done.stderr.splitlines()
+    assert "1 noted place(s) the store refuses" in json.loads(line)["message"]
+    assert "con" not in line
+    assert garbage(setup) == ["runs/con/"]
 
 
 def test_two_sweeps_at_once_do_not_run_side_by_side(

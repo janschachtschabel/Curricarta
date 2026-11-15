@@ -9,6 +9,8 @@ booking of the ledger (``llm_usage``, ``conversion_usage``): a budget is the lif
 and taking one away would fill it up. One sweep at a time, under a session's advisory lock
 (``take_lock``): a direct connection, never a pooler's transaction mode."""
 
+from collections.abc import Sequence
+
 import psycopg
 
 BATCH = 1000
@@ -118,12 +120,15 @@ async def mark_old_raw_answers(connection: psycopg.AsyncConnection, days: int, *
             return marked
 
 
-async def garbage(connection: psycopg.AsyncConnection, *, batch: int = 100) -> list[str]:
-    """The places in the store noted to be emptied, the longest noted first: a prefix ends in "/", an
-    object's own key does not."""
+async def garbage(
+    connection: psycopg.AsyncConnection, *, batch: int = 100, passing: Sequence[str] = ()
+) -> list[str]:
+    """The places in the store noted to be emptied, the longest noted first, but those ``passing`` names: a
+    prefix ends in "/", an object's own key does not."""
     async with connection.transaction():
         cursor = await connection.execute(
-            "SELECT prefix FROM storage_garbage ORDER BY noted_at, prefix LIMIT %s", (batch,)
+            "SELECT prefix FROM storage_garbage WHERE prefix <> ALL(%s) ORDER BY noted_at, prefix LIMIT %s",
+            (list(passing), batch),
         )
         return [row[0] for row in await cursor.fetchall()]
 

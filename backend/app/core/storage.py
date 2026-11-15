@@ -113,6 +113,15 @@ def check_key(key: str) -> str:
     return key
 
 
+def is_key(key: str) -> bool:
+    """Whether a store could hold ``key``: a listing names no other (a half-written file, a folder marker)."""
+    try:
+        check_key(key)
+    except InvalidKey:
+        return False
+    return True
+
+
 def check_prefix(prefix: str) -> str:
     """``prefix``, if it is a key's beginning ending in "/": a place no key outside it lies under."""
     if not prefix.endswith("/"):
@@ -221,10 +230,8 @@ class FileSystemStorage:
         for parent, _, files in os.walk(folder, followlinks=False):
             for name in files:
                 key = (Path(parent) / name).relative_to(self.root).as_posix()
-                try:
-                    yield check_key(key)
-                except InvalidKey:
-                    continue
+                if is_key(key):
+                    yield key
 
     def _object(self, key: str) -> Path:
         """The object's file; ObjectNotFound for none, a folder of other keys, or below a file."""

@@ -208,6 +208,17 @@ def test_more_keys_than_one_page_are_all_listed(stubbed: tuple[S3Storage, Stubbe
     assert list(storage.list("runs/a/")) == ["runs/a/x4/1.json", "runs/a/x4/3.json"]
 
 
+def test_a_key_no_store_key_could_be_is_no_object_on_s3_either(stubbed: tuple[S3Storage, Stubber]) -> None:
+    # a console's folder marker, a device's name: the file store never lists them, nor does S3
+    storage, stubber = stubbed
+    found = {"Contents": [{"Key": "runs/a/x4/"}, {"Key": "runs/a/x4/1.json"}, {"Key": "runs/a/con"}]}
+    stubber.add_response(
+        "list_objects_v2", found | {"IsTruncated": False}, {"Bucket": BUCKET, "Prefix": "runs/a/"}
+    )
+
+    assert list(storage.list("runs/a/")) == ["runs/a/x4/1.json"]
+
+
 def test_a_prefix_that_holds_nothing_lists_nothing_on_s3(stubbed: tuple[S3Storage, Stubber]) -> None:
     storage, stubber = stubbed
     stubber.add_response(

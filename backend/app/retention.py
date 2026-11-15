@@ -29,7 +29,7 @@ import psycopg
 
 from app.core.logging import configure_logging
 from app.core.settings import Settings
-from app.core.storage import ObjectNotFound, open_storage
+from app.core.storage import InvalidKey, ObjectNotFound, open_storage
 from app.core.storage_async import AsyncStorage
 from app.db.pool import CONNECTION_OPTIONS
 from app.db.retention import (
@@ -72,6 +72,7 @@ class Swept:
     audit_entries: int = 0
     runs: int = 0  # whose raw answers were let go
     objects: int = 0  # taken from the store
+    refused: int = 0  # noted places the store refuses as keys (a device's name): passed by, left noted
 
 
 async def sweep(
@@ -84,13 +85,16 @@ async def sweep(
     try:
         if not dry_run:
             swept = await _rows(connection, policy)
-            swept.objects = await _empty(connection, storage)
+            swept.objects, swept.refused = await _empty(connection, storage)
             return swept
         async with connection.transaction(force_rollback=True):
             swept = await _rows(connection, policy)
             places = await _all_places(connection)
         for place in places:
-            swept.objects += len(await _objects(storage, place))
+            try:
+                swept.objects += len(await _objects(storage, place))
+            except InvalidKey:
+                swept.refused += 1
         return swept
     finally:
         if not connection.broken:
@@ -123,20 +127,27 @@ async def _objects(storage: AsyncStorage, place: str) -> list[str]:
     return [place] if await storage.exists(place) else []
 
 
-async def _empty(connection: psycopg.AsyncConnection, storage: AsyncStorage) -> int:
-    """Empty every noted place and forget it; how many objects went. Noted meanwhile, a place is emptied
-    too; one the store refuses stops the sweep, its note kept for the next."""
+async def _empty(connection: psycopg.AsyncConnection, storage: AsyncStorage) -> tuple[int, int]:
+    """Empty every noted place and forget it; how many objects went, and how many places the store refuses
+    as keys for good - passed by and left noted, the others emptied all the same. Noted meanwhile, a place
+    is emptied too; any other failure of the store stops the sweep, its note kept for the next."""
     taken = 0
-    while places := await garbage(connection):
+    refused: list[str] = []
+    while places := await garbage(connection, passing=refused):
         for place in places:
-            for key in await _objects(storage, place):
+            try:
+                keys = await _objects(storage, place)
+            except InvalidKey:
+                refused.append(place)
+                continue
+            for key in keys:
                 try:
                     await storage.delete(key)
                 except ObjectNotFound:  # gone meanwhile: another sweep, or the request that noted it
                     continue
                 taken += 1
             await forget_garbage(connection, place)
-    return taken
+    return taken, len(refused)
 
 
 async def _run(settings: Settings, policy: Policy, *, dry_run: bool) -> Swept:
@@ -177,6 +188,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 1
     sys.stdout.write(json.dumps(asdict(swept)) + "\n")
     sys.stdout.flush()
+    if swept.refused:
+        log.error("retention left %d noted place(s) the store refuses as keys", swept.refused)
+        return 1
     return 0
 
 
