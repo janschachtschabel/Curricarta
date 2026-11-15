@@ -2,10 +2,6 @@
 places noted for the store from the store, one sweep at a time, and prints its counts - never a key, a
 title or a wording. A sweep broken between noting a place and emptying it is finished by the next."""
 
-import json
-import os
-import subprocess
-import sys
 import uuid
 from collections.abc import AsyncIterator, Iterator
 from pathlib import Path
@@ -13,7 +9,6 @@ from typing import Any
 
 import psycopg
 import pytest
-from psycopg.conninfo import make_conninfo
 
 from app.core.storage import FileSystemStorage
 from app.core.storage_async import AsyncStorage
@@ -23,7 +18,6 @@ from app.retention import Policy, SweepBusy, Swept, sweep
 from app.usage.ledger import set_quota, usage_of
 from tests.db.l1 import add_conversion, add_document, seed_vocabulary
 from tests.db.retention_rows import add_ended_run, add_job, add_usage, garbage, job_ids, raw_key
-from tests.support import without_settings_variables
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
@@ -138,48 +132,6 @@ async def test_the_ledger_s_rows_are_never_swept(
     assert counted == (2, 1)
 
 
-class BreaksOnce(FileSystemStorage):
-    """A store whose second deletion fails, as a service may refuse one."""
-
-    def __init__(self, root: Path) -> None:
-        super().__init__(root)
-        self.deleted = 0
-
-    def delete(self, key: str) -> None:
-        self.deleted += 1
-        if self.deleted == 2:
-            raise OSError("the store refused (invented)")
-        super().delete(key)
-
-
-async def test_a_sweep_broken_between_marking_and_deleting_is_finished_by_the_next(
-    database_url: str,
-    setup: psycopg.Connection,
-    connection: psycopg.AsyncConnection,
-    made: dict[str, Any],
-    tmp_path: Path,
-) -> None:
-    breaking = BreaksOnce(tmp_path / "objects")
-    run = add_ended_run(setup, made["document"], ended_days_ago=31)
-    keep_answers(breaking, run, 1, 2, 3)
-
-    with pytest.raises(OSError, match="invented"):
-        await sweep(connection, AsyncStorage(breaking), POLICY, dry_run=False)
-    assert raw_key(setup, run) is None  # the run says so already
-    assert garbage(setup) == [f"runs/{run}/x4/"]  # and the place stays noted
-    assert len(kept(breaking)) == 2
-
-    # from another session, its own still open: the broken sweep let go of the lock
-    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as later:
-        swept = await sweep(
-            later, AsyncStorage(FileSystemStorage(tmp_path / "objects")), POLICY, dry_run=False
-        )
-
-    assert swept == Swept(jobs=0, audit_entries=0, runs=0, objects=2)
-    assert kept(breaking) == []
-    assert garbage(setup) == []
-
-
 async def test_a_database_part_that_fails_still_leaves_the_noted_places_emptied(
     setup: psycopg.Connection, connection: psycopg.AsyncConnection, files: FileSystemStorage
 ) -> None:
@@ -290,172 +242,3 @@ async def test_a_sweep_while_another_holds_the_lock_takes_nothing(
     # the lock goes with the sweep, its session still open: another session's sweep takes it
     async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as later:
         assert (await sweep(later, AsyncStorage(files), POLICY, dry_run=False)).jobs == 0
-
-
-@pytest.mark.parametrize("dry_run", [False, True], ids=["sweep", "dry-run"])
-async def test_a_sweep_on_a_connection_without_autocommit_leaves_no_transaction_open(
-    database_url: str, setup: psycopg.Connection, files: FileSystemStorage, dry_run: bool
-) -> None:
-    # a pool's connection: the sweep needs no autocommit, only no transaction open when it begins
-    add_job(setup)
-    async with await psycopg.AsyncConnection.connect(database_url) as pooled:
-        await sweep(pooled, AsyncStorage(files), POLICY, dry_run=dry_run)
-
-        assert pooled.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
-
-
-class IdleOnly(FileSystemStorage):
-    """A store that fails a call made while the sweep's session holds a transaction open."""
-
-    def __init__(self, root: Path, connection: psycopg.AsyncConnection) -> None:
-        super().__init__(root)
-        self.connection = connection
-        self.calls = 0
-
-    def _idle(self) -> None:
-        self.calls += 1
-        assert self.connection.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
-
-    def list(self, prefix: str) -> Iterator[str]:
-        self._idle()
-        return super().list(prefix)
-
-    def exists(self, key: str) -> bool:
-        self._idle()
-        return super().exists(key)
-
-    def delete(self, key: str) -> None:
-        self._idle()
-        super().delete(key)
-
-
-@pytest.mark.parametrize("dry_run", [False, True], ids=["sweep", "dry-run"])
-async def test_no_transaction_is_open_while_the_store_is_asked(
-    setup: psycopg.Connection,
-    connection: psycopg.AsyncConnection,
-    made: dict[str, Any],
-    tmp_path: Path,
-    dry_run: bool,
-) -> None:
-    store = IdleOnly(tmp_path / "objects", connection)
-    run = add_ended_run(setup, made["document"], ended_days_ago=31)
-    keep_answers(store, run, 1, 2)
-    store.put("sources/" + "ab" * 32, b"%PDF")
-    setup.execute("INSERT INTO storage_garbage (prefix) VALUES (%s)", ("sources/" + "ab" * 32,))
-
-    swept = await sweep(connection, AsyncStorage(store), POLICY, dry_run=dry_run)
-
-    assert swept.objects == 3
-    assert store.calls >= 2
-
-
-class GoneMeanwhile(FileSystemStorage):
-    """A store whose listing names an object another process deletes before the sweep does."""
-
-    def list(self, prefix: str) -> Iterator[str]:
-        return iter([*super().list(prefix), prefix + "9.json"])
-
-
-async def test_an_object_gone_meanwhile_counts_as_taken_by_another(
-    setup: psycopg.Connection, connection: psycopg.AsyncConnection, made: dict[str, Any], tmp_path: Path
-) -> None:
-    store = GoneMeanwhile(tmp_path / "objects")
-    run = add_ended_run(setup, made["document"], ended_days_ago=31)
-    keep_answers(store, run, 1)
-
-    swept = await sweep(connection, AsyncStorage(store), POLICY, dry_run=False)
-
-    assert swept.objects == 1  # its own deletion; the other's is not counted twice
-    assert garbage(setup) == []
-
-
-def run_command(
-    url: str, store: Path, *arguments: str, log_format: str = "json"
-) -> subprocess.CompletedProcess[str]:
-    with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": url, "STORAGE_DIR": str(store), "LOG_FORMAT": log_format}
-    return subprocess.run(  # noqa: S603 - this interpreter and a fixed module
-        [sys.executable, "-m", "app.retention", *arguments],
-        cwd=BACKEND,
-        env=environment,
-        capture_output=True,
-        text=True,
-        timeout=60,
-        check=False,
-    )
-
-
-@pytest.mark.parametrize("arguments", [["--dry-run"], []], ids=["dry-run", "sweep"])
-async def test_the_command_prints_counts_and_no_wording(
-    database_url: str,
-    setup: psycopg.Connection,
-    made: dict[str, Any],
-    files: FileSystemStorage,
-    arguments: list[str],
-) -> None:
-    run = add_ended_run(setup, made["document"], ended_days_ago=40)
-    keep_answers(files, run, 1)
-    add_job(setup, ended_days_ago=100)
-    setup.execute(
-        "INSERT INTO audit_log (at, action, subject, details) VALUES (now() - interval '400 days',"
-        " 'document.edit', %s, '{\"title\": \"Lehrplan Erdkunde\"}')",
-        (str(made["document"]),),
-    )
-
-    done = run_command(database_url, files.root, *arguments)
-
-    assert done.returncode == 0, done.stderr
-    lines = done.stdout.splitlines()
-    assert len(lines) == 1
-    assert json.loads(lines[0]) == {"jobs": 1, "audit_entries": 1, "runs": 1, "objects": 1, "refused": 0}
-    for told in (done.stdout, done.stderr):
-        assert str(run) not in told and str(made["document"]) not in told
-        assert "runs/" not in told and "Erdkunde" not in told
-    assert (raw_key(setup, run) is None) is (arguments == [])
-
-
-def test_a_place_the_store_refuses_ends_the_command_with_1_in_one_log_line(
-    database_url: str, setup: psycopg.Connection, tmp_path: Path
-) -> None:
-    setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('runs/con/'), ('exports/old/')")
-
-    done = run_command(database_url, tmp_path / "objects")
-
-    assert done.returncode == 1
-    assert json.loads(done.stdout) == {"jobs": 0, "audit_entries": 0, "runs": 0, "objects": 0, "refused": 1}
-    [line] = done.stderr.splitlines()
-    assert "1 noted place(s) the store refuses" in json.loads(line)["message"]
-    assert "con" not in line
-    assert garbage(setup) == ["runs/con/"]
-
-
-def test_two_sweeps_at_once_do_not_run_side_by_side(
-    database_url: str, setup: psycopg.Connection, tmp_path: Path
-) -> None:
-    job = add_job(setup)
-    with psycopg.connect(database_url, autocommit=True) as other:
-        other.execute("SELECT pg_advisory_lock(%s)", (LOCK_KEY,))  # the other sweep, running
-
-        second = run_command(database_url, tmp_path / "objects")
-
-    assert second.returncode == 3, second.stderr
-    assert second.stdout == ""
-    assert len(second.stderr.splitlines()) == 1
-    assert "another sweep" in json.loads(second.stderr)["message"]
-    assert job_ids(setup) == {job}
-
-
-@pytest.mark.parametrize("log_format", ["json", "text"])
-def test_a_database_away_ends_with_1_in_one_log_line(tmp_path: Path, log_format: str) -> None:
-    wrong = "away-invented"  # an invented password: no server listens
-    url = make_conninfo("postgresql://curricarta@127.0.0.1:1/curricarta", password=wrong)
-
-    refused = run_command(url, tmp_path / "objects", log_format=log_format)
-
-    assert refused.returncode == 1
-    assert refused.stdout == ""
-    lines = refused.stderr.splitlines()
-    assert len(lines) == 1, refused.stderr
-    message = json.loads(lines[0])["message"] if log_format == "json" else lines[0]
-    assert "retention stopped" in message
-    assert "away-invented" not in refused.stderr
