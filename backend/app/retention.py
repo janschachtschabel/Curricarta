@@ -99,8 +99,16 @@ async def _sweep(
     connection: psycopg.AsyncConnection, storage: AsyncStorage, policy: Policy, *, dry_run: bool
 ) -> Swept:
     if not dry_run:
-        swept = await _rows(connection, policy)
+        # a database part that fails stops the sweep only after the places noted before are emptied: else a
+        # lasting failure there would keep them in the store for good
+        failure: psycopg.Error | None = None
+        try:
+            swept = await _rows(connection, policy)
+        except psycopg.Error as error:
+            failure, swept = error, Swept()
         swept.objects, swept.refused = await _empty(connection, storage)
+        if failure is not None:
+            raise failure
         return swept
     async with connection.transaction(force_rollback=True):
         swept = await _rows(connection, policy)

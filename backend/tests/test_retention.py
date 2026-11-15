@@ -180,6 +180,27 @@ async def test_a_sweep_broken_between_marking_and_deleting_is_finished_by_the_ne
     assert garbage(setup) == []
 
 
+async def test_a_database_part_that_fails_still_leaves_the_noted_places_emptied(
+    setup: psycopg.Connection, connection: psycopg.AsyncConnection, files: FileSystemStorage
+) -> None:
+    # the database refuses the audit's deletion for good: the places noted before are emptied all the same
+    setup.execute(
+        "CREATE FUNCTION refuse() RETURNS trigger LANGUAGE plpgsql"
+        " AS $$ BEGIN RAISE EXCEPTION 'refused'; END $$;"
+        " CREATE TRIGGER refused BEFORE DELETE ON audit_log FOR EACH ROW EXECUTE FUNCTION refuse()"
+    )
+    setup.execute("INSERT INTO audit_log (at, action) VALUES (now() - interval '400 days', 'account.create')")
+    files.put("exports/old/mem.ttl", b"@prefix")
+    setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('exports/old/')")
+
+    with pytest.raises(psycopg.errors.RaiseException, match="refused"):
+        await sweep(connection, AsyncStorage(files), POLICY, dry_run=False)
+
+    assert not files.exists("exports/old/mem.ttl")
+    assert garbage(setup) == []
+    assert setup.execute("SELECT count(*) FROM audit_log").fetchone() == (1,)
+
+
 async def test_a_garbage_entry_naming_one_object_takes_that_object_alone(
     setup: psycopg.Connection, connection: psycopg.AsyncConnection, files: FileSystemStorage
 ) -> None:
