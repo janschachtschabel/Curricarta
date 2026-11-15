@@ -10,6 +10,7 @@ from typing import Any
 import psycopg
 import pytest
 
+from app.db import retention
 from app.db.migrate import migrate
 from app.db.retention import (
     BATCH,
@@ -168,6 +169,25 @@ async def test_a_reservation_booked_while_the_sweep_looks_keeps_its_job(
 
     assert await drop_ended_jobs(connection, 90) == 0
     assert job_ids(setup) == {job}
+
+
+async def test_the_deletion_looks_again_at_the_reservations_and_conversions_under_the_locks(
+    setup: psycopg.Connection, connection: psycopg.AsyncConnection, made: dict[str, Any]
+) -> None:
+    # one committed between the choice and the deletion keeps its job: the deletion's own snapshot sees it
+    held, waited_for, free = add_job(setup, status="failed"), add_job(setup), add_job(setup)
+    add_reservation(setup, made["owner"], held)
+    setup.execute(
+        "UPDATE conversion SET status = 'pending', finished_at = NULL, pages = NULL, job_id = %s"
+        " WHERE id = %s",
+        (waited_for, made["conversion"]),
+    )
+
+    async with connection.transaction():
+        cursor = await connection.execute(retention._DROP, {"chosen": [held, waited_for, free]})
+
+    assert cursor.rowcount == 1
+    assert job_ids(setup) == {held, waited_for}
 
 
 async def test_an_audit_entry_past_its_time_goes(

@@ -13,6 +13,7 @@ import pytest
 from psycopg import errors
 
 from app.core.storage import check_key, check_prefix
+from app.db import retention
 from app.db.migrate import MIGRATIONS, migrate
 from app.usage import ledger
 from tests.db.l1 import add_conversion, add_document, add_run, seed_vocabulary
@@ -196,25 +197,20 @@ def test_the_budget_s_sum_reads_its_index_alone(connection: psycopg.Connection) 
 
 
 @pytest.mark.parametrize(
-    ("table", "index", "query"),
-    [
-        (
-            "job",
-            "job_ended",
-            "SELECT id FROM job WHERE status IN ('done', 'failed', 'cancelled')"
-            " AND finished_at < now() - interval '90 days'",
-        ),
-        ("audit_log", "audit_log_at", "SELECT id FROM audit_log WHERE at < now() - interval '365 days'"),
-    ],
+    ("table", "index", "statement"),
+    [("job", "job_ended", retention._CHOSEN), ("audit_log", "audit_log_at", retention._AUDIT)],
     ids=["job", "audit_log"],
 )
 def test_the_sweep_finds_what_is_past_its_time_by_an_index(
-    connection: psycopg.Connection, table: str, index: str, query: str
+    connection: psycopg.Connection, table: str, index: str, statement: str
 ) -> None:
+    # the sweep's own statements, explained (not run): an ended job and an old entry are found by an index
     connection.execute(f"ANALYZE {table}")
     connection.execute("SET enable_seqscan = off")
 
-    plan = "\n".join(row[0] for row in connection.execute("EXPLAIN " + query))
+    with psycopg.ClientCursor(connection) as cursor:
+        rows = cursor.execute("EXPLAIN " + statement, {"days": 90, "batch": 1000})
+        plan = "\n".join(row[0] for row in rows)
 
     assert f"using {index} on {table}" in plan
 

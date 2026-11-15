@@ -304,6 +304,51 @@ async def test_a_sweep_on_a_connection_without_autocommit_leaves_no_transaction_
         assert pooled.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
 
 
+class IdleOnly(FileSystemStorage):
+    """A store that fails a call made while the sweep's session holds a transaction open."""
+
+    def __init__(self, root: Path, connection: psycopg.AsyncConnection) -> None:
+        super().__init__(root)
+        self.connection = connection
+        self.calls = 0
+
+    def _idle(self) -> None:
+        self.calls += 1
+        assert self.connection.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
+
+    def list(self, prefix: str) -> Iterator[str]:
+        self._idle()
+        return super().list(prefix)
+
+    def exists(self, key: str) -> bool:
+        self._idle()
+        return super().exists(key)
+
+    def delete(self, key: str) -> None:
+        self._idle()
+        super().delete(key)
+
+
+@pytest.mark.parametrize("dry_run", [False, True], ids=["sweep", "dry-run"])
+async def test_no_transaction_is_open_while_the_store_is_asked(
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    tmp_path: Path,
+    dry_run: bool,
+) -> None:
+    store = IdleOnly(tmp_path / "objects", connection)
+    run = add_ended_run(setup, made["document"], ended_days_ago=31)
+    keep_answers(store, run, 1, 2)
+    store.put("sources/" + "ab" * 32, b"%PDF")
+    setup.execute("INSERT INTO storage_garbage (prefix) VALUES (%s)", ("sources/" + "ab" * 32,))
+
+    swept = await sweep(connection, AsyncStorage(store), POLICY, dry_run=dry_run)
+
+    assert swept.objects == 3
+    assert store.calls >= 2
+
+
 class GoneMeanwhile(FileSystemStorage):
     """A store whose listing names an object another process deletes before the sweep does."""
 
