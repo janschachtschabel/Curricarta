@@ -135,7 +135,9 @@ async def replay_x4(
     stage = build_agent(hands.model, schema=schema, name=x4.SCHEMA_NAME, instructions=x4.INSTRUCTIONS)
     gathered = await gather(storage, stage, hands, runs, units)
     done = await done_units(connection, document.id)
-    picked = chosen(order, done, {run.run_id for run in runs}, gathered)
+    # every answered X4 run is one, its answers swept or not: a unit a swept run wrote has no answer of its
+    # own now (missing), and is never taken for X6's work nor given another run's answer naming it
+    picked = chosen(order, done, {run.run_id for run in answered}, gathered)
     findings: Counter[str] = Counter()
     read_now: dict[str, int] = {}
     keys: list[Key] = []

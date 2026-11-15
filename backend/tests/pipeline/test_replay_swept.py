@@ -2,6 +2,7 @@
 RETENTION_RAW_ANSWERS_DAYS): their run is not read and its answers are counted apart (``swept``), never as
 answers gone from the store; where it took every X4 run's, the replay says so."""
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -14,9 +15,10 @@ from app.core.storage_async import AsyncStorage
 from app.db.runs import RunStart, finish_run, start_run
 from app.llm.raw import answer_key
 from app.pipeline.replay import Refused
+from app.quality.report_replay import replayed_counts
 from app.retention import Policy, sweep
-from tests.pipeline.test_replay import extracted, replayed
-from tests.pipeline.test_run import Model, setup
+from tests.pipeline.test_replay import extracted, replayed, unit, x4_run
+from tests.pipeline.test_run import Model, a_statement, setup
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 __all__ = ["setup"]  # the fixture, from test_run
@@ -71,3 +73,40 @@ async def test_a_document_whose_x4_answers_the_retention_took_says_so(
 
     with pytest.raises(Refused, match="raw_answers_swept"):
         await replayed(connection, tmp_path, document)
+
+
+async def test_a_unit_whose_writing_run_was_swept_has_no_answer_and_was_not_repaired(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    # a run stopped and resumed days later: the run that wrote E1 is past its time, a later one is not. E1's
+    # own answer is gone with its run - never X6's work, never a later run's answer naming it
+    pool, connection = setup
+    document = await extracted(pool, connection, tmp_path, database_url, Model())
+    writer = await x4_run(connection, document)
+    store = FileSystemStorage(tmp_path / "store")
+    later = await start_run(connection, RunStart(document.id, None, 1, "X4", "m", "x", None, None))
+    await finish_run(connection, later, "done", {})
+    await connection.execute(
+        "INSERT INTO llm_usage (account_id, run_id, purpose, model, input_tokens, cached_input_tokens,"
+        " output_tokens, requests, unanswered_requests, estimated)"
+        " VALUES (%s, %s, 'x4.unit', 'm', 9, 0, 9, 1, 0, false)",
+        (document.owner_id, later),
+    )
+    stray = unit("E1", a_statement("p2-b2", "Aussage E1 anders"))
+    response = ModelResponse(
+        parts=[ToolCallPart("final_result", json.dumps(stray))], usage=RequestUsage(input_tokens=9)
+    )
+    store.put(answer_key(later, "x4", 1), ModelMessagesTypeAdapter.dump_json([response]))
+    await connection.execute(AGED + " WHERE id = %s", (writer,))
+    await sweep(connection, AsyncStorage(store), RAW_ANSWERS_ONLY, dry_run=False)
+
+    found = await replayed(connection, tmp_path, document)
+
+    assert found.repaired_units == ()
+    assert (found.units, found.missing, found.statements_now) == (2, 2, 0)
+
+    async def replay(document_id: Any) -> Any:
+        return found
+
+    counted = await replayed_counts(connection, document.id, [], {}, replay)
+    assert counted["replay"]["repaired"] == 0 and counted["replay"]["swept"] > 0
