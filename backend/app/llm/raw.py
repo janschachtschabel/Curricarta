@@ -2,9 +2,9 @@
 of what a stage was told, and of what it cost - each answer carries its usage.
 
 Kept in the object store under ``runs/<run-id>/<stage>/<n>.json``, numbered from 1 in the order
-the answers came. The store cannot list, so each number is the next one free after the last this
-keeper took: a job asked again after a crash goes on behind what its run kept, and writes over
-nothing, gaps and all. That holds for one keeper of a run and stage at a time: two side by side
+the answers came. Each number is the next one free after the last this keeper took (asked key by key,
+not by listing the run's prefix): a job asked again after a crash goes on behind what its run kept, and
+writes over nothing, gaps and all. That holds for one keeper of a run and stage at a time: two side by side
 could take one number, so a run is one attempt of a job (plan M1, Nachtrag 5.3). Written off the
 event loop, as the store is synchronous.
 """
@@ -53,8 +53,8 @@ def answer_key(run_id: UUID, stage: str, number: int) -> str:
 async def kept_answers(storage: Storage, run_id: UUID, stage: str, count: int) -> list[bytes | None]:
     """The run's answers at ``stage`` as they were kept, in their order: the first ``count`` - None for one
     that is not there (taken away since, or never kept) -, then each kept beyond them, as long as the next
-    number is there. Read only: the store cannot list, so the caller says how many there should be - as its
-    ledger booked them -, and learns from the length how many it did not count."""
+    number is there. Read only, key by key: the caller says how many there should be - as its ledger booked
+    them -, and learns from the length how many it did not count."""
 
     def read(number: int) -> bytes | None:
         try:

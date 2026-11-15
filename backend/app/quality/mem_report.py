@@ -21,7 +21,9 @@ document named by the label, never by its title, nor its plan by its IRI:
   (app/sources/mem/tree.py ``clean_label``);
   ``cut``: node titles longer than ``MAX_TITLE`` and statement wordings longer than ``MAX_WORDING``, which
   the import cut - both from the plan's answers kept under the run (null where they are gone), typed by the
-  rules as they stand now (``cut`` null too where the catalogue names the plan no more);
+  rules as they stand now (``cut`` null too where the catalogue names the plan no more); once the retention
+  took the run's answers (RETENTION_RAW_ANSWERS_DAYS) both are null, and the report cannot tell that from
+  answers lost;
 - with ``--endpoint-counts`` alone the endpoint is asked (``endpoint``: app/sources/mem/queries.py
   ``label_shape_count``) - only on the operator's word, as every query there; its ``no_label`` counts
   the closure's parts alone, another population than ``label_is_iri_tail``.

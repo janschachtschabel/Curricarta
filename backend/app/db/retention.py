@@ -44,7 +44,8 @@ DELETE FROM audit_log WHERE id IN (
 )
 """
 # A run's answers count from its end; a run left unended (cancelled with its attempt) from its start, once
-# its job no longer runs: a keeper may still be writing beside a running one
+# its job no longer runs: a keeper may still be writing beside a running one. A frozen document's runs lose
+# theirs like any, by design: its statements stay as they were frozen
 _RAW = """
 WITH chosen AS (
     SELECT r.id, r.raw_response_key FROM extraction_run r

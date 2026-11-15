@@ -212,7 +212,9 @@ ein Test schlägt an, wenn sie veraltet.
   (Migration, Bootstrap, Vokabular, Lizenznachtrag, das Aufräumen `app.retention`, die Messbefehle unter
   `app.quality` und `app.pipeline.estimate`/`replay`) setzen nichts davon: Eine Migration wartet auf die
   Sperre einer anderen, solange diese läuft. Das Aufräumen arbeitet in kurzen Stapeln, jeder eine eigene
-  Transaktion, und hält keine offen, während es den Objektspeicher liest und löscht. Nutzungsbericht, Nachspielen, Goldbericht und MEM-Bericht halten für
+  Transaktion, und hält keine offen, während es den Objektspeicher liest und löscht. Nur `--dry-run`
+  zählt in einer einzigen Transaktion, die es am Ende zurückrollt: Sie hält ihre Zeilensperren (alte
+  beendete Jobs, alte Läufe) bis dahin, liest den Objektspeicher aber erst danach. Nutzungsbericht, Nachspielen, Goldbericht und MEM-Bericht halten für
   ihren ganzen Lauf eine Transaktion offen (ein Schnappschuss, nur lesend), auch während sie den
   Objektspeicher lesen und, mit `--endpoint-counts`, den Endpunkt fragen. Eine an der Rolle gesetzte
   `idle_in_transaction_session_timeout` (der Weg hinter einem Pooler, unten) begrenzt die Pause
@@ -238,7 +240,9 @@ ein Test schlägt an, wenn sie veraltet.
   (er sagt, wie die Arbeit daran endete), einem Job, auf den eine Konvertierung wartet, und einem Job mit
   offener Reservierung; ein gelöschter Job antwortet unter `GET /api/v1/jobs/{id}` mit 404. Einträge des
   Audit-Logs gehen nach 365 Tagen, die Rohantworten eines Laufs 30 Tage nach seinem Ende; der Lauf zeigt
-  das (`raw_response_key` leer). Die Buchungen des Kostenbuchs (`llm_usage`, `conversion_usage`) gehen nie:
+  das (`raw_response_key` leer). Ein Lauf, der nie endete (mit seinem Versuch abgebrochen), zählt ab seinem
+  Start, sobald sein Job nicht mehr wartet oder läuft. Auch die Läufe festgeschriebener Dokumente verlieren
+  ihre Rohantworten so, mit Absicht: Ihre Aussagen bleiben, wie sie festgeschrieben sind. Die Buchungen des Kostenbuchs (`llm_usage`, `conversion_usage`) gehen nie:
   Das Budget ist ihre Summe über die ganze Zeit. Ein Lauf hält eine Sitzungssperre (Exit-Code 3, wenn
   schon einer läuft); sie wirkt nur auf einer direkten Verbindung, nicht hinter einem Pooler im
   Transaktionsmodus. `--dry-run` zählt nur. Ausgabe: eine JSON-Zeile mit Zählwerten.

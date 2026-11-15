@@ -10,8 +10,9 @@ empties them. One sweep at a time, under a session's advisory lock on its own di
 the session timeouts of the API's and the workers' pools, as the other commands. Never a booking of the
 ledger: a budget is the lifetime sum of its rows.
 
-``--dry-run`` counts what a sweep would take and changes nothing: the database's part runs in a
-transaction rolled back, and the store is only listed. Prints one line of JSON, counts alone - never a
+``--dry-run`` counts what a sweep would take and changes nothing: the database's part runs in ONE
+transaction rolled back at its end - holding its row locks (old ended jobs, old runs) until then -, and the
+store is only listed, after it. Prints one line of JSON, counts alone - never a
 key, a title or a wording: ``jobs``, ``audit_entries``, ``runs`` (whose raw answers were let go),
 ``objects`` (taken from the store). Exit code 0; 1 on a failure, in one log line; 3 where another sweep
 holds the lock.
