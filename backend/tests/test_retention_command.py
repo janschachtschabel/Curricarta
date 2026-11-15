@@ -26,10 +26,13 @@ BACKEND = Path(__file__).resolve().parents[1]
 
 
 def run_command(
-    url: str, store: Path, *arguments: str, log_format: str = "json"
+    url: str, store: Path | None, *arguments: str, log_format: str = "json"
 ) -> subprocess.CompletedProcess[str]:
+    """The command as the operators run it; ``store`` None names no store at all."""
     with without_settings_variables():
-        environment = {**os.environ, "DATABASE_URL": url, "STORAGE_DIR": str(store), "LOG_FORMAT": log_format}
+        environment = {**os.environ, "DATABASE_URL": url, "LOG_FORMAT": log_format}
+    if store is not None:
+        environment["STORAGE_DIR"] = str(store)
     return subprocess.run(  # noqa: S603 - this interpreter and a fixed module
         [sys.executable, "-m", "app.retention", *arguments],
         cwd=BACKEND,
@@ -115,3 +118,13 @@ def test_a_database_away_ends_with_1_in_one_log_line(tmp_path: Path, log_format:
     message = json.loads(lines[0])["message"] if log_format == "json" else lines[0]
     assert "retention stopped" in message
     assert "away-invented" not in refused.stderr
+
+
+def test_a_store_not_configured_names_the_setting_in_one_log_line(
+    database_url: str, setup: psycopg.Connection
+) -> None:
+    refused = run_command(database_url, None)
+
+    assert refused.returncode == 1
+    [line] = refused.stderr.splitlines()
+    assert "STORAGE_DIR is needed" in json.loads(line)["message"]

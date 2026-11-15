@@ -30,7 +30,7 @@ import psycopg
 
 from app.core.logging import configure_logging
 from app.core.settings import Settings
-from app.core.storage import InvalidKey, ObjectNotFound, open_storage
+from app.core.storage import InvalidKey, ObjectNotFound, StorageNotConfigured, open_storage
 from app.core.storage_async import AsyncStorage
 from app.db.pool import CONNECTION_OPTIONS
 from app.db.retention import (
@@ -185,10 +185,13 @@ async def _run(settings: Settings, policy: Policy, *, dry_run: bool) -> Swept:
 
 def _cause(error: BaseException) -> str:
     """What stopped the sweep, in one line and without its data: a database error's primary message
-    (DETAIL may quote a row), a store's error code, else the error's kind."""
+    (DETAIL may quote a row), the setting a store not configured lacks, a store's error code, else the
+    error's kind."""
     if isinstance(error, psycopg.Error):
         message = error.diag.message_primary or str(error)
         return " ".join(message.split())
+    if isinstance(error, StorageNotConfigured):  # names a setting, holds no value
+        return str(error)
     code = getattr(error, "response", {}).get("Error", {}).get("Code") if hasattr(error, "response") else None
     return type(error).__name__ + (f" ({code})" if code else "")
 
