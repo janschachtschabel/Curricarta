@@ -144,6 +144,9 @@ def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
         "runs/" + "a" * 256 + "/",
         "runs/a./",
         "runs/a.",
+        "runs/" + "a" * 240 + "/" + "b" * 239 + "/",
+        "runs/ABC/",
+        "runs/a/B",
     ],
     ids=[
         "parent",
@@ -159,6 +162,9 @@ def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
         "segment-too-long",
         "dot-at-end",
         "key-dot-at-end",
+        "one-over-the-length",
+        "upper-case",
+        "key-upper-case",
     ],
 )
 def test_a_garbage_prefix_elsewhere_is_refused(connection: psycopg.Connection, prefix: str) -> None:

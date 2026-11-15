@@ -22,12 +22,13 @@ CREATE INDEX llm_usage_charged ON llm_usage (account_id) INCLUDE (charged_tokens
 -- transaction that lets go of what named them, emptied by the sweep after it - a sweep broken between
 -- the two leaves the note for the next. A prefix ends in "/", an object's key does not. Each segment is
 -- one a key may have (app/core/storage.py check_key): 1 to 255 signs, neither beginning nor ending with a
--- dot - none is empty, ".", ".." - so nothing leaves the root. A device name (con, nul.json) passes here:
+-- dot - none is empty, ".", ".." - so nothing leaves the root. Lower case alone, as the app writes its keys
+-- (ids, hashes, stages): on a file system that folds case, an upper-case note would empty another place. A device name (con, nul.json) passes here:
 -- the store refuses it, and the sweep passes such a note by. The length apart: PostgreSQL's regular
 -- expressions repeat at most 255 times
 CREATE TABLE storage_garbage (
     prefix text PRIMARY KEY CHECK (
-        prefix ~ '^(runs|exports|sources)(/[A-Za-z0-9_-]([A-Za-z0-9._-]{0,253}[A-Za-z0-9_-])?)+/?$'
+        prefix ~ '^(runs|exports|sources)(/[a-z0-9_-]([a-z0-9._-]{0,253}[a-z0-9_-])?)+/?$'
         AND length(prefix) - position('/' IN prefix) <= 480
     ),
     noted_at timestamptz NOT NULL DEFAULT now()
