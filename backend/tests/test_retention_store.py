@@ -136,3 +136,26 @@ async def test_an_object_gone_meanwhile_counts_as_taken_by_another(
 
     assert swept.objects == 1  # its own deletion; the other's is not counted twice
     assert garbage(setup) == []
+
+
+class EndsTheSession(FileSystemStorage):
+    """A store that fails after the sweep's session was ended, as a database restart meanwhile would."""
+
+    def __init__(self, root: Path, database_url: str, pid: int) -> None:
+        super().__init__(root)
+        self.database_url, self.pid = database_url, pid
+
+    def list(self, prefix: str) -> Iterator[str]:
+        with psycopg.connect(self.database_url, autocommit=True) as other:
+            other.execute("SELECT pg_terminate_backend(%s)", (self.pid,))
+        raise OSError("the store refused (invented)")
+
+
+async def test_a_failed_unlock_hides_not_the_sweep_s_own_error(
+    database_url: str, setup: psycopg.Connection, connection: psycopg.AsyncConnection, tmp_path: Path
+) -> None:
+    setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('exports/old/')")
+    store = EndsTheSession(tmp_path / "objects", database_url, connection.info.backend_pid)
+
+    with pytest.raises(OSError, match="invented"):
+        await sweep(connection, AsyncStorage(store), POLICY, dry_run=False)
