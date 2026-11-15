@@ -221,15 +221,17 @@ class FileSystemStorage:
             raise ObjectNotFound(key) from None
 
     def list(self, prefix: str) -> Iterator[str]:
-        """Only names a key could have: a temporary file a killed write left (``.tmp-*``) is no object."""
+        """Only names a key could have: a temporary file a killed write left (``.tmp-*``) is no object. A
+        folder that cannot be read raises (OSError) - none there lists nothing. Folders emptied by
+        deleting their objects stay behind (this store serves development and a single node)."""
         folder = self._path(check_prefix(prefix)[:-1])
-        return self._keys(folder)
+        return self._keys(prefix, folder)
 
-    def _keys(self, folder: Path) -> Iterator[str]:
-        # links are not followed: one inside the root may lead out of it
-        for parent, _, files in os.walk(folder, followlinks=False):
+    def _keys(self, prefix: str, folder: Path) -> Iterator[str]:
+        # links are not followed: one inside the root may lead out of it; each key begins with the prefix
+        for parent, _, files in os.walk(folder, onerror=_unless_missing, followlinks=False):
             for name in files:
-                key = (Path(parent) / name).relative_to(self.root).as_posix()
+                key = prefix + (Path(parent) / name).relative_to(folder).as_posix()
                 if is_key(key):
                     yield key
 
@@ -239,6 +241,13 @@ class FileSystemStorage:
         if not path.is_file():
             raise ObjectNotFound(key)
         return path
+
+
+def _unless_missing(error: OSError) -> None:
+    """os.walk's onerror: a folder gone, never there or an object's file holds no keys; any other error is
+    raised."""
+    if not isinstance(error, FileNotFoundError | NotADirectoryError):
+        raise error
 
 
 def _copy(source: BinaryIO, size: int, target: BinaryIO) -> None:

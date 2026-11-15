@@ -1,7 +1,9 @@
 """The keys under a prefix on the file system: those below it and no other, never a file no key names,
 never a place outside the root."""
 
+import os
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -72,3 +74,21 @@ def test_a_half_written_file_is_no_object(storage: FileSystemStorage) -> None:
     (storage.root / "runs" / "a" / "x4" / ".tmp-k2j4h").write_bytes(b"{")
 
     assert list(storage.list("runs/a/")) == ["runs/a/x4/1.json"]
+
+
+def test_a_folder_that_cannot_be_read_is_an_error_not_an_empty_place(
+    storage: FileSystemStorage, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # listed as empty, the sweep would forget the place and leave its objects for good
+    storage.put("runs/a/x4/1.json", b"{}")
+    scan = os.scandir
+
+    def refused(path: Any) -> Any:
+        if Path(path).name == "x4":
+            raise PermissionError(13, "refused (invented)", str(path))
+        return scan(path)
+
+    monkeypatch.setattr(os, "scandir", refused)
+
+    with pytest.raises(PermissionError):
+        list(storage.list("runs/a/"))
