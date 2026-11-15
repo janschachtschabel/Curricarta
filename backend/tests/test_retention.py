@@ -153,7 +153,11 @@ class BreaksOnce(FileSystemStorage):
 
 
 async def test_a_sweep_broken_between_marking_and_deleting_is_finished_by_the_next(
-    setup: psycopg.Connection, connection: psycopg.AsyncConnection, made: dict[str, Any], tmp_path: Path
+    database_url: str,
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    tmp_path: Path,
 ) -> None:
     breaking = BreaksOnce(tmp_path / "objects")
     run = add_ended_run(setup, made["document"], ended_days_ago=31)
@@ -165,9 +169,11 @@ async def test_a_sweep_broken_between_marking_and_deleting_is_finished_by_the_ne
     assert garbage(setup) == [f"runs/{run}/x4/"]  # and the place stays noted
     assert len(kept(breaking)) == 2
 
-    swept = await sweep(
-        connection, AsyncStorage(FileSystemStorage(tmp_path / "objects")), POLICY, dry_run=False
-    )
+    # from another session, its own still open: the broken sweep let go of the lock
+    async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as later:
+        swept = await sweep(
+            later, AsyncStorage(FileSystemStorage(tmp_path / "objects")), POLICY, dry_run=False
+        )
 
     assert swept == Swept(jobs=0, audit_entries=0, runs=0, objects=2)
     assert kept(breaking) == []
@@ -263,6 +269,18 @@ async def test_a_sweep_while_another_holds_the_lock_takes_nothing(
     # the lock goes with the sweep, its session still open: another session's sweep takes it
     async with await psycopg.AsyncConnection.connect(database_url, autocommit=True) as later:
         assert (await sweep(later, AsyncStorage(files), POLICY, dry_run=False)).jobs == 0
+
+
+@pytest.mark.parametrize("dry_run", [False, True], ids=["sweep", "dry-run"])
+async def test_a_sweep_on_a_connection_without_autocommit_leaves_no_transaction_open(
+    database_url: str, setup: psycopg.Connection, files: FileSystemStorage, dry_run: bool
+) -> None:
+    # a pool's connection: the sweep needs no autocommit, only no transaction open when it begins
+    add_job(setup)
+    async with await psycopg.AsyncConnection.connect(database_url) as pooled:
+        await sweep(pooled, AsyncStorage(files), POLICY, dry_run=dry_run)
+
+        assert pooled.info.transaction_status == psycopg.pq.TransactionStatus.IDLE
 
 
 class GoneMeanwhile(FileSystemStorage):

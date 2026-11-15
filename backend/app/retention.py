@@ -19,6 +19,7 @@ holds the lock.
 
 import argparse
 import asyncio
+import contextlib
 import json
 import logging
 import sys
@@ -78,27 +79,43 @@ class Swept:
 async def sweep(
     connection: psycopg.AsyncConnection, storage: AsyncStorage, policy: Policy, *, dry_run: bool
 ) -> Swept:
-    """One sweep, as the module says, on ``connection`` - in no transaction, its session holding the lock
-    for the sweep's time; SweepBusy where another session holds it."""
+    """One sweep, as the module says, on ``connection`` - in autocommit or with no transaction open (each
+    step opens its own, and none is left open after); its session holds the lock for the sweep's time.
+    SweepBusy where another session holds it."""
     if not await take_lock(connection):
         raise SweepBusy
     try:
-        if not dry_run:
-            swept = await _rows(connection, policy)
-            swept.objects, swept.refused = await _empty(connection, storage)
-            return swept
-        async with connection.transaction(force_rollback=True):
-            swept = await _rows(connection, policy)
-            places = await _all_places(connection)
-        for place in places:
-            try:
-                swept.objects += len(await _objects(storage, place))
-            except InvalidKey:
-                swept.refused += 1
+        swept = await _sweep(connection, storage, policy, dry_run=dry_run)
+    except BaseException:
+        # a failed unlock must not hide why the sweep stopped; the lock goes with the session then
+        with contextlib.suppress(psycopg.Error):
+            await _unlock(connection)
+        raise
+    await _unlock(connection)
+    return swept
+
+
+async def _sweep(
+    connection: psycopg.AsyncConnection, storage: AsyncStorage, policy: Policy, *, dry_run: bool
+) -> Swept:
+    if not dry_run:
+        swept = await _rows(connection, policy)
+        swept.objects, swept.refused = await _empty(connection, storage)
         return swept
-    finally:
-        if not connection.broken:
-            await connection.execute("SELECT pg_advisory_unlock(%s)", (LOCK_KEY,))
+    async with connection.transaction(force_rollback=True):
+        swept = await _rows(connection, policy)
+        places = await _all_places(connection)
+    for place in places:
+        try:
+            swept.objects += len(await _objects(storage, place))
+        except InvalidKey:
+            swept.refused += 1
+    return swept
+
+
+async def _unlock(connection: psycopg.AsyncConnection) -> None:
+    async with connection.transaction():
+        await connection.execute("SELECT pg_advisory_unlock(%s)", (LOCK_KEY,))
 
 
 async def _rows(connection: psycopg.AsyncConnection, policy: Policy) -> Swept:
