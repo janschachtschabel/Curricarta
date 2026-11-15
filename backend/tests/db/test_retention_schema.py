@@ -12,6 +12,7 @@ import psycopg
 import pytest
 from psycopg import errors
 
+from app.core.storage import check_key, check_prefix
 from app.db.migrate import MIGRATIONS, migrate
 from app.usage import ledger
 from tests.db.l1 import add_conversion, add_document, add_run, seed_vocabulary
@@ -102,8 +103,15 @@ GARBAGE = "INSERT INTO storage_garbage (prefix) VALUES (%s)"
 
 @pytest.mark.parametrize(
     "prefix",
-    [f"runs/{uuid.uuid4()}/x4/", f"exports/{uuid.uuid4()}/", "sources/" + "ab" * 32, "runs/" + "a" * 480],
-    ids=["run", "export", "file", "longest"],
+    [
+        f"runs/{uuid.uuid4()}/x4/",
+        f"exports/{uuid.uuid4()}/",
+        "sources/" + "ab" * 32,
+        "runs/" + "a" * 239 + "/" + "b" * 239 + "/",  # 480 signs after the root, no segment over 255
+        "runs/" + "a" * 255 + "/",
+        "runs/a.b_c-d/",
+    ],
+    ids=["run", "export", "file", "longest", "longest-segment", "signs"],
 )
 def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
     connection: psycopg.Connection, prefix: str
@@ -112,6 +120,11 @@ def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
 
     noted = connection.execute("SELECT prefix, noted_at <= now() FROM storage_garbage").fetchall()
     assert noted == [(prefix, True)]
+    # a place the database takes is one the store takes: a prefix to list, else an object's key
+    if prefix.endswith("/"):
+        check_prefix(prefix)
+    else:
+        check_key(prefix)
 
 
 @pytest.mark.parametrize(
@@ -126,7 +139,10 @@ def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
         "runs//a/",
         "runs/a b/",
         "runs/.a/",
-        "runs/" + "a" * 481,
+        "runs/" + "a" * 240 + "/" + "b" * 240 + "/",
+        "runs/" + "a" * 256 + "/",
+        "runs/a./",
+        "runs/a.",
     ],
     ids=[
         "parent",
@@ -139,11 +155,15 @@ def test_a_garbage_prefix_names_a_place_under_runs_exports_or_sources(
         "space",
         "hidden",
         "too-long",
+        "segment-too-long",
+        "dot-at-end",
+        "key-dot-at-end",
     ],
 )
 def test_a_garbage_prefix_elsewhere_is_refused(connection: psycopg.Connection, prefix: str) -> None:
     # the sweep deletes every object under it: a place outside the app's three, or one that leaves the
-    # root (the store refuses it as a key, app/core/storage.py check_key), is never noted
+    # root (the store refuses it as a key, app/core/storage.py check_key), is never noted. A device name
+    # (runs/con/) passes the CHECK: the store refuses it, and the sweep passes such a place by
     with pytest.raises(errors.CheckViolation):
         connection.execute(GARBAGE, (prefix,))
 
