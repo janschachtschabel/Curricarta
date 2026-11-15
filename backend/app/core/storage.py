@@ -222,8 +222,9 @@ class FileSystemStorage:
 
     def list(self, prefix: str) -> Iterator[str]:
         """Only names a key could have: a temporary file a killed write left (``.tmp-*``) is no object. A
-        folder that cannot be read raises (OSError) - none there lists nothing. Folders emptied by
-        deleting their objects stay behind (this store serves development and a single node)."""
+        folder that cannot be read raises (OSError) - none there lists nothing, a root that is not there
+        too. Folders emptied by deleting their objects stay behind (this store serves development and a
+        single node)."""
         folder = self._path(check_prefix(prefix)[:-1])
         return self._keys(prefix, folder)
 

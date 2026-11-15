@@ -1,6 +1,7 @@
-"""``python -m app.retention [--dry-run]``: the sweep takes what is past its time from the database and the
-places noted for the store from the store, one sweep at a time, and prints its counts - never a key, a
-title or a wording. A sweep broken between noting a place and emptying it is finished by the next."""
+"""The sweep (app/retention.py ``sweep``): it takes what is past its time from the database and empties the
+places noted for the store, one sweep at a time; never a booking of the ledger. A failing database step
+leaves the others and the store's part to run. The store's doubles: test_retention_store.py; the command:
+test_retention_command.py."""
 
 import uuid
 from collections.abc import AsyncIterator, Iterator
@@ -21,7 +22,6 @@ from tests.db.retention_rows import add_ended_run, add_job, add_usage, garbage, 
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
-BACKEND = Path(__file__).resolve().parents[1]
 POLICY = Policy(jobs_days=90, audit_days=365, raw_answers_days=30)
 
 

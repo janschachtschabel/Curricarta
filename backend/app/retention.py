@@ -12,10 +12,13 @@ ledger: a budget is the lifetime sum of its rows.
 
 ``--dry-run`` counts what a sweep would take and changes nothing: the database's part runs in ONE
 transaction rolled back at its end - holding its row locks (old ended jobs, old runs) until then -, and the
-store is only listed, after it. Prints one line of JSON, counts alone - never a
-key, a title or a wording: ``jobs``, ``audit_entries``, ``runs`` (whose raw answers were let go),
-``objects`` (taken from the store). Exit code 0; 1 on a failure, in one log line; 3 where another sweep
-holds the lock.
+store is only listed, after it. Prints one line of JSON, counts alone - never a key, a title or a
+wording: ``jobs``, ``audit_entries``, ``runs`` (whose raw answers were let go), ``objects`` (taken from the
+store), ``refused`` (noted places the store refuses as keys, passed by and left noted). It ends in one of
+three ways: done, the JSON line and exit code 0; a failure, no JSON, one log line and exit code 1 (a
+database step that failed is raised after the others and the store's part ran); notes passed by, the
+JSON line, one log line with their count and exit code 1. Exit code 3, with one log line, where another
+sweep holds the lock.
 """
 
 import argparse
@@ -204,7 +207,8 @@ def _cause(error: BaseException) -> str:
     if isinstance(error, psycopg.Error):
         message = error.diag.message_primary or str(error)
         return " ".join(message.split())
-    if isinstance(error, StorageNotConfigured):  # names a setting, holds no value
+    # names the setting it lacks; with S3 also the bucket's name - a setting's value, no secret
+    if isinstance(error, StorageNotConfigured):
         return str(error)
     code = getattr(error, "response", {}).get("Error", {}).get("Code") if hasattr(error, "response") else None
     return type(error).__name__ + (f" ({code})" if code else "")
