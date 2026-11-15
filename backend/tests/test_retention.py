@@ -14,7 +14,7 @@ from app.core.storage import FileSystemStorage
 from app.core.storage_async import AsyncStorage
 from app.db.migrate import migrate
 from app.db.retention import LOCK_KEY
-from app.retention import Policy, SweepBusy, Swept, sweep
+from app.retention import Policy, SweepBusy, Swept, _cause, sweep
 from app.usage.ledger import set_quota, usage_of
 from tests.db.l1 import add_conversion, add_document, seed_vocabulary
 from tests.db.retention_rows import add_ended_run, add_job, add_usage, garbage, job_ids, raw_key
@@ -136,11 +136,7 @@ async def test_a_database_part_that_fails_still_leaves_the_noted_places_emptied(
     setup: psycopg.Connection, connection: psycopg.AsyncConnection, files: FileSystemStorage
 ) -> None:
     # the database refuses the audit's deletion for good: the places noted before are emptied all the same
-    setup.execute(
-        "CREATE FUNCTION refuse() RETURNS trigger LANGUAGE plpgsql"
-        " AS $$ BEGIN RAISE EXCEPTION 'refused'; END $$;"
-        " CREATE TRIGGER refused BEFORE DELETE ON audit_log FOR EACH ROW EXECUTE FUNCTION refuse()"
-    )
+    refuse_deleting(setup, "audit_log")
     setup.execute("INSERT INTO audit_log (at, action) VALUES (now() - interval '400 days', 'account.create')")
     files.put("exports/old/mem.ttl", b"@prefix")
     setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('exports/old/')")
@@ -151,6 +147,55 @@ async def test_a_database_part_that_fails_still_leaves_the_noted_places_emptied(
     assert not files.exists("exports/old/mem.ttl")
     assert garbage(setup) == []
     assert setup.execute("SELECT count(*) FROM audit_log").fetchone() == (1,)
+
+
+def refuse_deleting(setup: psycopg.Connection, table: str) -> None:
+    """The database refuses every deletion from ``table`` for good, as a lasting failure would."""
+    setup.execute(
+        "CREATE OR REPLACE FUNCTION refuse() RETURNS trigger LANGUAGE plpgsql"
+        " AS $$ BEGIN RAISE EXCEPTION 'refused'; END $$"
+    )
+    setup.execute(f"CREATE TRIGGER refused BEFORE DELETE ON {table} FOR EACH ROW EXECUTE FUNCTION refuse()")
+
+
+async def test_a_failing_step_of_the_database_part_leaves_the_others_to_run(
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    files: FileSystemStorage,
+) -> None:
+    # the jobs' step fails for good: the audit's and the raw answers' still run, and the error comes after
+    refuse_deleting(setup, "job")
+    job = add_job(setup)
+    setup.execute("INSERT INTO audit_log (at, action) VALUES (now() - interval '400 days', 'account.create')")
+    run = add_ended_run(setup, made["document"], ended_days_ago=31)
+    keep_answers(files, run, 1)
+
+    with pytest.raises(psycopg.errors.RaiseException, match="refused"):
+        await sweep(connection, AsyncStorage(files), POLICY, dry_run=False)
+
+    assert job_ids(setup) == {job}
+    assert setup.execute("SELECT count(*) FROM audit_log").fetchone() == (0,)
+    assert raw_key(setup, run) is None and kept(files) == []
+
+
+class ListingFails(FileSystemStorage):
+    def list(self, prefix: str) -> Iterator[str]:
+        raise OSError("the store refused (invented)")
+
+
+async def test_when_both_parts_fail_the_database_s_error_is_the_one_raised(
+    setup: psycopg.Connection, connection: psycopg.AsyncConnection, tmp_path: Path
+) -> None:
+    refuse_deleting(setup, "audit_log")
+    setup.execute("INSERT INTO audit_log (at, action) VALUES (now() - interval '400 days', 'account.create')")
+    setup.execute("INSERT INTO storage_garbage (prefix) VALUES ('exports/old/')")
+
+    with pytest.raises(psycopg.errors.RaiseException, match="refused") as raised:
+        await sweep(connection, AsyncStorage(ListingFails(tmp_path / "objects")), POLICY, dry_run=False)
+
+    assert isinstance(raised.value.__cause__, OSError)  # the store's failure, kept beside it
+    assert _cause(raised.value) == "refused"  # what the command's one log line says
 
 
 async def test_a_garbage_entry_naming_one_object_takes_that_object_alone(

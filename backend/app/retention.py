@@ -99,26 +99,31 @@ async def sweep(
 async def _sweep(
     connection: psycopg.AsyncConnection, storage: AsyncStorage, policy: Policy, *, dry_run: bool
 ) -> Swept:
+    """Each step runs whatever an earlier one met: a database step that fails leaves the others to run, and
+    the places noted before are emptied all the same - else a lasting failure would keep them in the store
+    for good. The first database error is raised at the end; a store's failure after it is its cause."""
+    swept = Swept()
     if not dry_run:
-        # a database part that fails stops the sweep only after the places noted before are emptied: else a
-        # lasting failure there would keep them in the store for good
-        failure: psycopg.Error | None = None
+        failure = await _rows(connection, policy, swept)
         try:
-            swept = await _rows(connection, policy)
-        except psycopg.Error as error:
-            failure, swept = error, Swept()
-        swept.objects, swept.refused = await _empty(connection, storage)
+            swept.objects, swept.refused = await _empty(connection, storage)
+        except Exception as store_failure:
+            if failure is not None:
+                raise failure from store_failure
+            raise
         if failure is not None:
             raise failure
         return swept
     async with connection.transaction(force_rollback=True):
-        swept = await _rows(connection, policy)
+        failure = await _rows(connection, policy, swept)
         places = await _all_places(connection)
     for place in places:
         try:
             swept.objects += len(await _objects(storage, place))
         except InvalidKey:
             swept.refused += 1
+    if failure is not None:
+        raise failure
     return swept
 
 
@@ -127,12 +132,20 @@ async def _unlock(connection: psycopg.AsyncConnection) -> None:
         await connection.execute("SELECT pg_advisory_unlock(%s)", (LOCK_KEY,))
 
 
-async def _rows(connection: psycopg.AsyncConnection, policy: Policy) -> Swept:
-    return Swept(
-        jobs=await drop_ended_jobs(connection, policy.jobs_days),
-        audit_entries=await drop_old_audit(connection, policy.audit_days),
-        runs=await mark_old_raw_answers(connection, policy.raw_answers_days),
+async def _rows(connection: psycopg.AsyncConnection, policy: Policy, swept: Swept) -> psycopg.Error | None:
+    """The database's three steps into ``swept``, each run whatever the one before met; the first error."""
+    failure: psycopg.Error | None = None
+    steps = (
+        ("jobs", drop_ended_jobs, policy.jobs_days),
+        ("audit_entries", drop_old_audit, policy.audit_days),
+        ("runs", mark_old_raw_answers, policy.raw_answers_days),
     )
+    for name, step, days in steps:
+        try:
+            setattr(swept, name, await step(connection, days))
+        except psycopg.Error as error:
+            failure = failure or error
+    return failure
 
 
 async def _all_places(connection: psycopg.AsyncConnection) -> list[str]:
