@@ -636,3 +636,35 @@ def test_the_engines_offered_are_named_the_first_the_one_asked_of_by_default() -
 def test_the_engines_offered_are_known_engines_each_named_once(value: str) -> None:
     with pytest.raises(ValidationError, match="conversion_engines"):
         make_settings(conversion_engines=value)
+
+
+def test_the_sweep_keeps_jobs_a_quarter_the_audit_a_year_and_raw_answers_a_month_by_default() -> None:
+    settings = make_settings()
+
+    assert (
+        settings.retention_jobs_days,
+        settings.retention_audit_days,
+        settings.retention_raw_answers_days,
+    ) == (
+        90,
+        365,
+        30,
+    )
+
+
+@pytest.mark.parametrize(
+    "name", ["retention_jobs_days", "retention_audit_days", "retention_raw_answers_days"]
+)
+@pytest.mark.parametrize("value", [0, 3650])
+def test_a_retention_is_nothing_to_ten_years(name: str, value: int) -> None:
+    # 0 keeps everything
+    assert getattr(make_settings(**{name: value}), name) == value
+
+
+@pytest.mark.parametrize(
+    "name", ["retention_jobs_days", "retention_audit_days", "retention_raw_answers_days"]
+)
+@pytest.mark.parametrize("value", [-1, 3651])
+def test_a_retention_beyond_its_bounds_is_refused(name: str, value: int) -> None:
+    with pytest.raises(ValidationError, match=name):
+        make_settings(**{name: value})

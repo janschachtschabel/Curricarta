@@ -250,6 +250,15 @@ class Settings(BaseSettings):
     # The job kinds this worker takes, comma-separated (the conversion pods: source.convert);
     # empty for every kind it knows
     worker_kinds: Annotated[str, Field(pattern=rf"^({_JOB_KIND}(,{_JOB_KIND})*)?$")] = ""
+    # What the sweep (python -m app.retention) keeps, in days; 0 keeps everything. Jobs ended longer ago go,
+    # but a key's latest (it says how a document's work ended), one a conversion waits for and one holding a
+    # reservation; GET /api/v1/jobs/{id} answers 404 for one gone. The ledger's bookings never go
+    retention_jobs_days: Annotated[int, Field(ge=0, le=3650)] = 90
+    # Audit entries older than this go
+    retention_audit_days: Annotated[int, Field(ge=0, le=3650)] = 365
+    # The raw model answers of runs ended longer ago leave the store, and the run says so (its key cleared):
+    # measure a document's quality from its answers before (python -m app.quality.usage_report --raw)
+    retention_raw_answers_days: Annotated[int, Field(ge=0, le=3650)] = 30
     ontology_dir: Path = REPOSITORY_ONTOLOGY
     # The base of the IRIs a document gets when it is frozen (app/domain/iris.py), an http(s) IRI
     # ending in a slash; none until the namespace is registered (ontology/konzept.md), and then

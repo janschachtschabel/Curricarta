@@ -61,6 +61,9 @@ ein Test schlägt an, wenn sie veraltet.
 | `CONVERT_TIMEOUT_S` | Zahl ≥ 1, ≤ 7200 | 900 | – | Dienst |
 | `CONVERSION_ENGINES` | Text | `pdfplumber` | – | Dienst |
 | `WORKER_KINDS` | Text nach Muster `^([a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*(,[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)*)*)?$` | leer | – | Dienst |
+| `RETENTION_JOBS_DAYS` | Zahl ≥ 0, ≤ 3650 | 90 | – | Dienst |
+| `RETENTION_AUDIT_DAYS` | Zahl ≥ 0, ≤ 3650 | 365 | – | Dienst |
+| `RETENTION_RAW_ANSWERS_DAYS` | Zahl ≥ 0, ≤ 3650 | 30 | – | Dienst |
 | `ONTOLOGY_DIR` | Pfad | `ontology/` des Repositorys | – | Dienst |
 | `IRI_BASE` | Text | – | – | Dienst |
 | `LOG_FORMAT` | `text` \| `json` | `text` | – | Dienst |
@@ -206,9 +209,10 @@ ein Test schlägt an, wenn sie veraltet.
   `DB_IDLE_IN_TRANSACTION_TIMEOUT_S=0` - und damit die rund 60 s, nach denen der Server einen toten Worker
   bemerkt und die Zeile seines Jobs freigibt. Wer die Frist dort abschaltet, setzt die Keepalives an der
   Rolle (`ALTER ROLE … SET tcp_keepalives_idle = 30` usw., wie unten für den Pooler). Die Kommandos
-  (Migration, Bootstrap, Vokabular, Lizenznachtrag, die Messbefehle unter `app.quality` und
-  `app.pipeline.estimate`/`replay`) setzen nichts davon: Eine Migration wartet auf die Sperre einer
-  anderen, solange diese läuft. Nutzungsbericht, Nachspielen, Goldbericht und MEM-Bericht halten für
+  (Migration, Bootstrap, Vokabular, Lizenznachtrag, das Aufräumen `app.retention`, die Messbefehle unter
+  `app.quality` und `app.pipeline.estimate`/`replay`) setzen nichts davon: Eine Migration wartet auf die
+  Sperre einer anderen, solange diese läuft. Das Aufräumen arbeitet in kurzen Stapeln, jeder eine eigene
+  Transaktion, und hält keine offen, während es den Objektspeicher liest und löscht. Nutzungsbericht, Nachspielen, Goldbericht und MEM-Bericht halten für
   ihren ganzen Lauf eine Transaktion offen (ein Schnappschuss, nur lesend), auch während sie den
   Objektspeicher lesen und, mit `--endpoint-counts`, den Endpunkt fragen. Eine an der Rolle gesetzte
   `idle_in_transaction_session_timeout` (der Weg hinter einem Pooler, unten) begrenzt die Pause
@@ -229,6 +233,15 @@ ein Test schlägt an, wenn sie veraltet.
   `tcp_keepalives_count = 3`) und nur für eine eigene Rolle der API
   `ALTER ROLE <Rolle der API> SET statement_timeout = '60s';`. Die Keepalives des Servers wirken dann
   zwischen Server und Pooler.
+- Aufbewahrung (`RETENTION_JOBS_DAYS`, `RETENTION_AUDIT_DAYS`, `RETENTION_RAW_ANSWERS_DAYS`; 0 behält
+  alles): `python -m app.retention` löscht beendete Jobs nach 90 Tagen, außer dem letzten Job je Dokument
+  (er sagt, wie die Arbeit daran endete), einem Job, auf den eine Konvertierung wartet, und einem Job mit
+  offener Reservierung; ein gelöschter Job antwortet unter `GET /api/v1/jobs/{id}` mit 404. Einträge des
+  Audit-Logs gehen nach 365 Tagen, die Rohantworten eines Laufs 30 Tage nach seinem Ende; der Lauf zeigt
+  das (`raw_response_key` leer). Die Buchungen des Kostenbuchs (`llm_usage`, `conversion_usage`) gehen nie:
+  Das Budget ist ihre Summe über die ganze Zeit. Ein Lauf hält eine Sitzungssperre (Exit-Code 3, wenn
+  schon einer läuft); sie wirkt nur auf einer direkten Verbindung, nicht hinter einem Pooler im
+  Transaktionsmodus. `--dry-run` zählt nur. Ausgabe: eine JSON-Zeile mit Zählwerten.
 - `JOB_SHUTDOWN_GRACE_S` mindestens 8 s unter `terminationGracePeriodSeconds` des Workers: 2 s zum
   Aufräumen des Handlers, bis zu 5 s für zurückgegebene Reservierungen, 1 s Reserve.
 - `LLM_MAX_OUTPUT_TOKENS` für API und Worker gleich setzen und nach einer Änderung beide neu starten:

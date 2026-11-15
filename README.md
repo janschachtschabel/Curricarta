@@ -115,6 +115,12 @@ nutzbaren Objektspeicher (lokal etwa `STORAGE_DIR=../data/store`). Der Worker be
 Die Messgrößen der Warteschlange liest nur die API, die Alarmregeln für Prometheus liegen in
 `deploy/alerts/curricarta.rules.yaml`; `docker build --build-arg REVISION=<commit>` nennt den Commit
 in `curricarta_build_info`.
+`python -m app.retention` räumt auf, gestartet vom Zeitgeber des Betreibers: beendete Jobs nach
+`RETENTION_JOBS_DAYS` (Standard 90; der letzte Job eines Dokuments bleibt), Einträge des Audit-Logs nach
+`RETENTION_AUDIT_DAYS` (365), die Rohantworten eines Laufs `RETENTION_RAW_ANSWERS_DAYS` (30) nach seinem
+Ende; 0 behält alles. Die Buchungen des Kostenbuchs bleiben immer. `--dry-run` zählt nur; die Ausgabe ist
+eine JSON-Zeile mit Zählwerten, Exit-Code 3 heißt, dass schon ein Lauf die Sperre hält
+(`docs/uebergabe/konfiguration.md`).
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
