@@ -93,7 +93,7 @@ def test_an_output_that_is_not_closed_is_refused_not_printed(
 
 
 EMPTY: dict[str, Any] = {
-    "runs": 0, "answers": 0, "gone": 0, "unreadable": 0, "beyond_ledger": 0, "units": 0,
+    "runs": 0, "answers": 0, "gone": 0, "unreadable": 0, "beyond_ledger": 0, "swept": 0, "units": 0,
     "statements_now": 0, "statements_stored": 0, "findings_now": {}, "findings_stored": {}, "out_of_form": 0,
     "unknown_unit": 0, "missing": 0, "ambiguous": 0, "repaired_units": (), "units_differing": (),
     "lexicon_release_then": None, "lexicon_release_now": None, "keys": (),

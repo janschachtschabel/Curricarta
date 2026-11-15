@@ -8,13 +8,15 @@ never asking a provider; each unit's own answer is chosen as the pipeline chose 
 (app/pipeline/asking.py, x4_statements.py).
 
 Printed as one line of JSON, counts and codes alone: the X4 runs read, the answers read, gone from the
-store, unreadable, out of form, naming no unit of X2 (``unknown_unit``); the units, those without an answer
-(``missing``), those whose run kept more than one answer naming them (``ambiguous``), those X6 wrote anew
-since (``repaired_units``: what they hold is X6's, not X4's); the statements read now against those the
-units wrote (``extraction_unit``), the units whose count differs; the findings of the reading against those
-the X4 runs wrote, by rule; and the lexicon's release then - of the last X4 run that ended done, while the
-answers of every answered X4 run are read - and now: the reader reads with X3's choice lists and the
-lexicon as they stand, so a replay after a change of the vocabularies measures both. The question's own
+store, taken by the retention (``swept``: past RETENTION_RAW_ANSWERS_DAYS, their run's key cleared, the
+run not read), unreadable, out of form, naming no unit of X2 (``unknown_unit``); the units, those without an
+answer (``missing``), those whose run kept more than one answer naming them (``ambiguous``), those X6
+wrote anew since (``repaired_units``: what they hold is X6's, not X4's); the statements read now against
+those the units wrote (``extraction_unit``), the units whose count differs; the findings of the reading
+against those the X4 runs wrote, by rule; and the lexicon's release then - of the last X4 run that ended
+done, while the answers of every answered X4 run are read - and now: the reader reads with X3's choice
+lists and the lexicon as they stand, so a replay after a change of the vocabularies measures both. The
+question's own
 findings (``x4.pattern_timeout``), ``x4.unanswered`` and ``x4.answer_cut`` are the run's, never the
 reader's: they may stand in ``findings_stored``, never in ``findings_now``.
 
@@ -27,7 +29,8 @@ run - is taken for its own; only two are told apart (``ambiguous``).
 
 Read only, in one snapshot of the database: nothing is written to the document, the store or a file. An
 output that is not counts and codes alone is refused (``report_not_closed``). Exit code 1 for a document
-that is not there or has no kept answer of X4, or a refused output; 2 for a call amiss."""
+that is not there or has no kept answer of X4 (``no_raw_answers``; ``raw_answers_swept`` where the retention
+took them all), or a refused output; 2 for a call amiss."""
 
 import argparse
 import asyncio
@@ -85,6 +88,7 @@ class Replayed:
     gone: int  # booked as answered, not in the store
     unreadable: int  # kept, no model answer
     beyond_ledger: int  # kept beyond the answers the ledger booked
+    swept: int  # booked as answered, taken by the retention with their run's key: that run is not read
     units: int  # X2's units of statements
     statements_now: int  # as today's reader reads the units' answers
     statements_stored: int  # as the units wrote them (extraction_unit)
@@ -112,9 +116,14 @@ async def replay_x4(
 ) -> Replayed:
     """The X4 answers of ``document`` (of these blocks, all of its conversion's, in order) read again, as
     the module says; Refused where no X4 run was booked an answer. Writes nothing."""
-    runs = [run for run in await answered_runs(connection, document.id) if run.stage == "X4" and run.answers]
-    if not runs:
+    answered = [
+        run for run in await answered_runs(connection, document.id) if run.stage == "X4" and run.answers
+    ]
+    if not answered:
         raise Refused("no_raw_answers", "no run of X4 kept an answer")
+    runs = [run for run in answered if not run.swept]
+    if not runs:
+        raise Refused("raw_answers_swept", "the retention took the answers of every run of X4")
     kept = await stage_result(connection, document.id, "X2")
     packages = [WorkPackage.from_result(item) for item in (kept or {}).get("packages", [])]
     units = {item.key: item for item in packages if item.job == "statements"}
@@ -142,6 +151,7 @@ async def replay_x4(
         gone=gathered.gone,
         unreadable=gathered.unreadable,
         beyond_ledger=gathered.beyond_ledger,
+        swept=sum(run.answers for run in answered if run.swept),
         units=len(units),
         statements_now=sum(read_now.values()),
         statements_stored=sum(unit.statements for unit in done.values()),

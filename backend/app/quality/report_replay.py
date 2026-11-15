@@ -30,7 +30,7 @@ from app.quality.rates import Key, replayed
 
 Replay = Callable[[UUID], Awaitable[Replayed]]  # the replay of a document by its id
 RESTS_ON = (
-    "runs", "answers", "gone", "unreadable", "beyond_ledger", "out_of_form", "missing", "ambiguous",
+    "runs", "answers", "gone", "swept", "unreadable", "beyond_ledger", "out_of_form", "missing", "ambiguous",
     "lexicon_release_then", "lexicon_release_now",
 )  # fmt: skip
 

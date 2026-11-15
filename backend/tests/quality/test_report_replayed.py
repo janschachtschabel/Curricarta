@@ -47,8 +47,8 @@ def replaying(keys: Sequence[Key], asked: list[UUID]) -> Callable[[UUID], Awaita
 
 
 REPLAY = {
-    "runs": 1, "answers": 5, "gone": 0, "unreadable": 0, "beyond_ledger": 0, "out_of_form": 0, "missing": 0,
-    "ambiguous": 0, "repaired": 0, "lexicon_release_then": None, "lexicon_release_now": None,
+    "runs": 1, "answers": 5, "gone": 0, "swept": 0, "unreadable": 0, "beyond_ledger": 0, "out_of_form": 0,
+    "missing": 0, "ambiguous": 0, "repaired": 0, "lexicon_release_then": None, "lexicon_release_now": None,
 }  # fmt: skip
 
 

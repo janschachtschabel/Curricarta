@@ -149,8 +149,8 @@ async def test_the_gold_report_tells_what_the_replay_keeps_of_the_judgements_and
         "gone_correct": 0, "gone_imprecise": 0, "gone_wrong": 0,
         "new_unjudged": 0,
         "replay": {
-            "runs": 1, "answers": 2, "gone": 0, "unreadable": 0, "beyond_ledger": 0, "out_of_form": 0,
-            "missing": 0, "ambiguous": 0, "repaired": 0,
+            "runs": 1, "answers": 2, "gone": 0, "swept": 0, "unreadable": 0, "beyond_ledger": 0,
+            "out_of_form": 0, "missing": 0, "ambiguous": 0, "repaired": 0,
             "lexicon_release_then": json.loads(whole.stdout)["documents"][0]["runs"]["X4"]["lexicon_release"],
             "lexicon_release_now": json.loads(whole.stdout)["documents"][0]["runs"]["X4"]["lexicon_release"],
         },

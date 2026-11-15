@@ -780,6 +780,9 @@ Bericht hielte Logzeilen. Ohne Compose läuft der Teil ab `python -m` im Verzeic
 Betreiber einsetzt: `<Kennung>` ist der Name des Dokuments im Bericht (`a-z`, `0-9`, `-`, nie sein
 Titel), `<Konto>` das Konto, unter dem gezogen und geurteilt wird. Eine Generalprobe ohne Modell und
 ohne Netz fährt jeden dieser Befehle ab `python -m` Wort für Wort (`backend/tests/quality/test_rehearsal.py`).
+Gemessen wird, bevor `RETENTION_RAW_ANSWERS_DAYS` (Standard 30 Tage) nach dem Lauf verstrichen ist –
+danach hat das Aufräumen die Rohantworten aus dem Speicher genommen –, oder man hebt den Wert für die Zeit
+der Messung an.
 
 1. Schätzung vor dem Lauf; sie fragt nichts und schreibt nichts (siehe „Kosten des Modells“):
 

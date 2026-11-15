@@ -18,12 +18,14 @@ from pydantic_ai.usage import RequestUsage
 
 from app.core.ids import new_id
 from app.core.storage import FileSystemStorage
+from app.core.storage_async import AsyncStorage
 from app.db.documents import Document
 from app.db.runs import RunStart, Stage, finish_run, start_run
 from app.jobs.queue import enqueue
 from app.llm.raw import answer_key
 from app.quality.closed import closed
 from app.quality.usage_report import usage_report
+from app.retention import Policy, sweep
 from tests.quality.gold_documents import WORDS, a_document, connection
 from tests.support import without_settings_variables
 
@@ -198,7 +200,7 @@ async def test_the_raw_answers_usage_equals_the_ledger(
     sys.stdout.write(line.decode("utf-8") + "\n")  # the acceptance's sample output (pytest -s)
     made = json.loads(line)
     assert made["raw"] == {
-        "answers": 3, "gone": 0, "unreadable": 0, "unreported": 0, "beyond_ledger": 0,
+        "answers": 3, "gone": 0, "swept": 0, "unreadable": 0, "unreported": 0, "beyond_ledger": 0,
         "input_tokens": 34_500, "cached_input_tokens": 18_000, "output_tokens": 3_600,
         "reasoning_tokens": 300, "cut_by_finish_reason": 1, "ledger_equals_raw": True,
     }  # fmt: skip
@@ -217,11 +219,39 @@ async def test_a_raw_answer_gone_is_counted_and_ends_nothing(
     made = await usage_report(connection, store, document.id, "pilot-1", cap=CAP, raw=True)
 
     assert made["raw"] == {
-        "answers": 2, "gone": 1, "unreadable": 1, "unreported": 0, "beyond_ledger": 1,
+        "answers": 2, "gone": 1, "swept": 0, "unreadable": 1, "unreported": 0, "beyond_ledger": 1,
         "input_tokens": 12_600, "cached_input_tokens": 9_000, "output_tokens": 1_510,
         "reasoning_tokens": 300, "cut_by_finish_reason": 0, "ledger_equals_raw": False,
     }  # fmt: skip
     assert made["by_purpose"]["x4.unit"]["requests"] == 2  # the ledger as it is
+
+
+async def test_answers_the_retention_took_are_counted_apart_and_the_rest_still_equals_the_ledger(
+    connection: psycopg.AsyncConnection, tmp_path: Path
+) -> None:
+    # past RETENTION_RAW_ANSWERS_DAYS the sweep takes a run's answers and clears its key: not lost, not a
+    # booking amiss - the ledger is held against the answers still kept
+    document, runs = await a_document_run(connection, tmp_path)
+    await connection.execute(
+        "UPDATE extraction_run SET started_at = now() - interval '41 days',"
+        " finished_at = now() - interval '40 days' WHERE id = %s",
+        (runs["X3"],),
+    )
+    taken = await sweep(
+        connection, AsyncStorage(FileSystemStorage(tmp_path)), Policy(0, 0, 30), dry_run=False
+    )
+    assert (taken.runs, taken.objects) == (1, 1)
+
+    made = await usage_report(
+        connection, FileSystemStorage(tmp_path), document.id, "pilot-1", cap=CAP, raw=True
+    )
+
+    assert made["raw"] == {
+        "answers": 2, "gone": 0, "swept": 1, "unreadable": 0, "unreported": 0, "beyond_ledger": 0,
+        "input_tokens": 24_500, "cached_input_tokens": 18_000, "output_tokens": 2_700,
+        "reasoning_tokens": 300, "cut_by_finish_reason": 1, "ledger_equals_raw": True,
+    }  # fmt: skip
+    assert made["total"]["input_tokens"] == 34_500  # the ledger as it is: nothing of it was swept
 
 
 async def test_the_report_names_neither_title_nor_wording(

@@ -46,11 +46,16 @@ WHERE d.id = %s
 """
 # How many answers each run of the document was booked for, in the order the runs began: a request booked
 # as answered - reported, or at what was held where the answer reported nothing (app/llm/booking.py
-# answered) -, not one refused (no tokens), cut off unanswered, or abandoned with its job
+# answered) -, not one refused (no tokens), cut off unanswered, or abandoned with its job; whether the
+# retention took its answers (python -m app.retention clears the key); the tokens the answers reported, as
+# _BY_PURPOSE sums them
 _ANSWERED = """
 SELECT r.id, r.stage_iri, count(u.id) FILTER (
     WHERE u.requests > 0 AND u.unanswered_requests = 0 AND (u.input_tokens > 0 OR u.estimated)
-)::int
+)::int, r.raw_response_key IS NULL,
+    coalesce(sum(u.input_tokens) FILTER (WHERE NOT u.estimated), 0)::bigint,
+    coalesce(sum(u.cached_input_tokens) FILTER (WHERE NOT u.estimated), 0)::bigint,
+    coalesce(sum(u.output_tokens) FILTER (WHERE NOT u.estimated), 0)::bigint
 FROM extraction_run r JOIN llm_usage u ON u.run_id = r.id
 WHERE r.document_id = %s
 GROUP BY r.id, r.stage_iri, r.started_at ORDER BY r.started_at, r.id
@@ -84,6 +89,8 @@ class RunAnswers:
     run_id: UUID
     stage: str  # by its notation: "X4"
     answers: int  # booked as answered
+    swept: bool  # its answers taken from the store by the retention, its key cleared
+    tokens: tuple[int, int, int]  # input, of it cached, output, as its answers reported them to the ledger
 
 
 async def usage_by_purpose(
@@ -133,9 +140,9 @@ async def conversion_usage_of(
 
 async def answered_runs(connection: psycopg.AsyncConnection, document_id: UUID) -> list[RunAnswers]:
     """The document's runs that were booked a request, in the order they began, each with how many
-    answers - the ones the store keeps, numbered from 1."""
+    answers - the ones the store keeps, numbered from 1, until the retention takes them."""
     cursor = await connection.execute(_ANSWERED, (document_id,))
     return [
-        RunAnswers(run, stage.removeprefix(STAGE_PREFIX), count)
-        for run, stage, count in await cursor.fetchall()
+        RunAnswers(run, stage.removeprefix(STAGE_PREFIX), count, swept, (input_tokens, cached, output))
+        for run, stage, count, swept, input_tokens, cached, output in await cursor.fetchall()
     ]

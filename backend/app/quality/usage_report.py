@@ -12,7 +12,9 @@
   tokens where an answer names them (null where none does: the ledger keeps them in the output), the
   answers whose own finish reason says the cap cut them (``cut_by_finish_reason``: the cap the run sent),
   and whether the reported tokens are the ledger's (``ledger_equals_raw``). An answer gone or unreadable is
-  counted and ends nothing.
+  counted and ends nothing. The answers of a run whose time ran out (RETENTION_RAW_ANSWERS_DAYS: the sweep
+  took them and cleared its key) are counted apart (``swept``), neither read nor held against the ledger:
+  ``ledger_equals_raw`` speaks of the runs whose answers are kept.
 
 The reported tokens are the ledger's (``ledger_equals_raw``) also for answers cut at the cap, requests
 cancelled, repairs and a run the watch after X2 stopped (it books nothing). Two cases are counted, not
@@ -62,6 +64,7 @@ class Refused(Exception):
 class RawUsage:
     answers: int = 0  # read and reporting their usage
     gone: int = 0  # booked, not in the store
+    swept: int = 0  # booked, taken from the store by the retention: neither read nor held
     unreadable: int = 0  # in the store, no answer
     unreported: int = 0  # an answer that reported no input: the ledger booked an estimate for it
     beyond_ledger: int = 0  # kept beyond the answers the ledger booked: read all the same
@@ -101,14 +104,23 @@ def _read(raw: RawUsage, data: bytes | None) -> None:
             raw.reasoning_tokens = (raw.reasoning_tokens or 0) + reasoning
 
 
-async def _raw_usage(connection: psycopg.AsyncConnection, storage: Storage, document_id: UUID) -> RawUsage:
+async def _raw_usage(
+    connection: psycopg.AsyncConnection, storage: Storage, document_id: UUID
+) -> tuple[RawUsage, tuple[int, int, int]]:
+    """The kept answers' usage, and the tokens the ledger booked for the runs whose answers the retention
+    took - the part of the ledger no kept answer can be held against."""
     raw = RawUsage()
+    swept = (0, 0, 0)
     for run in await answered_runs(connection, document_id):
+        if run.swept:
+            raw.swept += run.answers
+            swept = (swept[0] + run.tokens[0], swept[1] + run.tokens[1], swept[2] + run.tokens[2])
+            continue
         kept = await kept_answers(storage, run.run_id, run.stage.lower(), run.answers)
         raw.beyond_ledger += max(len(kept) - run.answers, 0)
         for data in kept:
             _read(raw, data)
-    return raw
+    return raw, swept
 
 
 async def usage_report(
@@ -148,8 +160,11 @@ async def usage_report(
     }
     if raw:
         assert storage is not None  # noqa: S101 - the command opens it for --raw
-        found = await _raw_usage(connection, storage, document_id)
-        equal = all(getattr(found, name) == made["total"][name] for name in TOKENS)
+        found, swept = await _raw_usage(connection, storage, document_id)
+        equal = all(
+            getattr(found, name) == made["total"][name] - taken
+            for name, taken in zip(TOKENS, swept, strict=True)
+        )
         made["raw"] = asdict(found) | {"ledger_equals_raw": equal}
     return made
 
