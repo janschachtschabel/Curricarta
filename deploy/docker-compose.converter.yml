@@ -10,10 +10,17 @@
 # Without this file the API offers pdfplumber alone: no Docling job waits for a worker that is not
 # there. The converter does not start while a model file is missing (app/jobs/handlers.py).
 
+# Bounds as in the service's file (anchors do not cross files): memory, processes, /tmp, logs
+x-logging: &logging
+  driver: json-file
+  options: {max-size: 10m, max-file: "3"}
+
 x-convert: &convert
   image: curricarta-convert:local
   read_only: true
-  tmpfs: [/tmp]
+  tmpfs: ["/tmp:size=64m"]
+  pids_limit: 256
+  logging: *logging
   cap_drop: [ALL]
   security_opt: ["no-new-privileges:true"]
 
@@ -25,6 +32,13 @@ services:
       dockerfile: deploy/api.Dockerfile
       args: {VENV: convert}
     command: [python, -m, app.jobs.worker]
+    # Provisional: the converter's CI workflow (Docling 2.150.1, two test files of a few pages) measured a
+    # prose PDF at rss 1227 MiB / virtual 4051 MiB, a scan read by OCR at rss 3308 MiB / virtual 6745 MiB;
+    # real curricula are not measured. The tmpfs (the file, EasyOCR's folder) counts against the limit.
+    # CHILD_MEMORY_LIMIT_MB stays unset; where it is set, never under 13500 (twice the virtual peak).
+    mem_limit: 6g
+    tmpfs: ["/tmp:size=1g"]
+    pids_limit: 512           # torch's threads count as processes
     secrets: [database_url, api_key_pepper, s3_access_key, s3_secret_key]
     environment:
       DATABASE_URL_FILE: /run/secrets/database_url
@@ -56,6 +70,7 @@ services:
   models:
     <<: *convert
     command: [python, -m, app.conversion.fetch_models, /models]
+    mem_limit: 1g             # not measured: the fetch imports Docling's downloader and EasyOCR (torch)
     environment:
       # the image keeps Hugging Face offline: the fetch alone asks it
       HF_HUB_OFFLINE: "0"

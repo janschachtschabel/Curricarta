@@ -123,7 +123,8 @@ def test_the_models_are_fetched_once_by_hand_never_on_a_start() -> None:
     assert models["environment"]["HF_HUB_OFFLINE"] == "0"
     # its root is read-only and the service's user has no home: Hugging Face's library keeps its refs, and
     # hf-xet its logs and chunks, under HF_HOME, which the tmpfs holds; plain downloads keep no chunks there
-    assert models["environment"]["HF_HOME"].startswith(f"{TMPFS}/") and TMPFS in models["tmpfs"]
+    assert models["environment"]["HF_HOME"].startswith(f"{TMPFS}/")
+    assert TMPFS in [entry.split(":", 1)[0] for entry in models["tmpfs"]]
     assert models["environment"]["HF_HUB_DISABLE_XET"] == "1"
     assert "HF_HUB_OFFLINE" not in SERVICES["converter"]["environment"]
     assert models.get("restart", "no") == "no"

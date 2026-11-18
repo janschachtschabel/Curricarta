@@ -900,6 +900,20 @@ laufen; nur für Entwicklung). Ein vorhandenes Geheimnis bleibt stehen. Der erst
 `…-convert`: je Versions-Tag `vX.Y.Z` eines Commits von main unter `X.Y.Z`, je Lauf unter
 `sha-<12 Zeichen des Commits>`, nie unter `latest`.
 
+Jeder Dienst hat Grenzen (`tests/deploy/test_compose_limits.py`): Arbeitsspeicher (`mem_limit`: API 768m,
+Worker 1g, Konverter 6g, PostgreSQL 1g, MinIO 512m, Webserver 256m, die einmaligen Schritte 512m, das Holen
+der Modelle 1g), Prozesse und Threads (`pids_limit` 256, Konverter 512), `/tmp` als tmpfs mit fester Größe
+(API und Worker 256m, Webserver 192m, Konverter 1g, sonst 64m) und rotierte Logs (`json-file`, 10 MB × 3).
+Das tmpfs zählt zum Arbeitsspeicher des Containers: Die API hält dort die Uploads, die sie gleichzeitig
+annimmt (`MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1) MiB), der Webserver puffert dort jeden Body ganz,
+bevor er ihn weitergibt; ein dritter großer Upload im selben Moment kann am Webserver scheitern, mit dessen
+Antwort statt der JSON-Form der API. Die Werte sind nicht unter Last gemessen; die des Konverters stützen
+sich auf die Spitzen des Konverter-Workflows an kleinen Testdateien (Texterkennung `rss` 3.308 MiB), echte
+Lehrpläne können mehr brauchen. Der Webserver begrenzt Anfragen an `/api/` je Client-Adresse auf 50 je
+Sekunde mit Spitzen bis 100 (`limit_req` in `deploy/nginx-api.conf`, die Zone in `deploy/nginx.conf`) und
+antwortet darüber mit 429 im Format von nginx, nicht der API; hinter einer gemeinsamen NAT-Adresse teilen sich
+alle Clients diese Grenze. Im Cluster setzt das Helm-Beispiel dafür `nginx.ingress.kubernetes.io/limit-rps`.
+
 Konverter-Image (Paket 3b): dasselbe Image mit Docling, EasyOCR und torch ohne CUDA (rund 2 GB),
 `docker build -f deploy/api.Dockerfile --build-arg VENV=convert -t curricarta-convert:local .`. Ohne Argument
 entsteht weiter das API-Image ohne diese Pakete. Die Modelle liegen nicht im Image, sondern in einem

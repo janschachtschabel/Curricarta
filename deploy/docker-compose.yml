@@ -14,10 +14,20 @@
 # rate limits of the accounts are rows in PostgreSQL (M1), shared by every replica.
 name: curricarta
 
+# Bounds of every service: memory (a tmpfs counts against it: what lies in /tmp is memory), processes
+# and threads, /tmp, and the logs Docker keeps (10 MB x 3 per container). Not measured under load.
+x-logging: &logging
+  driver: json-file
+  options: {max-size: 10m, max-file: "3"}
+
+# The one-off steps take these as they are (512m); api and worker set their own
 x-app: &app
   image: curricarta-api:local
   read_only: true
-  tmpfs: [/tmp]
+  tmpfs: ["/tmp:size=64m"]
+  mem_limit: 512m
+  pids_limit: 256
+  logging: *logging
   cap_drop: [ALL]
   security_opt: ["no-new-privileges:true"]
   secrets: [database_url, api_key_pepper, s3_access_key, s3_secret_key]
@@ -42,6 +52,10 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
     secrets: [db_password]
     volumes: [pgdata:/var/lib/postgresql/data]
+    tmpfs: ["/tmp:size=64m"]
+    mem_limit: 1g
+    pids_limit: 256           # a process per connection: above max_connections (100)
+    logging: *logging
     restart: unless-stopped
     healthcheck:
       # over TCP: on the first start the entrypoint makes the database on a socket-only server,
@@ -61,6 +75,10 @@ services:
       MINIO_ROOT_PASSWORD_FILE: /run/secrets/s3_secret_key
     secrets: [s3_access_key, s3_secret_key]
     volumes: [miniodata:/data]
+    tmpfs: ["/tmp:size=64m"]
+    mem_limit: 512m
+    pids_limit: 256
+    logging: *logging
     restart: unless-stopped
 
   # One-off steps: each runs to its end, the services wait for that
@@ -98,6 +116,10 @@ services:
       FORWARDED_ALLOW_IPS: 172.30.123.10
       # a statement of a request past it is cancelled (500); 2 s the longest on the tests' synthetic data
       DB_STATEMENT_TIMEOUT_S: "60"
+    # uploads lie in /tmp while the API checks them: MAX_CONCURRENT_UPLOADS x (MAX_UPLOAD_MB + 1) MiB,
+    # 102 MiB by default, in memory as the tmpfs is
+    tmpfs: ["/tmp:size=256m"]
+    mem_limit: 768m
     deploy:
       replicas: 2
     restart: unless-stopped
@@ -111,6 +133,9 @@ services:
   worker:
     <<: *app
     command: [python, -m, app.jobs.worker]
+    # pdfplumber's conversion keeps the file in /tmp meanwhile (up to MAX_UPLOAD_MB)
+    tmpfs: ["/tmp:size=256m"]
+    mem_limit: 1g
     # the image's check: the worker answers /health on its internal port while its loop turns
     deploy:
       replicas: 2
@@ -156,7 +181,14 @@ services:
       context: ..
       dockerfile: deploy/web.Dockerfile
     read_only: true
-    tmpfs: [/tmp]
+    # The edge buffers each request body whole in /tmp before the API sees it (an upload up to
+    # MAX_UPLOAD_MB and its form), and the tmpfs counts against the memory limit: room for the API's two
+    # uploads at once, the limit above it. A third large upload at the same moment can fail here, with
+    # nginx's own answer rather than the API's JSON. (In a cluster the ingress buffers; the pod keeps 64Mi.)
+    tmpfs: ["/tmp:size=192m"]
+    mem_limit: 256m
+    pids_limit: 256
+    logging: *logging
     cap_drop: [ALL]
     security_opt: ["no-new-privileges:true"]
     ports: ["127.0.0.1:18080:8080"]
