@@ -7,18 +7,24 @@
 # any branch); <owner> is the repository's owner in lower case. Never latest; in production by digest,
 # as the run's summary lists it: the chart takes repository@digest where digest is set, the tag otherwise.
 image:
-  repository: ghcr.io/<owner>/curricarta       # api.Dockerfile; the worker and the jobs use the same image
-  tag: "0.1.0"
+  repository: ghcr.io/<owner>/curricarta       # api.Dockerfile; the workers and the jobs use the same image,
+  tag: "0.1.0"                                 # the converter and the fetch of its models convertImage
   digest: ""                                   # sha256:... of the release's run summary
 webImage:
   repository: ghcr.io/<owner>/curricarta-web   # web.Dockerfile: the SPA behind nginx-unprivileged
   tag: "0.1.0"
+  digest: ""
+convertImage:
+  repository: ghcr.io/<owner>/curricarta-convert   # api.Dockerfile with VENV=convert: Docling, EasyOCR and
+  tag: "0.1.0"                                     # torch without CUDA beside the API's packages
   digest: ""
 
 env:                          # for every container of the service
   LOG_FORMAT: json
   LOG_LEVEL: INFO
   PUBLIC_ACCESS: "off"
+  IRI_BASE: <https base of the IRIs a frozen document gets, ending in />   # fixed before the first freeze
+  FETCH_USER_AGENT: "Curricarta (+<the operators' contact: a public page or a mailbox>)"
   # LLM_MAX_OUTPUT_TOKENS: "16000"   # for API and worker alike, here and never under one of them
   # RETENTION_JOBS_DAYS: "90"        # here or under retention, never under the API or the worker alone:
   # RETENTION_AUDIT_DAYS: "365"      # the sweep reads them (0 keeps everything)
@@ -35,7 +41,9 @@ containerSecurityContext:
   readOnlyRootFilesystem: true
   capabilities: { drop: [ALL] }
   allowPrivilegeEscalation: false
-tmpEmptyDir: { mountPath: /tmp, sizeLimit: 256Mi }   # the only writable path
+# the only writable path; an API replica keeps up to MAX_CONCURRENT_UPLOADS x (MAX_UPLOAD_MB + 1) MiB of
+# uploads there at once (2 x 51 MiB by default)
+tmpEmptyDir: { mountPath: /tmp, sizeLimit: 256Mi }
 
 # External services; the components the chart may bring along stay off
 postgresql:
@@ -65,10 +73,13 @@ api:
   env:
     FORWARDED_ALLOW_IPS: <network of the ingress controller>   # never * and never /0
     DB_STATEMENT_TIMEOUT_S: "60"   # cancelled past it (500); 2 s the longest on synthetic test data
+    CONVERSION_ENGINES: docling,pdfplumber   # Docling first: the converter takes its conversions
   secrets:                    # from a Secret, never in the values; mounted as files, read through *_FILE
     existingSecret: curricarta-secrets
     keys: [DATABASE_URL, API_KEY_PEPPER, S3_ACCESS_KEY, S3_SECRET_KEY]
 
+# The workers: four classes of pods, each taking the job kinds its WORKER_KINDS names - together every kind
+# the code has (a kind none names would wait for good). The model's key only where a kind asks the model.
 worker:
   replicas: 2
   command: [python, -m, app.jobs.worker]
@@ -82,9 +93,88 @@ worker:
     limits: { cpu: "1", memory: 1Gi }
   env:
     JOB_SHUTDOWN_GRACE_S: "20"
+    WORKER_KINDS: source.fetch,source.mem_catalog,extract.mem_import,extract.run,extract.repair,extract.check
   secrets:
     existingSecret: curricarta-secrets
     keys: [DATABASE_URL, API_KEY_PEPPER, S3_ACCESS_KEY, S3_SECRET_KEY, OPENAI_API_KEY]
+# pdfplumber's conversions: a child process each, the file in /tmp meanwhile (up to MAX_UPLOAD_MB)
+workerConvert:
+  replicas: 1
+  command: [python, -m, app.jobs.worker]
+  probes:
+    liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
+  terminationGracePeriodSeconds: 30
+  resources:                  # not measured
+    requests: { cpu: 250m, memory: 384Mi }
+    limits: { cpu: "1", memory: 1Gi }
+  env:
+    JOB_SHUTDOWN_GRACE_S: "20"
+    WORKER_KINDS: source.convert
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, S3_ACCESS_KEY, S3_SECRET_KEY]
+# The check of the register's addresses an admin starts: long (CHECK_HOST_INTERVAL_S apart per host), in a
+# pod of its own, so that it holds no other worker's place
+workerCheck:
+  replicas: 1
+  command: [python, -m, app.jobs.worker]
+  probes:
+    liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
+  terminationGracePeriodSeconds: 30
+  resources:                  # not measured
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  env:
+    JOB_SHUTDOWN_GRACE_S: "20"
+    WORKER_KINDS: source.check
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, S3_ACCESS_KEY, S3_SECRET_KEY]
+# Docling's conversions, in convertImage, one job per pod; it does not start while a model file is missing
+# (modelsFetch below). Resources provisional: the converter's CI workflow (Docling 2.150.1, two test files
+# of a few pages, a hosted runner) measured a prose PDF at rss 1227 MiB / virtual 4051 MiB and a scan read
+# by OCR at rss 3308 MiB / virtual 6745 MiB; real curricula are not measured. CHILD_MEMORY_LIMIT_MB stays
+# unset here; where an operator sets it, never under 13500 (twice the virtual peak).
+converter:
+  image: convertImage
+  replicas: 1
+  command: [python, -m, app.jobs.worker]
+  probes:
+    liveness: { port: 9000, path: /health, periodSeconds: 30, timeoutSeconds: 5, failureThreshold: 3 }
+  terminationGracePeriodSeconds: 30
+  resources:
+    requests: { cpu: "2", memory: 3Gi }
+    limits: { cpu: "4", memory: 6Gi }
+  tmpEmptyDir: { mountPath: /tmp, sizeLimit: 1Gi }   # in place of the pods' 256Mi: the file, EasyOCR's folder
+  volumes:                    # the models (~600 MB), written by modelsFetch alone
+    models: { mountPath: /models, readOnly: true, existingClaim: curricarta-models, size: 2Gi }
+  env:
+    JOB_SHUTDOWN_GRACE_S: "20"
+    WORKER_KINDS: source.convert_docling
+    # some 4 s a page on four cores: 800 pages (MAX_PDF_PAGES) take near an hour; a scan some 16 s a page
+    CONVERT_TIMEOUT_S: "3600"
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, S3_ACCESS_KEY, S3_SECRET_KEY]
+
+# The fetch of the converter's models into its claim, a Job started by hand: once before the converter's
+# first start, again when an image brings other models (a second run checks each file's size and SHA-256
+# and fetches what is missing or differs). The one part that asks Hugging Face and GitHub and the one that
+# writes the volume, while no converter runs. No secret: it reaches neither the database nor the store.
+modelsFetch:
+  image: convertImage
+  backoffLimit: 0
+  activeDeadlineSeconds: 1800
+  command: [python, -m, app.conversion.fetch_models, /models]
+  env:
+    HF_HUB_OFFLINE: "0"                # the image keeps Hugging Face offline
+    HF_HOME: /tmp/huggingface          # the root is read-only and the service's user has no home
+    HF_HUB_DISABLE_XET: "1"            # hf-xet would keep its chunks and logs under the home
+  volumes:
+    models: { mountPath: /models, readOnly: false, existingClaim: curricarta-models }
+  resources:                  # not measured
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { cpu: "1", memory: 1Gi }
 
 # Run once per release, before the new pods: the migration, then the vocabularies. No retry: a
 # failed migration wants a look, not a second try. The deadline ends a stuck one (a lock the
@@ -157,6 +247,11 @@ ingress:
   # nosniff, its CSP and frame-ancestors itself; the web image sets them for the SPA.
   annotations:
     nginx.ingress.kubernetes.io/proxy-body-size: 60m       # uploads up to 50 MB (M1)
+    # The read deadline towards the API: at least its DB_STATEMENT_TIMEOUT_S (60 s) and a margin (the export
+    # of a MEM import waits up to 55 s in its request); ingress-nginx's default of 60 s leaves none. The
+    # ingress buffers a body whole before the API sees it, so the API's UPLOAD_READ_TIMEOUT_S never ends an
+    # upload behind it.
+    # nginx.ingress.kubernetes.io/proxy-read-timeout: "75"
   routes:                     # never the internal port: probes and /metrics stay inside the cluster
     - { path: /api/v1/, service: api, servicePort: http }
     - { path: /openapi.json, service: api, servicePort: http }
@@ -167,6 +262,10 @@ networkPolicy:
   internalFrom: [{ namespaceSelector: { matchLabels: { name: monitoring } } }]   # port 9000: kubelet and Prometheus
   egress:                     # placeholders; the selectors depend on the cluster
     api: [dns, postgresql, object-store]
+    converter: [dns, postgresql, object-store]
+    workerConvert: [dns, postgresql, object-store]
+    workerCheck: [dns, postgresql, object-store, public-web as the worker's below]
+    modelsFetch: [dns, "443 to Hugging Face and GitHub (app/conversion/fetch_models.py)"]
     worker:
       - dns
       - postgresql

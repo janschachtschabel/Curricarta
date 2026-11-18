@@ -3,21 +3,37 @@
 import ipaddress
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 
 import pytest
 import yaml  # type: ignore[import-untyped]
 
 from app.api.internal import READY_TIMEOUT_S
+from app.conversion.job import DOCLING_KIND
+from app.conversion.models import MODELS_DIR
 from app.core.settings import Settings
+from app.jobs import handlers
+from app.jobs.context import JobContext
 from tests.deploy.test_compose import BESIDE_THE_GRACE_S
+from tests.support import make_settings
 
 VALUES: dict[str, Any] = yaml.safe_load(
     (Path(__file__).resolve().parents[3] / "deploy" / "helm-values.example.yaml").read_text(encoding="utf-8")
 )
+# The pods that run python -m app.jobs.worker, each taking the kinds its WORKER_KINDS names
+WORKERS = ["worker", "converter", "workerConvert", "workerCheck"]
 
 
-@pytest.mark.parametrize(("part", "name"), [("image", "curricarta"), ("webImage", "curricarta-web")])
+def mebibytes(quantity: str) -> int:
+    match = re.fullmatch(r"(\d+)(Mi|Gi)", quantity)
+    assert match, quantity
+    return int(match.group(1)) * (1024 if match.group(2) == "Gi" else 1)
+
+
+@pytest.mark.parametrize(
+    ("part", "name"),
+    [("image", "curricarta"), ("webImage", "curricarta-web"), ("convertImage", "curricarta-convert")],
+)
 def test_no_image_is_taken_by_a_tag_someone_can_move(part: str, name: str) -> None:
     # the names .github/workflows/release.yml pushes: X.Y.Z from a version tag, sha-<12> for each run
     image = VALUES[part]
@@ -54,7 +70,7 @@ def test_no_container_runs_as_root_or_with_capabilities() -> None:
     assert container["allowPrivilegeEscalation"] is False
 
 
-@pytest.mark.parametrize("part", ["api", "worker", "migrate", "vocab", "retention"])
+@pytest.mark.parametrize("part", ["api", *WORKERS, "migrate", "vocab", "retention"])
 def test_secrets_are_named_never_given(part: str) -> None:
     secrets = VALUES[part]["secrets"]
 
@@ -70,22 +86,97 @@ def test_the_ingress_never_opens_the_internal_port() -> None:
     assert all(route["servicePort"] not in (9000, "internal") for route in ingress["routes"])
 
 
-def test_a_stuck_worker_is_restarted_by_its_liveness_probe() -> None:
+@pytest.mark.parametrize("part", WORKERS)
+def test_a_stuck_worker_is_restarted_by_its_liveness_probe(part: str) -> None:
     # /health answers only while the worker's loop turns; the worker sits behind no Service, so
     # it has no readiness probe
-    probes = VALUES["worker"]["probes"]
+    probes = VALUES[part]["probes"]
 
     assert set(probes) == {"liveness"}
     assert probes["liveness"]["port"] == 9000
     assert probes["liveness"]["path"] == "/health"
 
 
-def test_the_worker_may_finish_its_job_before_kubernetes_kills_it() -> None:
-    worker = VALUES["worker"]
+@pytest.mark.parametrize("part", WORKERS)
+def test_every_worker_class_may_finish_its_job_before_it_is_killed(part: str) -> None:
+    worker = VALUES[part]
     default = Settings.model_fields["job_shutdown_grace_s"].default
-    grace = float(worker["env"].get("JOB_SHUTDOWN_GRACE_S", default))
+    grace = float({**VALUES["env"], **worker["env"]}.get("JOB_SHUTDOWN_GRACE_S", default))
 
     assert worker["terminationGracePeriodSeconds"] >= grace + BESIDE_THE_GRACE_S
+
+
+def test_every_job_kind_has_a_worker_that_takes_it(monkeypatch: pytest.MonkeyPatch) -> None:
+    # the kinds the code has handlers for, Docling's among them (the converter's image has it): a kind no
+    # WORKER_KINDS names would wait for good, and an empty one would take every kind
+    monkeypatch.setattr(handlers, "find_spec", lambda name: object() if name == "docling" else None)
+    kinds = set(handlers.make_handlers(cast(JobContext, object())))
+    taken = [VALUES[part]["env"]["WORKER_KINDS"].split(",") for part in WORKERS]
+
+    assert all(taken) and set().union(*taken) == kinds
+
+
+def test_the_converter_takes_docling_s_conversions_alone_with_its_models_read_only() -> None:
+    converter = VALUES["converter"]
+
+    assert converter["image"] == "convertImage"
+    assert converter["command"] == ["python", "-m", "app.jobs.worker"]
+    assert converter["env"]["WORKER_KINDS"] == DOCLING_KIND
+    assert converter["env"]["CONVERT_TIMEOUT_S"] == "3600"
+    assert converter["volumes"]["models"] == {
+        "mountPath": MODELS_DIR.as_posix(),
+        "readOnly": True,
+        "existingClaim": "curricarta-models",
+        "size": "2Gi",
+    }
+    assert converter["resources"] == {
+        "requests": {"cpu": "2", "memory": "3Gi"},
+        "limits": {"cpu": "4", "memory": "6Gi"},
+    }
+    assert converter["tmpEmptyDir"] == {"mountPath": "/tmp", "sizeLimit": "1Gi"}  # noqa: S108 - the pod's path
+    assert converter["probes"] == VALUES["worker"]["probes"]
+    # the API offers Docling first: its conversions wait for the converter
+    assert VALUES["api"]["env"]["CONVERSION_ENGINES"] == "docling,pdfplumber"
+
+
+def test_the_models_are_fetched_by_a_job_that_alone_may_ask_the_net_and_write_them() -> None:
+    fetch = VALUES["modelsFetch"]
+    others = [values for part, values in VALUES.items() if part != "modelsFetch" and isinstance(values, dict)]
+    claim = VALUES["converter"]["volumes"]["models"]["existingClaim"]
+
+    assert fetch["image"] == "convertImage"
+    assert fetch["command"] == ["python", "-m", "app.conversion.fetch_models", MODELS_DIR.as_posix()]
+    # the root is read-only and the service's user has no home: Hugging Face's refs go to the pod's /tmp
+    assert fetch["env"] == {"HF_HUB_OFFLINE": "0", "HF_HOME": "/tmp/huggingface", "HF_HUB_DISABLE_XET": "1"}  # noqa: S108
+    assert fetch["volumes"]["models"] == {
+        "mountPath": MODELS_DIR.as_posix(),
+        "readOnly": False,
+        "existingClaim": claim,
+    }
+    assert fetch["backoffLimit"] == 0 and fetch["activeDeadlineSeconds"] > 0
+    assert "secrets" not in fetch
+    # no other part asks Hugging Face or writes the models
+    assert not [values for values in others if "HF_HUB_OFFLINE" in values.get("env", {})]
+    assert not [
+        values for values in others if values.get("volumes", {}).get("models", {}).get("readOnly") is False
+    ]
+    egress = VALUES["networkPolicy"]["egress"]
+    assert "modelsFetch" in egress and egress["converter"] == ["dns", "postgresql", "object-store"]
+
+
+@pytest.mark.parametrize("part", ["converter", "workerConvert"])
+def test_the_converter_holds_neither_the_pepper_nor_the_model_s_key(part: str) -> None:
+    # it reads a file from the store and writes rows: the database and the store are all it reaches
+    assert VALUES[part]["secrets"]["keys"] == ["DATABASE_URL", "S3_ACCESS_KEY", "S3_SECRET_KEY"]
+
+
+def test_tmp_holds_the_uploads_a_replica_takes_at_once() -> None:
+    # each upload's form lies in /tmp, up to MAX_UPLOAD_MB and 1 MiB for the form
+    # (docs/uebergabe/konfiguration.md, Uploads)
+    settings = make_settings()
+    api_tmp = VALUES["api"].get("tmpEmptyDir", VALUES["tmpEmptyDir"])
+
+    assert mebibytes(api_tmp["sizeLimit"]) >= settings.max_concurrent_uploads * (settings.max_upload_mb + 1)
 
 
 def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
