@@ -13,7 +13,8 @@ from typing import Annotated, Literal, Self
 from pydantic import Field, SecretStr, field_validator, model_validator
 from pydantic_settings import BaseSettings, PydanticBaseSettingsSource, SettingsConfigDict
 
-from app.core.settings import EndpointUrl, SecretFileSource, plain_endpoint
+from app.core.secret_files import SecretFileSource
+from app.core.settings_storage import EndpointUrl, plain_endpoint
 
 # The provider's value sets, compared against the library's types in tests/llm
 ReasoningEffort = Literal["none", "minimal", "low", "medium", "high", "xhigh", "max"]
