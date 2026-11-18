@@ -11,6 +11,7 @@ import pytest
 
 from app.db.migrate import migrate
 from app.jobs.queue import enqueue, request_cancel
+from tests.support import end_process
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
@@ -77,8 +78,7 @@ async def test_a_job_of_a_worker_that_died_is_taken_over(queue_db: str) -> None:
     try:
         wait_for(queue_db, "SELECT count(*) FROM job_run WHERE owner = 'dying'")
     finally:
-        dying.kill()  # no heartbeat any more, no goodbye
-        dying.communicate(timeout=30)
+        end_process(dying)  # no heartbeat any more, no goodbye
     rescuer = start(queue_db, "rescuer", "record")
     try:
         # the rescuer hands the expired lease back; skip the backoff instead of waiting it out
@@ -87,8 +87,7 @@ async def test_a_job_of_a_worker_that_died_is_taken_over(queue_db: str) -> None:
         fetch(queue_db, fetch_and_commit, job_id)
         output = rescuer.communicate(timeout=DEADLINE_S)[0]
     finally:
-        if rescuer.poll() is None:
-            rescuer.kill()
+        end_process(rescuer)
 
     assert rescuer.returncode == 0, output
     assert fetch(queue_db, "SELECT status, attempts, result FROM job WHERE id = %s", job_id) == [

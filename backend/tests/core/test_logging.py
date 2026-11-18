@@ -139,6 +139,8 @@ def test_configuring_again_does_not_double_the_lines() -> None:
     assert len(json_lines(stream)) == 1
 
 
+# the warning it raises on purpose is shown, not raised as the suite's other warnings are
+@pytest.mark.filterwarnings("default:old api:DeprecationWarning")
 def test_a_python_warning_becomes_a_log_line() -> None:
     stream = configured("json")
 

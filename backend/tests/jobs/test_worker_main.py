@@ -18,12 +18,14 @@ from pathlib import Path
 import pytest
 
 from app.db.migrate import migrate
-from tests.support import lock_held, throwaway_store, without_settings_variables
+from tests.support import end_process, lock_held, throwaway_store, without_settings_variables
 
 pytestmark = pytest.mark.pg
 
 BACKEND = Path(__file__).resolve().parents[2]
 START_S = 30.0
+# the threads reading a worker's output, by its process: stop_worker lets them reach the end
+READERS: dict[subprocess.Popen[str], list[threading.Thread]] = {}
 
 
 def free_port() -> int:
@@ -68,7 +70,9 @@ def lines_of(process: subprocess.Popen[str]) -> Iterator[str]:
             found.put(line)
         found.put(None)
 
-    threading.Thread(target=read, daemon=True).start()
+    reader = threading.Thread(target=read, daemon=True)
+    READERS.setdefault(process, []).append(reader)
+    reader.start()
     deadline = time.monotonic() + START_S
     while (left := deadline - time.monotonic()) > 0:
         try:
@@ -78,6 +82,10 @@ def lines_of(process: subprocess.Popen[str]) -> Iterator[str]:
         if line is None:
             return
         yield line
+
+
+def stop_worker(process: subprocess.Popen[str]) -> None:
+    end_process(process, *READERS.pop(process, []))
 
 
 def wait_until_it_takes(process: subprocess.Popen[str]) -> list[str]:
@@ -95,8 +103,7 @@ def test_the_worker_process_comes_up_and_says_what_it_takes(database_url: str) -
     try:
         seen = wait_until_it_takes(process)
     finally:
-        process.kill()
-        process.wait(10)
+        stop_worker(process)
 
     assert any(" takes " in line and "source.fetch" in line for line in seen)
 
@@ -110,7 +117,7 @@ def test_sigterm_stops_the_worker_cleanly(database_url: str) -> None:
         process.send_signal(signal.SIGTERM)
         code = process.wait(10)
     finally:
-        process.kill()
+        stop_worker(process)
 
     assert code == 0
 
@@ -126,8 +133,7 @@ def test_the_running_worker_answers_its_liveness_probe_on_the_internal_port(data
         with urllib.request.urlopen(f"http://127.0.0.1:{port}/metrics", timeout=5) as answer:
             scraped = answer.read().decode()
     finally:
-        process.kill()
-        process.wait(10)
+        stop_worker(process)
 
     assert status == 200
     # its own pool, open since it polled for jobs - not the 0 of a gauge nobody set
@@ -136,7 +142,10 @@ def test_the_running_worker_answers_its_liveness_probe_on_the_internal_port(data
 
 
 def ended_with(process: subprocess.Popen[str]) -> tuple[int, str]:
-    output, _ = process.communicate(timeout=START_S)
+    try:
+        output, _ = process.communicate(timeout=START_S)
+    finally:
+        stop_worker(process)
     return process.returncode, output
 
 
@@ -181,7 +190,8 @@ def test_the_worker_waits_behind_a_lock_whatever_statement_timeout_is_set(databa
             if " takes " in line:
                 started.set()
 
-    threading.Thread(target=read, daemon=True).start()
+    reader = threading.Thread(target=read, daemon=True)
+    reader.start()
     try:
         assert started.wait(START_S), "".join(seen)[-2000:]
         # its polls every 0.1 s wait behind the lock for 2.5 s, past the second the setting names
@@ -189,7 +199,6 @@ def test_the_worker_waits_behind_a_lock_whatever_statement_timeout_is_set(databa
             time.sleep(2.5)
         time.sleep(0.5)
     finally:
-        process.kill()
-        process.wait(10)
+        end_process(process, reader)
 
     assert not [line for line in seen if "could not" in line], "".join(seen)[-2000:]

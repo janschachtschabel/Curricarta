@@ -8,6 +8,7 @@ import socket
 import sys
 import threading
 import time
+import traceback
 import urllib.error
 import urllib.request
 import warnings
@@ -45,7 +46,9 @@ def status_of(url: str) -> int:
             status: int = response.status
             return status
     except urllib.error.HTTPError as error:
-        return error.code
+        # an error's answer holds its connection open until it is closed
+        with error:
+            return error.code
 
 
 @dataclass
@@ -76,6 +79,19 @@ def exclusive_socket() -> socket.socket:
     blocker = exclusive_socket_on(0)
     blocker.listen()
     return blocker
+
+
+def close_uvicorn_s_unbound_socket(error: BaseException) -> None:
+    """uvicorn's bind_socket ends the start with SystemExit and leaves the socket it could not bind
+    open (uvicorn/config.py); closed here, or its ResourceWarning lands in whichever test runs when the
+    traceback holding it is collected."""
+    binds = [
+        frame for frame, _ in traceback.walk_tb(error.__traceback__) if frame.f_code.co_name == "bind_socket"
+    ]
+    assert len(binds) == 1, "uvicorn's start no longer fails in bind_socket"
+    unbound = binds[0].f_locals["sock"]
+    assert isinstance(unbound, socket.socket)
+    unbound.close()
 
 
 @contextmanager
@@ -156,6 +172,7 @@ def test_a_busy_internal_port_ends_the_start_and_closes_the_public_socket(restor
             warnings.simplefilter("always", ResourceWarning)
             with pytest.raises(SystemExit) as caught:
                 build_server(settings)
+            close_uvicorn_s_unbound_socket(caught.value)
             gc.collect()
 
     assert caught.value.code == STARTUP_FAILURE
@@ -178,6 +195,7 @@ def test_main_ends_with_the_startup_failure_code(
 
         with mock.patch.dict(os.environ, invented), pytest.raises(SystemExit) as caught:
             main()
+        close_uvicorn_s_unbound_socket(caught.value)
 
     assert caught.value.code == STARTUP_FAILURE
 

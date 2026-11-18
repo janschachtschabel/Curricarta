@@ -23,7 +23,7 @@ from app.core import storage_s3
 from app.core.settings import Settings
 from app.core.storage import FileSystemStorage, Storage, StorageNotConfigured
 from app.core.storage_async import AsyncStorage
-from tests.jobs.test_worker_main import start_worker, wait_until_it_takes
+from tests.jobs.test_worker_main import start_worker, stop_worker, wait_until_it_takes
 from tests.support import loop_watch, make_settings
 
 SLOW_S = 0.4
@@ -111,8 +111,7 @@ def test_each_process_names_itself_to_the_database(database_url: str) -> None:
                     break
                 time.sleep(0.05)
     finally:
-        worker.kill()
-        worker.wait(10)
+        stop_worker(worker)
 
     assert run(api_s_name()) == "curricarta-api"
     assert workers == [("curricarta-worker",)]
