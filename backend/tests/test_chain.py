@@ -1,0 +1,201 @@
+"""The whole way of a curriculum through the service, as one test: an account uploads a PDF, asks for its
+conversion, makes a document of it and has it extracted, X5 checks it, an editor freezes it - each step
+through the public API, each job run by the worker's own step with the real handlers, against the
+PostgreSQL and S3 test services. A model stands in (FunctionModel, as the pipeline's tests use it): it
+answers each unit with the wording of its longest block, word for word, so that X5 finds it where it
+stands. The PDF is one of the conversion tests' synthetic files (tools/make_conversion_fixtures.py)."""
+
+import asyncio
+import re
+from collections.abc import Iterator
+from pathlib import Path
+from typing import Any
+
+import pytest
+from fastapi.testclient import TestClient
+from psycopg_pool import AsyncConnectionPool
+from pydantic_ai.messages import ModelMessage
+from pydantic_ai.models.function import FunctionModel
+
+from app.api.app import create_app
+from app.core.settings import Settings
+from app.core.storage import open_storage
+from app.core.storage_async import AsyncStorage
+from app.core.storage_s3 import s3_client
+from app.db.migrate import migrate
+from app.jobs.context import JobContext
+from app.jobs.handlers import make_handlers
+from app.jobs.queue import Job
+from app.jobs.worker import Handler, Worker
+from app.vocab.store import load_vocabulary
+from tests.api.upload_stores import s3_settings
+from tests.llm.test_client import llm_settings
+from tests.pipeline.test_run import Model, a_statement
+from tests.support import make_settings, ontology_vocabulary, seed_admin, selector_client
+
+pytestmark = [pytest.mark.pg, pytest.mark.s3]
+
+PUBLIC = "http://testserver:8000"
+PDF = (Path(__file__).resolve().parent / "conversion" / "fixtures" / "prose.pdf").read_bytes()
+BASE = "https://example.org/kk/"
+WORK = {"title": "Lehrplan Technik", "region": "DE-NW", "short_title": "lp-technik"}
+_BLOCK = re.compile(r"^\[(p\d+-b\d+)\] (.+)$", re.M)
+
+
+class Quoting(Model):
+    """The pipeline's stand-in; a unit is answered by one statement, the wording of the longest block in
+    its span as the document in the prompt shows it (``quoted``: those wordings)."""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.quoted: list[str] = []
+        self.document = ""
+
+    def __call__(self, messages: list[ModelMessage], info: Any) -> Any:
+        # the document stands in the prefix every question about it shares
+        self.document = "\n".join(
+            str(getattr(part, "content", "")) for message in messages for part in message.parts
+        )
+        return super().__call__(messages, info)
+
+    def unit(self, prompt: str) -> dict[str, Any]:
+        found = re.search(r"^=== EINHEIT ===\n(E\d+) \| .* \| Blöcke (\S+) bis (\S+)$", prompt, re.M)
+        assert found is not None
+        key, first, last = found.groups()
+        self.units.append(key)
+        blocks = dict(_BLOCK.findall(self.document))
+        order = list(blocks)
+        span = order[order.index(first) : order.index(last) + 1]
+        chosen = max(span, key=lambda block: len(blocks[block]))
+        self.quoted.append(blocks[chosen])
+        return {"unitKey": key, "statements": [a_statement(chosen, blocks[chosen])], "checkedAbsent": []}
+
+
+@pytest.fixture
+def chain_settings(database_url: str, preloaded_vocabulary: None) -> Iterator[Settings]:
+    """The service's settings on the test database, its vocabulary loaded, and a bucket of its own on
+    the S3 test service, emptied and removed after."""
+    migrate(database_url)
+    load_vocabulary(database_url, ontology_vocabulary())
+    settings = make_settings(database_url=database_url, iri_base=BASE, **s3_settings())
+    assert settings.s3_bucket is not None
+    client = s3_client(settings)
+    client.create_bucket(Bucket=settings.s3_bucket)
+    try:
+        yield settings
+    finally:
+        listed = client.get_paginator("list_objects_v2").paginate(Bucket=settings.s3_bucket)
+        for item in [item for page in listed for item in page.get("Contents", [])]:
+            client.delete_object(Bucket=settings.s3_bucket, Key=item["Key"])
+        client.delete_bucket(Bucket=settings.s3_bucket)
+
+
+def work_off(settings: Settings, model: Quoting) -> list[str]:
+    """What a worker does with every job waiting now, one after the other, with the handlers it starts
+    with: the kinds of the jobs it ran, in their order."""
+    function_model = FunctionModel(model, settings={"max_tokens": 4_000})
+    ran: list[str] = []
+
+    def noting(kind: str, handler: Handler) -> Handler:
+        async def run(job: Job) -> Any:
+            ran.append(kind)
+            return await handler(job)
+
+        return run
+
+    async def work() -> None:
+        url = settings.database_url.get_secret_value()
+        async with AsyncConnectionPool(url, min_size=1, max_size=6, open=False) as pool:
+            storage = AsyncStorage(await asyncio.to_thread(open_storage, settings))
+            context = JobContext(pool, storage, settings, llm=llm_settings(), model=lambda: function_model)
+            handlers = {kind: noting(kind, handler) for kind, handler in make_handlers(context).items()}
+            worker = Worker(pool, handlers, owner="chain-worker")
+            while await worker.run_once():
+                pass
+
+    asyncio.run(work(), loop_factory=asyncio.SelectorEventLoop)
+    return ran
+
+
+def job_of(client: TestClient, header: dict[str, str], job_id: str) -> dict[str, Any]:
+    answer = client.get(f"/api/v1/jobs/{job_id}", headers=header)
+    assert answer.status_code == 200, answer.text
+    return dict(answer.json())
+
+
+def statements_of(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [found for node in nodes for found in [*node["statements"], *statements_of(node["children"])]]
+
+
+def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Settings) -> None:
+    settings, model = chain_settings, Quoting()
+    with selector_client(create_app(settings), base_url=PUBLIC) as client:
+        # 0. an admin makes an editor's account, its token and its budget
+        admin = seed_admin(settings.database_url.get_secret_value())
+        made = client.post(
+            "/api/v1/accounts", headers=admin, json={"name": "Redaktion", "roles": ["redaktion"]}
+        )
+        assert made.status_code == 201, made.text
+        account = made.json()["id"]
+        key = client.post(f"/api/v1/accounts/{account}/keys", headers=admin, json={"label": "chain"})
+        assert key.status_code == 201, key.text
+        editor = {"Authorization": f"Bearer {key.json()['token']}"}
+        quota = {"token_limit": None, "page_limit": None}
+        assert client.put(f"/api/v1/accounts/{account}/quota", headers=admin, json=quota).status_code == 200
+
+        # 1. the upload
+        uploaded = client.post("/api/v1/sources", headers=editor, files={"file": ("lehrplan.pdf", PDF)})
+        assert uploaded.status_code == 201, uploaded.text
+        source = uploaded.json()["id"]
+
+        # 2. its conversion by pdfplumber, run by the worker
+        asked = client.post(f"/api/v1/sources/{source}/conversions", headers=editor)
+        assert asked.status_code == 202, asked.text
+        assert (asked.json()["status"], asked.json()["engine"]) == ("pending", "pdfplumber")
+        assert work_off(settings, model) == ["source.convert"]
+        converted = client.get(f"/api/v1/sources/{source}/conversion", headers=editor).json()
+        assert (converted["id"], converted["status"], converted["pages"]) == (asked.json()["id"], "done", 2)
+
+        # 3. a document of it, its extraction run with the model standing in: X1 to X5
+        started = client.post(
+            "/api/v1/documents",
+            headers=editor,
+            json={
+                "source_id": source,
+                "conversion_id": converted["id"],
+                "sector": "school",
+                "regions": ["DE-NW"],
+            },
+        )
+        assert started.status_code == 202, started.text
+        document, extraction = started.json()["document"]["id"], started.json()["job"]["id"]
+        assert work_off(settings, model) == ["extract.run"]
+        assert job_of(client, editor, extraction)["status"] == "done"
+        runs = client.get(f"/api/v1/documents/{document}/runs", headers=editor).json()
+        assert {run["stage"] for run in runs if run["state"] == "done"} >= {"X1", "X2", "X3", "X4", "X5"}
+        assert model.asked == ["profile", "outline", "frame"] and model.quoted
+
+        # 4. its work, issuer and edition set, X5 checks it again: no violation, nothing owed
+        assert (
+            client.patch(f"/api/v1/documents/{document}/work", headers=editor, json=WORK).status_code == 200
+        )
+        metadata = {"issuer": "Ministerium", "edition": "2024"}
+        assert client.patch(f"/api/v1/documents/{document}", headers=editor, json=metadata).status_code == 200
+        checked = client.post(f"/api/v1/documents/{document}/check", headers=editor)
+        assert checked.status_code == 202, checked.text
+        assert work_off(settings, model) == ["extract.check"]
+        assert job_of(client, editor, checked.json()["id"])["status"] == "done"
+        findings = client.get(f"/api/v1/documents/{document}/findings", headers=editor).json()
+        assert findings["counts"]["violation"] == 0, findings["findings"]
+
+        # 5. frozen
+        frozen = client.post(f"/api/v1/documents/{document}/freeze", headers=editor)
+        assert frozen.status_code == 200, frozen.text
+        assert frozen.json()["frozen_at"] is not None and frozen.json()["iri"].startswith(BASE)
+
+        # 6. what it says, as the frozen document reads: the statements the model answered, with their IRIs
+        tree = client.get(f"/api/v1/documents/{document}/tree", headers=editor).json()
+        assert tree["closed"] == "frozen"
+        said = statements_of(tree["nodes"])
+        assert sorted(found["fields"]["verbatim"] for found in said) == sorted(model.quoted)
+        assert all(found["iri"].startswith(frozen.json()["iri"]) for found in said)
