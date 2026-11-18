@@ -54,8 +54,12 @@ async def sweep_prefixes(pool: AsyncConnectionPool, storage: AsyncStorage, prefi
     many objects went. A failure is a warning: the notes left stay for the next sweep, and the request has
     its answer already. A connection is taken only to forget a note, never held while the store is asked,
     and no session lock: beside the nightly sweep each object goes once, and forgetting twice is nothing.
-    A file's object (sources/) is the sweep's alone, under the file's lock (``_empty_file``)."""
+    A file's object (sources/) is the sweep's alone, under the file's lock (``_empty_file``). A file store
+    whose folder is not there lists nothing: the notes stay for the sweep, which refuses such a store."""
     taken = 0
+    if await _folder_missing(storage):
+        log.warning("the store's folder is not there: the noted places stay for the sweep")
+        return taken
     for place in prefixes:
         if place.startswith("sources/"):
             raise ValueError("a file's object is emptied by the sweep, under the file's lock")
@@ -73,7 +77,8 @@ async def _empty_file(connection: psycopg.AsyncConnection, storage: AsyncStorage
     sweep's session while it asks the store - no transaction open: an upload of the same bytes waits to
     write its row (app/db/sources.py file_row) until the object is gone and the note forgotten, then finds
     the object missing and stores it anew. Where a row names the object again, it stays: the note was left
-    from before."""
+    from before. That upload waits as long as the store's deletion takes - bounded by the store client's
+    timeouts, past the API's statement timeout it ends in a 5xx; one object, of the same bytes alone."""
     await _file_lock(connection, "pg_advisory_lock", key)
     try:
         async with connection.transaction():
@@ -124,9 +129,12 @@ async def _store_there(connection: psycopg.AsyncConnection, storage: AsyncStorag
     """StorageNotConfigured for a file store whose root is no folder while notes wait: it lists nothing, and
     the sweep would forget every note with its objects left for good - a service started without the
     store's volume."""
-    files = storage.sync
-    away = isinstance(files, FileSystemStorage) and not await asyncio.to_thread(files.root.is_dir)
-    if away and await garbage(connection, batch=1):
+    if await _folder_missing(storage) and await garbage(connection, batch=1):
         raise StorageNotConfigured(
             "STORAGE_DIR is no folder: the noted places stay for a sweep with the store"
         )
+
+
+async def _folder_missing(storage: AsyncStorage) -> bool:
+    files = storage.sync
+    return isinstance(files, FileSystemStorage) and not await asyncio.to_thread(files.root.is_dir)

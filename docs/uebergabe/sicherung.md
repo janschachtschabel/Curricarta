@@ -238,3 +238,9 @@ Ein Objekt, das keine Zeile nennt, findet der Lauf nicht: Er kennt nur die notie
 Zeilen, er geht den Speicher nicht durch. So bleibt das Objekt eines Uploads oder Abrufs, der zwischen
 dem Ablegen und dem Schreiben seiner Zeile abbrach. Es kostet nur seine Bytes. Wer solche Objekte
 sucht, vergleicht die Liste des Speichers unter `sources/` mit `storage_key` in `source_file`.
+
+Umgekehrt kann eine Zeile ein Objekt nennen, das fehlt: Ein Upload oder Abruf schaut nach dem Schreiben
+seiner Zeile noch einmal nach dem Objekt und legt es neu ab, falls der Lauf es gerade genommen hat;
+scheitert der Speicher genau dabei, antwortet der Upload mit 5xx (der Abruf-Job scheitert), und der
+Eintrag steht ohne Objekt. Sein Download antwortet 404 `file_gone`; ein neuer Upload derselben Bytes heilt
+ihn.

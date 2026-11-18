@@ -31,6 +31,7 @@ import logging
 import sys
 from collections.abc import Sequence
 from dataclasses import asdict, dataclass
+from uuid import UUID
 
 import psycopg
 
@@ -160,18 +161,28 @@ async def _rows(connection: psycopg.AsyncConnection, policy: Policy, swept: Swep
 async def _orphans(connection: psycopg.AsyncConnection, _days: int) -> int:
     """Take away the files no entry holds - a request broken between taking its entry away and its file
     leaves them - and note their objects; whatever the times: such a file is nobody's. Each in a
-    transaction of its own, under its lock; how many went."""
+    transaction of its own, under its lock; how many went. A file that fails is passed by and the others
+    taken all the same - else it would stand first every night -, its error raised at the end."""
     dropped = 0
+    failed: list[UUID] = []
+    failure: psycopg.Error | None = None
     while True:
         async with connection.transaction():
-            found = await orphan_files(connection)
-        went = 0
+            found = await orphan_files(connection, passing=failed)
+        went, passed = 0, len(failed)
         for file_id in found:
-            async with connection.transaction():
-                went += await drop_orphan_file(connection, file_id) is not None
+            try:
+                async with connection.transaction():
+                    went += await drop_orphan_file(connection, file_id) is not None
+            except psycopg.Error as error:
+                failed.append(file_id)
+                failure = failure or error
         dropped += went
-        if not went:  # none left, or each one held again meanwhile: the next sweep looks again
-            return dropped
+        if not went and len(failed) == passed:
+            break  # none left, or each one held again meanwhile: the next sweep looks again
+    if failure is not None:
+        raise failure
+    return dropped
 
 
 async def _all_places(connection: psycopg.AsyncConnection) -> list[str]:

@@ -20,7 +20,7 @@ from app.db.deleting import drop_document
 from app.db.sources import StoredFile, record_upload
 from app.emptying import sweep_prefixes
 from app.retention import Swept, sweep
-from tests.db.l1 import add_conversion, add_run
+from tests.db.l1 import add_conversion, add_document, add_run
 from tests.db.retention_rows import add_job, garbage
 from tests.support import waiting_on_a_lock
 from tests.test_retention import POLICY, connection, files, keep_answers, kept, made, objects_root, setup
@@ -190,18 +190,65 @@ async def test_emptying_beside_the_nightly_sweep_takes_each_object_once(
     made: dict[str, Any],
     files: FileSystemStorage,
 ) -> None:
-    # no lock between them: an object already gone counts as taken by the other, forgetting twice is nothing
+    # no lock between them: an object already gone counts as taken by the other, forgetting twice is
+    # nothing. The sweep has listed the place and waits before its first deletion while the request
+    # empties it and forgets the note; then the sweep deletes what is gone already
     places = await _taken_document(setup, connection, made, files)
+    holding = Holding(files.root)
+    sweeping = asyncio.create_task(sweep(connection, AsyncStorage(holding), POLICY, dry_run=False))
+    assert await asyncio.to_thread(holding.began.wait, 10)
 
     async with AsyncConnectionPool(database_url, min_size=1, max_size=2, open=False) as pool:
-        by_request, by_sweep = await asyncio.gather(
-            sweep_prefixes(pool, AsyncStorage(files), places),
-            sweep(connection, AsyncStorage(files), POLICY, dry_run=False),
-        )
+        by_request = await sweep_prefixes(pool, AsyncStorage(files), places)
+    holding.go.set()
+    by_sweep = await sweeping
 
-    assert by_request + by_sweep.objects == 3
+    assert (by_request, by_sweep.objects) == (3, 0)
     assert kept(files) == []
     assert garbage(setup) == []
+
+
+async def test_a_request_beside_a_store_whose_folder_is_not_there_leaves_its_notes(
+    database_url: str,
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    files: FileSystemStorage,
+    tmp_path: Path,
+) -> None:
+    places = await _taken_document(setup, connection, made, files)
+
+    async with AsyncConnectionPool(database_url, min_size=1, max_size=1, open=False) as pool:
+        taken = await sweep_prefixes(pool, AsyncStorage(FileSystemStorage(tmp_path / "not-mounted")), places)
+
+    assert taken == 0
+    assert garbage(setup) == sorted(places)
+    assert len(kept(files)) == 3
+
+
+async def test_a_file_that_cannot_go_leaves_the_younger_ones_to_go(
+    setup: psycopg.Connection,
+    connection: psycopg.AsyncConnection,
+    made: dict[str, Any],
+    files: FileSystemStorage,
+) -> None:
+    # the oldest file no entry holds stands first every night: a failure of its own must not keep the others
+    stuck = add_conversion(setup, b"" * 32, made["owner"])
+    add_document(setup, made, conversion_id=stuck["conversion"])  # names its conversion: it cannot go
+    setup.execute("DELETE FROM source WHERE id = %s", (stuck["source"],))
+    left = add_conversion(setup, DIGEST, made["owner"])
+    setup.execute("DELETE FROM source WHERE id = %s", (left["source"],))
+    files.put(KEY, b"%PDF")
+
+    with pytest.raises(psycopg.errors.ForeignKeyViolation):
+        await sweep(connection, AsyncStorage(files), POLICY, dry_run=False)
+
+    assert not files.exists(KEY)
+    assert setup.execute("SELECT count(*) FROM source_file WHERE storage_key = %s", (KEY,)).fetchone() == (0,)
+    stuck_key = "sources/" + "05" * 32
+    assert setup.execute(
+        "SELECT count(*) FROM source_file WHERE storage_key = %s", (stuck_key,)
+    ).fetchone() == (1,)
 
 
 async def _taken_document(
