@@ -20,8 +20,19 @@ def ready(database_url: str) -> tuple[int, dict[str, object]]:
     return response.status_code, response.json()
 
 
+# The probe's deadline is what these tests hold, and a deadline is a time: the bounds are wide, five times
+# what the probe may take, so that a busy runner keeps them, and what it waits for without its deadline -
+# the pool's own wait, a lock - lasts far longer than they do (WITHOUT_A_DEADLINE_S)
+WITHOUT_A_DEADLINE_S = 60
+
+
 def test_without_a_reachable_database_ready_answers_503_in_time() -> None:
-    app = create_app(make_settings(database_url="postgresql://curricarta:fake@127.0.0.1:1/curricarta"))
+    app = create_app(
+        make_settings(
+            database_url="postgresql://curricarta:fake@127.0.0.1:1/curricarta",
+            db_pool_timeout_s=WITHOUT_A_DEADLINE_S,
+        )
+    )
     with selector_client(app, base_url=INTERNAL) as client:
         started = time.monotonic()
         response = client.get("/ready")
@@ -29,7 +40,7 @@ def test_without_a_reachable_database_ready_answers_503_in_time() -> None:
 
     assert response.status_code == 503
     assert response.json() == {"status": "unavailable", "reason": "database"}
-    assert elapsed < READY_TIMEOUT_S + 2
+    assert elapsed < 5 * READY_TIMEOUT_S
 
 
 def test_health_does_not_need_the_database() -> None:
@@ -71,7 +82,7 @@ def test_a_database_that_does_not_answer_in_time_is_not_ready(database_url: str)
     app = create_app(make_settings(database_url=database_url))
     lock = "LOCK TABLE schema_migration IN ACCESS EXCLUSIVE MODE"
     with (
-        lock_held(database_url, lock, at_most_s=READY_TIMEOUT_S + 3),
+        lock_held(database_url, lock, at_most_s=WITHOUT_A_DEADLINE_S),
         selector_client(app, base_url=INTERNAL) as client,
     ):
         started = time.monotonic()
@@ -79,7 +90,7 @@ def test_a_database_that_does_not_answer_in_time_is_not_ready(database_url: str)
         elapsed = time.monotonic() - started
 
     assert response.status_code == 503
-    assert elapsed < READY_TIMEOUT_S + 2
+    assert elapsed < 5 * READY_TIMEOUT_S
 
 
 @pytest.mark.pg
@@ -91,7 +102,7 @@ def test_a_statement_the_database_ends_spoils_no_later_probe(database_url: str) 
     lock = "LOCK TABLE schema_migration IN ACCESS EXCLUSIVE MODE"
     with selector_client(app, base_url=INTERNAL) as client:
         assert client.get("/ready").status_code == 200  # the pool's connection is open
-        with lock_held(database_url, lock, at_most_s=READY_TIMEOUT_S + 3):
+        with lock_held(database_url, lock, at_most_s=WITHOUT_A_DEADLINE_S):
             started = time.monotonic()
             response = client.get("/ready")
             elapsed = time.monotonic() - started
@@ -99,7 +110,7 @@ def test_a_statement_the_database_ends_spoils_no_later_probe(database_url: str) 
 
     assert response.json() == {"status": "unavailable", "reason": "database"}
     # the pool's wait and the statement's, each READY_TIMEOUT_S, are the most it can take
-    assert elapsed < 2 * READY_TIMEOUT_S
+    assert elapsed < 5 * 2 * READY_TIMEOUT_S
     assert after.status_code == 200
 
 

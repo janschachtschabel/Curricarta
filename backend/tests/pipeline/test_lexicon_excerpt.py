@@ -84,8 +84,8 @@ def test_the_checked_and_stronger_come_first_up_to_most_lines_each_once() -> Non
 
 
 def test_a_pattern_that_takes_too_long_is_noted_and_lists_nothing() -> None:
-    # 0.2 s on 190 signs, four times the limit (tests/pipeline/test_skeleton.py)
-    slow = cue("langsam", kind=SENTENCE, pattern=r"(x+x+x+x+)+y")
+    # exponential: past 10 s on 190 signs, two hundred times the limit (tests/pipeline/test_skeleton.py)
+    slow = cue("langsam", kind=SENTENCE, pattern=r"(x|x)+y")
 
     excerpt = lexicon_excerpt([slow], ["x" * 190], NAMES)
 

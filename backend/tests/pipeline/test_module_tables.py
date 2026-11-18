@@ -2,13 +2,12 @@
 mostly one table a module, its title in the cell beside a label ("Modultitel:"), its code beside
 another ("Modulnummer/-kürzel:") - Modulhandbuch B.Sc. Physik, Universität Hamburg."""
 
-import time
-
 import pytest
 
 from app.conversion.base import Block
 from app.pipeline.skeleton import Skeleton
 from tests.pipeline.test_skeleton import BODY, COVER, block, in_sector, skeleton, table
+from tests.support import cpu_seconds
 
 HS = "https://w3id.org/wlo/curriculum/profile/higher-education#"
 
@@ -321,11 +320,8 @@ def test_the_levels_are_found_in_linear_time() -> None:
     numbered = module_of_skeleton._Found(0, COVER, "1 Einleitung", "1", None, large=False, matched=())
     bold = [module_of_skeleton._Found(at, COVER, f"Bereich {at}", None, None, large=False, matched=())
             for at in range(1, 40_001)]  # fmt: skip
-    started = time.perf_counter()
-
-    module_of_skeleton._raw_levels([numbered, *bold])
-
-    assert time.perf_counter() - started < 2  # looked ahead from each heading: about 11 s
+    # 0.6 s of CPU time here (2026-11-18); looked ahead from each heading: about 11 s
+    assert cpu_seconds(lambda: module_of_skeleton._raw_levels([numbered, *bold])) < 4
 
 
 # follow-up of the overall review

@@ -3,7 +3,7 @@ plan M1 3b-3): the page is built as a browser builds it (html5lib's tree constru
 out, and the rest written anew with every end tag, so that Docling's parser - which builds otherwise
 (tests/conversion/html_reading.py) - reads that tree."""
 
-import time
+from collections.abc import Callable
 
 import pytest
 
@@ -11,6 +11,7 @@ from app.conversion.html_hidden import clean_html
 from app.conversion.html_tree import DEEPEST_NESTING, parse_page
 from app.conversion.text_layer import UnreadablePdf
 from tests.conversion.html_reading import docling_reads, naive_tree, shape
+from tests.support import cpu_seconds
 
 BODY, END = "<html><head></head><body>", "</body></html>"
 
@@ -363,25 +364,46 @@ def test_the_page_written_anew_is_read_by_docling_s_parser_as_the_browser_built_
     )
 
 
-@pytest.mark.parametrize(
-    "page",
-    [
-        "<a>" * 40_000
-        + "</b>" * 40_000,  # an end tag of none open: each looked for anew, it took 11 s at 109 KiB
-        "<style>" + "/*a" * 40_000 + "</style><p>Text.</p>",  # comments never closed: 20 s at 117 KiB
-        "<style>" + "@media screen{" * 5_000 + ".weg{display:none}" + "}" * 5_000 + "</style>",
-        "<ul>" + "<span>" * 400 + "<li>x</li>" * 40_000,  # a list item's end looked for
-        "<p><button>" + "<span>" * 400 + "<div>x</div>" * 40_000,  # a paragraph's end looked for
+def _times(part: float, count: int) -> int:
+    return int(count * part)
+
+
+# each page at a part of its size: the whole, or half of it
+SLOWING_PAGES: list[Callable[[float], str]] = [
+    # an end tag of none open: each looked for anew, it took 11 s at 109 KiB
+    lambda part: "<a>" * _times(part, 40_000) + "</b>" * _times(part, 40_000),
+    # comments never closed: 20 s at 117 KiB
+    lambda part: "<style>" + "/*a" * _times(part, 40_000) + "</style><p>Text.</p>",
+    lambda part: (
         "<style>"
-        + ".a{opacity:0.5}" * 10_000
+        + "@media screen{" * _times(part, 5_000)
+        + ".weg{display:none}"
+        + "}" * _times(part, 5_000)
         + "</style>"
-        + '<p class="a">x</p>' * 10_000,  # 63 s at 258 KiB
-        ('<p style="font-size:' + "1" * 16_000 + '-">x</p>') * 20,  # digits read many ways: 10 s at 16 KiB
-        "<p>" + "x</b>" * 200_000,  # a text parted by stray end tags, copied at each part
-        "<br>" * 50_000
-        + "<table>"
-        + "a<!---->" * 50_000,  # a table's stray text, looked for before it each time
-    ],
+    ),
+    # a list item's end looked for
+    lambda part: "<ul>" + "<span>" * 400 + "<li>x</li>" * _times(part, 40_000),
+    # a paragraph's end looked for
+    lambda part: "<p><button>" + "<span>" * 400 + "<div>x</div>" * _times(part, 40_000),
+    # 63 s at 258 KiB
+    lambda part: (
+        "<style>"
+        + ".a{opacity:0.5}" * _times(part, 10_000)
+        + "</style>"
+        + '<p class="a">x</p>' * _times(part, 10_000)
+    ),
+    # digits read many ways: 10 s at 16 KiB
+    lambda part: ('<p style="font-size:' + "1" * _times(part, 16_000) + '-">x</p>') * 20,
+    # a text parted by stray end tags, copied at each part
+    lambda part: "<p>" + "x</b>" * _times(part, 200_000),
+    # a table's stray text, looked for before it each time
+    lambda part: "<br>" * _times(part, 50_000) + "<table>" + "a<!---->" * _times(part, 50_000),
+]
+
+
+@pytest.mark.parametrize(
+    "page_of",
+    SLOWING_PAGES,
     ids=[
         "stray-end-tags",
         "open-comments",
@@ -394,22 +416,26 @@ def test_the_page_written_anew_is_read_by_docling_s_parser_as_the_browser_built_
         "foster",
     ],
 )
-def test_a_page_built_to_slow_the_reading_is_read_in_a_moment(page: str) -> None:
-    started = time.perf_counter()
+def test_a_page_built_to_slow_the_reading_is_read_in_linear_time(page_of: Callable[[float], str]) -> None:
+    # the work of the whole page against that of its half, in this thread's CPU time: twice as much
+    # where the reading is linear, four times where it is quadratic, as each of these pages once was -
+    # however fast or busy the machine. 0.1 s for the timer's grain and what does not grow
+    half = cpu_seconds(lambda: clean_html(page_of(0.5)))
+    whole = cpu_seconds(lambda: clean_html(page_of(1)))
 
-    clean_html(page)
-
-    assert time.perf_counter() - started < 15  # in linear time: a few seconds at most
+    assert whole < 3 * half + 0.1, f"{half:.2f} s of CPU time for half the page, {whole:.2f} s for all"
+    # and a bound on the whole: five times the 4.9 s the slowest took here (list-items, 2026-11-18)
+    assert whole < 25
 
 
 def test_a_page_nested_deeper_than_any_reader_reads_is_unreadable_at_once() -> None:
     # html5lib looks into the open elements at each tag, Docling's reading fails a little deeper
-    started = time.perf_counter()
+    def read() -> None:
+        with pytest.raises(UnreadablePdf, match="deeper"):
+            clean_html("<div>" * 100_000 + "x")
 
-    with pytest.raises(UnreadablePdf, match="deeper"):
-        clean_html("<div>" * 100_000 + "x")
-
-    assert time.perf_counter() - started < 10
+    # 0.1 s of CPU time here (2026-11-18): a hundred times that is no moment any more
+    assert cpu_seconds(read) < 10
     assert reads("<div>" * (DEEPEST_NESTING - 10) + "Tief.") == "Tief."
 
 

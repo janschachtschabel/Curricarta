@@ -4,7 +4,6 @@ Taken over from curriculum-extractor (tests/test_filetype.py), with its findings
 over names, text only as UTF-8, a ZIP held to bounds before anything unpacks it.
 """
 
-import time
 import tracemalloc
 import zipfile
 
@@ -14,6 +13,7 @@ from app.sources import archives
 from app.sources.archives import ArchiveTooLarge, ArchiveUnreadable, check_archive
 from app.sources.filetype import DOCX_MIME, UnsupportedType, accepted_type, detect_type, stored_name
 from tests.sources.zip_helpers import directory_only, directory_says, make_zip
+from tests.support import cpu_seconds
 
 # --- the type, by content
 
@@ -176,17 +176,20 @@ def test_an_archive_of_too_many_parts_is_refused_before_its_directory_is_read() 
     many = directory_only(100_000)
 
     tracemalloc.start()
-    started = time.process_time()
     try:
-        with pytest.raises(ArchiveTooLarge):
-            check_archive(many)
-        spent = time.process_time() - started
+
+        def refused() -> None:
+            with pytest.raises(ArchiveTooLarge):
+                check_archive(many)
+
+        spent = cpu_seconds(refused)
         peak = tracemalloc.get_traced_memory()[1]
     finally:
         tracemalloc.stop()
 
     assert peak < 4 * 2**20
-    assert spent < 0.5
+    # 0.23 s of CPU time here, under tracemalloc (2026-11-18); reading every part took 4.3 s
+    assert spent < 1.5
 
 
 def test_an_archive_too_large_in_sum_is_refused(monkeypatch: pytest.MonkeyPatch) -> None:
