@@ -8,6 +8,7 @@ or fetched again name it once more. So a file's row is written, and taken away, 
 (``lock_file``), and the row written takes the note on its object away; the sweep empties such a note under
 the same lock and only while no row names the object (app/retention.py)."""
 
+from collections.abc import Sequence
 from typing import Any, Literal
 from uuid import UUID
 
@@ -21,7 +22,7 @@ _RUNS = "SELECT 'runs/' || id || '/' FROM extraction_run WHERE document_id = %s 
 _NOTE = "INSERT INTO storage_garbage (prefix) SELECT unnest(%s::text[]) ON CONFLICT (prefix) DO NOTHING"
 # A job of the entry waiting or running: a conversion of its file asked and not done, or its fetch
 _OPEN_JOB = """
-SELECT job_id FROM conversion WHERE source_file_id = %(file)s AND status = 'pending' AND job_id IS NOT NULL
+SELECT job_id FROM conversion WHERE source_file_id = %(file)s AND status = 'pending'
 UNION ALL
 SELECT id FROM job
 WHERE kind = 'source.fetch' AND status IN ('queued', 'running') AND payload->>'source_id' = %(source)s::text
@@ -38,6 +39,7 @@ _ORPHANS = """
 SELECT f.id FROM source_file f
 WHERE NOT EXISTS (SELECT FROM source s WHERE s.file_id = f.id)
     AND NOT EXISTS (SELECT FROM conversion c WHERE c.source_file_id = f.id AND c.status = 'pending')
+    AND f.id <> ALL(%s)
 ORDER BY f.created_at, f.id LIMIT %s
 """
 
@@ -67,6 +69,15 @@ async def lock_file(connection: psycopg.AsyncConnection, storage_key: str) -> No
     await connection.execute("SELECT pg_advisory_xact_lock(%s, hashtext(%s))", (FILE_LOCK, storage_key))
 
 
+async def hold_entry(connection: psycopg.AsyncConnection, source_id: UUID) -> bool:
+    """Hold the entry against its taking away until the caller's transaction ends - a conversion asked for
+    of its file: taken away first, it is not there (False); asked first, the taking away waits for the
+    conversion to stand and is refused (``job_open``). Without it a deletion beside the asking saw no pending
+    conversion, and the file went with the conversion just asked."""
+    cursor = await connection.execute("SELECT FROM source WHERE id = %s FOR KEY SHARE", (source_id,))
+    return await cursor.fetchone() is not None
+
+
 async def drop_document(connection: psycopg.AsyncConnection, document_id: UUID) -> list[str] | None:
     """Take the document away with all it holds - its tree, runs, findings, units, gold samples cascade -
     and note the places of its runs' raw answers and of its exports; the places, None where there is no
@@ -93,7 +104,7 @@ async def drop_source(connection: psycopg.AsyncConnection, source_id: UUID, entr
     if found and found[0]:
         raise EntryHeld("has_documents", count=int(found[0]))
     cursor = await connection.execute(_OPEN_JOB, {"file": entry["file_id"], "source": source_id})
-    if (job := await cursor.fetchone()) is not None:
+    if (job := await cursor.fetchone()) is not None:  # a conversion's job may be gone: none to name
         raise EntryHeld("job_open", job_id=job[0])
     await connection.execute("DELETE FROM acquisition WHERE source_id = %s", (source_id,))
     await connection.execute("DELETE FROM source WHERE id = %s", (source_id,))
@@ -118,8 +129,10 @@ async def drop_orphan_file(connection: psycopg.AsyncConnection, file_id: UUID) -
     return key
 
 
-async def orphan_files(connection: psycopg.AsyncConnection, *, batch: int = 100) -> list[UUID]:
+async def orphan_files(
+    connection: psycopg.AsyncConnection, *, batch: int = 100, passing: Sequence[UUID] = ()
+) -> list[UUID]:
     """Files no entry holds, as a request broken after taking its entry away leaves them; unlocked - each
-    is looked at again under its lock (``drop_orphan_file``)."""
-    cursor = await connection.execute(_ORPHANS, (batch,))
+    is looked at again under its lock (``drop_orphan_file``); but those ``passing`` names."""
+    cursor = await connection.execute(_ORPHANS, (list(passing), batch))
     return [row[0] for row in await cursor.fetchall()]

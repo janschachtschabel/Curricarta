@@ -127,7 +127,7 @@ def _refusal(held: EntryHeld, *, named: bool) -> Refusal:
                 409,
                 "job_open",
                 "A job of the entry waits or runs: take it away once that has ended.",
-                details={"job_id": str(held.job_id)} if named else None,
+                details={"job_id": str(held.job_id)} if named and held.job_id else None,
             )
         case _:
             assert_never(held.code)

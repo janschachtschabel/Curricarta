@@ -23,7 +23,7 @@ from datetime import datetime
 from typing import Annotated, Any
 from uuid import UUID
 
-from fastapi import APIRouter, Body, Depends, Query, Request, Response
+from fastapi import APIRouter, Body, Depends, HTTPException, Query, Request, Response
 from pydantic import BaseModel, ConfigDict
 
 from app.api.deps import principal, require_account
@@ -46,6 +46,7 @@ from app.db.conversions import (
     start_conversion,
     tables_running_onto,
 )
+from app.db.deleting import hold_entry
 from app.jobs.queue import account_lane, enqueue
 from app.usage.ledger import usage_of
 
@@ -140,6 +141,8 @@ async def ask_conversion(
     assert who.account_id is not None  # noqa: S101 - require_account refuses visitors
     async with request.app.state.pool.connection() as connection, connection.transaction():
         row = await content_row(connection, who, settings, source_id)
+        if not await hold_entry(connection, source_id):  # taken away meanwhile (app/api/deleting.py)
+            raise HTTPException(404, "No such register entry.")
         file_id = _file_of(row)
         mime = row["mime"]
         reading = readers(settings.conversion_engine_list, mime, row["file_name"])

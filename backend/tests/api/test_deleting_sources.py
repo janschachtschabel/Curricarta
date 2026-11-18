@@ -181,6 +181,22 @@ def test_an_entry_being_fetched_or_converted_is_not_taken_away(
     assert rows(migrated, "SELECT count(*) FROM source") == [(2,)]
 
 
+def test_a_conversion_waiting_without_its_job_holds_the_entry_too(
+    client: TestClient, migrated: str, owner: tuple[UUID, dict[str, str]], made: dict[str, Any]
+) -> None:
+    # its job swept or never named: the file would stay as long as the conversion waits
+    with psycopg.connect(migrated, autocommit=True) as connection:
+        connection.execute(
+            "UPDATE conversion SET status = 'pending', pages = NULL, printed_pages = NULL,"
+            " finished_at = NULL, job_id = NULL WHERE id = %s",
+            (made["conversion"],),
+        )
+
+    answer = client.delete(path(made["source"]), headers=owner[1])
+
+    assert (answer.status_code, answer.json()["code"], answer.json()["details"]) == (409, "job_open", {})
+
+
 def test_the_pages_booked_for_its_conversion_stay_booked(
     client: TestClient, migrated: str, owner: tuple[UUID, dict[str, str]], made: dict[str, Any]
 ) -> None:
