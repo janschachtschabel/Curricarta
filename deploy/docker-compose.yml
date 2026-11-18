@@ -182,9 +182,11 @@ services:
       dockerfile: deploy/web.Dockerfile
     read_only: true
     # The edge buffers each request body whole in /tmp before the API sees it (an upload up to
-    # MAX_UPLOAD_MB and its form), and the tmpfs counts against the memory limit: room for the API's two
-    # uploads at once, the limit above it. A third large upload at the same moment can fail here, with
-    # nginx's own answer rather than the API's JSON. (In a cluster the ingress buffers; the pod keeps 64Mi.)
+    # MAX_UPLOAD_MB and its form), and spools there too what an answer brings faster than the client
+    # takes it (a file's download, an export); the tmpfs counts against the memory limit: room for the
+    # API's two uploads at once, the limit above it. Uploads and downloads share it: a third large upload
+    # or a large download beside two can fail here, with nginx's own answer rather than the API's JSON.
+    # (In a cluster the ingress buffers; the pod keeps 64Mi.)
     tmpfs: ["/tmp:size=192m"]
     mem_limit: 256m
     pids_limit: 256

@@ -906,13 +906,15 @@ der Modelle 1g), Prozesse und Threads (`pids_limit` 256, Konverter 512), `/tmp` 
 (API und Worker 256m, Webserver 192m, Konverter 1g, sonst 64m) und rotierte Logs (`json-file`, 10 MB × 3).
 Das tmpfs zählt zum Arbeitsspeicher des Containers: Die API hält dort die Uploads, die sie gleichzeitig
 annimmt (`MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1) MiB), der Webserver puffert dort jeden Body ganz,
-bevor er ihn weitergibt; ein dritter großer Upload im selben Moment kann am Webserver scheitern, mit dessen
-Antwort statt der JSON-Form der API. Die Werte sind nicht unter Last gemessen; die des Konverters stützen
+bevor er ihn weitergibt, und legt dort auch ab, was eine Antwort schneller bringt, als der Client sie nimmt
+(Download einer Datei, Export); ein dritter großer Upload oder ein großer Download neben zwei Uploads kann am
+Webserver scheitern, mit dessen Antwort statt der JSON-Form der API. Die Werte sind nicht unter Last gemessen; die des Konverters stützen
 sich auf die Spitzen des Konverter-Workflows an kleinen Testdateien (Texterkennung `rss` 3.308 MiB), echte
 Lehrpläne können mehr brauchen. Der Webserver begrenzt Anfragen an `/api/` je Client-Adresse auf 50 je
 Sekunde mit Spitzen bis 100 (`limit_req` in `deploy/nginx-api.conf`, die Zone in `deploy/nginx.conf`) und
 antwortet darüber mit 429 im Format von nginx, nicht der API; hinter einer gemeinsamen NAT-Adresse teilen sich
-alle Clients diese Grenze. Im Cluster setzt das Helm-Beispiel dafür `nginx.ingress.kubernetes.io/limit-rps`.
+alle Clients diese Grenze. Unter Compose kommt jeder Client von derselben Adresse (der Port liegt nur auf
+`127.0.0.1`, ebenso hinter einem Proxy auf dem Host): Dort gilt die Grenze für die ganze Instanz. Im Cluster setzt das Helm-Beispiel dafür `nginx.ingress.kubernetes.io/limit-rps`.
 
 Konverter-Image (Paket 3b): dasselbe Image mit Docling, EasyOCR und torch ohne CUDA (rund 2 GB),
 `docker build -f deploy/api.Dockerfile --build-arg VENV=convert -t curricarta-convert:local .`. Ohne Argument

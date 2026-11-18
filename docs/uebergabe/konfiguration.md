@@ -1,6 +1,6 @@
 # Konfiguration
 
-[Antworten für das IT-Team](anforderungen.md) · Stand H-4 (Betrieb), 18.11.2026
+[Antworten für das IT-Team](anforderungen.md) · Stand 18.11.2026 (Betrieb)
 
 Der Dienst liest seine Einstellungen beim Start aus Umgebungsvariablen; API und Worker lesen
 dieselben. Ein Geheimnis kann stattdessen aus der Datei kommen, die `<NAME>_FILE` nennt
@@ -125,7 +125,7 @@ ein Test schlägt an, wenn sie veraltet.
   wartet bis zu 10 s auf einen freien Platz und bekommt dann 503 `uploads_busy` mit
   `Retry-After`. `/tmp` braucht daher mindestens `MAX_CONCURRENT_UPLOADS` × (`MAX_UPLOAD_MB` + 1)
   MiB je API-Prozess (Standard: 2 × 51 = 102 MiB). Compose gibt der API ein tmpfs von 256 MiB, das
-  Helm-Beispiel jedem Pod ein `emptyDir` von 256Mi; wer die Werte erhöht, vergrößert beide (und unter
+  Helm-Beispiel jedem Pod außer dem Konverter (1Gi) ein `emptyDir` von 256Mi; wer die Werte erhöht, vergrößert beide (und unter
   Compose `mem_limit`, zu dem das tmpfs zählt). `UPLOADS_PER_MINUTE` zählt je Konto; ein Konto
   kann alle Plätze einer Replica belegen.
 - Der Rand vor der API (Proxy, Ingress) muss den Body einer Anfrage ganz puffern, bevor er ihn

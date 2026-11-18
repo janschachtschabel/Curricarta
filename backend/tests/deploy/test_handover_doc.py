@@ -21,7 +21,8 @@ COMPOSE_FILES = ("docker-compose.yml", "docker-compose.converter.yml")
 HELM: dict[str, Any] = yaml.safe_load(
     (ROOT / "deploy" / "helm-values.example.yaml").read_text(encoding="utf-8")
 )
-STAND = re.compile(r"\bStand ([A-Z][^,\n]*, \d{1,2}\.\d{1,2}\.\d{4})")
+# "Stand <date> (<what>)": a date and a word any reader understands, no name of a plan's package
+STAND = re.compile(r"\bStand (\d{1,2}\.\d{1,2}\.\d{4} \([^()\n]+\))")
 
 
 def exported_metrics() -> set[str]:
