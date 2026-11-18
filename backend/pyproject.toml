@@ -129,8 +129,9 @@ select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
 [tool.mypy]
 python_version = "3.13"
 strict = true
-# the tests too: a helper they share is typed like the code it serves
-files = ["app", "tests"]
+# the tests too: a helper they share is typed like the code it serves; the tools, and the script that
+# writes a deployment's secrets. The one list: the CI runs mypy without paths (tests/deploy/test_ci.py)
+files = ["app", "tests", "tools", "../deploy/make-secrets.py"]
 # the ontology's tools the lexicon tests import, checked as strictly as the code
 mypy_path = "../ontology/werkzeuge"
 explicit_package_bases = true
@@ -155,6 +156,12 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 # regex ships no types (types-regex would be one more download); the lexicon's patterns use it
 module = ["regex"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+# reportlab is no dependency (types-reportlab would be one more download): tools/make_conversion_fixtures.py
+# runs with it in an environment of its own
+module = ["reportlab", "reportlab.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
