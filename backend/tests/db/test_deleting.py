@@ -233,7 +233,7 @@ async def test_a_file_that_cannot_go_leaves_the_younger_ones_to_go(
     files: FileSystemStorage,
 ) -> None:
     # the oldest file no entry holds stands first every night: a failure of its own must not keep the others
-    stuck = add_conversion(setup, b"" * 32, made["owner"])
+    stuck = add_conversion(setup, b"\x05" * 32, made["owner"])
     add_document(setup, made, conversion_id=stuck["conversion"])  # names its conversion: it cannot go
     setup.execute("DELETE FROM source WHERE id = %s", (stuck["source"],))
     left = add_conversion(setup, DIGEST, made["owner"])
