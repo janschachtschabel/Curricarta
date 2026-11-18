@@ -19,7 +19,7 @@ ROOT = Path(__file__).resolve().parents[3]
 TEXT = (ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8")
 COMPOSE: dict[str, Any] = yaml.safe_load(TEXT)
 SERVICES: dict[str, Any] = COMPOSE["services"]
-APP = ["bucket", "migrate", "vocab", "api", "worker"]
+APP = ["bucket", "migrate", "vocab", "api", "worker", "retention"]
 # The services that run on; the one-off steps end, and a restart would run them again
 LASTING = ["postgres", "minio", "api", "worker", "web"]
 # A second beside a stopping worker's own waits, for the process to end after them
@@ -177,3 +177,48 @@ def test_the_secret_files_are_kept_out_of_git() -> None:
     ignored = (ROOT / ".gitignore").read_text(encoding="utf-8").splitlines()
 
     assert "/deploy/secrets/" in ignored
+
+
+def test_compose_starts_the_sweep_only_when_asked() -> None:
+    # `docker compose --profile retention run --rm retention`, from the operator's timer: never with up
+    sweep = SERVICES["retention"]
+
+    assert sweep["profiles"] == ["retention"]
+    assert sweep["command"] == ["python", "-m", "app.retention"]
+    assert "restart" not in sweep and "replicas" not in sweep.get("deploy", {})
+    # beside the running service: never the migration or the bucket's step again
+    assert set(sweep["depends_on"]) == {"postgres", "minio"}
+
+
+def test_the_sweep_holds_neither_the_pepper_nor_the_model_s_key() -> None:
+    # the anchor's list would hand it the pepper: its own, the database and the store alone
+    sweep = SERVICES["retention"]
+
+    assert sweep["secrets"] == ["database_url", "s3_access_key", "s3_secret_key"]
+    assert not {"API_KEY_PEPPER_FILE", "OPENAI_API_KEY_FILE"} & set(sweep["environment"])
+
+
+def test_the_sweep_reaches_the_store_as_the_worker_does() -> None:
+    # without the store it lists nothing there: it would forget every note and leave the objects for good
+    sweep, worker = SERVICES["retention"], SERVICES["worker"]
+    store = {
+        name: value
+        for name, value in COMPOSE["x-app"]["environment"].items()
+        if name.startswith(("S3_", "STORAGE_"))
+    }
+
+    assert store and {name: sweep["environment"].get(name) for name in store} == store
+    assert sweep.get("volumes") == worker.get("volumes")
+
+
+def test_the_times_of_the_retention_reach_the_sweep() -> None:
+    # set under another service alone, a time - a 0 to keep everything - would not reach the sweep
+    sweep = SERVICES["retention"]["environment"]
+    elsewhere = {
+        name: value
+        for service in (COMPOSE["x-app"], *(SERVICES[name] for name in SERVICES if name != "retention"))
+        for name, value in service.get("environment", {}).items()
+        if name.startswith("RETENTION_")
+    }
+
+    assert {name: sweep.get(name) for name in elsewhere} == elsewhere

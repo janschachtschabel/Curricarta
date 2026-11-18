@@ -86,6 +86,7 @@ S3-Objektspeicher.
 |---|---|
 | Laufende Kosten? | Das Sprachmodell je Aufruf (Kontingente je Konto ab M1); sonst CPU, Speicher, PostgreSQL und Objektspeicher. Keine GPU |
 | Wartung? | Abhängigkeiten über `uv.lock`, Basis-Images über ihren Digest; ein Update ist ein eigener, geprüfter Commit |
+| Aufbewahrung? | Täglich `python -m app.retention` (CronJob `retention` im Helm-Beispiel, Dienst `retention` in Compose): beendete Jobs nach 90 Tagen, Audit-Log nach 365, Rohantworten 30 Tage nach ihrem Lauf; das Kostenbuch nie. Dokumente und Einträge löscht die API. Die Regel je Tabelle: [Sicherung](sicherung.md), „Aufbewahrung und Löschen“ |
 | Dritte zur Anfragezeit? | Keine in der API. Live nur in Jobs des Workers: das Sprachmodell, der SPARQL-Endpunkt von MEM-Schule (`MEM_SPARQL_URL`: der Katalog-Job eines Admins und der Import-Job je Plan; die abgerufenen Pläne bleiben in der Datenbank und im Objektspeicher der Instanz und werden nie mit der App ausgeliefert), der Abruf von Quell-URLs, die ein Konto nennt (`source.fetch`), und der Prüfjob, den ein Admin startet (`source.check`): er fragt jede Adresse der Einträge ohne Konto und ohne Datei einmal ab (nach beiden Saaten rund 1.800 Adressen auf über 140 Hosts), prüft jede Adresse und jedes Weiterleitungsziel gegen die robots.txt seines Hosts, hält je Host `CHECK_HOST_INTERVAL_S` Abstand über alle Worker, wartet die `Retry-After` eines 429 oder 503 ab, stellt sich mit `FETCH_USER_AGENT` vor und umgeht kein 403 oder 429. Abgerufen wird nur von öffentlichen Adressen (kein privates, Loopback-, Link-Local-, CGNAT-, Multicast- oder NAT64-Netz), verbunden genau zur geprüften Adresse, ohne Proxy der Umgebung; die NetworkPolicy des Workers erlaubt dafür 80/443 ins öffentliche Netz (`public-web` im [Helm-Beispiel](../../deploy/helm-values.example.yaml): `0.0.0.0/0` und `::/0` ohne die privaten, CGNAT- und Link-Local-Netze, also auch ohne die Metadaten-Adresse 169.254.169.254, und ohne die Netze des Clusters, die der Betrieb einträgt). Fremddaten kommen ab M3 als lokale Abzüge |
 
 ## Offene Punkte
@@ -97,7 +98,6 @@ S3-Objektspeicher.
   4. Alle drei Pakete öffentlich stellen.
   5. Den ersten Versions-Tag `v0.1.0` setzen und pushen, nur auf einen Commit von main, dessen `ci`-Lauf grün ist. Sein Lauf ist beim ersten Versuch grün: Die Zusammenfassung zeigt die Digests, der Job `start` startet den Dienst aus der Registry.
   Scheitert in einem Versions-Lauf ein Job, wird er mit „Re-run failed jobs“ wiederholt, nie mit „Re-run all jobs“: Ein wiederholter Job, dessen Images schon gepusht sind, findet sie und bricht ab; hat der Job `images` nur einen Teil gepusht, hilft das Löschen dieser Paketversion oder eine neue Version. Ein `sha-`-Image kann von jedem Branch stammen; nur `X.Y.Z` ist ein Release.
-- Sicherung und Aufbewahrung.
 - Abstimmung der Content-Types für Uploads und Dateiausgaben (M1).
 - Prüfsummen beim Objektspeicher: boto3 schickt seit 1.36 bei jedem Schreiben eine CRC32-Prüfsumme
   mit (`x-amz-checksum-crc32`, über HTTPS als `aws-chunked`), die manche S3-kompatiblen Dienste

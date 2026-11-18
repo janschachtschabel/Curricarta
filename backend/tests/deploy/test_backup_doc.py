@@ -166,3 +166,30 @@ def test_the_document_names_every_prefix_the_store_holds() -> None:
     assert written == {"sources/", "runs/", "exports/"}
     for prefix in written:
         assert f"`{prefix}`" in scope, prefix
+
+
+def _retention_rows() -> list[str]:
+    """The rows of the table in the section "Aufbewahrung und Löschen"."""
+    section = DOC[DOC.index("## Aufbewahrung und Löschen") :].split("\n## ", 1)[0]
+    return [line for line in section.splitlines() if line.startswith("| ") and not line.startswith("|---")]
+
+
+def test_every_table_that_grows_has_its_rule() -> None:
+    # each table the migrations make stands in exactly one row: how its rows go - by which way, under
+    # which setting - or why they stay; a new table without its row turns this red
+    migrations = ROOT / "backend" / "app" / "db" / "migrations"
+    tables = {
+        name
+        for path in migrations.glob("*.sql")
+        for name in re.findall(r"CREATE TABLE (\w+)", path.read_text(encoding="utf-8"))
+    }
+    rows = _retention_rows()
+    named = [name for row in rows[1:] for name in set(re.findall(r"`(\w+)`", row))]
+
+    assert {"job", "audit_log", "llm_usage", "gold_sample", "storage_garbage"} <= tables
+    assert sorted(name for name in named if name in tables) == sorted(tables)
+    table = "\n".join(rows)
+    for setting in ("RETENTION_JOBS_DAYS", "RETENTION_AUDIT_DAYS", "RETENTION_RAW_ANSWERS_DAYS"):
+        assert f"`{setting}`" in table, setting
+    for prefix in ("runs/", "exports/", "sources/"):
+        assert f"`{prefix}" in table, prefix

@@ -1,6 +1,6 @@
 # Sicherung, Wiederherstellung, Rollback
 
-[Antworten für das IT-Team](anforderungen.md) · Stand 14.11.2026
+[Antworten für das IT-Team](anforderungen.md) · Stand 18.11.2026
 
 Curricarta hält keinen Zustand im Prozess: Was zählt, liegt in PostgreSQL und im Objektspeicher,
 dazu in den Geheimnissen, mit denen der Dienst beides liest. Diese Seite sagt, was davon zu sichern
@@ -184,3 +184,57 @@ Die Tests des Skripts (`backend/tests/deploy/test_restore_drill.py`) laufen ohne
 Ersatz, der jedes Kommando nur liest. **Mit Docker ist die Übung noch nicht gelaufen**: Jeder ihrer
 Schritte ist unbewiesen, auch das Anlegen von MinIOs Volume per `create minio` vor dem Entpacken. Ihr
 erster Lauf und seine Zählwerte werden hier nachgetragen.
+
+## Aufbewahrung und Löschen
+
+Was wächst, geht auf einem von drei Wegen: durch den täglichen Lauf `python -m app.retention` (Fristen
+in Tagen, 0 behält alles; `docs/uebergabe/konfiguration.md`), durch das Löschen eines Dokuments oder
+eines Eintrags über die API, oder die Tabelle räumt sich beim Schreiben selbst auf. Jede Tabelle der
+Datenbank steht in genau einer Zeile (ein Test hält das gegen die Migrationen).
+
+| Was | Wann es geht | Weg | Einstellung |
+|---|---|---|---|
+| Jobs: `job` | beendet und älter als die Frist; nie der letzte Job eines Dokuments (er sagt, wie die Arbeit daran endete), einer, auf den eine Konvertierung wartet, oder einer mit offener Reservierung. Ein gelöschter Job antwortet unter `GET /api/v1/jobs/{id}` mit 404 | Lauf | `RETENTION_JOBS_DAYS` (90) |
+| Audit-Log: `audit_log` | älter als die Frist | Lauf | `RETENTION_AUDIT_DAYS` (365) |
+| Rohantworten eines Laufs unter `runs/<Lauf>/` (die Zeile des Laufs bleibt, ihr `raw_response_key` wird leer) | nach der Frist ab dem Ende des Laufs, auch bei festgeschriebenen Dokumenten (ihre Aussagen bleiben, wie sie festgeschrieben sind); sofort mit ihrem Dokument | Lauf; Löschen des Dokuments | `RETENTION_RAW_ANSWERS_DAYS` (30) |
+| Kostenbuch: `llm_usage`, `conversion_usage` | nie: das Budget ist ihre Summe über die ganze Zeit; auch das Löschen eines Dokuments oder Eintrags lässt sie stehen | – | – |
+| Reservierungen: `usage_reservation` | sobald gebucht oder zurückgegeben | Worker | – |
+| Zähler: `rate_event`, `auth_failure` | beim Schreiben, was aus dem Zeitfenster gefallen ist | selbst | – |
+| Dokument: `document` mit `document_profile`, `specification`, `variant`, `extraction_run`, `node`, `statement`, `statement_addressee`, `frame_part`, `anchor`, `anchor_block`, `validation_finding`, `extraction_unit` | mit dem Dokument (Eigentümer, Redaktion, Admin); nie ein festgeschriebenes, nie neben seinem wartenden oder laufenden Job | `DELETE /api/v1/documents/{id}` | – |
+| Goldstandard: `gold_sample`, `gold_item`, `gold_judgement` | mit ihrem Dokument; keine eigene Frist | `DELETE /api/v1/documents/{id}` | – |
+| Exporte unter `exports/<Dokument>/` | mit ihrem Dokument; ein wiedererzeugbarer Zwischenspeicher (ein Export entsteht beim nächsten Abruf neu) | Löschen des Dokuments; Lauf | – |
+| Register: `source`, `acquisition` | mit dem Eintrag (Eigentümer; Redaktion und Admin bei Einträgen mit Konto); nie ein Eintrag ohne Konto (Saat), nie einer mit Dokumenten, nie neben seinem Abruf oder einer wartenden Konvertierung seiner Datei | `DELETE /api/v1/sources/{id}` | – |
+| Dateien: `source_file`, `conversion`, `document_block` und das Objekt unter `sources/<SHA-256>` | wenn kein Eintrag die Datei mehr hält: die Zeilen in der Anfrage (sonst beim nächsten Lauf), das Objekt beim nächsten Lauf | Löschen des Eintrags; Lauf | – |
+| Notizen für den Speicher: `storage_garbage` | sobald der Lauf (oder die Anfrage, die sie schrieb) den Ort geleert hat | Lauf | – |
+| Saat und Prüfungen: `source_seed`, `access_note`, `url_check`, `host_throttle` | bleiben: je Eintrag, Adresse oder Host eine Zeile, ein neuer Import oder eine neue Prüfung überschreibt sie | – | – |
+| Konten: `account`, `role_grant`, `api_key`, `quota` | bleiben; ein Admin sperrt Konten und widerruft Schlüssel | – | – |
+| Vokabulare, Lexikon, Katalog: `vocab_release`, `vocab_scheme`, `vocab_concept`, `terminology_profile`, `lexical_cue`, `cue_review`, `term_review`, `mem_plan` | bleiben; ein neuer Stand ersetzt oder zieht zurück | – | – |
+| `entity`, `work`, `job_lane` | bleiben: klein und Ziel fremder Schlüssel; eine gelöschte Spur ließe das Einreihen ihres nächsten Jobs scheitern | – | – |
+
+Der Lauf wird vom Zeitgeber des Betreibers gestartet, einmal am Tag: im Cluster als CronJob
+(`retention` im [Helm-Beispiel](../../deploy/helm-values.example.yaml), `17 3 * * *`, nie zwei
+zugleich), in Compose als eigener Dienst, der nur auf Anfrage läuft:
+
+```text
+docker compose -f deploy/docker-compose.yml --profile retention run --rm -T retention
+```
+
+Nur zählen, ohne etwas zu ändern, geht mit `--dry-run` hinter demselben Befehl (`run --rm -T retention
+python -m app.retention --dry-run`): mit den Fristen des Dienstes `retention`, die nur er liest. Die
+Ausgabe ist eine JSON-Zeile mit Zählwerten: `jobs`, `audit_entries`, `runs` (Läufe, deren Rohantworten
+gingen), `objects` (aus dem Speicher genommen), `refused` und `files` (Dateien ohne Eintrag, deren Zeile
+ging). Der Lauf braucht den Objektspeicher wie der Worker: Ein Dateispeicher, dessen Ordner fehlt, lässt
+ihn mit Exit-Code 1 enden, solange Notizen warten, statt sie zu vergessen.
+
+Erst notiert, dann geleert: Wer eine Zeile nimmt, die ein Objekt nennt, schreibt den Ort in derselben
+Transaktion nach `storage_garbage`; geleert wird nach dem Commit, und erst dann geht die Notiz. War der
+Speicher fort, bleibt die Notiz für den nächsten Lauf. Einen Ort, den der Speicher als Schlüssel für
+immer ablehnt (etwa einen Gerätenamen unter Windows), lässt der Lauf liegen, zählt ihn unter `refused`
+und endet mit Exit-Code 1, jede Nacht, bis jemand die Notiz entfernt. Die wartenden Notizen zeigt nach
+einem solchen Lauf
+`docker compose -f deploy/docker-compose.yml exec -T postgres psql -U curricarta -d curricarta -c "SELECT prefix FROM storage_garbage ORDER BY noted_at"`.
+
+Ein Objekt, das keine Zeile nennt, findet der Lauf nicht: Er kennt nur die notierten Orte und die
+Zeilen, er geht den Speicher nicht durch. So bleibt das Objekt eines Uploads oder Abrufs, der zwischen
+dem Ablegen und dem Schreiben seiner Zeile abbrach. Es kostet nur seine Bytes. Wer solche Objekte
+sucht, vergleicht die Liste des Speichers unter `sources/` mit `storage_key` in `source_file`.

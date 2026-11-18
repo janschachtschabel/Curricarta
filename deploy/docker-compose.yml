@@ -124,6 +124,32 @@ services:
       migrate: {condition: service_completed_successfully}
       bucket: {condition: service_completed_successfully}
 
+  # The sweep of what is past its time (python -m app.retention), only when asked - from the operator's
+  # timer, daily:
+  #   docker compose -f deploy/docker-compose.yml --profile retention run --rm retention
+  # Its own secrets and environment: the anchor's would hand it the pepper. The store's settings are the
+  # anchor's (a sweep without the store would forget its notes and leave the objects); RETENTION_*
+  # (0 keeps everything) are set here, the one service that reads them
+  retention:
+    <<: *app
+    profiles: [retention]
+    command: [python, -m, app.retention]
+    secrets: [database_url, s3_access_key, s3_secret_key]
+    environment:
+      DATABASE_URL_FILE: /run/secrets/database_url
+      STORAGE_BACKEND: s3
+      S3_ENDPOINT_URL: http://minio:9000
+      S3_BUCKET: curricarta
+      S3_ACCESS_KEY_FILE: /run/secrets/s3_access_key
+      S3_SECRET_KEY_FILE: /run/secrets/s3_secret_key
+      LOG_FORMAT: json
+      # RETENTION_RAW_ANSWERS_DAYS: "30"
+    healthcheck: {disable: true}
+    # beside the running service: the one-off steps are not run again for it
+    depends_on:
+      postgres: {condition: service_healthy}
+      minio: {condition: service_started}
+
   web:
     image: curricarta-web:local
     build:

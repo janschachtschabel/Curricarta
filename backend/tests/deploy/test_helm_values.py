@@ -54,7 +54,7 @@ def test_no_container_runs_as_root_or_with_capabilities() -> None:
     assert container["allowPrivilegeEscalation"] is False
 
 
-@pytest.mark.parametrize("part", ["api", "worker", "migrate", "vocab"])
+@pytest.mark.parametrize("part", ["api", "worker", "migrate", "vocab", "retention"])
 def test_secrets_are_named_never_given(part: str) -> None:
     secrets = VALUES[part]["secrets"]
 
@@ -172,3 +172,34 @@ def test_the_worker_reaches_the_public_web_on_80_and_443_and_nothing_private() -
         for entry in blocks["0.0.0.0/0"]
         if not entry.startswith("<")
     )
+
+
+def test_the_sweep_runs_daily_never_two_at_once_and_ends_in_time() -> None:
+    # python -m app.retention holds a session's lock against a second run; Forbid keeps a late one from
+    # starting beside it, and the deadline ends one stuck on a lock or on the store
+    sweep = VALUES["retention"]
+
+    assert sweep["schedule"] == "17 3 * * *"
+    assert sweep["command"] == ["python", "-m", "app.retention"]
+    assert sweep["concurrencyPolicy"] == "Forbid"
+    assert 0 < sweep["activeDeadlineSeconds"] < 24 * 3600
+    assert sweep["backoffLimit"] == 0
+    assert {"requests", "limits"} <= set(sweep["resources"])
+
+
+def test_the_sweep_holds_neither_the_pepper_nor_the_model_s_key() -> None:
+    # the database and the store are all it reaches
+    assert VALUES["retention"]["secrets"]["keys"] == ["DATABASE_URL", "S3_ACCESS_KEY", "S3_SECRET_KEY"]
+
+
+def test_the_sweep_reaches_the_store_as_the_worker_does() -> None:
+    # a sweep without the store lists nothing in it: it would forget every note and leave the objects for
+    # good. The store's settings are every container's (objectStorage); none under the sweep overrides them
+    assert not set(VALUES["objectStorage"]["env"]) & set(VALUES["retention"].get("env", {}))
+    assert {"S3_ACCESS_KEY", "S3_SECRET_KEY"} <= set(VALUES["retention"]["secrets"]["keys"])
+
+
+@pytest.mark.parametrize("part", ["api", "worker"])
+def test_the_times_of_the_retention_reach_the_sweep(part: str) -> None:
+    # set under the API or the worker alone, a time - a 0 to keep everything - would not reach the sweep
+    assert not [name for name in VALUES[part].get("env", {}) if name.startswith("RETENTION_")]

@@ -20,6 +20,9 @@ env:                          # for every container of the service
   LOG_LEVEL: INFO
   PUBLIC_ACCESS: "off"
   # LLM_MAX_OUTPUT_TOKENS: "16000"   # for API and worker alike, here and never under one of them
+  # RETENTION_JOBS_DAYS: "90"        # here or under retention, never under the API or the worker alone:
+  # RETENTION_AUDIT_DAYS: "365"      # the sweep reads them (0 keeps everything)
+  # RETENTION_RAW_ANSWERS_DAYS: "30"
 
 podSpec:
   enableServiceLinks: false   # a Service named "internal" would set INTERNAL_PORT=tcp://... in every pod
@@ -110,6 +113,24 @@ vocab:
   secrets:
     existingSecret: curricarta-secrets
     keys: [DATABASE_URL]
+
+# The sweep of what is past its time (python -m app.retention; docs/uebergabe/sicherung.md, "Aufbewahrung
+# und Löschen"), as a CronJob: daily, never beside a late one (it holds a session's lock as well), ended
+# by the deadline where a lock or the store holds it. A direct connection to PostgreSQL, never a pooler's
+# transaction mode. The store's settings are every container's (objectStorage): without the store it
+# would forget its notes and leave the objects. No pepper, no model's key.
+retention:
+  schedule: "17 3 * * *"
+  concurrencyPolicy: Forbid
+  backoffLimit: 0             # the next night's run takes up what this one left
+  activeDeadlineSeconds: 3600
+  command: [python, -m, app.retention]
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { cpu: 500m, memory: 512Mi }
+  secrets:
+    existingSecret: curricarta-secrets
+    keys: [DATABASE_URL, S3_ACCESS_KEY, S3_SECRET_KEY]
 
 web:
   replicas: 2
