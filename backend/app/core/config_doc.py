@@ -16,7 +16,8 @@ from pydantic import SecretStr
 from pydantic.fields import FieldInfo
 from pydantic_core import PydanticUndefined
 
-from app.core.settings import REPOSITORY_ONTOLOGY, Settings, _is_secret
+from app.core.secret_files import is_secret
+from app.core.settings import REPOSITORY_ONTOLOGY, Settings
 from app.llm.settings import LLMSettings
 
 DOCUMENT = Path(__file__).resolve().parents[3] / "docs" / "uebergabe" / "konfiguration.md"
@@ -58,7 +59,7 @@ def setting_rows() -> list[Row]:
             default = _default(field)
             if variable in CONDITIONS:
                 default = f"{default}; {CONDITIONS[variable]}"
-            rows.append(Row(variable, _allowed(field), default, _is_secret(field.annotation), part))
+            rows.append(Row(variable, _allowed(field), default, is_secret(field.annotation), part))
     return rows
 
 
