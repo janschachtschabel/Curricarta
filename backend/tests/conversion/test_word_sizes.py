@@ -2,6 +2,7 @@
 
 from app.conversion.docling_pages import DoclingWord
 from app.conversion.word_sizes import sized
+from tests.support import cpu_seconds
 
 
 def test_each_word_takes_the_size_of_the_text_layer_s_signs_within_it() -> None:
@@ -39,15 +40,13 @@ def test_a_word_takes_the_size_of_its_own_signs_not_of_hidden_ones_under_it() ->
 
 def test_sizing_a_page_of_many_words_on_one_line_takes_no_longer_than_reading_them() -> None:
     # every word on one band: compared with every sign there, 4,000 words and 20,000 signs took seconds
-    import time
-
     words = [DoclingWord("abcde", (at * 5.0, 100, at * 5.0 + 5, 101), "/F+Helvetica") for at in range(4000)]
     signs = [(at * 1.0 + 0.5, 100.5, 1.0, "a") for at in range(20000)]
 
-    started = time.perf_counter()
-    measured = sized(words, signs)
+    measured: list[DoclingWord] = []
 
-    assert time.perf_counter() - started < 1.0
+    # 0.17 s of CPU time here (2026-11-18): a bound six times that, comparing every sign took seconds
+    assert cpu_seconds(lambda: measured.extend(sized(words, signs))) < 1.0
     assert measured[0].size == 1.0
 
 

@@ -995,8 +995,9 @@ def test_a_block_most_of_whose_lines_are_no_entries_is_no_contents() -> None:
 
 
 def test_a_pattern_that_takes_too_long_types_nothing_and_is_named() -> None:
-    # 0.2 s on 190 signs, four times the limit
-    slow = own_cue("slow", r"(x+x+x+x+)+y", "T")
+    # exponential: past 10 s on 190 signs, two hundred times the limit - and cut at it; (x+x+x+x+)+y
+    # took 0.2 s, four times it, too close for a fast runner
+    slow = own_cue("slow", r"(x|x)+y", "T")
 
     paragraphs = [block(f"p2-b{number}", BODY) for number in range(2, 5)]
     found = skeleton(
@@ -1012,9 +1013,9 @@ def test_a_pattern_that_takes_too_long_types_nothing_and_is_named() -> None:
 @pytest.mark.parametrize(
     ("slow", "rule"),
     [
-        (own_cue("slow", r"(x+x+x+x+)+y", "T", strength=0.5, role=HOMONYM), None),  # it may have found it
-        (own_cue("slow", r"(x+x+x+x+)+y", "U"), None),  # it may have named another type
-        (own_cue("slow", r"(x+x+x+x+)+y", "U", strength=0.5), "strong"),  # it types nothing
+        (own_cue("slow", r"(x|x)+y", "T", strength=0.5, role=HOMONYM), None),  # it may have found it
+        (own_cue("slow", r"(x|x)+y", "U"), None),  # it may have named another type
+        (own_cue("slow", r"(x|x)+y", "U", strength=0.5), "strong"),  # it types nothing
     ],
     ids=["homonym", "strong", "weak"],
 )

@@ -14,6 +14,7 @@ from app.pipeline import anchor_fuzzy, anchor_passage
 from app.pipeline.anchor_check import MAX_FUZZY, check_wording
 from app.pipeline.anchor_fuzzy import FUZZY_PLACES, FUZZY_QUOTE, MIN_RATIO
 from app.pipeline.anchor_match import ELIDED_GAP, words
+from tests.support import cpu_seconds
 
 TWO = ["Die Schülerinnen und Schüler\nbeschreiben die Strukturen.", "Zweiter Absatz auf der zweiten Seite."]
 
@@ -713,9 +714,8 @@ def test_a_wording_with_a_long_run_of_dots_is_cut_in_linear_time() -> None:
     from app.pipeline.anchor_match import needle
 
     wording = "… Die Lernenden " + "." * 20_000 + " beschreiben ..."
-    started = time.process_time()
+    cut: list[str] = []
 
-    cut = needle(wording)
-
-    assert time.process_time() - started < 0.5  # 20,000 dots took two seconds
-    assert cut.startswith("Die Lernenden") and cut.endswith("beschreiben")
+    # 0.02 s of CPU time here (2026-11-18); 20,000 dots took two seconds
+    assert cpu_seconds(lambda: cut.append(needle(wording))) < 0.5
+    assert cut[0].startswith("Die Lernenden") and cut[0].endswith("beschreiben")

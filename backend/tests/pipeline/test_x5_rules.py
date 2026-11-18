@@ -2,11 +2,10 @@
 or value taken for a statement of unclear kind, a lead-in taken for one of its own (acceptance M1:
 255 statements of unclear kind, many a label's)."""
 
-import time
-
 import pytest
 
 from app.pipeline.x5_checks import is_label, is_lead_in
+from tests.support import cpu_seconds
 
 UNCLASSIFIED = "https://w3id.org/wlo/curriculum/vocab#kind_unclassified"
 CONTENT = "https://w3id.org/wlo/curriculum/vocab#kind_content"
@@ -181,8 +180,5 @@ def test_a_sentence_before_a_value_is_no_value() -> None:
 
 
 def test_a_long_run_of_closing_signs_is_read_in_linear_time() -> None:
-    started = time.perf_counter()
-
-    is_label("ab" + ")" * 20_000 + "." + ")" * 20_000 + "x", UNCLASSIFIED)
-
-    assert time.perf_counter() - started < 0.5
+    # 0.04 s of CPU time here (2026-11-18)
+    assert cpu_seconds(lambda: is_label("ab" + ")" * 20_000 + "." + ")" * 20_000 + "x", UNCLASSIFIED)) < 0.5

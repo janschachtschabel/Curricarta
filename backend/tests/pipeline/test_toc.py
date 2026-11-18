@@ -2,13 +2,12 @@
 lines and blocks, pages set as a column of their own, a heading after the contents, a part on a divider
 page, numberings set apart and pages counted by the print the PDF reprints."""
 
-import time
-
 import pytest
 
 from app.conversion.base import Block
 from app.pipeline.toc import leading_number, number_depth, title_key
 from tests.pipeline.test_skeleton import BODY, COVER, block, shape, skeleton, table, titles
+from tests.support import cpu_seconds
 
 LEADER = "." * 40
 
@@ -446,12 +445,11 @@ def test_a_numbering_set_apart_lies_as_deep_and_keys_its_title_as_its_heading_s(
 def test_contents_of_a_line_a_block_are_read_in_linear_time() -> None:
     entries = [block(f"p2-b{at}", f"Stichwort Nummer {at} ..... {3 + at // 100}") for at in range(2, 4002)]
     blocks = [COVER, block("p2-b1", "Inhalt", size=16), *entries, block("p60-b1", BODY)]
-    started = time.perf_counter()
+    found = []
 
-    found = skeleton(blocks)
-
-    assert time.perf_counter() - started < 3  # looked back over the run at each block: 21 s
-    assert len(found.contents.entries) == 4000
+    # 0.3 s of CPU time here (2026-11-18); looked back over the run at each block: 21 s
+    assert cpu_seconds(lambda: found.append(skeleton(blocks))) < 3
+    assert len(found[0].contents.entries) == 4000
 
 
 def test_an_imprint_the_contents_list_without_a_page_never_heads_the_parts() -> None:
@@ -795,9 +793,8 @@ def test_a_long_line_of_fill_signs_is_no_entry_and_costs_no_time(fill: str) -> N
     long_line = block("p2-b2", "Stichwort " + fill * 40_000)
     entries = [block(f"p2-b{at}", f"Stichwort Nummer {at} ..... {at}") for at in range(3, 8)]
     blocks = [COVER, block("p2-b1", "Inhalt", size=16), long_line, *entries, block("p60-b1", BODY)]
-    started = time.process_time()
+    found = []
 
-    found = skeleton(blocks)
-
-    assert time.process_time() - started < 2  # 40,000 signs took a minute and more
-    assert "Stichwort" not in {entry.title for entry in found.contents.entries}
+    # 0.02 s of CPU time here (2026-11-18); 40,000 signs took a minute and more
+    assert cpu_seconds(lambda: found.append(skeleton(blocks))) < 2
+    assert "Stichwort" not in {entry.title for entry in found[0].contents.entries}

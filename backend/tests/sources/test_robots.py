@@ -4,7 +4,6 @@ an allow a tie; our own group, else that of "*"; and what to do when the file ca
 import asyncio
 import random
 import re
-import time
 from collections.abc import AsyncIterator, Callable
 from typing import Any
 
@@ -27,6 +26,7 @@ from app.sources.robots import (
 )
 from app.sources.url_fetch import UrlNotAllowed
 from tests.sources.compressed import CHUNK, MIB, arriving, in_chunks
+from tests.support import cpu_seconds
 
 PRODUCT = "Curricarta"
 SITE = "https://lehrplaene.example"
@@ -169,10 +169,12 @@ def test_a_path_with_letters_beyond_ascii_matches_however_it_is_spelled() -> Non
 def test_stars_without_end_match_in_no_time() -> None:
     # a regex of many stars backtracks without end on an address that does not match
     rule = "/" + "*a" * 40 + "b"
-    started = time.perf_counter()
+    allowed: list[bool] = []
+    text = f"User-agent: *\nDisallow: {rule}\n"
 
-    assert allows(f"User-agent: *\nDisallow: {rule}\n", "/" + "a" * 1_900)
-    assert time.perf_counter() - started < 1.0
+    # a few milliseconds of CPU time here (2026-11-18); a backtracking regex never ends
+    assert cpu_seconds(lambda: allowed.append(allows(text, "/" + "a" * 1_900))) < 1.0
+    assert allowed == [True]
 
 
 @pytest.mark.parametrize("run", [MAX_RULE_SIGNS - 5, 240], ids=["one-long-run", "runs-str-find-walks"])
@@ -183,10 +185,11 @@ def test_a_file_full_of_star_rules_matches_the_longest_address_in_bounded_time(r
     rule = "/*" + "a" * run + "baa"
     rules = Rules(disallow=(rule,) * min(MAX_RULES - 1, ROBOTS_BYTES // (len(rule) + len("Disallow: \n"))))
     address = f"{SITE}/" + "a" * (MAX_ADDRESS_SIGNS - len(SITE) - 1)
-    started = time.perf_counter()
+    allowed: list[bool] = []
 
-    assert rules.allows(address)
-    assert time.perf_counter() - started < 5.0
+    # 1.6 s of CPU time here at the most (2026-11-18), six times that is the bound; the rules took minutes
+    assert cpu_seconds(lambda: allowed.append(rules.allows(address))) < 10.0
+    assert allowed == [True]
 
 
 def test_an_address_longer_than_is_matched_is_not_taken_to_be_allowed() -> None:
@@ -230,11 +233,12 @@ def test_more_rules_than_are_matched_or_a_rule_too_long_forbid_everything() -> N
 def test_a_line_of_much_space_is_read_in_no_time() -> None:
     # a pattern that backtracked over the space took minutes on a line of 500 KiB
     spaces = " " * 400_000
-    started = time.perf_counter()
+    parsed: list[Rules] = []
+    text = f"User-agent:{spaces}*\nDisallow:{spaces}/intern{spaces}\n"
 
-    rules = parse_robots(f"User-agent:{spaces}*\nDisallow:{spaces}/intern{spaces}\n", PRODUCT)
-
-    assert time.perf_counter() - started < 1.0
+    # 0.02 s of CPU time here (2026-11-18); minutes before
+    assert cpu_seconds(lambda: parsed.append(parse_robots(text, PRODUCT))) < 1.0
+    rules = parsed[0]
     assert not rules.allows(f"{SITE}/intern/lp.pdf")
     assert rules.allows(f"{SITE}/lp.pdf")
 

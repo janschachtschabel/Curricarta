@@ -212,6 +212,12 @@ def remove_jobs(url: str) -> None:
         connection.execute("DELETE FROM job")
 
 
+# The read's deadline (READY_TIMEOUT_S) is what the tests of a database away hold, and a deadline is a time:
+# their bounds are five times it, so that a busy runner keeps them, and what the read waits for without
+# its deadline - the pool's own wait, a lock - lasts far longer
+WITHOUT_A_DEADLINE_S = 60
+
+
 def scraping(url: str, **settings: object) -> TestClient:
     return selector_client(create_app(make_settings(database_url=url, **settings)), base_url=INTERNAL)
 
@@ -258,13 +264,13 @@ def test_a_database_away_leaves_the_scrape_answering_with_the_last_values(queue_
         remove_jobs(queue_url)  # read now, it would say 0
         failed = sample(READS_FAILED)
         # another session holds the table: the read waits out its deadline, the scrape does not
-        with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=READY_TIMEOUT_S + 3):
+        with lock_held(queue_url, "LOCK TABLE job IN ACCESS EXCLUSIVE MODE", at_most_s=WITHOUT_A_DEADLINE_S):
             started = time.monotonic()
             response = client.get("/metrics")
             elapsed = time.monotonic() - started
 
     assert response.status_code == 200
-    assert elapsed < 3
+    assert elapsed < 5 * READY_TIMEOUT_S
     assert sample(JOBS, kind="source.fetch", status="queued") == 1
     assert sample(READS_FAILED) == failed + 1
 
@@ -303,13 +309,13 @@ def test_a_statement_the_database_ends_spoils_no_later_read(queue_url: str) -> N
 
 def test_an_unreachable_database_leaves_the_scrape_answering_in_time() -> None:
     failed = sample(READS_FAILED)
-    with scraping(FAKE_DATABASE_URL) as client:
+    with scraping(FAKE_DATABASE_URL, db_pool_timeout_s=WITHOUT_A_DEADLINE_S) as client:
         started = time.monotonic()
         response = client.get("/metrics")
         elapsed = time.monotonic() - started
 
     assert response.status_code == 200
-    assert elapsed < 3
+    assert elapsed < 5 * READY_TIMEOUT_S
     assert sample(READS_FAILED) == failed + 1
 
 

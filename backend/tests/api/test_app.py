@@ -26,7 +26,10 @@ from app.core.storage_async import AsyncStorage
 from tests.jobs.test_worker_main import start_worker, stop_worker, wait_until_it_takes
 from tests.support import loop_watch, make_settings
 
-SLOW_S = 0.4
+# How long a slow call holds its thread. The loop's longest pause is held under half of it: a call in
+# the loop would hold it that long, while the loop's own pauses, a few milliseconds, stay under the
+# bound on a busy runner too - a time is what the test holds, with a margin of a hundred times them
+SLOW_S = 1.0
 
 
 def run[T](coroutine: Coroutine[Any, Any, T]) -> T:

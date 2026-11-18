@@ -3,13 +3,13 @@
 converter's image - which would hand the model text the reader never saw."""
 
 import io
-import time
 import zipfile
 
 import pytest
 
 from app.conversion.docx_hidden import clean_docx
 from app.conversion.text_layer import UnreadablePdf
+from tests.support import cpu_seconds
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 RELATIONSHIPS = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -397,11 +397,8 @@ def test_a_chain_of_thousands_of_bases_is_walked_in_a_moment() -> None:
         style("character", f"S{level}", "", f"S{level - 1}" if level else "") for level in range(20_000)
     )
     body = paragraph(run("Sichtbar.", '<w:rStyle w:val="S19999"/>'))
-    started = time.perf_counter()
-
-    clean_docx(docx(body, styles=chain))
-
-    assert time.perf_counter() - started < 10
+    # 0.8 s of CPU time here (2026-11-18): twelve times that, and a third of what the loop took
+    assert cpu_seconds(lambda: clean_docx(docx(body, styles=chain))) < 10
 
 
 def test_a_style_of_no_type_is_a_paragraph_style_as_word_takes_it() -> None:

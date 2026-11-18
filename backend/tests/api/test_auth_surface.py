@@ -63,7 +63,9 @@ def test_a_database_away_answers_503_soon(restore_logging: None) -> None:
     assert response.status_code == 503
     assert response.json()["code"] == "service_unavailable"
     assert int(response.headers["Retry-After"]) > 0
-    assert elapsed < 5
+    # the pool's wait, DB_POOL_TIMEOUT_S, is the deadline: ten times its second, while psycopg's pool
+    # would wait 30 s of its own
+    assert elapsed < 10
 
 
 @pytest.mark.parametrize(

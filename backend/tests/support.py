@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import threading
 import time
-from collections.abc import AsyncIterator, Iterator
+from collections.abc import AsyncIterator, Callable, Iterator
 from contextlib import asynccontextmanager, contextmanager
 from dataclasses import replace
 from functools import cache
@@ -172,6 +172,14 @@ def make_settings(**values: object) -> Settings:
 def unwatched(context: JobContext, database_url: str) -> JobContext:
     """``context``, the watch after X2 off: a run spends until a reservation finds too little."""
     return replace(context, settings=make_settings(database_url=database_url, extract_budget_watch=False))
+
+
+def cpu_seconds(work: Callable[[], object]) -> float:
+    """The CPU time ``work`` takes in this thread. Neither another process's load nor a wait counts in
+    it, as they do in the time on the clock: a test of how much work a call does reads this."""
+    started = time.thread_time()
+    work()
+    return time.thread_time() - started
 
 
 @asynccontextmanager

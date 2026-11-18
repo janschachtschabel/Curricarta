@@ -35,11 +35,14 @@ from tests.test_serve import serving, two_free_ports
 pytestmark = pytest.mark.pg
 __all__ = ["migrated", "one_slot", "owner", "store"]  # the fixtures, taken over
 
+# The deadline is what these tests hold, and a deadline is a time: each margin is wide, so that a busy
+# runner keeps it - the client in time sends in a sixth of its deadline, the one that stalls stays sixty
+# times its deadline, past the bound of twenty a refusal is held to
 TRICKLE_S = 0.5  # the deadline of a client that stalls
-PACED_S = 2.0  # the deadline of a client that sends in pieces, in time
-PAUSE_S = 1 / 6  # each pause of that client: half a second in all, a quarter of its deadline
-HELD_S = 1.8  # how long another upload holds the slot: with the reading, past the deadline
-STALL_S = 10 * TRICKLE_S  # how long a stalled client stays
+PACED_S = 3.0  # the deadline of a client that sends in pieces, in time
+PAUSE_S = 1 / 6  # each pause of that client: half a second in all, a sixth of its deadline
+HELD_S = PACED_S  # how long another upload holds the slot: the deadline, so with the reading past it
+STALL_S = 60 * TRICKLE_S  # how long a stalled client stays
 
 
 def with_deadline(client: TestClient, seconds: float) -> TestClient:
@@ -92,7 +95,7 @@ def test_an_upload_that_trickles_is_refused_when_its_time_is_up(
     took = time.monotonic() - started
 
     assert refusal(answered) == (408, "upload_too_slow")
-    assert TRICKLE_S <= took < 10 * TRICKLE_S
+    assert TRICKLE_S <= took < 20 * TRICKLE_S
 
 
 def test_the_slot_of_a_refused_upload_is_free_again(
@@ -241,7 +244,7 @@ def test_waiting_for_a_slot_is_not_counted_against_the_reading(
         slots.release()
 
     client.portal.start_task_soon(other_upload_ends)
-    # a quarter of the deadline to read, once the slot is had: wait and reading together pass it
+    # a sixth of the deadline to read, once the slot is had: wait and reading together pass it
     answered = drive(client, owner[1], paced(PAUSE_S), cancel=None)
 
     assert answered[0]["status"] == 201
