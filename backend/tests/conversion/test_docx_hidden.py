@@ -9,7 +9,7 @@ import pytest
 
 from app.conversion.docx_hidden import clean_docx
 from app.conversion.text_layer import UnreadablePdf
-from tests.support import cpu_seconds
+from tests.support import CPU_GRAIN_S, cpu_growth
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 RELATIONSHIPS = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -393,12 +393,19 @@ def test_a_package_of_strict_office_open_xml_is_refused() -> None:
 
 def test_a_chain_of_thousands_of_bases_is_walked_in_a_moment() -> None:
     # a loop looked for in a list of the walked: 20,000 styles took 35 s
-    chain = "".join(
-        style("character", f"S{level}", "", f"S{level - 1}" if level else "") for level in range(20_000)
-    )
-    body = paragraph(run("Sichtbar.", '<w:rStyle w:val="S19999"/>'))
-    # 0.8 s of CPU time here (2026-11-18): twelve times that, and a third of what the loop took
-    assert cpu_seconds(lambda: clean_docx(docx(body, styles=chain))) < 10
+    def walk(part: float) -> None:
+        levels = int(20_000 * part)
+        chain = "".join(
+            style("character", f"S{level}", "", f"S{level - 1}" if level else "") for level in range(levels)
+        )
+        body = paragraph(run("Sichtbar.", f'<w:rStyle w:val="S{levels - 1}"/>'))
+        clean_docx(docx(body, styles=chain))
+
+    # the chain's work grows with it, not with its square (tests/support.cpu_growth)
+    half, whole = cpu_growth(walk)
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    # and one wide bound: 0.8 s of CPU time here (2026-11-18), twelve times that
+    assert whole < 10
 
 
 def test_a_style_of_no_type_is_a_paragraph_style_as_word_takes_it() -> None:

@@ -6,6 +6,7 @@ over names, text only as UTF-8, a ZIP held to bounds before anything unpacks it.
 
 import tracemalloc
 import zipfile
+from typing import Any
 
 import pytest
 
@@ -170,10 +171,21 @@ def test_an_archive_of_too_many_parts_is_refused() -> None:
         check_archive(make_zip({f"word/part{index}.xml": b"x" for index in range(5001)}))
 
 
-def test_an_archive_of_too_many_parts_is_refused_before_its_directory_is_read() -> None:
+def test_an_archive_of_too_many_parts_is_refused_before_its_directory_is_read(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     # zipfile reads the whole central directory into objects first: 50 MiB naming 1.1 million
     # parts took 4.3 s and 330 MiB before the count refused them (review M1 package 1, B3)
     many = directory_only(100_000)
+    opened: list[object] = []
+    real = zipfile.ZipFile
+
+    def counted(*args: Any, **kwargs: Any) -> zipfile.ZipFile:
+        opened.append(args or kwargs)
+        made: zipfile.ZipFile = real(*args, **kwargs)
+        return made
+
+    monkeypatch.setattr(zipfile, "ZipFile", counted)  # the module archives reads it from
 
     tracemalloc.start()
     try:
@@ -187,8 +199,11 @@ def test_an_archive_of_too_many_parts_is_refused_before_its_directory_is_read() 
     finally:
         tracemalloc.stop()
 
+    # the count: zipfile never read the directory - the signatures refused it first
+    assert opened == []
     assert peak < 4 * 2**20
-    # 0.23 s of CPU time here, under tracemalloc (2026-11-18); reading every part took 4.3 s
+    # and one wide bound: 0.23 s of CPU time here, under tracemalloc (2026-11-18); reading every
+    # part took 4.3 s
     assert spent < 1.5
 
 

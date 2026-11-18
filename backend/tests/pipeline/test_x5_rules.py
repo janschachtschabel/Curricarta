@@ -5,7 +5,7 @@ or value taken for a statement of unclear kind, a lead-in taken for one of its o
 import pytest
 
 from app.pipeline.x5_checks import is_label, is_lead_in
-from tests.support import cpu_seconds
+from tests.support import CPU_GRAIN_S, cpu_growth
 
 UNCLASSIFIED = "https://w3id.org/wlo/curriculum/vocab#kind_unclassified"
 CONTENT = "https://w3id.org/wlo/curriculum/vocab#kind_content"
@@ -180,5 +180,12 @@ def test_a_sentence_before_a_value_is_no_value() -> None:
 
 
 def test_a_long_run_of_closing_signs_is_read_in_linear_time() -> None:
-    # 0.04 s of CPU time here (2026-11-18)
-    assert cpu_seconds(lambda: is_label("ab" + ")" * 20_000 + "." + ")" * 20_000 + "x", UNCLASSIFIED)) < 0.5
+    def read(part: float) -> None:
+        run = ")" * int(20_000 * part)
+        is_label("ab" + run + "." + run + "x", UNCLASSIFIED)
+
+    # the work grows with the run, not with its square (tests/support.cpu_growth)
+    half, whole = cpu_growth(read)
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    # and one wide bound: 0.04 s of CPU time here (2026-11-18)
+    assert whole < 0.5

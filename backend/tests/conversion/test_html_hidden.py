@@ -11,7 +11,7 @@ from app.conversion.html_hidden import clean_html
 from app.conversion.html_tree import DEEPEST_NESTING, parse_page
 from app.conversion.text_layer import UnreadablePdf
 from tests.conversion.html_reading import docling_reads, naive_tree, shape
-from tests.support import cpu_seconds
+from tests.support import CPU_GRAIN_S, cpu_growth
 
 BODY, END = "<html><head></head><body>", "</body></html>"
 
@@ -420,22 +420,24 @@ def test_a_page_built_to_slow_the_reading_is_read_in_linear_time(page_of: Callab
     # the work of the whole page against that of its half, in this thread's CPU time: twice as much
     # where the reading is linear, four times where it is quadratic, as each of these pages once was -
     # however fast or busy the machine. 0.1 s for the timer's grain and what does not grow
-    half = cpu_seconds(lambda: clean_html(page_of(0.5)))
-    whole = cpu_seconds(lambda: clean_html(page_of(1)))
+    half, whole = cpu_growth(lambda part: clean_html(page_of(part)))
 
-    assert whole < 3 * half + 0.1, f"{half:.2f} s of CPU time for half the page, {whole:.2f} s for all"
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and a bound on the whole: five times the 4.9 s the slowest took here (list-items, 2026-11-18)
     assert whole < 25
 
 
 def test_a_page_nested_deeper_than_any_reader_reads_is_unreadable_at_once() -> None:
     # html5lib looks into the open elements at each tag, Docling's reading fails a little deeper
-    def read() -> None:
+    def read(part: float) -> None:
         with pytest.raises(UnreadablePdf, match="deeper"):
-            clean_html("<div>" * 100_000 + "x")
+            clean_html("<div>" * int(100_000 * part) + "x")
 
-    # 0.1 s of CPU time here (2026-11-18): a hundred times that is no moment any more
-    assert cpu_seconds(read) < 10
+    # the work grows with the page at most, not with its square (tests/support.cpu_growth)
+    half, whole = cpu_growth(read)
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    # and one wide bound: 0.1 s of CPU time here (2026-11-18), a hundred times that is no moment any more
+    assert whole < 10
     assert reads("<div>" * (DEEPEST_NESTING - 10) + "Tief.") == "Tief."
 
 
