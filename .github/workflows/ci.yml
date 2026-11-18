@@ -41,10 +41,12 @@ jobs:
       - run: uv sync --frozen
       - name: Ontology check
         run: .venv/bin/python -I ../ontology/pruefung/pruefe.py
-      # deploy/make-secrets.py runs in the smoke test below; ruff takes the backend's settings for it
-      - run: .venv/bin/python -m ruff check --config pyproject.toml app tests ../deploy/make-secrets.py
-      - run: .venv/bin/python -m ruff format --check --config pyproject.toml app tests ../deploy/make-secrets.py
-      - run: .venv/bin/python -m mypy app tests ../deploy/make-secrets.py
+      # the whole backend, its tools too, and deploy/make-secrets.py, which runs in the smoke test below;
+      # ruff takes the backend's settings for that script
+      - run: .venv/bin/python -m ruff check --config pyproject.toml . ../deploy/make-secrets.py
+      - run: .venv/bin/python -m ruff format --check --config pyproject.toml . ../deploy/make-secrets.py
+      # the files are pyproject.toml's, the one list a local run shares
+      - run: .venv/bin/python -m mypy
 
   # The tests in two parts at once, each with a database and an object store of its own, split by the
   # time their folders take: locally tests/pipeline and tests/db took 10 minutes, the rest 12; in CI the

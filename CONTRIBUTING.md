@@ -10,7 +10,7 @@ welcome. For larger changes, open an issue first so the direction can be agreed 
   through the i18n layer (`frontend/src/i18n/de.ts`).
 - Tests first: a change comes with a test that failed before it.
 - Before a pull request, in `backend/`: `ruff check .`, `ruff format --check .`,
-  `mypy app tests ../deploy/make-secrets.py`, `pytest`; in `frontend/`: `eslint .`, `vue-tsc -b`,
+  `mypy` (its files are listed in `pyproject.toml`), `pytest`; in `frontend/`: `eslint .`, `vue-tsc -b`,
   `vitest run`.
 - The interface keeps to WCAG 2.2 AA: keyboard operation, visible focus, loading, empty and error states.
 

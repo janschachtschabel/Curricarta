@@ -117,9 +117,27 @@ def test_every_check_of_the_repository_runs() -> None:
         assert check in commands, check
 
 
-def test_the_script_ci_runs_is_linted_and_typed_as_well() -> None:
-    for tool in (r"ruff check", r"ruff format --check", r"mypy"):
-        assert "make-secrets.py" in _command("backend", tool), tool
+def _python_folders(backend: Path) -> set[str]:
+    """The backend's own folders that hold Python: the environment and the caches begin with a dot."""
+    return {
+        path.name
+        for path in backend.iterdir()
+        if path.is_dir() and not path.name.startswith(".") and next(path.rglob("*.py"), None)
+    }
+
+
+def test_every_python_folder_and_the_script_ci_runs_are_linted_and_typed() -> None:
+    folders = _python_folders(ROOT / "backend")
+
+    assert {"app", "tests", "tools"} <= folders
+    # ruff takes the whole backend, as the local gate `ruff check .` does
+    for tool in ("ruff check", "ruff format --check"):
+        paths = _command("backend", tool).split("--config pyproject.toml", 1)[1].split()
+        assert paths == [".", "../deploy/make-secrets.py"], tool
+    # mypy takes its files from pyproject.toml alone, the one list the CI and a local run share: a path
+    # on its command line would replace that list
+    assert re.search(r"-m mypy\s*$", _command("backend", r"-m mypy"))
+    assert set(PYPROJECT["tool"]["mypy"]["files"]) == folders | {"../deploy/make-secrets.py"}
 
 
 def _test_parts() -> list[list[str]]:
