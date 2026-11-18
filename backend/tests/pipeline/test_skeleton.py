@@ -67,6 +67,8 @@ def shape(found: Skeleton) -> list[tuple[str, int, str | None]]:
 
 
 COVER = block("p1-b1", "Kernlehrplan Physik für die Sekundarstufe I", size=24)
+# the signs (x|x)+y is tried on where a pattern is to take too long: exponential, yet ended
+SLOW_SIGNS = 23
 
 
 def test_a_heading_is_a_short_line_set_larger_than_the_body_its_level_the_rank_of_its_size() -> None:
@@ -995,18 +997,19 @@ def test_a_block_most_of_whose_lines_are_no_entries_is_no_contents() -> None:
 
 
 def test_a_pattern_that_takes_too_long_types_nothing_and_is_named() -> None:
-    # exponential: past 10 s on 190 signs, two hundred times the limit - and cut at it; (x+x+x+x+)+y
-    # took 0.2 s, four times it, too close for a fast runner
+    # exponential, and ended: 7.7 s on 23 signs, 150 times the limit, each sign doubling it - a pattern
+    # no longer cut at the limit fails the test in seconds; (x+x+x+x+)+y took 0.2 s, four times it, too
+    # close for a fast runner
     slow = own_cue("slow", r"(x|x)+y", "T")
 
     paragraphs = [block(f"p2-b{number}", BODY) for number in range(2, 5)]
     found = skeleton(
-        [COVER, block("p2-b1", "x" * 190, size=16), *paragraphs],
+        [COVER, block("p2-b1", "x" * SLOW_SIGNS, size=16), *paragraphs],
         active_cues([slow], frozenset(), None, None),
         frozenset({"T"}),
     )
 
-    assert typed(found) == [("x" * 190, None, None)]
+    assert typed(found) == [("x" * SLOW_SIGNS, None, None)]
     assert found.timeouts == frozenset({"slow"})
 
 
@@ -1026,13 +1029,13 @@ def test_a_cue_that_takes_too_long_and_may_have_said_otherwise_leaves_the_type_t
 
     paragraphs = [block(f"p2-b{number}", BODY) for number in range(2, 5)]
     found = skeleton(
-        [COVER, block("p2-b1", "x" * 190, size=16), *paragraphs],
+        [COVER, block("p2-b1", "x" * SLOW_SIGNS, size=16), *paragraphs],
         active_cues([slow, strong], frozenset(), None, None),
         frozenset({"T", "U"}),
     )
 
     assert found.timeouts == frozenset({"slow"})
-    assert typed(found) == [("x" * 190, "T" if rule else None, rule)]
+    assert typed(found) == [("x" * SLOW_SIGNS, "T" if rule else None, rule)]
 
 
 def test_a_heading_is_a_plain_value() -> None:

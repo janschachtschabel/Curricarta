@@ -5,6 +5,7 @@ their rule texts, the checked and stronger first, at most MOST_LINES of them."""
 
 from app.domain.lexicon import HOMONYM, NEGATIVE, ActiveCue, Cue
 from app.pipeline.lexicon_excerpt import MOST_LINES, lexicon_excerpt
+from tests.pipeline.test_skeleton import SLOW_SIGNS
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
 SCHOOL = "https://w3id.org/wlo/curriculum/profile/school#"
@@ -84,9 +85,9 @@ def test_the_checked_and_stronger_come_first_up_to_most_lines_each_once() -> Non
 
 
 def test_a_pattern_that_takes_too_long_is_noted_and_lists_nothing() -> None:
-    # exponential: past 10 s on 190 signs, two hundred times the limit (tests/pipeline/test_skeleton.py)
+    # 7.7 s on 23 signs, 150 times the limit, and ended (tests/pipeline/test_skeleton.py)
     slow = cue("langsam", kind=SENTENCE, pattern=r"(x|x)+y")
 
-    excerpt = lexicon_excerpt([slow], ["x" * 190], NAMES)
+    excerpt = lexicon_excerpt([slow], ["x" * SLOW_SIGNS], NAMES)
 
     assert (excerpt.text, excerpt.timeouts) == ("", frozenset({SCHOOL + "langsam"}))
