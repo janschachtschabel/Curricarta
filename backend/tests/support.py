@@ -8,6 +8,7 @@ settings class reads are hidden while it is built; those of the operating system
 
 import asyncio
 import atexit
+import gc
 import logging
 import os
 import shutil
@@ -176,10 +177,32 @@ def unwatched(context: JobContext, database_url: str) -> JobContext:
 
 def cpu_seconds(work: Callable[[], object]) -> float:
     """The CPU time ``work`` takes in this thread. Neither another process's load nor a wait counts in
-    it, as they do in the time on the clock: a test of how much work a call does reads this."""
-    started = time.thread_time()
-    work()
-    return time.thread_time() - started
+    it, as they do in the time on the clock: a test of how much work a call does reads this. The
+    collector is held off meanwhile: when it runs is the heap's history, not the call's work."""
+    collecting = gc.isenabled()
+    gc.collect()
+    gc.disable()
+    try:
+        started = time.thread_time()
+        work()
+        return time.thread_time() - started
+    finally:
+        if collecting:
+            gc.enable()
+
+
+# The timer's grain on the CPU time of a thread (15.6 ms on Windows) and the work that does not grow
+CPU_GRAIN_S = 0.1
+
+
+def cpu_growth(work: Callable[[float], object]) -> tuple[float, float]:
+    """The CPU time of ``work(0.5)`` and of ``work(1)``: work on half its input, then on all of it. Work
+    linear in its input takes about twice as long on all of it, quadratic work four times - however fast
+    or busy the machine, under coverage's tracing too; ``whole < 3 * half + CPU_GRAIN_S`` tells them
+    apart. A twentieth of the input first, unmeasured: what a first call does once (an import, a cache
+    filled) would count against the half alone."""
+    work(0.05)
+    return cpu_seconds(lambda: work(0.5)), cpu_seconds(lambda: work(1))
 
 
 @asynccontextmanager

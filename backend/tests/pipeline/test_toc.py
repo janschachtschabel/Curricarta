@@ -5,9 +5,10 @@ page, numberings set apart and pages counted by the print the PDF reprints."""
 import pytest
 
 from app.conversion.base import Block
+from app.pipeline.skeleton import Skeleton
 from app.pipeline.toc import leading_number, number_depth, title_key
 from tests.pipeline.test_skeleton import BODY, COVER, block, shape, skeleton, table, titles
-from tests.support import cpu_seconds
+from tests.support import CPU_GRAIN_S, cpu_growth
 
 LEADER = "." * 40
 
@@ -443,12 +444,20 @@ def test_a_numbering_set_apart_lies_as_deep_and_keys_its_title_as_its_heading_s(
 
 
 def test_contents_of_a_line_a_block_are_read_in_linear_time() -> None:
-    entries = [block(f"p2-b{at}", f"Stichwort Nummer {at} ..... {3 + at // 100}") for at in range(2, 4002)]
-    blocks = [COVER, block("p2-b1", "Inhalt", size=16), *entries, block("p60-b1", BODY)]
-    found = []
+    found: list[Skeleton] = []
 
-    # 0.3 s of CPU time here (2026-11-18); looked back over the run at each block: 21 s
-    assert cpu_seconds(lambda: found.append(skeleton(blocks))) < 3
+    def read(part: float) -> None:
+        lines = int(4000 * part)
+        entries = [
+            block(f"p2-b{at}", f"Stichwort Nummer {at} ..... {3 + at // 100}") for at in range(2, lines + 2)
+        ]
+        found[:] = [skeleton([COVER, block("p2-b1", "Inhalt", size=16), *entries, block("p60-b1", BODY)])]
+
+    # the work grows with the lines, not with their square (tests/support.cpu_growth)
+    half, whole = cpu_growth(read)
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    # and one wide bound: 0.3 s of CPU time here (2026-11-18); looked back over the run at each block: 21 s
+    assert whole < 3
     assert len(found[0].contents.entries) == 4000
 
 
@@ -790,11 +799,18 @@ def test_an_entry_alone_on_the_next_page_counting_past_the_document_stays_theirs
 
 @pytest.mark.parametrize("fill", [".", "_", "· ", ". "])
 def test_a_long_line_of_fill_signs_is_no_entry_and_costs_no_time(fill: str) -> None:
-    long_line = block("p2-b2", "Stichwort " + fill * 40_000)
     entries = [block(f"p2-b{at}", f"Stichwort Nummer {at} ..... {at}") for at in range(3, 8)]
-    blocks = [COVER, block("p2-b1", "Inhalt", size=16), long_line, *entries, block("p60-b1", BODY)]
-    found = []
+    found: list[Skeleton] = []
 
-    # 0.02 s of CPU time here (2026-11-18); 40,000 signs took a minute and more
-    assert cpu_seconds(lambda: found.append(skeleton(blocks))) < 2
+    def read(part: float) -> None:
+        long_line = block("p2-b2", "Stichwort " + fill * int(40_000 * part))
+        found[:] = [
+            skeleton([COVER, block("p2-b1", "Inhalt", size=16), long_line, *entries, block("p60-b1", BODY)])
+        ]
+
+    # the work grows with the line, not with its square (tests/support.cpu_growth)
+    half, whole = cpu_growth(read)
+    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    # and one wide bound: 0.02 s of CPU time here (2026-11-18); 40,000 signs took a minute and more
+    assert whole < 2
     assert "Stichwort" not in {entry.title for entry in found[0].contents.entries}
