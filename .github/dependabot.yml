@@ -25,6 +25,10 @@ updates:
       # moves with that version, not ahead of it
       - dependency-name: "@types/node"
         update-types: ["version-update:semver-major"]
+      # TypeScript's majors wait for typescript-eslint to support them (7.0 is refused by its parser: the
+      # lint step stops with "typescript-eslint does not support TS 7.0")
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   # Security updates only: a limit of 0 turns version updates off and leaves security updates on.
   # The converter's stack (docling, docling-core, docling-ibm-models, docling-parse, torch, transformers,
