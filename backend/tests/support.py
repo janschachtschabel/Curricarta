@@ -11,6 +11,7 @@ import atexit
 import logging
 import os
 import shutil
+import subprocess
 import tempfile
 import threading
 import time
@@ -92,6 +93,19 @@ def kept_logging() -> Iterator[None]:
 def selector_client(app: FastAPI, **options: Any) -> TestClient:
     """A TestClient on a selector event loop: psycopg's async mode refuses Windows' proactor loop."""
     return TestClient(app, backend_options={"loop_factory": asyncio.SelectorEventLoop}, **options)
+
+
+def end_process(process: subprocess.Popen[str], *readers: threading.Thread) -> None:
+    """``process`` killed and waited for, the threads reading its output run to its end, its pipes
+    closed: a pipe left open warns (ResourceWarning) when the object is collected, and a pipe closed
+    under a reader breaks that reader."""
+    process.kill()
+    process.wait(10)
+    for reader in readers:
+        reader.join(10)
+    for pipe in (process.stdin, process.stdout, process.stderr):
+        if pipe is not None:
+            pipe.close()
 
 
 @contextmanager

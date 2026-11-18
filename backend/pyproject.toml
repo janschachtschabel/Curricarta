@@ -103,6 +103,11 @@ addopts = "-ra --strict-markers --import-mode=importlib"
 # A test past five minutes dumps every thread's stack and goes on: a hang names itself in the log
 # instead of running silently into the CI job's limit. No test comes near it.
 faulthandler_timeout = 300
+# A warning fails its test: a resource left open, a deprecation in our own code. What is ignored is
+# named here, narrowly, with the reason (tests/deploy/test_pytest_warnings.py)
+filterwarnings = [
+    "error",
+]
 
 [tool.coverage.run]
 # the bootstrap, the vocabulary load, the migration and the worker run as processes of their own
