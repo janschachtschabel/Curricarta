@@ -245,7 +245,11 @@ ein Test schlägt an, wenn sie veraltet.
   ihre Rohantworten so, mit Absicht: Ihre Aussagen bleiben, wie sie festgeschrieben sind. Die Buchungen des Kostenbuchs (`llm_usage`, `conversion_usage`) gehen nie:
   Das Budget ist ihre Summe über die ganze Zeit. Ein Lauf hält eine Sitzungssperre (Exit-Code 3, wenn
   schon einer läuft); sie wirkt nur auf einer direkten Verbindung, nicht hinter einem Pooler im
-  Transaktionsmodus. `--dry-run` zählt nur. Ausgabe: eine JSON-Zeile mit Zählwerten.
+  Transaktionsmodus. `--dry-run` zählt nur. Ausgabe: eine JSON-Zeile mit Zählwerten. Dazu nimmt er
+  Dateien, die kein Eintrag mehr hält, und leert, was eine Löschung über die API notierte und der Speicher
+  nicht gleich nahm. Die Fristen setzt der Betrieb dort, wo der Lauf sie liest: im Helm-Beispiel unter `env`
+  aller Container oder unter `retention`, in Compose am Dienst `retention`, nie an API oder Worker allein
+  (`docs/uebergabe/sicherung.md`, „Aufbewahrung und Löschen“).
 - `JOB_SHUTDOWN_GRACE_S` mindestens 8 s unter `terminationGracePeriodSeconds` des Workers: 2 s zum
   Aufräumen des Handlers, bis zu 5 s für zurückgegebene Reservierungen, 1 s Reserve.
 - `LLM_MAX_OUTPUT_TOKENS` für API und Worker gleich setzen und nach einer Änderung beide neu starten:

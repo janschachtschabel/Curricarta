@@ -425,6 +425,16 @@ ungültig.
   dort nicht mehr an. Unter „Herkunft“ nennt die Seite Herkunft, Rechte, Lizenz und Quelltyp des Eintrags und wie
   seine Datei geholt wurde; unter „Werk und Fassung“ die übrigen Revisionen derselben IRI. Ein Befund an einem
   Knoten oder einer Aussage führt in den Baum zu dieser Zeile.
+- Löschen: `DELETE /api/v1/documents/{id}` (Eigentümer, Redaktion, Admin; 204) nimmt einen Entwurf mit
+  allem, was er hält – Baum, Läufe, Befunde, Einheiten, Goldstandard –, und die Rohantworten seiner Läufe aus
+  dem Speicher; Eintrag, Konvertierung, Jobs und das Kostenbuch bleiben. Abgewiesen: ein festgeschriebenes
+  Dokument (409 `frozen`), eines, dessen Job wartet oder läuft (`job_open`); fremde 404 `no_document`.
+  `DELETE /api/v1/sources/{id}` (Eigentümer; Redaktion und Admin bei Einträgen mit Konto; 204) nimmt einen
+  Eintrag und, hält kein anderer sie, seine Datei mit ihren Konvertierungen; das Objekt geht beim nächsten
+  Aufräumen. Abgewiesen: ein Eintrag ohne Konto (409 `seed_entry`), einer mit Dokumenten (`has_documents`,
+  `details.documents`), einer, dessen Abruf oder eine Konvertierung seiner Datei wartet oder läuft
+  (`job_open`). Audit `document.delete` und `source.delete`, ohne Wortlaut. Was der Speicher nicht gleich
+  nimmt, räumt `python -m app.retention` (`docs/uebergabe/sicherung.md`, „Aufbewahrung und Löschen“).
 - Lexikon prüfen: `GET /api/v1/lexicon/review` nennt der Redaktion (Redaktion/Admin, sonst 403 `not_editor`)
   die Stichprobe der aktiven Recherche-Cues – je Bereich und Regionen ein Zehntel, aufgerundet; dieselben Cues
   ergeben dieselbe Stichprobe (fester Seed), mustert eine Ladung einen aus, rückt in seiner Schicht der nächste

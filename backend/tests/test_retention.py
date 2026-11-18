@@ -46,9 +46,18 @@ def made(setup: psycopg.Connection) -> dict[str, Any]:
     return made
 
 
+@pytest.fixture(autouse=True)
+def objects_root(tmp_path: Path) -> Path:
+    """The folder of the file stores these tests name: a sweep refuses a store whose folder is not there
+    while notes wait (app/emptying.py)."""
+    root = tmp_path / "objects"
+    root.mkdir(exist_ok=True)
+    return root
+
+
 @pytest.fixture
-def files(tmp_path: Path) -> FileSystemStorage:
-    return FileSystemStorage(tmp_path / "objects")
+def files(objects_root: Path) -> FileSystemStorage:
+    return FileSystemStorage(objects_root)
 
 
 def keep_answers(files: FileSystemStorage, run: uuid.UUID, *numbers: int) -> None:

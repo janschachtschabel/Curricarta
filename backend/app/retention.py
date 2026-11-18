@@ -1,20 +1,22 @@
 """``python -m app.retention [--dry-run]``: the sweep of what is past its time (RETENTION_JOBS_DAYS,
 RETENTION_AUDIT_DAYS, RETENTION_RAW_ANSWERS_DAYS; 0 keeps everything), started by the operators' timer.
 
-It takes from the database the jobs and audit entries past their time and notes the places of the raw
-answers past theirs (app/db/retention.py), then empties each noted place in the store - a prefix (it ends
-in "/") of every object under it, an object's own key of that object - and forgets the note once the place
-is empty. An object already gone counts as taken. Each step is a short transaction of its own, none open
-while the store is asked: a sweep broken between noting and emptying leaves the notes, and the next sweep
-empties them. One sweep at a time, under a session's advisory lock on its own direct connection - without
-the session timeouts of the API's and the workers' pools, as the other commands. Never a booking of the
+It takes from the database the jobs and audit entries past their time and the files no register entry
+holds, and notes the places of the raw answers past their time (app/db/retention.py, app/db/deleting.py),
+then empties each noted place in the store - a prefix (it ends in "/") of every object under it, an
+object's own key of that object - and forgets the note once the place is empty (app/emptying.py). An
+object already gone counts as taken. Each step is a short transaction of its own, none open while the
+store is asked: a sweep broken between noting and emptying leaves the notes, and the next sweep empties
+them. One sweep at a time, under a session's advisory lock on its own direct connection - without the
+session timeouts of the API's and the workers' pools, as the other commands. Never a booking of the
 ledger: a budget is the lifetime sum of its rows.
 
 ``--dry-run`` counts what a sweep would take and changes nothing: the database's part runs in ONE
 transaction rolled back at its end - holding its row locks (old ended jobs, old runs) until then -, and the
 store is only listed, after it. Prints one line of JSON, counts alone - never a key, a title or a
 wording: ``jobs``, ``audit_entries``, ``runs`` (whose raw answers were let go), ``objects`` (taken from the
-store), ``refused`` (noted places the store refuses as keys, passed by and left noted). It ends in one of
+store), ``refused`` (noted places the store refuses as keys, passed by and left noted), ``files`` (files no
+register entry held, their rows taken away and their objects noted). It ends in one of
 three ways: done, the JSON line and exit code 0; a failure, no JSON, one log line and exit code 1 (a
 database step that failed is raised after the others and the store's part ran); notes passed by, the
 JSON line, one log line with their count and exit code 1. Exit code 3, with one log line, where another
@@ -34,8 +36,9 @@ import psycopg
 
 from app.core.logging import configure_logging
 from app.core.settings import Settings
-from app.core.storage import InvalidKey, ObjectNotFound, StorageNotConfigured, open_storage
+from app.core.storage import InvalidKey, StorageNotConfigured, open_storage
 from app.core.storage_async import AsyncStorage
+from app.db.deleting import drop_orphan_file, orphan_files
 from app.db.pool import CONNECTION_OPTIONS
 from app.db.retention import (
     LOCK_KEY,
@@ -46,6 +49,7 @@ from app.db.retention import (
     mark_old_raw_answers,
     take_lock,
 )
+from app.emptying import empty_noted, objects_of
 
 log = logging.getLogger("app.retention")  # also when run as __main__
 
@@ -78,6 +82,7 @@ class Swept:
     runs: int = 0  # whose raw answers were let go
     objects: int = 0  # taken from the store
     refused: int = 0  # noted places the store refuses as keys (a device's name): passed by, left noted
+    files: int = 0  # rows of files no entry held, taken away and their objects noted
 
 
 async def sweep(
@@ -109,7 +114,7 @@ async def _sweep(
     if not dry_run:
         failure = await _rows(connection, policy, swept)
         try:
-            swept.objects, swept.refused = await _empty(connection, storage)
+            swept.objects, swept.refused = await empty_noted(connection, storage)
         except Exception as store_failure:
             if failure is not None:
                 raise failure from store_failure
@@ -122,7 +127,7 @@ async def _sweep(
         places = await _all_places(connection)
     for place in places:
         try:
-            swept.objects += len(await _objects(storage, place))
+            swept.objects += len(await objects_of(storage, place))
         except InvalidKey:
             swept.refused += 1
     if failure is not None:
@@ -142,6 +147,7 @@ async def _rows(connection: psycopg.AsyncConnection, policy: Policy, swept: Swep
         ("jobs", drop_ended_jobs, policy.jobs_days),
         ("audit_entries", drop_old_audit, policy.audit_days),
         ("runs", mark_old_raw_answers, policy.raw_answers_days),
+        ("files", _orphans, 0),
     )
     for name, step, days in steps:
         try:
@@ -151,6 +157,23 @@ async def _rows(connection: psycopg.AsyncConnection, policy: Policy, swept: Swep
     return failure
 
 
+async def _orphans(connection: psycopg.AsyncConnection, _days: int) -> int:
+    """Take away the files no entry holds - a request broken between taking its entry away and its file
+    leaves them - and note their objects; whatever the times: such a file is nobody's. Each in a
+    transaction of its own, under its lock; how many went."""
+    dropped = 0
+    while True:
+        async with connection.transaction():
+            found = await orphan_files(connection)
+        went = 0
+        for file_id in found:
+            async with connection.transaction():
+                went += await drop_orphan_file(connection, file_id) is not None
+        dropped += went
+        if not went:  # none left, or each one held again meanwhile: the next sweep looks again
+            return dropped
+
+
 async def _all_places(connection: psycopg.AsyncConnection) -> list[str]:
     """Every noted place, each forgotten as it is read: in the dry run's transaction, rolled back after."""
     places: list[str] = []
@@ -158,38 +181,13 @@ async def _all_places(connection: psycopg.AsyncConnection) -> list[str]:
         for place in found:
             await forget_garbage(connection, place)
         places += found
-    return places
-
-
-async def _objects(storage: AsyncStorage, place: str) -> list[str]:
-    """The keys of the objects a noted place holds: every one under a prefix, an object's own key if it is
-    there."""
-    if place.endswith("/"):
-        return await storage.list(place)
-    return [place] if await storage.exists(place) else []
-
-
-async def _empty(connection: psycopg.AsyncConnection, storage: AsyncStorage) -> tuple[int, int]:
-    """Empty every noted place and forget it; how many objects went, and how many places the store refuses
-    as keys for good - passed by and left noted, the others emptied all the same. Noted meanwhile, a place
-    is emptied too; any other failure of the store stops the sweep, its note kept for the next."""
-    taken = 0
-    refused: list[str] = []
-    while places := await garbage(connection, passing=refused):
-        for place in places:
-            try:
-                keys = await _objects(storage, place)
-            except InvalidKey:
-                refused.append(place)
-                continue
-            for key in keys:
-                try:
-                    await storage.delete(key)
-                except ObjectNotFound:  # gone meanwhile: another sweep, or the request that noted it
-                    continue
-                taken += 1
-            await forget_garbage(connection, place)
-    return taken, len(refused)
+    # a file's object a row names again stays (_empty_file)
+    cursor = await connection.execute(
+        "SELECT storage_key FROM source_file WHERE storage_key = ANY(%s)",
+        ([place for place in places if place.startswith("sources/")],),
+    )
+    named = {row[0] for row in await cursor.fetchall()}
+    return [place for place in places if place not in named]
 
 
 async def _run(settings: Settings, policy: Policy, *, dry_run: bool) -> Swept:

@@ -17,10 +17,10 @@ from app.core.storage import FileSystemStorage
 from app.db.retention import LOCK_KEY
 from tests.db.retention_rows import add_ended_run, add_job, garbage, job_ids, raw_key
 from tests.support import without_settings_variables
-from tests.test_retention import files, keep_answers, made, setup
+from tests.test_retention import files, keep_answers, made, objects_root, setup
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["files", "made", "setup"]  # the fixtures, from test_retention
+__all__ = ["files", "made", "objects_root", "setup"]  # the fixtures, from test_retention
 
 BACKEND = Path(__file__).resolve().parents[1]
 
@@ -66,7 +66,9 @@ async def test_the_command_prints_counts_and_no_wording(
     assert done.returncode == 0, done.stderr
     lines = done.stdout.splitlines()
     assert len(lines) == 1
-    assert json.loads(lines[0]) == {"jobs": 1, "audit_entries": 1, "runs": 1, "objects": 1, "refused": 0}
+    assert json.loads(lines[0]) == {
+        "jobs": 1, "audit_entries": 1, "runs": 1, "objects": 1, "refused": 0, "files": 0,
+    }  # fmt: skip
     for told in (done.stdout, done.stderr):
         assert str(run) not in told and str(made["document"]) not in told
         assert "runs/" not in told and "Erdkunde" not in told
@@ -81,7 +83,9 @@ def test_a_place_the_store_refuses_ends_the_command_with_1_in_one_log_line(
     done = run_command(database_url, tmp_path / "objects")
 
     assert done.returncode == 1
-    assert json.loads(done.stdout) == {"jobs": 0, "audit_entries": 0, "runs": 0, "objects": 0, "refused": 1}
+    assert json.loads(done.stdout) == {
+        "jobs": 0, "audit_entries": 0, "runs": 0, "objects": 0, "refused": 1, "files": 0,
+    }  # fmt: skip
     [line] = done.stderr.splitlines()
     assert "1 noted place(s) the store refuses" in json.loads(line)["message"]
     assert "con" not in line

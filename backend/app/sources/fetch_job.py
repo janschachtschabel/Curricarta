@@ -86,6 +86,10 @@ async def fetch_source(
             # the stem trimmed, as an upload's ("Lehrplan .pdf"); should nothing be left, the name
             title=PurePosixPath(file_name).stem[:MAX_TITLE_SIGNS].strip() or file_name[:MAX_TITLE_SIGNS],
         )
+    # the sweep may have taken the object of a file taken away meanwhile; once the row stands it takes it
+    # no more (app/db/sources.py file_row): stored again, where it is gone
+    if not await context.storage.exists(stored.storage_key):
+        await context.storage.put(stored.storage_key, fetched.content)
     return _result(source_id, stored)
 
 

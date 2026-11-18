@@ -13,6 +13,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from app.core.ids import new_id
+from app.db.deleting import lock_file
 from app.sources.register import EDUCATION_SECTORS
 
 
@@ -30,7 +31,11 @@ async def file_row(connection: psycopg.AsyncConnection, stored: StoredFile) -> U
     """The ``source_file`` of these bytes, made if none is. Two uploads of the same bytes at once:
     the second insert waits for the first and does nothing, then finds its row. No conflict
     target: the storage key is unique too, and a conflict on a column that is not the target
-    fails instead of doing nothing."""
+    fails instead of doing nothing. Under the file's lock, and the note on its object taken away
+    (app/db/deleting.py): a file taken away before left it for the sweep, which must not take
+    the bytes now named again - the caller looks for the object once this commits."""
+    await lock_file(connection, stored.storage_key)
+    await connection.execute("DELETE FROM storage_garbage WHERE prefix = %s", (stored.storage_key,))
     cursor = await connection.execute(
         "INSERT INTO source_file (id, sha256, size_bytes, storage_key) VALUES (%s, %s, %s, %s)"
         " ON CONFLICT DO NOTHING RETURNING id",

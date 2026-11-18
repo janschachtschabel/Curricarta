@@ -13,10 +13,10 @@ from app.core.storage import FileSystemStorage
 from app.core.storage_async import AsyncStorage
 from app.retention import Swept, sweep
 from tests.db.retention_rows import add_ended_run, add_job, garbage, raw_key
-from tests.test_retention import POLICY, connection, files, keep_answers, kept, made, setup
+from tests.test_retention import POLICY, connection, files, keep_answers, kept, made, objects_root, setup
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
-__all__ = ["connection", "files", "made", "setup"]  # the fixtures, from test_retention
+__all__ = ["connection", "files", "made", "objects_root", "setup"]  # the fixtures, from test_retention
 
 
 class BreaksOnce(FileSystemStorage):

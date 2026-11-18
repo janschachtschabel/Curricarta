@@ -165,25 +165,30 @@ async def upload_source(request: Request, who: Account) -> SourceOut:
         if not await storage.exists(stored.storage_key):  # the same bytes are stored once
             # from the spooled file the digest was taken of; it goes with the form
             await storage.put_file(stored.storage_key, upload.file, size)
-    async with request.app.state.pool.connection() as connection, connection.transaction():
-        source_id = await record_upload(
-            connection,
-            owner=who.account_id,
-            stored=stored,
-            file_name=file_name,
-            received_name=base_name(received)[:MAX_NAME_SIGNS],
-            title=title,
-        )
-        details = {"sha256": digest.hex(), "size": size, "mime": detected.mime}
-        await record_audit(
-            connection,
-            who.account_id,
-            who.name,
-            "source.upload",
-            f"source:{source_id}",
-            details,
-            current_request_id(),
-        )
+        async with request.app.state.pool.connection() as connection, connection.transaction():
+            source_id = await record_upload(
+                connection,
+                owner=who.account_id,
+                stored=stored,
+                file_name=file_name,
+                received_name=base_name(received)[:MAX_NAME_SIGNS],
+                title=title,
+            )
+            details = {"sha256": digest.hex(), "size": size, "mime": detected.mime}
+            await record_audit(
+                connection,
+                who.account_id,
+                who.name,
+                "source.upload",
+                f"source:{source_id}",
+                details,
+                current_request_id(),
+            )
+        # the sweep may have taken the object of a file taken away meanwhile; once the row stands it
+        # takes it no more (app/db/sources.py file_row): stored again from the form, where it is gone
+        if not await storage.exists(stored.storage_key):
+            await asyncio.to_thread(upload.file.seek, 0)
+            await storage.put_file(stored.storage_key, upload.file, size)
     return SourceOut(
         id=source_id,
         title=title,
