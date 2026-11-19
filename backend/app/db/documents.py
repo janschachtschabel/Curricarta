@@ -38,6 +38,7 @@ _VISIBLE_BY_ID = f"{_BY_ID} AND {DOCUMENT_VISIBLE}"
 _VISIBLE = f"""
 SELECT {_COLUMNS} FROM document d
 WHERE {DOCUMENT_VISIBLE} AND (%(source)s::uuid IS NULL OR d.source_id = %(source)s)
+    AND (%(work)s::uuid IS NULL OR d.work_id = %(work)s)
 ORDER BY d.created_at DESC, d.id DESC LIMIT %(limit)s
 """  # noqa: S608 - fixed parts
 _MADE_OF = f"""
@@ -182,11 +183,18 @@ async def get_document(
 
 
 async def documents_of(
-    connection: psycopg.AsyncConnection, reader: Reader, *, source_id: UUID | None = None, limit: int = 100
+    connection: psycopg.AsyncConnection,
+    reader: Reader,
+    *,
+    source_id: UUID | None = None,
+    work_id: UUID | None = None,
+    limit: int | None = 100,
 ) -> list[Document]:
-    """The documents ``reader`` sees, of one entry where ``source_id`` names it; the newest first,
-    ``limit`` at most."""
-    params = {"me": reader.account_id, "all": reader.sees_all, "source": source_id, "limit": limit}
+    """The documents ``reader`` sees, of one entry where ``source_id`` names it, of one work where
+    ``work_id`` does; the newest first, ``limit`` at most (None: all)."""
+    params = {
+        "me": reader.account_id, "all": reader.sees_all, "source": source_id, "work": work_id, "limit": limit,
+    }  # fmt: skip
     return await _documents(connection, _VISIBLE, params)
 
 

@@ -8,6 +8,7 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 
+from app.api import documents as documents_api
 from tests.api.test_document_tree import a_document
 from tests.api.test_documents import an_account, client, rows, url
 
@@ -178,3 +179,32 @@ def test_an_edition_is_set_to_supersede_a_frozen_one_of_its_work_and_said(
     cleared = client.patch(path, headers=editor, json={"supersedes": None})
     assert (cleared.status_code, cleared.json()["supersedes"]) == (200, None)
     assert client.get(f"/api/v1/documents/{older}", headers=editor).json()["supersedes"] is None
+
+
+def test_the_list_by_work_gives_the_work_s_documents_the_caller_reads_however_many_are_listed(
+    client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # all of them, past the cap of the list: the editions an edition may supersede are asked so
+    monkeypatch.setattr(documents_api, "MOST_LISTED", 1)
+    first, owner = a_document(client, url)
+    second, _ = a_document(client, url, name="Lehrkraft 2", digest=b"\x02" * 32)
+    elsewhere, _ = a_document(client, url, name="Lehrkraft 3", digest=b"\x03" * 32)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+    _, stranger = an_account(url, "Fremde")
+    client.patch(f"/api/v1/documents/{first}/work", headers=editor, json=PHYSICS)
+    [(work,)] = rows(url, "SELECT id FROM work")
+    client.patch(f"/api/v1/documents/{second}/work", headers=editor, json={"work_id": str(work)})
+    client.patch(
+        f"/api/v1/documents/{elsewhere}/work", headers=editor, json=PHYSICS | {"short_title": "lp-x"}
+    )
+
+    def listed(who: dict[str, str], work_id: object) -> list[str]:
+        answer = client.get("/api/v1/documents", headers=who, params={"work_id": str(work_id)})
+        assert answer.status_code == 200, answer.text
+        return sorted(item["id"] for item in answer.json())
+
+    assert listed(editor, work) == sorted([first, second])
+    assert listed(owner, work) == [first]
+    assert listed(stranger, work) == []
+    assert listed(editor, uuid.uuid4()) == []
+    assert len(client.get("/api/v1/documents", headers=editor).json()) == 1  # the cap, without a work

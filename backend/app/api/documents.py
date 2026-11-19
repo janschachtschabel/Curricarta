@@ -341,9 +341,12 @@ async def list_documents(
     request: Request,
     who: Account,
     source_id: Annotated[UUID | None, Query(description="Those of this register entry only")] = None,
+    work_id: Annotated[UUID | None, Query(description="Those of this work only, all of them")] = None,
 ) -> list[DocumentOut]:
+    # a work's editions and their revisions are few: listed whole, so none an edition may supersede is cut
+    limit = None if work_id is not None else MOST_LISTED
     async with request.app.state.pool.connection() as connection:
-        found = await documents_of(connection, reader(who), source_id=source_id, limit=MOST_LISTED)
+        found = await documents_of(connection, reader(who), source_id=source_id, work_id=work_id, limit=limit)
         return await _outs(connection, found, who)
 
 

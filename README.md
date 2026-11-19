@@ -276,7 +276,9 @@ ungültig.
   /api/v1/documents/{id}/extraction` startet sie neu, nur durch den Eigentümer (403 `not_owner`) und solange
   er den Inhalt des Eintrags lesen darf (403 `file_hidden`), nicht für ein festgeschriebenes Dokument (409
   `frozen`), keine Entwurfskopie und kein Import aus MEM-Schule (409 `not_extractable`; wie die Reparatur); `GET
-  /api/v1/documents?source_id=…`, `/documents/{id}`, `/documents/{id}/runs`, `/documents/{id}/units`,
+  /api/v1/documents?source_id=…` (die neuesten 100; mit `work_id=…` alle des Werks, die der Aufrufer
+  lesen darf – ein unbekanntes oder ihm verborgenes Werk gibt eine leere Liste), `/documents/{id}`,
+  `/documents/{id}/runs`, `/documents/{id}/units`,
   `/documents/{id}/findings` lesen sie (`units` und `findings` nur, wer auch den Inhalt des Eintrags lesen
   darf, sonst 403 `file_hidden` – ihre Pfade und Befunde nennen Titel und Wortlaut; jedes Dokument mit `issuer`, `edition`, `work` – Id, Titel, Land,
   Kurztitel, IRI –, `iri`, `revision`, `frozen_at` und `copy_of`, der Revision, die eine Entwurfskopie
@@ -391,7 +393,8 @@ ungültig.
   Dokuments oder `null`): festgeschrieben, desselben Werks, unter einer anderen IRI, für den Aufrufer
   lesbar und ohne Kreis über die Revisionen, sonst 422 `invalid_field` (`details.field` `supersedes`,
   auch für ein Dokument, das er nicht sieht); die Antwort nennt sie als `supersedes` (`id`, `iri`,
-  `edition`), der Kern-Graph mit ihrer IRI, eine Entwurfskopie übernimmt sie –
+  `edition`) jedem, der das Dokument lesen darf, auch wo er die ersetzte Fassung selbst nicht sieht – der
+  Kern-Graph nennt ihre IRI ohnehin –, der Kern-Graph mit ihrer IRI, eine Entwurfskopie übernimmt sie –
   durch Eigentümer und Redaktion/Admin, 422 `invalid_field` wie beim Bearbeiten; eine Änderung
   schuldet X5 eine Prüfung; erst wenn X4 fertig ist, wie jede Bearbeitung des Baums (409 `not_extracted`;
   vor X1 überschriebe eine Extraktion sie mit dem, was X1 liest), ein neues Werk mit speicherbarem Titel und
@@ -428,8 +431,8 @@ ungültig.
   In der Oberfläche nennt die Dokumentseite unter „Werk und Fassung“ Herausgeber, Fassung, Werk, IRI,
   Revision und die ersetzte Fassung; bis zum Festschreiben ändern Eigentümer und Redaktion dort Titel, Herausgeber und Fassung (mit IRI
   nur noch den Titel) sowie die ersetzte Fassung – zur Wahl stehen die festgeschriebenen Fassungen des
-  Werks aus den Dokumenten, die sie sehen, je IRI die neueste Revision –, und die Redaktion setzt das
-  Werk, solange es keines hat – ein bekanntes aus den
+  Werks, die sie lesen dürfen (`GET …/documents?work_id=…`), je IRI die neueste Revision –, und die
+  Redaktion setzt das Werk, solange es keines hat – ein bekanntes aus den
   Dokumenten, die sie sieht, oder ein neues mit Titel, Land und Kurztitel; ein Wechsel geht nur über `PATCH
   …/work`. Festgeschrieben wird, was gespeichert ist; ein ungespeicherter Eintrag geht verloren.
   „Festschreiben“ (Redaktion) fragt vorher, mit den Folgen; nennen die Befunde Verstöße, fragt es noch einmal
