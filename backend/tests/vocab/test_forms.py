@@ -175,7 +175,8 @@ async def test_levels_come_grouped_by_their_scheme_active_ones_alone(
         "UPDATE vocab_concept SET retired_in = 1 WHERE iri = ANY(%s)", ([LVL + "EQF-8", CV + "unit_week"],)
     )
     await connection.execute(
-        "UPDATE vocab_scheme SET retired_in = 1 WHERE iri = %s", (LVL + "SchoolLeaving",)
+        "UPDATE vocab_scheme SET retired_in = 1 WHERE iri = ANY(%s)",
+        ([LVL + "SchoolLeaving", CV + "WorkloadKinds"],),
     )
 
     form = await value_form_of(connection)
@@ -196,6 +197,7 @@ async def test_levels_come_grouped_by_their_scheme_active_ones_alone(
     assert {form.group_of[value.iri] for value in form.values["competence_dimension"]} >= {KD + "Bridge"}
     assert CV + "unit_week" not in {unit.iri for unit in form.values["unit"]}
     assert CV + "unit_lesson" in {unit.iri for unit in form.values["unit"]}
+    assert form.values["workload_kind"] == ()  # its scheme retired
     assert CV + "time_phase" not in {kind.iri for kind in form.values["time_kind"]}  # no phase yet
     assert all(value.iri not in form.group_of for value in form.values["unit"])  # a scheme's are no group's
     concepts = {field.key for fields in VALUE_FIELDS.values() for field in fields if field.kind == "concept"}
