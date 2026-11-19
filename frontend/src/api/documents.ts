@@ -227,6 +227,12 @@ export function listDocuments(sourceId?: string): Promise<CurriculumDocument[]> 
   return apiFetch<CurriculumDocument[]>(`/api/v1/documents${query}`);
 }
 
+/** All documents of the work the caller may read, past the cap of the whole list; none for a work unknown or
+ * unseen. */
+export function listWorkDocuments(workId: string): Promise<CurriculumDocument[]> {
+  return apiFetch<CurriculumDocument[]>(`/api/v1/documents?${new URLSearchParams({ work_id: workId })}`);
+}
+
 export function getDocument(id: string): Promise<CurriculumDocument> {
   return apiFetch<CurriculumDocument>(documentPath(id));
 }

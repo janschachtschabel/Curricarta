@@ -2,7 +2,7 @@
 /**
  * The edition a document supersedes (plan M3a B2; backend app/api/document_meta.py), by its owner or an editor until
  * it is frozen: one of the frozen editions of its work under another IRI - each IRI once, as its latest revision -,
- * read from the documents the caller sees, there being no list of a work's editions; or none. The edition it
+ * read from all the documents of its work the caller sees (listWorkDocuments); or none. The edition it
  * supersedes now is offered though the list read lacks it. Without a work, or where the work has no other frozen
  * edition, a sentence says why there is nothing to choose; while the editions are read only that is shown, so no field
  * goes from under the user. Saved, it says so and the page reads the document again (`changed`); the server's problem
@@ -11,7 +11,7 @@
  */
 import { computed, onMounted, ref, useId, watch } from "vue";
 
-import { listDocuments, type CurriculumDocument, type SupersededEdition } from "@/api";
+import { listWorkDocuments, type CurriculumDocument, type SupersededEdition } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { saveMeta } from "@/documentMeta";
@@ -105,12 +105,13 @@ async function onSubmit(): Promise<void> {
 }
 
 onMounted(async () => {
-  if (!props.document.work) {
+  const work = props.document.work;
+  if (!work) {
     loading.value = false;
     return;
   }
   try {
-    editions.value = editionsOf(await listDocuments());
+    editions.value = editionsOf(await listWorkDocuments(work.id));
   } catch {
     loadFailed.value = true; // said below; the rest of the page stands
   } finally {

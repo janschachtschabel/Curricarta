@@ -41,6 +41,7 @@ const facts = (wrapper: VueWrapper) =>
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+  vi.spyOn(api, "listWorkDocuments").mockResolvedValue([]);
 });
 
 afterEach(() => {
@@ -186,11 +187,13 @@ describe("what an edition supersedes", () => {
       B1,
       A1,
     ];
-    vi.spyOn(api, "listDocuments").mockImplementation((source) => Promise.resolve(source ? [] : seen));
+    const asked = vi.spyOn(api, "listWorkDocuments").mockResolvedValue(seen);
     const copy = documentOf({ id: "own2", work: KLP, iri: "https://example.org/kk/doc/own", revision: 2 });
 
     const wrapper = await edition(copy, EDITOR);
 
+    // asked of the work, all its documents the caller reads: none cut by the cap of the whole list
+    expect(asked).toHaveBeenCalledWith("w1");
     expect(offered(wrapper)).toEqual([
       ["", t("documents.page.edition.supersedesNothing")],
       ["a2", "2008 (https://example.org/kk/doc/a)"],
@@ -200,7 +203,7 @@ describe("what an edition supersedes", () => {
   });
 
   it("explains where its work has no frozen edition, and where it has no work yet", async () => {
-    vi.spyOn(api, "listDocuments").mockResolvedValue([documentOf({ id: "draft", work: KLP })]);
+    vi.spyOn(api, "listWorkDocuments").mockResolvedValue([documentOf({ id: "draft", work: KLP })]);
     const empty = await edition(documentOf({ work: KLP }), EDITOR);
     expect(empty.findComponent(SupersedesForm).text()).toContain(t("documents.page.edition.supersedesNone"));
     expect(empty.findComponent(SupersedesForm).find("select").exists()).toBe(false);
@@ -212,7 +215,7 @@ describe("what an edition supersedes", () => {
   });
 
   it("says where the editions were not read", async () => {
-    vi.spyOn(api, "listDocuments").mockRejectedValue(new ApiError("network", 0));
+    vi.spyOn(api, "listWorkDocuments").mockRejectedValue(new ApiError("network", 0));
 
     const wrapper = await edition(documentOf({ work: KLP }), EDITOR);
 
@@ -220,7 +223,7 @@ describe("what an edition supersedes", () => {
   });
 
   it("saves the edition chosen, and no longer one, and has the page read the document again", async () => {
-    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    vi.spyOn(api, "listWorkDocuments").mockResolvedValue([B1]);
     const saved = vi
       .spyOn(api, "editDocument")
       .mockResolvedValue(documentOf({ work: KLP, supersedes: { id: "b1", iri: B1.iri ?? "", edition: "2014" } }));
@@ -244,7 +247,7 @@ describe("what an edition supersedes", () => {
   });
 
   it("holds the edition it supersedes chosen, and saves nothing unchanged", async () => {
-    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    vi.spyOn(api, "listWorkDocuments").mockResolvedValue([B1]);
     const saved = vi.spyOn(api, "editDocument");
     const wrapper = await edition(
       documentOf({ work: KLP, supersedes: { id: "b1", iri: B1.iri ?? "", edition: "2014" } }),
@@ -262,7 +265,7 @@ describe("what an edition supersedes", () => {
   });
 
   it("says the server's problem with the choice at the field, the keyboard taken there", async () => {
-    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    vi.spyOn(api, "listWorkDocuments").mockResolvedValue([B1]);
     vi.spyOn(api, "editDocument").mockRejectedValue(
       new ApiError("server", 422, "invalid_field", "Bad.", { field: "supersedes", problem: "not_offered" }),
     );
