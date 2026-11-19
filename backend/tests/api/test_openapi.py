@@ -67,6 +67,17 @@ def test_the_editor_s_routes_name_the_refusals_they_give(spec: dict[str, Any]) -
         assert "invalid_field" not in answers.get("422", {}).get("description", "")
 
 
+def test_the_routes_of_values_name_the_refusals_they_give(spec: dict[str, Any]) -> None:
+    for path, gone in (("/api/v1/nodes/{node_id}/values", "no_node"),
+                       ("/api/v1/statements/{statement_id}/values", "no_statement")):  # fmt: skip
+        answers = spec["paths"][path]["put"]["responses"]
+        assert gone in answers["404"]["description"] and "file_hidden" in answers["403"]["description"]
+        for refusal in ("details.current", "job_open", "frozen", "not_extracted"):
+            assert refusal in answers["409"]["description"], (path, refusal)
+        assert "no_form" not in answers["409"]["description"]  # the values' form is every sector's
+        assert "invalid_field" in answers["422"]["description"]
+
+
 def test_the_routes_of_freezing_name_the_refusals_they_give(spec: dict[str, Any]) -> None:
     paths = spec["paths"]
     started = [paths[f"/api/v1/documents/{{document_id}}/{route}"]["post"]["responses"] for route in (

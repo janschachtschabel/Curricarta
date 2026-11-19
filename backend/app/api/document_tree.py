@@ -1,10 +1,10 @@
-"""A document's tree as the editor shows it (plan M1 9.2; app/db/tree.py): its nodes and statements, each
-with the fields of the editor's form by their keys (GET /profiles/{sector}/form), its anchors, origin,
-review status and revision; each node with the findings on it and its statements counted; the nodes and
-statements counted by review status - and whether the caller may edit the tree now and review it, and
-where nobody may, why. Read in one snapshot, by who may read the document and its entry's content
-(app/api/document_access.py): the statements are that content in the document's words. A node or a
-statement alone reads as the tree has it, for the answer to its change.
+"""A document's tree as the editor shows it (plan M1 9.2; app/db/tree.py): its nodes and statements, each with
+the fields of the editor's form by their keys (GET /profiles/{sector}/form), its anchors, values
+(app/api/value_answers.py), origin, review status and revision; each node with the findings on it and its
+statements counted; the nodes and statements counted by review status - and whether the caller may edit the
+tree now and review it, and where nobody may, why. Read in one snapshot, by who may read the document and
+its entry's content (app/api/document_access.py): the statements are that content in the document's words. A
+node or a statement alone reads as the tree has it, for the answer to its change.
 
 Editing is the owner's and the editors' (Redaktion, Admin), reviewing the editors' alone; neither while
 a job of the document waits or runs (its extraction, repair or check), nor once it is frozen, nor before
@@ -23,6 +23,7 @@ from app.api.document_access import readable_content, reader, visible_document
 from app.api.document_findings import SeverityCounts
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.source_content import EDITORS
+from app.api.value_answers import ValuesOut, values_out
 from app.core.auth import Principal
 from app.db.editing import DOCUMENT_OF_NODE, extracted, target_of
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
@@ -58,6 +59,7 @@ class StatementOut(BaseModel):
     text_hash: str
     by_hand: bool  # an editor's own from the first: taking it away deletes it, a run's is rejected
     anchors: list[AnchorOut]
+    values: ValuesOut  # its levels; set by PUT /statements/{id}/values
 
 
 class NodeRowOut(BaseModel):
@@ -73,6 +75,7 @@ class NodeRowOut(BaseModel):
     iri: str | None  # given when its document was frozen (the path of its codes); a draft copy's bring theirs
     findings: SeverityCounts  # on the node and its anchors, its statements and theirs - not its children's
     anchors: list[AnchorOut]
+    values: ValuesOut  # its levels, time spans and workloads; set by PUT /nodes/{id}/values
 
 
 class NodeOut(NodeRowOut):
@@ -196,6 +199,7 @@ def _node_parts(node: TreeNode) -> dict[str, Any]:
         "iri": node.iri,
         "findings": SeverityCounts(**node.findings),
         "anchors": [_anchor(anchor) for anchor in node.anchors],
+        "values": values_out(node.values),
     }
 
 
@@ -219,6 +223,7 @@ def _statement(statement: TreeStatement) -> StatementOut:
         text_hash=statement.text_hash,
         by_hand=statement.by_hand,
         anchors=[_anchor(anchor) for anchor in statement.anchors],
+        values=values_out(statement.values),
     )
 
 

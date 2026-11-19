@@ -5,6 +5,7 @@ document is frozen - and, where none may, why. Who may read the document and its
 to another it is none."""
 
 import uuid
+from decimal import Decimal
 from pathlib import Path
 from typing import Any
 
@@ -19,6 +20,7 @@ from tests.api.test_document_findings import finding
 from tests.api.test_document_units import a_run
 from tests.api.test_documents import PUBLIC, a_conversion, an_account, client, end_job, make, url
 from tests.db.l1 import CV, add_node, add_statement
+from tests.db.l2 import LVL, add_value
 from tests.support import make_settings, selector_client
 
 pytestmark = pytest.mark.pg
@@ -109,6 +111,37 @@ def test_a_document_s_tree_is_read_with_its_form_s_fields_anchors_and_findings(
         "nodes": {PROPOSED: 2, CONFIRMED: 0, REJECTED: 0},
         "statements": {PROPOSED: 0, CONFIRMED: 0, REJECTED: 1},
     }
+
+
+def test_each_node_and_statement_is_read_with_its_values(client: TestClient, url: str) -> None:
+    document, header = a_document(client, url)
+    at = uuid.UUID(document)
+    with psycopg.connect(url, autocommit=True) as connection:
+        node = add_node(connection, at, original_title="Optik")
+        said = add_statement(connection, at, node, verbatim="messen.")
+        add_value(connection, "level_assignment", at, "statement_id", said, level_iri=LVL + "EQF-5")
+        workload = add_value(
+            connection, "workload", at, "node_id", node, amount=Decimal("7.5"), amount_to=None
+        )
+        period = add_value(connection, "time_span", at, "workload_id", workload, span_to=None)
+        made = add_value(connection, "time_span", at, "node_id", node, position=1)
+
+    [top] = tree(client, document, header)["nodes"]
+
+    stated = {"origin": CV + "orig_human", "review_status": PROPOSED, "revision": 1}
+    span = {"time_kind": CV + "time_gradeLevel", "span_from": 5, "span_to": None, "time_relation": None}
+    assert top["values"] == {
+        "level_assignments": [],
+        "time_spans": [{"id": str(made), **span, "span_to": 6, **stated}],
+        "workloads": [{
+            "id": str(workload), "amount": 7.5, "amount_to": None, "unit": CV + "unit_lesson",
+            "workload_kind": None, "is_recommendation": False, "minutes_per_unit": None, "total": False,
+            "periods": [{"id": str(period), **span, **stated}], **stated,
+        }],
+    }  # fmt: skip
+    [statement] = top["statements"]
+    assert [level["level"] for level in statement["values"]["level_assignments"]] == [LVL + "EQF-5"]
+    assert statement["values"]["time_spans"] == statement["values"]["workloads"] == []
 
 
 def test_the_owner_edits_a_tree_and_the_editors_edit_and_review_it(client: TestClient, url: str) -> None:

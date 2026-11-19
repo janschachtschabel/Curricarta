@@ -1,8 +1,8 @@
 """A document's structure read back as a tree (plan M1 4.6, 9.2), by those who see its document
 (app/db/documents.py): its nodes from its top, each with its statements and children in their
 order, all in one snapshot - as the editor shows it, each node and statement with the fields of its
-form and its anchors, each node with the findings on it and its statements counted. Written by
-app/db/nodes.py."""
+form and its anchors and values (app/db/value_rows.py), each node with the findings on it and its
+statements counted. Written by app/db/nodes.py."""
 
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
@@ -16,7 +16,9 @@ from psycopg.rows import dict_row
 from app.db.documents import DOCUMENT_VISIBLE
 from app.db.findings import SEVERITIES
 from app.db.source_queries import Reader
+from app.db.value_rows import values_of
 from app.domain.l1 import REVIEW_STATUSES, WORDING_FIELDS, Severity
+from app.domain.l2 import HeldValues, Holder
 
 # each query of a tree asks who sees its document, all within one snapshot (read_tree)
 _VISIBLE = f"SELECT 1 FROM document d WHERE d.id = %(id)s AND {DOCUMENT_VISIBLE}"  # noqa: S608 - fixed parts
@@ -97,6 +99,7 @@ class TreeStatement:
     by_hand: bool  # an editor's own from the first: taking it away deletes it, a run's is rejected
     addressees: tuple[str, ...]
     anchors: tuple[TreeAnchor, ...]
+    values: HeldValues  # its levels
 
 
 @dataclass(frozen=True)
@@ -114,6 +117,7 @@ class TreeNode:
     revision: int
     iri: str | None  # once its document was frozen
     anchors: tuple[TreeAnchor, ...]
+    values: HeldValues  # its levels, time spans and workloads
     # on the node, its anchors, its statements and their anchors - not its children's
     findings: dict[Severity, int]
     statements: tuple[TreeStatement, ...]
@@ -169,6 +173,7 @@ async def _read_tree(
     found: defaultdict[UUID, dict[Severity, int]] = defaultdict(lambda: dict.fromkeys(SEVERITIES, 0))
     for node_id, severity, count in await cursor.fetchall():
         found[node_id][severity] = count
+    held = await values_of(connection, document_id)
     anchored: defaultdict[UUID, list[TreeAnchor]] = defaultdict(list)  # by the node or statement
     for row in anchors:
         node_id, statement_id = row.pop("node_id"), row.pop("statement_id")
@@ -182,6 +187,7 @@ async def _read_tree(
                 wording={name: details[name] for name in WORDING_FIELDS if name in details},
                 addressees=tuple(addressees),
                 anchors=tuple(anchored[row["id"]]),
+                values=held.get(Holder("statement", row["id"]), HeldValues()),
             )
         )
     under: defaultdict[UUID | None, list[dict[str, Any]]] = defaultdict(list)
@@ -193,6 +199,7 @@ async def _read_tree(
         return TreeNode(
             **fields,
             anchors=tuple(anchored[row["id"]]),
+            values=held.get(Holder("node", row["id"]), HeldValues()),
             findings=found[row["id"]],
             statements=tuple(said[row["id"]]),
             children=tuple(built(child) for child in under[row["id"]]),

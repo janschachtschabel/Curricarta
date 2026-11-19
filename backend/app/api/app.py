@@ -35,6 +35,7 @@ from app.api import (
     statement_editing,
     system,
     usage,
+    values,
 )
 from app.api.body_limit import JSON_BODY_LIMIT, MIB, BodyLimit
 from app.api.errors import ERROR_RESPONSES, install_error_handlers
@@ -151,6 +152,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
     app.include_router(document_blocks.router)
     app.include_router(node_editing.router)
     app.include_router(statement_editing.router)
+    app.include_router(values.router)
     app.include_router(review.router)
     app.include_router(document_meta.router)
     app.include_router(freeze.router)

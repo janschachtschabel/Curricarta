@@ -17,6 +17,9 @@ FieldValue = str | list[str] | None  # a text, a value's IRI, the IRIs of a fiel
 FieldProblem = Literal[
     "unknown", "required", "not_text", "not_list", "too_long", "not_storable", "not_offered", "not_under",
     "unknown_block", "no_page",  # a statement's anchors': a block of no conversion of its document, no page
+    # a value's (app/vocab/value_checks.py): a kind its holder holds not, a range's end before its start, an
+    # id of no value of the holder's, a value the store refuses
+    "not_held", "out_of_order", "unknown_value", "refused",
 ]  # fmt: skip
 # a profile's value and the core value it refines, by their fields' keys
 _UNDER = {"node_type": "function", "subkind": "statement_kind"}
