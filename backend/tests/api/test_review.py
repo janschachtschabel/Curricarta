@@ -12,7 +12,7 @@ from tests.api.test_document_tree import a_document
 from tests.api.test_documents import an_account, client, rows, url
 from tests.api.test_node_editing import a_node
 from tests.api.test_statement_editing import a_statement
-from tests.db.l1 import CV
+from tests.db.l1 import CV, add_entity
 from tests.db.l2 import add_value
 
 pytestmark = pytest.mark.pg
@@ -81,6 +81,28 @@ def test_the_editors_review_a_holder_s_values_as_its_rows(client: TestClient, ur
     assert rows(url, "SELECT review_status_iri FROM level_assignment WHERE id = %s", elsewhere) == [
         (CV + "rev_proposed",)
     ]
+
+
+def test_a_rule_s_level_is_not_reviewed_with_the_values(client: TestClient, url: str) -> None:
+    # a level at a rules frame part is the rules' (plan M3a I): no reader shows it, so none reviews it yet
+    document, _ = a_document(client, url)
+    with psycopg.connect(url, autocommit=True) as connection:
+        part = add_entity(connection, "frame_part")
+        connection.execute(
+            "INSERT INTO frame_part (id, document_id, part_kind, content, origin_scheme, origin_iri,"
+            " review_status_scheme, review_status_iri, position)"
+            " VALUES (%s, %s, 'rules', '{}', %s, %s, %s, %s, 1)",
+            (part, document, CV + "Origins", CV + "orig_source", CV + "ReviewStatuses", CV + "rev_proposed"),
+        )
+        level = add_value(connection, "level_assignment", uuid.UUID(document), "frame_part_id", part)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+
+    answer = client.post(f"/api/v1/documents/{document}/review", headers=editor, json={
+        "status": "rejected", "items": [{"kind": "level_assignment", "id": str(level), "revision": 1}],
+    })  # fmt: skip
+
+    assert (answer.status_code, answer.json()["details"]["stale"][0]["current"]) == (409, None)
+    assert rows(url, "SELECT review_status_iri FROM level_assignment") == [(CV + "rev_proposed",)]
 
 
 def test_a_stale_row_leaves_all_and_is_named_with_its_revision(client: TestClient, url: str) -> None:

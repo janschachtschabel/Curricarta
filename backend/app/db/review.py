@@ -26,8 +26,11 @@ ReviewKind = Literal["node", "statement", "level_assignment", "time_span", "work
 REJECTED = CV + "rev_rejected"
 _KINDS: tuple[ReviewKind, ...] = get_args(ReviewKind)
 _CURRENT = (
-    "SELECT id, revision, review_status_iri FROM {table} WHERE document_id = %s AND id = ANY(%s) FOR UPDATE"
+    "SELECT id, revision, review_status_iri FROM {table} WHERE document_id = %s AND id = ANY(%s){only}"
+    " FOR UPDATE"
 )
+# a level at a rules frame part is the rules' (plan M3a I), which no reader shows yet: none reviews it
+_ONLY = {"level_assignment": " AND frame_part_id IS NULL"}
 _SET = """
 UPDATE {table} SET review_status_iri = %s, revision = revision + 1, updated_at = now()
 WHERE id = ANY(%s) RETURNING id, revision
@@ -72,7 +75,9 @@ async def set_review(
         for kind in _KINDS:
             ids = [item.id for item in named if item.kind == kind]
             if ids:
-                cursor = await connection.execute(_CURRENT.format(table=kind), (document_id, ids))
+                cursor = await connection.execute(
+                    _CURRENT.format(table=kind, only=_ONLY.get(kind, "")), (document_id, ids)
+                )
                 found |= {(kind, row): (revision, now) for row, revision, now in await cursor.fetchall()}
         stale = []
         for item in named:
