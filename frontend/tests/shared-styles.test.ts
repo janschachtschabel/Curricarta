@@ -300,15 +300,17 @@ describe("a colour that follows the scheme", () => {
   /**
    * A colour transition on a resting rule kept a button's old background after the system switched between light
    * and dark while the page was open (browser probe 2026-11-19: light text on a white button, 1.12:1, until reload):
-   * the transition the custom property's change starts does not run to its end. A colour moves only while it is
-   * pointed at or focused, where a theme switch does not happen.
+   * the transition the custom property's change starts does not run to its end. A colour moves only while the
+   * pointer is on it; not at rest and not while focused (a focused button kept the old colour as well).
    */
-  it("is transitioned only on hover or focus, never at rest", () => {
+  it("is transitioned only on hover, never at rest nor on focus", () => {
     const rules = [...STYLESHEET.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)];
     const offenders = rules
-      .filter(([, , body]) => /transition\s*:[^;]*\b(?:background-color|border-color|color)\b/.test(body))
+      .filter(([, , body]) =>
+        /transition(?:-property)?\s*:[^;]*\b(?:background-color|border-color|color|background|border|all)\b/.test(body),
+      )
       .map(([, selector]) => selector.trim())
-      .filter((selector) => selector.split(",").some((part) => !/:hover|:focus/.test(part)));
+      .filter((selector) => selector.split(",").some((part) => !/(?<!:not\()\:hover\b/.test(part)));
 
     expect(offenders).toEqual([]);
   });

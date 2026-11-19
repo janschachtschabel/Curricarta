@@ -286,10 +286,10 @@ input, select, textarea {
   color: var(--text);
 }
 
-/* Colours move only while a control is pointed at or focused, never at rest: at rest a transition kept the old
-   colour after the system switched between light and dark with the page open (the transition the custom
-   property's change starts does not run to its end). */
-input:hover, select:hover, textarea:hover, input:focus-visible, select:focus-visible, textarea:focus-visible {
+/* Colours move only while a control is pointed at, never at rest nor while focused: there a transition kept the
+   old colour after the system switched between light and dark with the page open (the transition the custom
+   property's change starts does not run to its end). Leaving the pointer snaps back; focus changes no colour. */
+input:hover:not(:disabled), select:hover:not(:disabled), textarea:hover:not(:disabled) {
   transition: border-color var(--dur-1) var(--ease);
 }
 
@@ -582,8 +582,8 @@ textarea[aria-invalid="true"]:not(:disabled) {
   gap: var(--space-1);
 }
 
-/* As for the controls above: a button's colours move only while it is pointed at or focused. */
-.btn:hover, .btn:focus-visible {
+/* As for the controls above: a button's colours move only while it is pointed at. */
+.btn:hover:not(:disabled) {
   transition: background-color var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
 }
 
