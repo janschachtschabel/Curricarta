@@ -299,7 +299,9 @@ ungültig.
   Art der Werte (`level_assignments`, `time_spans`, `workloads`) die Träger, an denen sie angeboten wird
   (Niveau an Knoten, Aussage und Spezifikation; Zeit und Umfang an Knoten und Spezifikation), ihre Felder
   (auch `number`, `boolean`) und bei `workloads` die Art der Zeiträume (`periods`); Niveaus und
-  Kompetenzdimensionen tragen ihr Niveausystem bzw. Kompetenzmodell als `group`, dessen Label `groups` nennt.
+  Kompetenzdimensionen tragen ihr Niveausystem bzw. Kompetenzmodell als `group`, dessen Label `groups` nennt;
+  ein Niveau dazu die Dimension seines Systems (`dimension`), und `rules` nennt, welche Dimensionen ein Träger
+  nach den SHACL-Formen nie trägt (Qualifikationsniveau an einer Aussage, Noten außer an einem Standard).
 - Dokumente: `POST /api/v1/documents` (`source_id`, `conversion_id`, `sector`, `regions`) legt aus der
   fertigen Umwandlung eines Eintrags ein Dokument an und startet seine Extraktion (202 mit Dokument und
   Job), als Modelljob zugelassen (403 `no_budget`, 429 `too_many_jobs` / `too_many_starts`). `POST
@@ -403,7 +405,8 @@ ungültig.
   Träger wie im Baum (dort je Knoten und Aussage `values`). Abgewiesen wie beim Bearbeiten (404, 403
   `file_hidden`, 409 `stale_revision` mit dem Träger, `job_open`, `frozen`, `not_extracted`), 422
   `invalid_field` mit dem Pfad des Felds (`workloads[1].unit`) und `problem` – `not_held`, `not_offered`
-  (auch ein seither stillgelegter Begriff, außer er steht schon so am behaltenen Wert), `out_of_order`,
+  (auch ein seither stillgelegter Begriff, außer er steht schon so am behaltenen Wert; ein Niveau, das der
+  Träger nach `rules` nie trägt; ein Bereichsende aus einem anderen Niveausystem), `out_of_order`,
   `unknown_value`, `refused` (die Datenbank weist den Wert ab). Audit `node.values`, `statement.values` mit den Anzahlen, ohne Inhalte.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
