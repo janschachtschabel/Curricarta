@@ -1,5 +1,5 @@
-"""What a document holds goes with it, and what a run made outlives the run (migrations l1_*):
-the first layer's rows are taken away with their document, never left behind."""
+"""What a document holds goes with it, and what a run made outlives the run (migrations l1_*, l2_values):
+the first layer's rows and the second's values are taken away with their document, never left behind."""
 
 import uuid
 from collections.abc import Iterator
@@ -20,8 +20,8 @@ from tests.db.l1 import (
     add_specification,
     add_statement,
     add_variant,
-    seed_vocabulary,
 )
+from tests.db.l2 import add_value, seed_l2_vocabulary
 
 pytestmark = pytest.mark.pg
 
@@ -36,6 +36,9 @@ TABLES = (
     "specification",
     "variant",
     "document_profile",
+    "workload",
+    "time_span",
+    "level_assignment",
 )
 
 
@@ -43,7 +46,7 @@ TABLES = (
 def connection(database_url: str) -> Iterator[psycopg.Connection]:
     migrate(database_url)
     with psycopg.connect(database_url, autocommit=True) as opened:
-        seed_vocabulary(opened)
+        seed_l2_vocabulary(opened)
         yield opened
 
 
@@ -64,7 +67,8 @@ def counts(connection: psycopg.Connection) -> dict[str, int]:
 
 
 def fill(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, uuid.UUID]:
-    """A run, a node and a statement it made, an anchor at a block, and a finding of the run."""
+    """A run, a node and a statement it made, an anchor at a block, a finding of the run, and values at the
+    node, the statement and the specification."""
     document = made["document"]
     run = add_run(connection, document)
     node = add_node(connection, document, run_id=run)
@@ -89,6 +93,10 @@ def fill(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, uuid
     connection.execute(
         "UPDATE node SET applies_to = ARRAY[%s, %s]::uuid[] WHERE id = %s", (specification, variant, node)
     )
+    workload = add_value(connection, "workload", document, "node_id", node)
+    add_value(connection, "time_span", document, "workload_id", workload)
+    add_value(connection, "time_span", document, "specification_id", specification)
+    add_value(connection, "level_assignment", document, "statement_id", statement)
     return {"run": run, "node": node, "statement": statement}
 
 

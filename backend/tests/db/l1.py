@@ -57,9 +57,12 @@ CONCEPTS: dict[str, list[tuple[str, list[str], list[str]]]] = {
 }
 
 
-def seed_vocabulary(connection: psycopg.Connection) -> None:
-    """The concepts the tables point at, as app.vocab.load would leave them, cut to these few."""
-    for scheme, concepts in CONCEPTS.items():
+def seed_vocabulary(
+    connection: psycopg.Connection, schemes: dict[str, list[tuple[str, list[str], list[str]]]] = CONCEPTS
+) -> None:
+    """The concepts the tables point at, as app.vocab.load would leave them, cut to these few - or to
+    ``schemes``."""
+    for scheme, concepts in schemes.items():
         connection.execute(
             "INSERT INTO vocab_scheme (iri, types, pref_labels, properties) VALUES (%s, '{}', '{}', '{}')",
             (scheme,),

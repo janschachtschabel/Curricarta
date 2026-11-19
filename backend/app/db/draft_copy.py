@@ -5,7 +5,8 @@ It is a document of its own - the same source, conversion, owner, work, metadata
 and the counters of its names, the revision one up,
 its own draft IRI, ``copy_of`` the revision it copies - with every row the frozen one holds under ids of
 its own: specifications and their variants, frame parts, nodes (``applies_to`` and their parents
-followed), statements, addressees, anchors (their owner followed) and their blocks, the profile. IRIs,
+followed), statements, addressees, anchors (their owner followed) and their blocks, the profile, the values
+- workloads, time spans, levels - at their holders (followed as an anchor's owner). IRIs,
 origins, review statuses, revisions, positions and found anchors are taken along as they are; no run is
 (``run_id`` none: the runs and their findings are the frozen revision's), so X5 owes the copy a check.
 Of the latest revision of an IRI alone (``not_latest``), not of a draft (``not_frozen``), and one draft at
@@ -37,6 +38,9 @@ _ENTITIES: Final = {
     "node": "SELECT id FROM node WHERE document_id = %(old)s",
     "statement": "SELECT id FROM statement WHERE document_id = %(old)s",
     "anchor": "SELECT id FROM anchor WHERE document_id = %(old)s",
+    "workload": "SELECT id FROM workload WHERE document_id = %(old)s",
+    "time_span": "SELECT id FROM time_span WHERE document_id = %(old)s",
+    "level_assignment": "SELECT id FROM level_assignment WHERE document_id = %(old)s",
 }
 _DOCUMENT = """
 INSERT INTO document (id, source_id, conversion_id, owner_id, work_id, draft_iri, iri, edition, issuer,
@@ -125,6 +129,45 @@ _ROWS: Final = (
     """
     INSERT INTO document_profile (document_id, term_mappings, new_terms, table_schemas)
     SELECT %(new)s, term_mappings, new_terms, table_schemas FROM document_profile WHERE document_id = %(old)s
+    """,
+    """
+    INSERT INTO workload (id, document_id, node_id, specification_id, position, amount, amount_to,
+        unit_scheme, unit_iri, workload_kind_scheme, workload_kind_iri, is_recommendation, minutes_per_unit,
+        total, origin_scheme, origin_iri, review_status_scheme, review_status_iri, rule_id, revision,
+        created_at, updated_at)
+    SELECT m.new, %(new)s, nm.new, sm.new, w.position, w.amount, w.amount_to, w.unit_scheme, w.unit_iri,
+        w.workload_kind_scheme, w.workload_kind_iri, w.is_recommendation, w.minutes_per_unit, w.total,
+        w.origin_scheme, w.origin_iri, w.review_status_scheme, w.review_status_iri, w.rule_id, w.revision,
+        w.created_at, w.updated_at
+    FROM workload w JOIN copied m ON m.old = w.id LEFT JOIN copied nm ON nm.old = w.node_id
+        LEFT JOIN copied sm ON sm.old = w.specification_id
+    WHERE w.document_id = %(old)s
+    """,
+    """
+    INSERT INTO time_span (id, document_id, node_id, specification_id, workload_id, position,
+        time_kind_scheme, time_kind_iri, span_from, span_to, time_relation_scheme, time_relation_iri,
+        origin_scheme, origin_iri, review_status_scheme, review_status_iri, rule_id, revision, created_at,
+        updated_at)
+    SELECT m.new, %(new)s, nm.new, sm.new, wm.new, t.position, t.time_kind_scheme, t.time_kind_iri,
+        t.span_from, t.span_to, t.time_relation_scheme, t.time_relation_iri, t.origin_scheme, t.origin_iri,
+        t.review_status_scheme, t.review_status_iri, t.rule_id, t.revision, t.created_at, t.updated_at
+    FROM time_span t JOIN copied m ON m.old = t.id LEFT JOIN copied nm ON nm.old = t.node_id
+        LEFT JOIN copied sm ON sm.old = t.specification_id LEFT JOIN copied wm ON wm.old = t.workload_id
+    WHERE t.document_id = %(old)s
+    """,
+    """
+    INSERT INTO level_assignment (id, document_id, node_id, statement_id, specification_id, frame_part_id,
+        position, level_iri, level_to_iri, relation_scheme, relation_iri, dimension_scheme, dimension_iri,
+        competence_dimension_iri, origin_scheme, origin_iri, review_status_scheme, review_status_iri, rule_id,
+        revision, created_at, updated_at)
+    SELECT m.new, %(new)s, nm.new, sm.new, pm.new, fm.new, l.position, l.level_iri, l.level_to_iri,
+        l.relation_scheme, l.relation_iri, l.dimension_scheme, l.dimension_iri, l.competence_dimension_iri,
+        l.origin_scheme, l.origin_iri, l.review_status_scheme, l.review_status_iri, l.rule_id, l.revision,
+        l.created_at, l.updated_at
+    FROM level_assignment l JOIN copied m ON m.old = l.id LEFT JOIN copied nm ON nm.old = l.node_id
+        LEFT JOIN copied sm ON sm.old = l.statement_id LEFT JOIN copied pm ON pm.old = l.specification_id
+        LEFT JOIN copied fm ON fm.old = l.frame_part_id
+    WHERE l.document_id = %(old)s
     """,
 )
 
