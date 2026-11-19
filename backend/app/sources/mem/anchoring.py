@@ -2,14 +2,16 @@
 
 Each row's wording is looked for in the document's order (``drafts.rows_in_order``), after the place of the
 last one found, one wording at a time beside the event loop (``asyncio.to_thread``) - so that a job asked to
-stop stops between two. A wording found is anchored at its blocks and their pages; its match kind, quote and
-span X5 reckons, as for every anchor. A wording not found is ``notFound`` with no block, on the page of the
-row found before it, else the text's first - only estimated. The search has a time budget: past it, the
-rows left are not looked for and are anchored as not found (``unsearched``), so that a plan of many long
-wordings the document does not hold ends in time.
+stop stops between two; a statement's without the lead-in MEM gives each (``looked_for``). A wording found
+is anchored at its blocks and their pages; its match kind, quote and span X5 reckons, as for every anchor.
+A wording not found is ``notFound`` with no block, on the page of the row found before it, else the text's
+first - only estimated. The search has a time budget: past it, the rows left are not looked for and are
+anchored as not found (``unsearched``), so that a plan of many long wordings the document does not hold
+ends in time.
 """
 
 import asyncio
+import re
 import time
 from collections import Counter
 from collections.abc import Callable, Sequence
@@ -18,6 +20,13 @@ from dataclasses import dataclass, field
 from app.domain.l1 import MATCH_NOT_FOUND, AnchorDraft
 from app.pipeline.anchor_search import Found, SearchText, estimated_page, find
 from app.sources.mem.drafts import Row
+
+# The lead-in MEM words every statement after, as MEM writes it; "SuS" stands in no document.
+_LEAD_IN = re.compile(r"\s*(?:Die SuS|Die Schülerinnen und Schüler|Schülerinnen und Schüler)\s+")
+# What a wording must keep after it to be looked for so: two words of three letters and more, the words
+# the fuzzy stage finds its places by - one ("lesen.") stands in many sentences.
+_WORD = re.compile(r"\w{3,}")
+_LEAST_WORDS = 2
 
 
 @dataclass(frozen=True)
@@ -47,7 +56,7 @@ async def anchor_rows(
             stage_of[row.key] = "unsearched"
             anchors[row.key] = _not_found(searched, before)
             continue
-        found = await asyncio.to_thread(find, row.wording, searched, before)
+        found = await asyncio.to_thread(_find, row, searched, before)
         if found is None:
             counted["notFound"] += 1
             stage_of[row.key] = "notFound"
@@ -61,6 +70,28 @@ async def anchor_rows(
         )
         before = found
     return Anchored(anchors, stages, unsearched, stage_of)
+
+
+def looked_for(row: Row) -> str:
+    """What the search looks for of a row: a statement's wording without the lead-in MEM puts before each
+    ("Die SuS wenden ... an") where the document has one before its list, or none - unless too little is
+    left to be found in one place alone. The row's wording, kept and exported, stays MEM's."""
+    lead_in = None if row.node else _LEAD_IN.match(row.wording)
+    if lead_in is None:
+        return row.wording
+    rest = row.wording[lead_in.end() :]
+    return rest if len(_WORD.findall(rest)) >= _LEAST_WORDS else row.wording
+
+
+def _find(row: Row, searched: SearchText, before: Found | None) -> Found | None:
+    """Where the row's wording stands: as ``looked_for`` gives it, else whole, as before the lead-in was
+    left out - a document that words the statement after the same lead-in shares it, and a rest alone may
+    be too little alike for the fuzzy stage."""
+    wording = looked_for(row)
+    found = find(wording, searched, before)
+    if found is None and wording != row.wording:
+        found = find(row.wording, searched, before)
+    return found
 
 
 def _not_found(searched: SearchText, before: Found | None) -> AnchorDraft:

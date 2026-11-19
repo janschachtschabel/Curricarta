@@ -108,3 +108,91 @@ async def test_no_row_no_anchor() -> None:
     made = await anchor_rows([], SEARCHED, 300.0)
 
     assert (made.anchors, made.unsearched) == ({}, 0)
+
+
+# --- task A1: MEM words a statement after its own lead-in, the document after one for the list ----------
+
+LISTED = search_text(
+    [
+        block(1, 1, "3 Akustik"),
+        block(
+            1,
+            2,
+            "Die Schülerinnen und Schüler\n"
+            "- beobachten Wellen in einem Wasserbecken,\n"
+            "- wenden Verfahren zur Messung der Schwingungsbil- der an,\n"
+            "- lesen Notentexte,\n"
+            "- vergleichen Tonhöhen verschiedener Instrumente.",
+        ),
+        block(2, 1, "4 Wärme"),
+        block(2, 2, "Sie lesen."),
+    ],
+    frozenset(),
+)
+
+
+async def test_a_statement_with_mem_s_lead_in_and_a_hyphen_inside_its_block_is_found_normalized() -> None:
+    # MEM's "Die SuS" stands nowhere in the document, the list's verb phrase does - its word parted
+    rows = [Row("s", "Die SuS wenden Verfahren zur Messung der Schwingungsbilder an", False)]
+
+    made = await anchor_rows(rows, LISTED, 300.0)
+
+    assert (made.anchors["s"].block_ids, made.stage_of["s"]) == (("p1-b2",), "normalized")
+
+
+@pytest.mark.parametrize(
+    "wording",
+    [
+        "Die SuS beobachten Wellen in einem Wasserbecken",
+        "Die Schülerinnen und Schüler vergleichen Tonhöhen verschiedener Instrumente.",
+        "Schülerinnen und Schüler vergleichen Tonhöhen verschiedener Instrumente.",
+        "Die SuS lesen Notentexte",  # two words left: enough to look for
+    ],
+    ids=["Die SuS", "Die Schülerinnen und Schüler", "Schülerinnen und Schüler", "two words left"],
+)
+async def test_a_statement_s_lead_in_is_not_looked_for(wording: str) -> None:
+    made = await anchor_rows([Row("s", wording, False)], LISTED, 300.0)
+
+    assert (made.anchors["s"].block_ids, made.stage_of["s"]) == (("p1-b2",), "exact")
+
+
+async def test_a_lead_in_with_too_little_after_it_is_looked_for_with_it() -> None:
+    # "lesen." alone would anchor at any sentence that ends so
+    made = await anchor_rows([Row("s", "Die SuS lesen.", False)], LISTED, 300.0)
+
+    assert made.stage_of["s"] != "exact"
+
+
+async def test_a_node_s_title_keeps_its_opening() -> None:
+    searched = search_text(
+        [
+            block(1, 1, "entdecken Physik im Alltag"),
+            block(2, 1, "Schülerinnen und Schüler entdecken Physik im Alltag"),
+        ],
+        frozenset(),
+    )
+
+    made = await anchor_rows(
+        [Row("n", "Schülerinnen und Schüler entdecken Physik im Alltag", True)], searched, 300.0
+    )
+
+    assert (made.anchors["n"].block_ids, made.stage_of["n"]) == (("p2-b1",), "exact")
+
+
+async def test_a_statement_the_document_does_not_hold_stays_not_found_without_its_lead_in() -> None:
+    made = await anchor_rows([Row("s", "Die SuS bauen Raketen aus Papier.", False)], LISTED, 300.0)
+
+    assert made.stage_of["s"] == "notFound"
+
+
+async def test_a_statement_its_rest_does_not_find_is_looked_for_with_its_lead_in_as_before() -> None:
+    # a document that words the statement after the same lead-in, the rest alike only: found as before
+    searched = search_text(
+        [block(1, 1, "Die Schülerinnen und Schüler messen die Spannung im Kreis.")], frozenset()
+    )
+
+    made = await anchor_rows(
+        [Row("s", "Die Schülerinnen und Schüler messen den Strom im Kreis.", False)], searched, 300.0
+    )
+
+    assert (made.anchors["s"].block_ids, made.stage_of["s"]) == (("p1-b1",), "fuzzy")
