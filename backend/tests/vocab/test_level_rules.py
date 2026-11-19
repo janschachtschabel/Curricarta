@@ -16,7 +16,7 @@ from app.domain.l2 import HolderKind, LevelDraft, ValueDrafts
 from app.pipeline.shacl_child import validate_graph
 from app.vocab.form_values import FieldError
 from app.vocab.store import load_vocabulary
-from app.vocab.value_checks import check_values
+from app.vocab.value_checks import check_values, kind_of_check
 from app.vocab.value_forms import ValueForm, value_form_of
 from tests.support import ontology_vocabulary
 
@@ -122,3 +122,17 @@ async def test_each_level_names_its_system_s_dimension(form: ValueForm) -> None:
     assert form.dimension_of[str(LVL["EQF-4"])] == str(CV.dim_qualification)
     assert form.dimension_of[str(LVL["grade-2"])] == str(CV.dim_grading)
     assert form.dimension_of[str(LVL["cefr-B1"])] == str(CV.dim_proficiency)
+
+
+@pytest.mark.parametrize(
+    ("check", "kind"),
+    [
+        ("workload_amount_order", "workloads"),
+        ("time_span_span_order", "time_spans"),
+        ("level_assignment_level_fits", "level_assignments"),  # the trigger's, named by its column
+        ("not_held", "values"),
+        (None, "values"),  # a number beyond its column's type: the store names no check
+    ],
+)
+def test_a_store_s_refusal_names_the_kind_of_its_check(check: str | None, kind: str) -> None:
+    assert kind_of_check(check) == kind
