@@ -1,7 +1,8 @@
 """A frozen document's draft copy (plan M1 9.6, Paket 9b H7): a new revision under the same IRI, with all its
 rows - nodes, statements and their addressees, anchors and their blocks, frame parts, specifications and
-their variants, its profile - their IRIs, origins, review statuses and revisions, under ids of their own;
-no findings and no runs, so X5 owes it a check. Of the latest revision alone, and one draft at most."""
+their variants, its profile, the values at them (workloads, time spans, levels) - their IRIs, origins, review
+statuses and revisions, under ids of their own; no findings and no runs, so X5 owes it a check. Of the latest
+revision alone, and one draft at most."""
 
 import asyncio
 import re
@@ -35,11 +36,13 @@ LEFT_OUT = {
     "specification": {"kind"}, "variant": {"kind"}, "anchor": {"kind"},
     "frame_part": {"kind", "run_id"}, "node": {"kind", "run_id"}, "statement": {"kind", "run_id"},
     "statement_addressee": set(), "anchor_block": set(), "document_profile": set(),
+    "workload": {"kind"}, "time_span": {"kind"}, "level_assignment": {"kind"},
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
 # units and findings; the gold standard's samples, drawn of the revision they name
 NOT_COPIED = {"extraction_run", "extraction_unit", "validation_finding", "gold_sample"}
 MEM = "https://lp-sachsen.org/resource/"
+LVL = "https://w3id.org/wlo/curriculum/level/"
 LP = "https://w3id.org/lehrplan/ontology/"
 _NAMING = """
 SELECT DISTINCT c.conrelid::regclass::text FROM pg_constraint c
@@ -92,7 +95,73 @@ async def content(connection: psycopg.AsyncConnection, document_id: Any) -> dict
         "profile": await rows(
             connection, "SELECT new_terms FROM document_profile WHERE document_id = %(document)s", document_id
         ),
+        "values": await rows(connection, _VALUES, document_id),
     }  # fmt: skip
+
+
+# Each value with what holds it - by IRI or key, as content() names rows - and all its columns but its ids
+_VALUES = """
+SELECT 'workload', coalesce(n.iri, 'specification ' || sp.key),
+    to_jsonb(w) - 'id' - 'document_id' - 'node_id' - 'specification_id'
+FROM workload w LEFT JOIN node n ON n.id = w.node_id LEFT JOIN specification sp ON sp.id = w.specification_id
+WHERE w.document_id = %(document)s
+UNION ALL
+SELECT 'time_span', coalesce(n.iri, 'specification ' || sp.key, 'workload ' || w.position),
+    to_jsonb(t) - 'id' - 'document_id' - 'node_id' - 'specification_id' - 'workload_id'
+FROM time_span t LEFT JOIN node n ON n.id = t.node_id LEFT JOIN specification sp ON sp.id = t.specification_id
+    LEFT JOIN workload w ON w.id = t.workload_id
+WHERE t.document_id = %(document)s
+UNION ALL
+SELECT 'level_assignment', coalesce(n.iri, s.iri, 'specification ' || sp.key, 'frame ' || f.part_kind),
+    to_jsonb(l) - 'id' - 'document_id' - 'node_id' - 'statement_id' - 'specification_id' - 'frame_part_id'
+FROM level_assignment l LEFT JOIN node n ON n.id = l.node_id LEFT JOIN statement s ON s.id = l.statement_id
+    LEFT JOIN specification sp ON sp.id = l.specification_id LEFT JOIN frame_part f ON f.id = l.frame_part_id
+WHERE l.document_id = %(document)s
+ORDER BY 1, 2, 3
+"""
+
+
+async def value(connection: psycopg.AsyncConnection, table: str, document: Any, **columns: Any) -> UUID:
+    """A row of the value table ``table`` in the document with ``columns``, confirmed, from the source."""
+    made = await new_entity(connection, table)
+    values = {"id": made, "document_id": document, "position": 1, "origin_scheme": CV + "Origins",
+              "origin_iri": CV + "orig_source", "review_status_scheme": CV + "ReviewStatuses",
+              "review_status_iri": CONFIRMED, "revision": 2} | columns  # fmt: skip
+    await connection.execute(
+        f"INSERT INTO {table} ({', '.join(values)}) VALUES ({', '.join(['%s'] * len(values))})",  # noqa: S608 - the test's own names
+        tuple(values.values()),
+    )
+    return made
+
+
+async def valued(
+    connection: psycopg.AsyncConnection, document: Any, frame: UUID, specification: UUID
+) -> None:
+    """A value at each holder the document has: a workload with its period at the top node, one at the
+    specification, a time span there too, levels at a node, a statement, the specification and the frame."""
+    top, statement = await one(
+        connection,
+        "SELECT (SELECT id FROM node WHERE document_id = %s AND parent_id IS NULL),"
+        " (SELECT id FROM statement WHERE document_id = %s AND verbatim = 'Sie prüfen.')",
+        document.id,
+        document.id,
+    )
+    units = {
+        "amount": 40,
+        "amount_to": 50.5,
+        "unit_scheme": CV + "WorkloadUnits",
+        "unit_iri": CV + "unit_lesson",
+    }
+    times = {"time_kind_scheme": CV + "TimeKinds", "time_kind_iri": CV + "time_gradeLevel"}
+    total = await value(
+        connection, "workload", document.id, node_id=top, total=True, minutes_per_unit=45, **units
+    )
+    await value(connection, "workload", document.id, specification_id=specification, **units)
+    await value(connection, "time_span", document.id, workload_id=total, span_from=5, span_to=6, **times)
+    await value(connection, "time_span", document.id, specification_id=specification, span_from=7, **times)
+    for holder, held in (("node_id", top), ("statement_id", statement), ("specification_id", specification),
+                         ("frame_part_id", frame)):  # fmt: skip
+        await value(connection, "level_assignment", document.id, level_iri=LVL + "EQF-4", **{holder: held})
 
 
 async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
@@ -158,6 +227,7 @@ async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
     await connection.execute(
         "UPDATE document_profile SET new_terms = '[\"Neu\"]' WHERE document_id = %s", (document.id,)
     )
+    await valued(connection, document, frame, specification)
     await freeze(connection, document.id, BASE, accept_violations=False)
 
 
@@ -196,6 +266,28 @@ async def test_a_copy_is_the_next_revision_with_all_its_rows_iris_and_review_sta
         " (SELECT count(*) FROM entity e JOIN node n ON n.id = e.id WHERE n.document_id = %s)",
         copy, copy, copy,
     ) == (0, 0, len(before["nodes"]))  # fmt: skip
+
+
+async def test_a_copy_brings_every_value_under_its_new_holder(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await filled(connection, document)
+    before = (await content(connection, document.id))["values"]
+
+    copy = await copy_document(connection, document.id)
+
+    assert (await content(connection, copy))["values"] == before
+    assert len(before) == 8
+    # each at a row of the copy, none at the frozen revision's: their holders are named with the copy
+    assert await one(
+        connection,
+        "SELECT (SELECT count(*) FROM workload WHERE document_id = %s)"
+        " + (SELECT count(*) FROM time_span WHERE document_id = %s)"
+        " + (SELECT count(*) FROM level_assignment WHERE document_id = %s),"
+        " (SELECT count(*) FROM time_span t JOIN workload w ON w.id = t.workload_id"
+        " WHERE w.document_id = %s)",
+        copy, copy, copy, copy,
+    ) == (8, 1)  # fmt: skip
 
 
 async def test_a_copy_is_extracted_x5_owes_it_a_check_and_its_frozen_source_stays(

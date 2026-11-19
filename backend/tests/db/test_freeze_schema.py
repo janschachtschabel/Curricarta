@@ -1,8 +1,9 @@
 """A frozen document stays as it was written (migration freeze; plan M1 9.6, Paket 9b H1): the database
 refuses every change to its nodes, statements and their addressees, anchors and their blocks, frame
-parts, specifications and their variants and its profile, and to the document's own row but its rights
-status; a document not frozen changes as before. One draft at most is open under an IRI, and what a
-statement's origin and run said of a hand-written one before is kept as its own mark."""
+parts, specifications and their variants, its profile and its values (workloads, time spans, levels), and
+to the document's own row but its rights status; a document not frozen changes as before. One draft at most
+is open under an IRI, and what a statement's origin and run said of a hand-written one before is kept as its
+own mark."""
 
 import shutil
 import uuid
@@ -27,6 +28,7 @@ from tests.db.l1 import (
     add_variant,
     seed_vocabulary,
 )
+from tests.db.l2 import add_value, seed_l2_vocabulary
 
 pytestmark = pytest.mark.pg
 
@@ -38,13 +40,13 @@ IRI = "https://example.org/doc/de/amt/lehrplan/2024"
 def connection(database_url: str) -> Iterator[psycopg.Connection]:
     migrate(database_url)
     with psycopg.connect(database_url, autocommit=True) as opened:
-        seed_vocabulary(opened)
+        seed_l2_vocabulary(opened)
         yield opened
 
 
 def filled(connection: psycopg.Connection) -> dict[str, Any]:
     """A document with one row of every kind it holds: a node with a statement, anchors with a block, a
-    frame part, a specification with a variant, its profile."""
+    frame part, a specification with a variant, its profile, a workload with its period and a level."""
     made: dict[str, Any] = add_conversion(connection)
     document = made["document"] = add_document(connection, made)
     made["node"] = add_node(connection, document)
@@ -69,6 +71,11 @@ def filled(connection: psycopg.Connection) -> dict[str, Any]:
     made["specification"] = add_specification(connection, document)
     made["variant"] = add_variant(connection, made["specification"])
     connection.execute("INSERT INTO document_profile (document_id) VALUES (%s)", (document,))
+    made["workload"] = add_value(connection, "workload", document, "node_id", made["node"])
+    made["time_span"] = add_value(connection, "time_span", document, "workload_id", made["workload"])
+    made["level_assignment"] = add_value(
+        connection, "level_assignment", document, "statement_id", made["statement"]
+    )
     return made
 
 
@@ -110,6 +117,21 @@ CHANGES = {
     ),
     "variant taken away": "DELETE FROM variant WHERE id = %(variant)s",
     "profile changed": "UPDATE document_profile SET new_terms = '[1]' WHERE document_id = %(document)s",
+    **{
+        f"{table} {name}": query.format(table=table)
+        for table in ("workload", "time_span", "level_assignment")
+        for name, query in (
+            # a copy of the row at the next position, under an entity of its own
+            (
+                "added",
+                "INSERT INTO {table} SELECT (jsonb_populate_record(NULL::{table}, to_jsonb(t)"
+                " || jsonb_build_object('id', %(entity_{table})s::uuid, 'position', 2))).*"
+                " FROM {table} t WHERE id = %({table})s",
+            ),
+            ("changed", "UPDATE {table} SET position = 3 WHERE id = %({table})s"),
+            ("taken away", "DELETE FROM {table} WHERE id = %({table})s"),
+        )
+    },
     "document renamed": "UPDATE document SET title = 'Neu' WHERE id = %(document)s",
     "document's supersedes changed": "UPDATE document SET supersedes_id = %(other)s WHERE id = %(document)s",
     "document's serials changed": "UPDATE document SET serials = '{\"rule\": 1}' WHERE id = %(document)s",
@@ -121,6 +143,8 @@ CHANGES = {
 def change(connection: psycopg.Connection, made: dict[str, Any], name: str) -> None:
     passed = {"entity_node": add_entity(connection, "node"), "addressees": CV + "Addressees",
               "teacher": CV + "addr_teacher", "other": add_document(connection, made)}  # fmt: skip
+    for table in ("workload", "time_span", "level_assignment"):
+        passed[f"entity_{table}"] = add_entity(connection, table)
     connection.execute(CHANGES[name], made | passed)
 
 
