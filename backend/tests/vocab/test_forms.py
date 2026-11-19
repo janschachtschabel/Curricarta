@@ -10,13 +10,18 @@ import pytest
 from rdflib import Graph, Namespace, URIRef
 
 from app.db.migrate import migrate
+from app.db.value_rows import COLUMN_OF, HOLDERS_OF
 from app.domain.l1 import WORDING_FIELDS
+from app.domain.l2 import HolderKind
 from app.vocab.forms import NODE_FIELDS, STATEMENT_FIELDS, FormField, form_of
 from app.vocab.store import load_vocabulary
+from app.vocab.value_forms import TABLE_OF, VALUE_FIELDS, VALUE_HOLDERS, ValueKind, value_form_of
 from tests.support import ontology_vocabulary
 
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 CV = "https://w3id.org/wlo/curriculum/vocab#"
+LVL = "https://w3id.org/wlo/curriculum/level/"
+KD = "https://w3id.org/wlo/curriculum/dimension/"
 SCHOOL = "https://w3id.org/wlo/curriculum/profile/school#"
 SH = Namespace("http://www.w3.org/ns/shacl#")
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
@@ -105,3 +110,93 @@ async def test_a_profile_s_form_offers_its_active_values_with_their_texts(
 @pytest.mark.anyio
 async def test_a_sector_without_a_profile_has_no_form(connection: psycopg.AsyncConnection) -> None:
     assert await form_of(connection, "kindergarten") is None
+
+
+# a kind of value: the property its holder names it by, the class of the value, the shape of that class
+VALUE_SHAPES: dict[ValueKind, tuple[str, str, str]] = {
+    "workloads": ("workload", "Workload", "WorkloadShape"),
+    "time_spans": ("timeSpan", "TimeSpan", "TimeSpanShape"),
+    "level_assignments": ("levelAssignment", "LevelAssignment", "LevelAssignmentShape"),
+}
+HOLDER_SHAPES: dict[HolderKind, str] = {
+    "node": "CurriculumNodeShape", "statement": "StatementShape", "specification": "SpecificationShape",
+}  # fmt: skip
+
+
+@pytest.mark.parametrize("kind", list(VALUE_SHAPES))
+def test_a_value_s_field_is_no_laxer_than_the_shapes_demand(kind: ValueKind) -> None:
+    shapes = Graph().parse(ONTOLOGY / "ontologie" / "cur-shapes.ttl", format="turtle")
+    counts = shape_counts(shapes, SHS[VALUE_SHAPES[kind][2]])
+    fields = VALUE_FIELDS[kind]
+
+    for field in fields:
+        if field.path is not None:
+            least, most = counts[field.path]  # a field's path is one the shape names
+            assert field.required or least == 0, field.key
+            assert not field.many or most is None, field.key
+    demanded = {path for path, (least, _) in counts.items() if least > 0}
+    assert demanded == {field.path for field in fields if field.required}  # each a field the form asks
+    numbers = {field.key for field in fields if field.kind == "number"}
+    assert numbers == {"workloads": {"amount", "amount_to", "minutes_per_unit"},
+                       "time_spans": {"span_from", "span_to"}, "level_assignments": set()}[kind]  # fmt: skip
+
+
+def test_a_holder_is_offered_only_what_the_shapes_let_it_hold() -> None:
+    shapes = Graph().parse(ONTOLOGY / "ontologie" / "cur-shapes.ttl", format="turtle")
+
+    for kind, (prop, value_class, _) in VALUE_SHAPES.items():
+        for holder in VALUE_HOLDERS[kind]:
+            shape = SHS[HOLDER_SHAPES[holder]]
+            # a shape that closes its holder names what it may hold; one open lets it hold more
+            assert shapes.value(shape, SH.closed) is None, holder
+            named = [
+                each
+                for each in shapes.objects(shape, SH.property)
+                if shapes.value(each, SH.path) == CUR[prop]
+            ]
+            assert all(shapes.value(each, SH["class"]) == CUR[value_class] for each in named), (kind, holder)
+            # and the store has a column for it: a statement's time span has none (plan M3a D1)
+            assert COLUMN_OF[holder] in HOLDERS_OF[TABLE_OF[kind]], (kind, holder)
+    assert VALUE_HOLDERS == {
+        "level_assignments": ("node", "statement", "specification"),
+        "time_spans": ("node", "specification"),
+        "workloads": ("node", "specification"),
+    }
+    keys = [field.key for fields in VALUE_FIELDS.values() for field in fields]
+    assert len(keys) == len(set(keys))  # a field's key names it among every kind's
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_levels_come_grouped_by_their_scheme_active_ones_alone(
+    connection: psycopg.AsyncConnection,
+) -> None:
+    await connection.execute(
+        "UPDATE vocab_concept SET retired_in = 1 WHERE iri = ANY(%s)", ([LVL + "EQF-8", CV + "unit_week"],)
+    )
+    await connection.execute(
+        "UPDATE vocab_scheme SET retired_in = 1 WHERE iri = %s", (LVL + "SchoolLeaving",)
+    )
+
+    form = await value_form_of(connection)
+
+    levels = form.values["level"]
+    assert [level.iri for level in levels if form.group_of[level.iri] == LVL + "EQF"] == [
+        LVL + f"EQF-{rank}" for rank in range(1, 8)
+    ]  # in their rank, the retired one left out
+    assert not [level for level in levels if level.iri.startswith(LVL + "school-")]  # its scheme retired
+    groups = [form.group_of[level.iri] for level in levels]
+    together = [group for group in dict.fromkeys(groups) for _ in range(groups.count(group))]
+    assert groups == together and len(set(groups)) > 10  # each group's levels together
+    assert [form.groups[group] for group in dict.fromkeys(groups)] == sorted(
+        (form.groups[group] for group in set(groups)), key=str.casefold
+    )  # the groups in the order of their labels
+    assert form.groups[LVL + "EQF"] == "Europäischer Qualifikationsrahmen (EQR)"
+    assert form.values["level_to"] == levels
+    assert {form.group_of[value.iri] for value in form.values["competence_dimension"]} >= {KD + "Bridge"}
+    assert CV + "unit_week" not in {unit.iri for unit in form.values["unit"]}
+    assert CV + "unit_lesson" in {unit.iri for unit in form.values["unit"]}
+    assert CV + "time_phase" not in {kind.iri for kind in form.values["time_kind"]}  # no phase yet
+    assert all(value.iri not in form.group_of for value in form.values["unit"])  # a scheme's are no group's
+    concepts = {field.key for fields in VALUE_FIELDS.values() for field in fields if field.kind == "concept"}
+    assert set(form.values) == concepts

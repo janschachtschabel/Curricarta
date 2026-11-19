@@ -5,8 +5,8 @@ subkinds with label, definition, note and examples.
 The fields are named here, not read from the shapes at run time (rdflib's literal normalisation is a
 process-wide switch, app/vocab/loader.py): each field that the core's shapes know names their property
 (``path``), and tests/vocab/test_forms.py holds the form no laxer than the shapes demand - a title the
-shapes leave optional the form asks for. Not in M1's form: a profile's own properties, L2's fields
-(level, time, workload), layout markers.
+shapes leave optional the form asks for. Not in M1's form: a profile's own properties, layout markers;
+L2's values (level, time, workload) have a form of their own (app/vocab/value_forms.py).
 """
 
 from collections.abc import Mapping
@@ -25,7 +25,7 @@ from app.vocab.lookup import (
 )
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
-FieldKind = Literal["text", "longtext", "concept", "concepts"]
+FieldKind = Literal["text", "longtext", "concept", "concepts", "number", "boolean"]  # the last two a value's
 MOST_TEXT = 2_000  # the store's limit of a title, a lead-in, a wording field, signs (migration l1_nodes)
 MOST_VERBATIM = 20_000
 MOST_CODE = 100
@@ -33,8 +33,9 @@ MOST_CODE = 100
 
 @dataclass(frozen=True)
 class FormField:
-    """``key`` as the API names it; ``values``: where a list's values come from - a scheme's IRI, or a
-    profile's ``node_types``/``subkinds``; ``path``: the shapes' property it follows, none for a field the
+    """``key`` as the API names it; ``values``: where a list's values come from - a scheme's IRI, a
+    profile's ``node_types``/``subkinds``, or a class's concepts by their schemes (app/vocab/value_forms.py,
+    ``levels``, ``competence_dimensions``); ``path``: the shapes' property it follows, none for a field the
     shapes say nothing of."""
 
     key: str
