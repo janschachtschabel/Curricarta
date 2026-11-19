@@ -180,9 +180,11 @@ def test_tmp_holds_the_uploads_a_replica_takes_at_once() -> None:
 
 
 def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
+    # a worker's pool takes no statement timeout (app/db/pool.py): a value under a worker class would read as
+    # a bound on its steps and bind nothing
     assert VALUES["api"]["env"]["DB_STATEMENT_TIMEOUT_S"] == "60"
     assert "DB_STATEMENT_TIMEOUT_S" not in VALUES["env"]
-    assert "DB_STATEMENT_TIMEOUT_S" not in VALUES["worker"]["env"]
+    assert not [part for part in WORKERS if "DB_STATEMENT_TIMEOUT_S" in VALUES[part].get("env", {})]
 
 
 @pytest.mark.parametrize("part", ["api", "worker"])
@@ -290,7 +292,7 @@ def test_the_sweep_reaches_the_store_as_the_worker_does() -> None:
     assert {"S3_ACCESS_KEY", "S3_SECRET_KEY"} <= set(VALUES["retention"]["secrets"]["keys"])
 
 
-@pytest.mark.parametrize("part", ["api", "worker"])
+@pytest.mark.parametrize("part", ["api", *WORKERS])
 def test_the_times_of_the_retention_reach_the_sweep(part: str) -> None:
-    # set under the API or the worker alone, a time - a 0 to keep everything - would not reach the sweep
+    # set under the API or a worker class alone, a time - a 0 to keep everything - would not reach the sweep
     assert not [name for name in VALUES[part].get("env", {}) if name.startswith("RETENTION_")]

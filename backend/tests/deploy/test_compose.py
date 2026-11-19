@@ -19,6 +19,10 @@ ROOT = Path(__file__).resolve().parents[3]
 TEXT = (ROOT / "deploy" / "docker-compose.yml").read_text(encoding="utf-8")
 COMPOSE: dict[str, Any] = yaml.safe_load(TEXT)
 SERVICES: dict[str, Any] = COMPOSE["services"]
+# The services the converter's file lays over this one (its api adds to the base file's)
+OVERLAY: dict[str, Any] = yaml.safe_load(
+    (ROOT / "deploy" / "docker-compose.converter.yml").read_text(encoding="utf-8")
+)["services"]
 APP = ["bucket", "migrate", "vocab", "api", "worker", "retention"]
 # The services that run on; the one-off steps end, and a restart would run them again
 LASTING = ["postgres", "minio", "api", "worker", "web"]
@@ -122,11 +126,11 @@ def test_the_api_trusts_the_web_server_alone_to_name_the_client() -> None:
 
 
 def test_the_api_alone_cancels_a_statement_past_a_minute() -> None:
-    # a request's statement; a worker's step may wait for a lock longer (no timeout there)
-    others = [name for name, service in SERVICES.items() if name != "api"]
+    # a request's statement; a worker's step - the converter's too - may wait for a lock longer (no timeout)
+    others = [*(SERVICES[name] for name in SERVICES if name != "api"), *OVERLAY.values()]
 
     assert SERVICES["api"]["environment"]["DB_STATEMENT_TIMEOUT_S"] == "60"
-    assert all("DB_STATEMENT_TIMEOUT_S" not in SERVICES[name].get("environment", {}) for name in others)
+    assert all("DB_STATEMENT_TIMEOUT_S" not in service.get("environment", {}) for service in others)
 
 
 @pytest.mark.parametrize("name", ["api", "worker"])
@@ -216,7 +220,11 @@ def test_the_times_of_the_retention_reach_the_sweep() -> None:
     sweep = SERVICES["retention"]["environment"]
     elsewhere = {
         name: value
-        for service in (COMPOSE["x-app"], *(SERVICES[name] for name in SERVICES if name != "retention"))
+        for service in (
+            COMPOSE["x-app"],
+            *(SERVICES[name] for name in SERVICES if name != "retention"),
+            *OVERLAY.values(),
+        )
         for name, value in service.get("environment", {}).items()
         if name.startswith("RETENTION_")
     }
