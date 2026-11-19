@@ -1,7 +1,8 @@
 """A document of the first layer as Curriculum-Kern 1.0 RDF (plan M1 8.3): every row its urn:uuid, so a
 SHACL focus is the row's id; exactly the triples the tables hold - a node lacking what all its units
 checked absent, nothing of the frame parts, the profile's own terms or the anchors of the document or a
-specification, which the Kern has no owner for in M1 - read in one snapshot."""
+specification, which the Kern has no owner for in M1 - and the document's revision and file (plan M3a A1).
+How the rows are read: test_kern_rows.py; the namings: test_kern_naming.py."""
 
 from collections.abc import AsyncIterator
 from typing import Any
@@ -26,7 +27,7 @@ from app.domain.l1 import (
     VariantDraft,
 )
 from app.domain.wording import text_hash
-from app.exports.kern_rdf import CUR, kern_graph
+from app.exports.kern_rdf import kern_graph
 from app.exports.kern_rows import read_document
 from app.vocab.store import load_vocabulary
 from tests.db.document_of import document_of
@@ -240,69 +241,3 @@ async def test_a_root_node_hangs_at_the_document_where_it_names_no_one_specifica
         f"<urn:uuid:{root_id}> <https://w3id.org/wlo/curriculum/core#partOf> <urn:uuid:{document.id}> ."
         in made.serialize(format="nt")
     )
-
-
-async def test_a_document_is_read_in_one_snapshot_or_not_at_all(
-    connection: psycopg.AsyncConnection, database_url: str
-) -> None:
-    # a pool's connection is no autocommit one: its first query opens a transaction of read committed,
-    # in which each query would see the rows as they stand then - a node gone between nodes and statements
-    document = await document_of(connection, [block(1, TEXTS[0])])
-    async with await psycopg.AsyncConnection.connect(database_url) as pooled:
-        await pooled.execute("SELECT 1")
-        with pytest.raises(RuntimeError, match="one snapshot"):
-            await read_document(pooled, document.id)
-        await pooled.rollback()
-        async with pooled.transaction():
-            await pooled.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
-            await pooled.execute("SELECT 1")
-            read = await read_document(pooled, document.id)
-
-    assert read.document["id"] == document.id
-
-
-async def test_a_region_is_its_active_concept_where_a_retired_one_shares_its_notation(
-    connection: psycopg.AsyncConnection,
-) -> None:
-    document = await document_of(connection, [block(1, TEXTS[0])])
-    release = await one(
-        connection,
-        "INSERT INTO vocab_release (content_hash, files) VALUES (repeat('0', 64), '{}') RETURNING id",
-    )
-    await connection.execute(
-        "INSERT INTO vocab_concept (iri, scheme_iri, types, notation, pref_labels, alt_labels, definitions,"
-        " broader, properties, retired_in)"
-        " SELECT iri || '-old', scheme_iri, types, notation, pref_labels, alt_labels, definitions, broader,"
-        " properties, %s FROM vocab_concept WHERE iri = %s",
-        (release, "https://w3id.org/wlo/curriculum/region/DE-NW"),
-    )
-
-    made = kern_graph(await read_document(connection, document.id))
-
-    assert sorted(str(region) for region in made.objects(None, CUR.region)) == [
-        "https://w3id.org/wlo/curriculum/region/DE-NW"
-    ]
-
-
-async def test_a_rejected_statement_and_its_anchors_are_no_rows_of_the_document(
-    connection: psycopg.AsyncConnection,
-) -> None:
-    # it is no part of the curriculum (Paket 9 G9): neither the export nor X5's graph holds it
-    document = await document_of(connection, [block(1, TEXTS[2])])
-
-    def said(verbatim: str, status: str) -> StatementDraft:
-        return StatementDraft(
-            verbatim=verbatim, kind=CV + "kind_learningOutcome", addressees=(CV + "addr_learner",),
-            anchors=(AnchorDraft(("p1-b1",), page_start=1),), origin=MODEL, review_status=status,
-        )  # fmt: skip
-
-    root = NodeDraft(
-        function=CV + "fn_area", origin=MODEL, review_status=PROPOSED,
-        statements=(said(TEXTS[2], PROPOSED), said("Die Lernenden raten.", CV + "rev_rejected")),
-    )  # fmt: skip
-    await write_subtree(connection, document.id, root)
-
-    rows = await read_document(connection, document.id)
-
-    assert [row["verbatim"] for row in rows.statements] == [TEXTS[2]]
-    assert [row["statement_id"] for row in rows.anchors] == [rows.statements[0]["id"]]
