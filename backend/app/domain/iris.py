@@ -2,7 +2,8 @@
 
 A work is named by its country and short title, a document by its work's country, its issuer, the work's short
 title and its edition, a node by the path of its codes under its document ("…/lf-5", "…/if-5/st-3"), a
-statement by its number under its node ("…/lf-5/s-3", numbers given once, plan M1 9.6). A node without a code
+statement by its number under its node ("…/lf-5/s-3", numbers given once, plan M1 9.6), a specification
+and its variant by their keys ("…/spec/lp", "…/spec/lp/variant/g8", plan M3a B1). A node without a code
 gets its position among its siblings (``cur:codeAssigned``), named ``pos-<n>``, and so does one whose code
 holds no ASCII letter or digit (a Greek letter, a bullet). Siblings whose segments meet - a code printed
 twice, or printed as "Pos. 3" beside an assigned third - are counted on: "lf-5", "lf-5-2"; so is a code that
@@ -73,6 +74,33 @@ def statement_iri(node: str, number: int) -> str:
     if number < 1:
         raise ValueError(f"a statement's number counts from 1, not {number}")
     return f"{node}/s-{number}"
+
+
+def specification_iri(document: str, segment: str) -> str:
+    """The specification's IRI: its frozen document's, ``spec`` and the segment of its key (key_segment)."""
+    return f"{_under(document, 'specification', segment)}/spec/{segment}"
+
+
+def variant_iri(specification: str, segment: str) -> str:
+    """The variant's IRI: its specification's, ``variant`` and the segment of its key (key_segment)."""
+    return f"{_under(specification, 'variant', segment)}/variant/{segment}"
+
+
+def key_segment(key: str, place: int) -> str:
+    """The segment of a specification's or a variant's key: its slug, else - no ASCII letter or digit - its
+    place among the keys beside it, ``pos-<n>``."""
+    try:
+        return slug(key)
+    except ValueError:
+        return f"pos-{place}"
+
+
+def _under(parent: str, kind: str, segment: str) -> str:
+    if not parent.startswith(("https://", "http://")):
+        raise ValueError(f"a {kind} is named under a frozen document's http(s) IRI, not {parent!r}")
+    if not segment:
+        raise ValueError(f"a {kind}'s IRI needs a segment")
+    return parent
 
 
 def node_segments(siblings: Sequence[tuple[str, bool]]) -> list[str]:

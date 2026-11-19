@@ -121,6 +121,11 @@ in `curricarta_build_info`.
 Ende; 0 behält alles. Die Buchungen des Kostenbuchs bleiben immer. `--dry-run` zählt nur; die Ausgabe ist
 eine JSON-Zeile mit Zählwerten, Exit-Code 3 heißt, dass schon ein Lauf die Sperre hält
 (`docs/uebergabe/konfiguration.md`).
+`python -m app.db.name_frozen` gibt einmal je Instanz nach Migration 0034 den Spezifikationen und Varianten
+der Dokumente, die schon vorher festgeschrieben waren, ihre IRIs (`<dokument>/spec/<schlüssel>`,
+`…/variant/<schlüssel>`), wie das Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Im
+Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen`.
+Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logzeile und Exit-Code 1.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
@@ -398,7 +403,9 @@ ungültig.
   `details.unchecked`; Fundstellen verworfener Aussagen zählen nicht), Verstöße unter den Befunden ohne
   `accept_violations` (`has_violations`, `details.violations`). Dann bekommen Werk
   (`…/work/<land>/<kurztitel>`), Dokument (`…/doc/<land des Werks>/<herausgeber>/<kurztitel des
-  Werks>/<fassung>`), Knoten (Pfad ihrer Codes; ein Code wie „S 1“ zählt weiter, `s-<n>` gehört den
+  Werks>/<fassung>`), Spezifikationen und Varianten (`<dokument>/spec/<schlüssel>`,
+  `…/variant/<schlüssel>`; ein Schlüssel nennt in jeder Revision, was er zuerst nannte), Knoten (Pfad
+  ihrer Codes; ein Code wie „S 1“ zählt weiter, `s-<n>` gehört den
   Aussagen) und Aussagen (`<knoten>/s-<n>`, jede Nummer einmal, auch unter einem Knoten, der in einer Kopie
   neu am selben Pfad entstand) ihre IRIs; eine IRI, die ein anderes Werk oder Dokument hält – auch eines,
   das im selben Augenblick festgeschrieben wird –, weist ab (`iri_taken`, `details.iri`). Danach weist die

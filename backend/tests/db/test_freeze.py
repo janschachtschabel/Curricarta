@@ -84,7 +84,9 @@ async def test_a_ready_document_is_frozen_with_the_iris_of_its_work_nodes_and_st
 
     frozen = await freeze(connection, document.id, BASE, accept_violations=False)
 
-    assert frozen == Frozen(iri=DOC, revision=1, nodes=2, statements=2, violations=0)
+    assert frozen == Frozen(
+        iri=DOC, revision=1, nodes=2, statements=2, specifications=0, variants=0, violations=0
+    )
     assert await iris(connection, document) == {
         "document": DOC,
         "frozen": True,

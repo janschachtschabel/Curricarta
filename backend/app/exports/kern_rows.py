@@ -41,13 +41,12 @@ _FILE = """
 SELECT f.id, encode(f.sha256, 'hex') AS sha256 FROM document d JOIN conversion c ON c.id = d.conversion_id
 JOIN source_file f ON f.id = c.source_file_id WHERE d.id = %(document)s
 """
-# a specification and a variant have no IRI until freezing names them too (plan M3a B1)
 _SPECIFICATIONS = """
-SELECT id, NULL::text AS iri, spec_kind, title, field_text FROM specification
+SELECT id, iri, spec_kind, title, field_text FROM specification
 WHERE document_id = %(document)s ORDER BY key
 """
 _VARIANTS = """
-SELECT v.id, NULL::text AS iri, v.specification_id, v.label, v.variant_kind_iri FROM variant v
+SELECT v.id, v.iri, v.specification_id, v.label, v.variant_kind_iri FROM variant v
 JOIN specification s ON s.id = v.specification_id WHERE s.document_id = %(document)s ORDER BY v.key
 """
 # A node lacks what every unit of it checked absent: one part of a node vouches for no other part

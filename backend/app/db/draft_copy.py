@@ -1,7 +1,8 @@
 """A frozen document's draft copy (plan M1 9.6; Paket 9b H7): the next revision of the same edition, under
 its IRI, to change what the frozen one may not.
 
-It is a document of its own - the same source, conversion, owner, work and metadata, the revision one up,
+It is a document of its own - the same source, conversion, owner, work, metadata, the edition it supersedes
+and the counters of its names, the revision one up,
 its own draft IRI, ``copy_of`` the revision it copies - with every row the frozen one holds under ids of
 its own: specifications and their variants, frame parts, nodes (``applies_to`` and their parents
 followed), statements, addressees, anchors (their owner followed) and their blocks, the profile. IRIs,
@@ -42,25 +43,25 @@ INSERT INTO document (id, source_id, conversion_id, owner_id, work_id, draft_iri
     revision, title, document_type_iri, sector_scheme, sector_iri, regions, legal_form_scheme,
     legal_form_iri, binding_scheme, binding_iri, lifecycle_scheme, lifecycle_iri, valid_from, valid_until,
     issued, rights_status, edited_at, copy_of, mem_iri, mem_subjects, mem_school_types, mem_licence,
-    mem_attribution, mem_land_iri, mem_class_iri)
+    mem_attribution, mem_land_iri, mem_class_iri, supersedes_id, serials)
 SELECT %(new)s, source_id, conversion_id, owner_id, work_id, %(draft)s, iri, edition, issuer,
     revision + 1, title, document_type_iri, sector_scheme, sector_iri, regions, legal_form_scheme,
     legal_form_iri, binding_scheme, binding_iri, lifecycle_scheme, lifecycle_iri, valid_from, valid_until,
     issued, rights_status, now(), id, mem_iri, mem_subjects, mem_school_types, mem_licence,
-    mem_attribution, mem_land_iri, mem_class_iri
+    mem_attribution, mem_land_iri, mem_class_iri, supersedes_id, serials
 FROM document WHERE id = %(old)s
 """
 # In this order: what a row names is copied before it. The profile is the frozen one's: the copy is not
 # made by create_document, which would give it an empty one
 _ROWS: Final = (
     """
-    INSERT INTO specification (id, document_id, key, spec_kind, title, field_text, applicability)
-    SELECT m.new, %(new)s, s.key, s.spec_kind, s.title, s.field_text, s.applicability
+    INSERT INTO specification (id, document_id, key, spec_kind, title, field_text, applicability, iri)
+    SELECT m.new, %(new)s, s.key, s.spec_kind, s.title, s.field_text, s.applicability, s.iri
     FROM specification s JOIN copied m ON m.old = s.id WHERE s.document_id = %(old)s
     """,
     """
-    INSERT INTO variant (id, specification_id, key, label, variant_kind_scheme, variant_kind_iri)
-    SELECT m.new, sm.new, v.key, v.label, v.variant_kind_scheme, v.variant_kind_iri
+    INSERT INTO variant (id, specification_id, key, label, variant_kind_scheme, variant_kind_iri, iri)
+    SELECT m.new, sm.new, v.key, v.label, v.variant_kind_scheme, v.variant_kind_iri, v.iri
     FROM variant v JOIN copied m ON m.old = v.id JOIN copied sm ON sm.old = v.specification_id
     """,
     """

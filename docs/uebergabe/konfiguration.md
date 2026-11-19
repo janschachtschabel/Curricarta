@@ -261,10 +261,13 @@ ein Test schlägt an, wenn sie veraltet.
 - `LLM_MAX_OUTPUT_TOKENS` für API und Worker gleich setzen und nach einer Änderung beide neu starten:
   Die API bietet eine Reparatur nur an, wo die Worker unter diesem Wert fragen würden.
 - `IRI_BASE`: die Basis der IRIs, die ein Dokument beim Festschreiben bekommt (Werk, Dokument,
-  Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der Dienst nichts fest
-  (409 `no_iri_base`). Der Namensraum `w3id.org/wlo/` ist noch nicht registriert
+  Spezifikationen, Varianten, Knoten, Aussagen; http(s), mit Schrägstrich am Ende). Ohne sie schreibt der
+  Dienst nichts fest (409 `no_iri_base`). Der Namensraum `w3id.org/wlo/` ist noch nicht registriert
   (`ontology/konzept.md`); eine einmal vergebene IRI bleibt, also die Basis vor dem ersten
-  Festschreiben festlegen.
+  Festschreiben festlegen. Dokumente, die vor Migration 0034 festgeschrieben wurden, haben noch keine
+  IRIs für Spezifikationen und Varianten: einmal nach der Migration
+  `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen` (im Cluster als
+  einmaliger Job mit dem Image der API) vergibt sie unter dem Dokument-IRI, ohne `IRI_BASE` zu lesen.
 - `THIRD_PARTY_MARKDOWN=public` gibt die Dateien der Einträge ohne Eigentümer (Saat, Recherche:
   Texte Dritter) jedem Besucher ohne Token aus, sobald `PUBLIC_ACCESS` nicht `off` ist. Nur setzen, wo
   die Rechte an diesen Texten eine öffentliche Weitergabe erlauben; der Standard `hidden` gibt sie nur

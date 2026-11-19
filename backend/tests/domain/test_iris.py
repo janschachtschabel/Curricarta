@@ -13,10 +13,13 @@ from app.domain.iris import (
     checked_base,
     document_iri,
     draft_iri,
+    key_segment,
     node_iri,
     node_segments,
     slug,
+    specification_iri,
     statement_iri,
+    variant_iri,
     work_iri,
 )
 
@@ -106,6 +109,25 @@ def test_a_statement_is_named_by_its_number_under_its_node() -> None:
         statement_iri(node, 0)
     with pytest.raises(ValueError, match="frozen"):
         statement_iri(draft_iri(UUID("01a16940-29e3-7bf4-86d3-421b72698f8e")), 1)
+
+
+def test_a_specification_and_its_variant_are_named_by_their_keys_under_their_document() -> None:
+    document = "https://example.org/kk/doc/de/kmk/rlp/2018"
+
+    specification = specification_iri(document, key_segment("Gymnasium (G9)", 1))
+    variant = variant_iri(specification, key_segment("LK", 1))
+
+    assert (specification, variant) == (
+        f"{document}/spec/gymnasium-g9",
+        f"{document}/spec/gymnasium-g9/variant/lk",
+    )
+    assert key_segment("•", 3) == "pos-3"  # no ASCII letter or digit: its place names it
+    with pytest.raises(ValueError, match="frozen"):
+        specification_iri(draft_iri(UUID("01a16940-29e3-7bf4-86d3-421b72698f8e")), "lp")
+    with pytest.raises(ValueError, match="frozen"):
+        variant_iri(draft_iri(UUID("01a16940-29e3-7bf4-86d3-421b72698f8e")), "lk")
+    with pytest.raises(ValueError, match="segment"):
+        specification_iri(document, "")
 
 
 def test_a_node_needs_a_segment() -> None:

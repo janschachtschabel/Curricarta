@@ -98,10 +98,21 @@ CHANGES = {
     ),
     "frame part changed": "UPDATE frame_part SET content = '{\"a\": 1}' WHERE id = %(frame_part)s",
     "specification changed": "UPDATE specification SET title = 'Neu' WHERE id = %(specification)s",
+    # an IRI it lacks alone is what it may take (python -m app.db.name_frozen): never with another change
+    "specification named and changed": (
+        "UPDATE specification SET iri = 'https://example.org/d/spec/a', title = 'Neu'"
+        " WHERE id = %(specification)s"
+    ),
     "variant changed": "UPDATE variant SET label = 'Neu' WHERE id = %(variant)s",
+    "variant named and changed": (
+        "UPDATE variant SET iri = 'https://example.org/d/spec/a/variant/b', label = 'Neu'"
+        " WHERE id = %(variant)s"
+    ),
     "variant taken away": "DELETE FROM variant WHERE id = %(variant)s",
     "profile changed": "UPDATE document_profile SET new_terms = '[1]' WHERE document_id = %(document)s",
     "document renamed": "UPDATE document SET title = 'Neu' WHERE id = %(document)s",
+    "document's supersedes changed": "UPDATE document SET supersedes_id = %(other)s WHERE id = %(document)s",
+    "document's serials changed": "UPDATE document SET serials = '{\"rule\": 1}' WHERE id = %(document)s",
     "document unfrozen": "UPDATE document SET frozen_at = NULL WHERE id = %(document)s",
     "document taken away": "DELETE FROM document WHERE id = %(document)s",
 }
@@ -109,7 +120,7 @@ CHANGES = {
 
 def change(connection: psycopg.Connection, made: dict[str, Any], name: str) -> None:
     passed = {"entity_node": add_entity(connection, "node"), "addressees": CV + "Addressees",
-              "teacher": CV + "addr_teacher"}  # fmt: skip
+              "teacher": CV + "addr_teacher", "other": add_document(connection, made)}  # fmt: skip
     connection.execute(CHANGES[name], made | passed)
 
 

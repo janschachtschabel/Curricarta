@@ -11,6 +11,7 @@ from rdflib import OWL, RDF, BNode, Graph, Literal, Node, URIRef
 from rdflib.compare import graph_diff, isomorphic, to_isomorphic
 from rdflib.namespace import DCTERMS, PROV
 
+from app.db.draft_copy import copy_document
 from app.db.freezing import freeze
 from app.exports.kern_naming import draft_naming, frozen_naming
 from app.exports.kern_rdf import CUR, kern_graph
@@ -18,6 +19,7 @@ from app.exports.kern_rows import KernRows, read_document
 from app.pipeline.shacl_child import validate_graph
 from tests.db.test_editing import document
 from tests.db.test_freeze import BASE, DOC, ready
+from tests.db.test_freeze_naming import specified
 from tests.db.test_nodes import connection, url
 from tests.exports.test_kern_rdf import a_document
 from tests.pipeline.test_shacl import ONTOLOGY
@@ -93,6 +95,35 @@ async def test_a_row_without_its_iri_refuses_the_frozen_naming(
     rows.nodes[-1]["iri"] = None
 
     with pytest.raises(ValueError, match=f"node {rows.nodes[-1]['id']} has no IRI"):
+        kern_graph(rows, frozen_naming())
+
+
+async def test_a_frozen_graph_names_specifications_and_variants_by_the_iris_freezing_gave(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await ready(connection, document)
+    await specified(connection, document.id, "lp", "g8")
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    rows = await read_document(connection, document.id)
+
+    frozen = kern_graph(rows, frozen_naming())
+
+    specification, variant = URIRef(DOC + "/spec/lp"), URIRef(DOC + "/spec/lp/variant/g8")
+    assert (URIRef(DOC), CUR.represents, specification) in frozen
+    assert (variant, CUR.variantOf, specification) in frozen
+    frozen.remove((URIRef(DOC), PROV.generatedAtTime, None))
+    assert_isomorphic(frozen, under_frozen_names(kern_graph(rows, draft_naming()), rows))
+
+
+async def test_the_frozen_naming_refuses_the_rows_of_a_document_not_frozen(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # a draft copy's rows carry the IRIs of the revision it copies: its graph is no frozen document's
+    await frozen_rows(connection, document)
+    copy = await copy_document(connection, document.id)
+    rows = await read_document(connection, copy)
+
+    with pytest.raises(ValueError, match=f"document {copy} is not frozen"):
         kern_graph(rows, frozen_naming())
 
 

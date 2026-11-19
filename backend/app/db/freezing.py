@@ -8,9 +8,11 @@ edition, or one with nothing to name the IRI by (``incomplete``), no base to nam
 X5 not done on it (a draft copy runs none until its check job), owing it a check or an anchor X5 has not
 checked (``check_owed``), violations among its findings the editors have not accepted (``has_violations``).
 Then the work gets its IRI where it has none, the document its own - the work's country, issuer, the work's
-short title, edition (app/domain/iris.py) - where it has none, its nodes and statements theirs
-(app/domain/naming.py); an IRI another work or document holds, committed before or while this one waited,
-refuses (``iri_taken``). The document is frozen last: after that, the triggers refuse every change.
+short title, edition (app/domain/iris.py) - where it has none, its specifications, variants, nodes and
+statements theirs (app/domain/naming.py); an IRI another work or document holds, committed before or while
+this one waited, refuses (``iri_taken``). The document is frozen last: after that, the triggers refuse every
+change. A freeze shares the lock python -m app.db.name_frozen holds alone (``NAMING_LOCK``): what one
+revision names by key, the other reads.
 """
 
 from collections.abc import Mapping
@@ -27,7 +29,15 @@ from app.db.editing import CV, DocumentFrozen, JobOpen, NotExtracted, extracted,
 from app.db.nodes import lock_tree
 from app.db.runs import done_stages, x5_owed
 from app.domain.iris import document_iri, slug, work_iri
-from app.domain.naming import NodeRow, StatementRow, name_rows
+from app.domain.naming import (
+    GivenByKey,
+    Named,
+    NodeRow,
+    SpecificationRow,
+    StatementRow,
+    VariantRow,
+    name_rows,
+)
 from app.jobs.queue import open_job
 from app.pipeline.extraction import unique_key
 from app.pipeline.x4_unit import UNIT_WITHOUT_NODE
@@ -47,8 +57,25 @@ _SERVED = """
 SELECT n.iri, max(n.statement_serial) FROM node n JOIN document d ON d.id = n.document_id
 WHERE d.iri = %s AND n.iri IS NOT NULL GROUP BY n.iri
 """
+_SPECIFICATIONS = "SELECT id, key, iri FROM specification WHERE document_id = %s"
+_VARIANTS = """
+SELECT v.id, v.specification_id, v.key, v.iri FROM variant v JOIN specification s ON s.id = v.specification_id
+WHERE s.document_id = %s
+"""
+# what a key named in the revisions of the document, the latest revision's where two differ
+_GIVEN_SPECIFICATIONS = """
+SELECT DISTINCT ON (s.key) s.key, s.iri FROM specification s JOIN document d ON d.id = s.document_id
+WHERE d.iri = %s AND s.iri IS NOT NULL ORDER BY s.key, d.revision DESC
+"""
+_GIVEN_VARIANTS = """
+SELECT DISTINCT ON (s.key, v.key) s.key, v.key, v.iri FROM variant v
+JOIN specification s ON s.id = v.specification_id JOIN document d ON d.id = s.document_id
+WHERE d.iri = %s AND v.iri IS NOT NULL ORDER BY s.key, v.key, d.revision DESC
+"""
 _VIOLATIONS = "SELECT count(*) FROM validation_finding WHERE document_id = %s AND severity = 'violation'"
 
+
+NAMING_LOCK = 0x6B6B_612D_6E61_6D65  # "curricarta-name": shared by each freeze, held alone by name_frozen
 
 FreezeCode = Literal["incomplete", "no_iri_base", "check_owed", "has_violations", "iri_taken"]
 
@@ -68,6 +95,8 @@ class Frozen:
     revision: int
     nodes: int  # named now
     statements: int
+    specifications: int
+    variants: int
     violations: int  # the editors accepted
 
 
@@ -77,6 +106,7 @@ async def freeze(
     """Freeze the document under ``base`` (IRI_BASE) as above; DocumentError for none."""
     async with connection.transaction():
         await lock_tree(connection, document_id)
+        await connection.execute("SELECT pg_advisory_xact_lock_shared(%s)", (NAMING_LOCK,))
         if await frozen(connection, document_id):
             raise DocumentFrozen(f"the document {document_id} is frozen")
         if (job := await open_job(connection, unique_key(document_id))) is not None:
@@ -110,10 +140,12 @@ async def freeze(
             await _give(connection, "UPDATE work SET iri = %s WHERE id = %s", work, work_id)
         if iri is None:
             iri = document_iri(base, region, issuer, short_title, edition)
-        named = await _name(connection, document_id, iri)
+        named = await name_document(connection, document_id, iri)
+        await write_names(connection, named)
         frozen_now = "UPDATE document SET iri = %s, frozen_at = now(), updated_at = now() WHERE id = %s"
         await _give(connection, frozen_now, iri, document_id)
-        return Frozen(iri, revision, named[0], named[1], violations)
+        counts = (len(named.nodes), len(named.statements), len(named.specifications), len(named.variants))
+        return Frozen(iri, revision, *counts, violations)
 
 
 def _names(text: str | None) -> bool:
@@ -136,23 +168,36 @@ async def _give(connection: psycopg.AsyncConnection, query: str, iri: str, row: 
         raise FreezeRefused("iri_taken", f"the IRI {iri} is another's", {"iri": iri}) from taken
 
 
-async def _name(connection: psycopg.AsyncConnection, document_id: UUID, iri: str) -> tuple[int, int]:
-    """Give the document's nodes and statements the IRIs they lack; how many of each got one."""
+async def name_document(connection: psycopg.AsyncConnection, document_id: UUID, iri: str) -> Named:
+    """The IRIs the document's rows lack under its IRI ``iri``, past what its revisions gave; none written."""
     cursor = await connection.execute(_NODES, (document_id,))
     nodes = [NodeRow(*found) for found in await cursor.fetchall()]
     cursor = await connection.execute(_STATEMENTS, (CV + "rev_rejected", document_id))
     statements = [StatementRow(*found) for found in await cursor.fetchall()]
+    cursor = await connection.execute(_SPECIFICATIONS, (document_id,))
+    specifications = [SpecificationRow(*found) for found in await cursor.fetchall()]
+    cursor = await connection.execute(_VARIANTS, (document_id,))
+    variants = [VariantRow(*found) for found in await cursor.fetchall()]
     cursor = await connection.execute(_SERVED, (iri,))
     served: dict[str, int] = dict(await cursor.fetchall())
-    named = name_rows(iri, nodes, statements, served)
+    cursor = await connection.execute(_GIVEN_SPECIFICATIONS, (iri,))
+    given_specifications: dict[str, str] = dict(await cursor.fetchall())
+    cursor = await connection.execute(_GIVEN_VARIANTS, (iri,))
+    given_variants = {(specification, key): given for specification, key, given in await cursor.fetchall()}
+    return name_rows(
+        iri, nodes, statements, served, specifications=specifications, variants=variants,
+        given=GivenByKey(given_specifications, given_variants),
+    )  # fmt: skip
+
+
+async def write_names(connection: psycopg.AsyncConnection, named: Named) -> None:
+    """Give the rows the IRIs ``named`` holds, and the nodes the statement numbers they grew to."""
     async with connection.cursor() as writing:
-        await writing.executemany(
-            "UPDATE node SET iri = %s WHERE id = %s", [(v, k) for k, v in named.nodes.items()]
-        )
-        await writing.executemany(
-            "UPDATE node SET statement_serial = %s WHERE id = %s", [(v, k) for k, v in named.serials.items()]
-        )
-        await writing.executemany(
-            "UPDATE statement SET iri = %s WHERE id = %s", [(v, k) for k, v in named.statements.items()]
-        )
-    return len(named.nodes), len(named.statements)
+        for query, given in (
+            ("UPDATE specification SET iri = %s WHERE id = %s", named.specifications),
+            ("UPDATE variant SET iri = %s WHERE id = %s", named.variants),
+            ("UPDATE node SET iri = %s WHERE id = %s", named.nodes),
+            ("UPDATE node SET statement_serial = %s WHERE id = %s", named.serials),
+            ("UPDATE statement SET iri = %s WHERE id = %s", named.statements),
+        ):
+            await writing.executemany(query, [(value, row) for row, value in given.items()])

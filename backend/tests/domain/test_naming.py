@@ -5,7 +5,7 @@ statement gets none."""
 
 from uuid import uuid4
 
-from app.domain.naming import NodeRow, StatementRow, name_rows
+from app.domain.naming import GivenByKey, NodeRow, SpecificationRow, StatementRow, VariantRow, name_rows
 
 DOC = "https://example.org/kk/doc/de/kmk/rlp/2018"
 
@@ -27,6 +27,103 @@ def statement(at: NodeRow, position: int, **changes: object) -> StatementRow:
         "rejected": False,
     } | changes
     return StatementRow(**values)  # type: ignore[arg-type]
+
+
+def specification(key: str, iri: str | None = None) -> SpecificationRow:
+    return SpecificationRow(uuid4(), key, iri)
+
+
+def variant(of: SpecificationRow, key: str, iri: str | None = None) -> VariantRow:
+    return VariantRow(uuid4(), of.id, key, iri)
+
+
+def test_a_document_s_specifications_and_variants_are_named_by_their_keys() -> None:
+    lp = specification("lp")
+    g8, g9 = variant(lp, "G8"), variant(lp, "G9")
+
+    named = name_rows(DOC, [], [], specifications=[lp], variants=[g9, g8])
+
+    assert named.specifications == {lp.id: f"{DOC}/spec/lp"}
+    assert named.variants == {g8.id: f"{DOC}/spec/lp/variant/g8", g9.id: f"{DOC}/spec/lp/variant/g9"}
+
+
+def test_two_keys_of_one_slug_get_two_iris() -> None:
+    # in the order of their keys: "LP" before "lp"
+    lower, upper = specification("lp"), specification("LP")
+    first, second = variant(lower, "g-8"), variant(lower, "G 8")
+
+    named = name_rows(DOC, [], [], specifications=[lower, upper], variants=[first, second])
+
+    assert named.specifications == {upper.id: f"{DOC}/spec/lp", lower.id: f"{DOC}/spec/lp-2"}
+    assert named.variants == {
+        second.id: f"{DOC}/spec/lp-2/variant/g-8",
+        first.id: f"{DOC}/spec/lp-2/variant/g-8-2",
+    }
+
+
+def test_a_key_without_a_letter_or_digit_is_named_by_its_place() -> None:
+    # its place among the keys of its document, or of its specification
+    lp, bullet = specification("lp"), specification("•")
+    star = variant(lp, "*")
+
+    named = name_rows(DOC, [], [], specifications=[lp, bullet], variants=[variant(lp, "a"), star])
+
+    assert named.specifications[bullet.id] == f"{DOC}/spec/pos-2"
+    assert named.variants[star.id] == f"{DOC}/spec/lp/variant/pos-1"
+
+
+def test_a_specification_brought_along_keeps_its_iri_and_a_new_one_is_named_past_it() -> None:
+    # recoded since it was named: its IRI stays, and a new key of its old slug counts on
+    kept = specification("sek-1", iri=f"{DOC}/spec/lp")
+    new = specification("lp")
+    old_variant = variant(kept, "g8", iri=f"{DOC}/spec/lp/variant/g8")
+    new_variant = variant(kept, "G8")
+
+    named = name_rows(DOC, [], [], specifications=[kept, new], variants=[old_variant, new_variant])
+
+    assert named.specifications == {new.id: f"{DOC}/spec/lp-2"}
+    assert named.variants == {new_variant.id: f"{DOC}/spec/lp/variant/g8-2"}
+
+
+def test_a_key_another_revision_named_takes_that_name() -> None:
+    # revisions share the document's IRI: a key names in each what it named in the one that named it first
+    lp = specification("lp")
+    g8 = variant(lp, "g8")
+    other = specification("lp-neu")
+    given = GivenByKey(
+        specifications={"lp": f"{DOC}/spec/lp-alt", "weg": f"{DOC}/spec/lp-neu"},
+        variants={("lp", "g8"): f"{DOC}/spec/lp-alt/variant/g8"},
+    )
+
+    named = name_rows(DOC, [], [], specifications=[lp, other], variants=[g8], given=given)
+
+    # a name another revision gave another key is none to give again
+    assert named.specifications == {lp.id: f"{DOC}/spec/lp-alt", other.id: f"{DOC}/spec/lp-neu-2"}
+    assert named.variants == {g8.id: f"{DOC}/spec/lp-alt/variant/g8"}
+
+
+def test_a_node_and_a_specification_never_share_an_iri() -> None:
+    # a node coded "Spec" with a child "LP" would sit where the specification "lp" is named
+    top = node("Spec", 1)
+    child = node("LP", 1, top)
+    lp = specification("lp")
+
+    named = name_rows(DOC, [top, child], [], specifications=[lp])
+
+    assert named.specifications == {lp.id: f"{DOC}/spec/lp"}
+    assert named.nodes == {top.id: f"{DOC}/spec", child.id: f"{DOC}/spec/lp-2"}
+
+
+def test_a_node_moved_away_keeps_its_iri_from_a_new_sibling_of_its_old_place() -> None:
+    # its IRI is of the path it was named at: no node made there since takes it
+    first = node("LF 1", 1, iri=f"{DOC}/lf-1")
+    second = node("LF 2", 2, iri=f"{DOC}/lf-2")
+    moved = node("Pos", 1, second, iri=f"{DOC}/lf-1/pos")
+    added = node("Pos", 1, first)
+
+    named = name_rows(DOC, [first, second, moved, added], [])
+
+    assert named.nodes == {added.id: f"{DOC}/lf-1/pos-2"}
 
 
 def test_a_document_frozen_first_names_its_nodes_by_their_codes_and_numbers_its_statements() -> None:

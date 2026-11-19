@@ -5,8 +5,9 @@ A draft names every row ``urn:uuid:<id>`` - the draft IRI a document has until i
 IRIs) - so a SHACL focus of X5 is the id of the row it is about. A frozen document is named by the IRIs
 freezing stored: its work, the document, its specifications and their variants, its nodes and statements;
 a row of these without its IRI refuses the naming (ValueError), as no urn:uuid leaves the service in an
-export. Anchors and the file have no identity beyond their document: each is a blank node, the same one
-for the same row throughout one build - a frozen naming serves one graph.
+export, and so do the rows of a document not frozen - a draft copy's carry the IRIs of the revision it
+copies, but no time it was frozen. Anchors and the file have no identity beyond their document: each is a
+blank node, the same one for the same row throughout one build - a frozen naming serves one graph.
 """
 
 from typing import Literal, Protocol
@@ -48,6 +49,8 @@ class _FrozenNaming:
     def of(self, kind: RowKind, row: Row) -> URIRef | BNode:
         if kind not in _NAMED_BY_IRI:
             return self._blank.setdefault(row["id"], BNode())
+        if kind == "document" and row["frozen_at"] is None:
+            raise ValueError(f"the document {row['id']} is not frozen: a draft is named by its rows' ids")
         if row["iri"] is None:
             raise ValueError(f"the {kind} {row['id']} has no IRI: a frozen document names each of its rows")
         return URIRef(row["iri"])
