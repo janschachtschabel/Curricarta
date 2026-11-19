@@ -128,6 +128,9 @@ läuft, wenn keine Replica des vorigen Images mehr läuft; hat eine solche inzwi
 weiterer Lauf nötig und gefahrlos. Im
 Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen`.
 Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logzeile und Exit-Code 1.
+Migration 0035 legt Niveau, Zeit und Umfang als eigene Tabellen an (`level_assignment`, `time_span`,
+`workload`); eine Entwurfskopie, die eine Replica des vorigen Images während des Updates anlegt, übernimmt
+sie nicht – folgenlos, solange noch keine Route sie schreibt.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).

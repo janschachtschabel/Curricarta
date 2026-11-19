@@ -59,8 +59,9 @@ FROM document WHERE id = %(old)s
 # made by create_document, which would give it an empty one
 _ROWS: Final = (
     """
-    INSERT INTO specification (id, document_id, key, spec_kind, title, field_text, applicability, iri)
-    SELECT m.new, %(new)s, s.key, s.spec_kind, s.title, s.field_text, s.applicability, s.iri
+    INSERT INTO specification (id, document_id, key, spec_kind, title, field_text, applicability, iri,
+        revision)
+    SELECT m.new, %(new)s, s.key, s.spec_kind, s.title, s.field_text, s.applicability, s.iri, s.revision
     FROM specification s JOIN copied m ON m.old = s.id WHERE s.document_id = %(old)s
     """,
     """

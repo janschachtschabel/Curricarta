@@ -8,6 +8,10 @@
 -- (applicability context, assessment, placement) come with their migrations: a column each, and the
 -- one-holder CHECK made anew.
 
+-- A holder's values are set as a whole on its revision (plan M3a E11): a node and a statement count theirs
+-- (0014), a specification from here on
+ALTER TABLE specification ADD COLUMN revision integer NOT NULL DEFAULT 1 CHECK (revision >= 1);
+
 CREATE TABLE workload (
     id uuid PRIMARY KEY,
     kind text NOT NULL DEFAULT 'workload' CHECK (kind = 'workload'),
