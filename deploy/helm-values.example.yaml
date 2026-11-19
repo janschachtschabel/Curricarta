@@ -273,6 +273,9 @@ networkPolicy:
     workerConvert: [dns, postgresql, object-store]
     workerCheck: [dns, postgresql, object-store, public-web as the worker's below]
     modelsFetch: [dns, "443 to Hugging Face and GitHub (app/conversion/fetch_models.py)"]
+    migrate: [dns, postgresql]          # the migration and the vocabularies write the database alone
+    vocab: [dns, postgresql]
+    retention: [dns, postgresql, object-store]   # without the store it never empties what it noted
     worker:
       - dns
       - postgresql
