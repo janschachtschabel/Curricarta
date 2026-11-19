@@ -2,39 +2,42 @@
 /**
  * The export of a frozen MEM import as MEM-Schule's RDF (plan M2-8, B2; backend GET
  * /documents/{id}/export.ttl). The request checks the export against MEM's shapes before it answers -
- * up to a minute - so the page says it works and asks once however often the button is pressed; the file
- * is fetched with the session's token and saved under its name. A refused export lists the shapes its rows
- * broke, each linked to its row in the tree, the checker's English marked as English; a busy one says when
- * to try again - in the seconds the server names, where it names them. One no longer frozen meanwhile has
- * the page read the document again. A file made but not handed to the browser is said as such.
+ * up to a minute -; how the button waits, saves and says so is the exports' own (useExportDownload.ts). A
+ * refused export lists the shapes its rows broke, each linked to its row in the tree, the checker's English
+ * marked as English. One no longer frozen meanwhile has the page read the document again.
  */
-import { onUnmounted, ref } from "vue";
+import { ref } from "vue";
 import { RouterLink } from "vue-router";
 
-import { ApiError, exportMem, exportViolations, type CurriculumDocument, type ExportViolation } from "@/api";
+import { exportMem, exportViolations, type CurriculumDocument, type ExportViolation } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import { ROW_PARAM } from "@/documentTree";
-import { saveBlob } from "@/download";
 import { messages, t } from "@/i18n/de";
-import { sayAnew } from "@/liveRegion";
-import { failureNotice, type Notice } from "@/notice";
+import { useExportDownload } from "@/useExportDownload";
 
 const props = defineProps<{ document: CurriculumDocument }>();
 const emit = defineEmits<{ changed: [] }>();
 
-const busy = ref(false);
-const status = ref("");
-const failure = ref<Notice | null>(null);
-// when to try again after a refusal for now (429, 503): the seconds the server names, 0 where it names none
-const retry = ref<number | null>(null);
 const listed = ref<ExportViolation[]>([]);
 const total = ref(0);
-// an answer that comes after the page was left saves and says nothing
-let gone = false;
-onUnmounted(() => {
-  gone = true;
-});
+const { busy, status, failure, retry, start: download } = useExportDownload(
+  () => exportMem(props.document.id),
+  {
+    working: t("mem.export.working"),
+    saved: (made) => t("mem.export.saved", { name: made.filename }),
+    failed: t("mem.export.failed"),
+    saveFailed: t("mem.export.saveFailed"),
+  },
+  (error) => {
+    if (error.code === "export_invalid") {
+      const refused = exportViolations(error);
+      listed.value = refused.violations;
+      total.value = refused.total;
+    }
+    if (error.code === "export_not_frozen" || error.code === "not_mem_import") emit("changed");
+  },
+);
 
 function shapeName(shape: string): string {
   const words = messages.mem.export.shapes as Record<string, string>;
@@ -47,40 +50,9 @@ function rowOf(violation: ExportViolation): string | null {
 }
 
 async function start(): Promise<void> {
-  if (busy.value) return; // the button stays focusable while busy, so it can be pressed again
-  busy.value = true;
-  failure.value = null;
-  retry.value = null;
+  if (busy.value) return;
   listed.value = [];
-  status.value = sayAnew(status.value, t("mem.export.working"));
-  try {
-    const made = await exportMem(props.document.id);
-    if (gone) return;
-    try {
-      saveBlob(made.blob, made.filename);
-    } catch {
-      status.value = "";
-      failure.value = { text: t("mem.export.saveFailed"), failed: true };
-      return;
-    }
-    status.value = sayAnew(status.value, t("mem.export.saved", { name: made.filename }));
-  } catch (error) {
-    if (gone) return;
-    status.value = "";
-    failure.value = failureNotice(error, t("mem.export.failed"));
-    if (!(error instanceof ApiError)) return;
-    if (error.code === "export_invalid") {
-      const refused = exportViolations(error);
-      listed.value = refused.violations;
-      total.value = refused.total;
-    }
-    // its own refusals for now name no time: when to try again is said here; another (the service's)
-    // says it in its own words
-    if (error.code === "export_unavailable" || error.code === "too_many_exports") retry.value = error.retryAfter ?? 0;
-    if (error.code === "export_not_frozen" || error.code === "not_mem_import") emit("changed");
-  } finally {
-    busy.value = false;
-  }
+  await download();
 }
 </script>
 
