@@ -200,11 +200,14 @@ describe("a new row's form", () => {
   });
 
   it("says no draft is open once it goes", async () => {
+    // test-utils drops a wrapper's event history on unmount: a listener hears what the unmount says
+    const dirty = vi.fn();
     const wrapper = creator(AT_TOP);
+    await wrapper.setProps({ onDirty: dirty });
     await fillNode(wrapper);
 
     wrapper.unmount();
 
-    expect(wrapper.emitted("dirty")?.at(-1)).toEqual([false]);
+    expect(dirty).toHaveBeenLastCalledWith(false);
   });
 });
