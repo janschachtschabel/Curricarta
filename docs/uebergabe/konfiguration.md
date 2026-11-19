@@ -1,6 +1,6 @@
 # Konfiguration
 
-[Antworten für das IT-Team](anforderungen.md) · Stand 18.11.2026 (Betrieb)
+[Antworten für das IT-Team](anforderungen.md) · Stand 19.11.2026 (Betrieb)
 
 Der Dienst liest seine Einstellungen beim Start aus Umgebungsvariablen; API und Worker lesen
 dieselben. Ein Geheimnis kann stattdessen aus der Datei kommen, die `<NAME>_FILE` nennt

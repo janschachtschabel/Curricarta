@@ -1,6 +1,6 @@
 # Antworten für das IT-Team
 
-Stand 18.11.2026 (Betrieb); was für einen Betrieb noch fehlt, steht am Ende. Diese Seite
+Stand 19.11.2026 (Betrieb); was für einen Betrieb noch fehlt, steht am Ende. Diese Seite
 beantwortet die Betriebsvorgaben der Plattform (kurz „T6“) Frage für Frage, in der Variante **ohne B-API**: Der
 Dienst prüft eigene Zugangstokens und ruft das Sprachmodell mit einem eigenen Schlüssel. Was
 noch offen ist, steht am Ende; die Antworten wachsen mit jedem Meilenstein.

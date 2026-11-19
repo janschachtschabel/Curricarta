@@ -1,6 +1,6 @@
 # Sicherung, Wiederherstellung, Rollback
 
-[Antworten für das IT-Team](anforderungen.md) · Stand 18.11.2026
+[Antworten für das IT-Team](anforderungen.md) · Stand 19.11.2026
 
 Curricarta hält keinen Zustand im Prozess: Was zählt, liegt in PostgreSQL und im Objektspeicher,
 dazu in den Geheimnissen, mit denen der Dienst beides liest. Diese Seite sagt, was davon zu sichern
