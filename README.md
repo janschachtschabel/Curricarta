@@ -123,7 +123,9 @@ eine JSON-Zeile mit Zählwerten, Exit-Code 3 heißt, dass schon ein Lauf die Spe
 (`docs/uebergabe/konfiguration.md`).
 `python -m app.db.name_frozen` gibt einmal je Instanz nach Migration 0034 den Spezifikationen und Varianten
 der Dokumente, die schon vorher festgeschrieben waren, ihre IRIs (`<dokument>/spec/<schlüssel>`,
-`…/variant/<schlüssel>`), wie das Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Im
+`…/variant/<schlüssel>`), wie das Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Er
+läuft, wenn keine Replica des vorigen Images mehr läuft; hat eine solche inzwischen festgeschrieben, ist ein
+weiterer Lauf nötig und gefahrlos. Im
 Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen`.
 Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logzeile und Exit-Code 1.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
@@ -393,8 +395,9 @@ ungültig.
   Dokuments oder `null`): festgeschrieben, desselben Werks, unter einer anderen IRI, für den Aufrufer
   lesbar und ohne Kreis über die Revisionen, sonst 422 `invalid_field` (`details.field` `supersedes`,
   auch für ein Dokument, das er nicht sieht); die Antwort nennt sie als `supersedes` (`id`, `iri`,
-  `edition`) jedem, der das Dokument lesen darf, auch wo er die ersetzte Fassung selbst nicht sieht – der
-  Kern-Graph nennt ihre IRI ohnehin –, der Kern-Graph mit ihrer IRI, eine Entwurfskopie übernimmt sie –
+  `edition`; ein Wechsel des Werks über `PATCH …/work` lässt sie fallen) jedem, der das Dokument lesen darf,
+  auch wo er die ersetzte Fassung selbst nicht sieht – der Kern-Graph nennt ihre IRI ohnehin –, der
+  Kern-Graph mit ihrer IRI, eine Entwurfskopie übernimmt sie –
   durch Eigentümer und Redaktion/Admin, 422 `invalid_field` wie beim Bearbeiten; eine Änderung
   schuldet X5 eine Prüfung; erst wenn X4 fertig ist, wie jede Bearbeitung des Baums (409 `not_extracted`;
   vor X1 überschriebe eine Extraktion sie mit dem, was X1 liest), ein neues Werk mit speicherbarem Titel und

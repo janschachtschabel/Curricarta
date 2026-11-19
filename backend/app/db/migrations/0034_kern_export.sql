@@ -18,6 +18,9 @@ ALTER TABLE document
     ADD CHECK (supersedes_id IS DISTINCT FROM id),
     ADD COLUMN serials jsonb NOT NULL DEFAULT '{}' CHECK (jsonb_typeof(serials) = 'object');
 CREATE INDEX document_supersedes ON document (supersedes_id) WHERE supersedes_id IS NOT NULL;
+-- a work's documents, all of them, as the list by work (GET /api/v1/documents?work_id=) and the choice of
+-- what an edition supersedes read them
+CREATE INDEX document_work ON document (work_id) WHERE work_id IS NOT NULL;
 
 -- A frozen document's rows stay as they were written; a specification or a variant frozen before it had an
 -- IRI may take one, and change nothing else with it - the one write python -m app.db.name_frozen makes

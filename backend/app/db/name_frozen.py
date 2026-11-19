@@ -6,8 +6,8 @@ Each frozen document whose specification or variant lacks its IRI is named as a 
 order, so a key names in a later revision what it named in an earlier one. Its nodes and statements have
 theirs; the database lets a frozen specification or variant take its IRI and nothing else (migration 0034).
 All in one transaction under the advisory lock every freeze shares (``NAMING_LOCK``): a second run waits for
-the first, then finds nothing left, and a freeze meanwhile reads what it named. Idempotent: a run with nothing
-to name changes nothing.
+the first, then finds nothing left, and a freeze waits for it meanwhile and then reads what it named.
+Idempotent: a run with nothing to name changes nothing.
 
 Prints one line of JSON, counts alone - ``documents``, ``specifications``, ``variants`` named - and ends with
 exit code 0; a failure ends it with one log line and exit code 1, nothing named.

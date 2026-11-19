@@ -1455,7 +1455,8 @@ export const messages = {
           "die festgeschriebenen Fassungen des Werks unter einer anderen IRI.",
         supersedesLoading: "Die Fassungen des Werks werden geladen …",
         supersedesLoadFailed: "Die Fassungen des Werks wurden nicht geladen.",
-        supersedesNone: "Von diesem Werk ist noch keine andere Fassung festgeschrieben: Es gibt nichts zu ersetzen.",
+        supersedesNone:
+          "Von diesem Werk ist keine andere Fassung festgeschrieben, die du lesen darfst: Es gibt nichts zu ersetzen.",
         supersedesNoWork: "Ersetzen lässt sich nur eine Fassung desselben Werks: Erst braucht das Dokument sein Werk.",
         supersedesChosen: "Ersetzte Fassung",
         supersedesNothing: "keine",

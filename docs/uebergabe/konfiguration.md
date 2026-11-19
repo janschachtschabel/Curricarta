@@ -267,7 +267,10 @@ ein Test schlägt an, wenn sie veraltet.
   Festschreiben festlegen. Dokumente, die vor Migration 0034 festgeschrieben wurden, haben noch keine
   IRIs für Spezifikationen und Varianten: einmal nach der Migration
   `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen` (im Cluster als
-  einmaliger Job mit dem Image der API) vergibt sie unter dem Dokument-IRI, ohne `IRI_BASE` zu lesen.
+  einmaliger Job mit dem Image der API) vergibt sie unter dem Dokument-IRI, ohne `IRI_BASE` zu lesen –
+  erst, wenn keine Replica des vorigen Images mehr läuft. Hat eine solche nach der Migration noch
+  festgeschrieben, den Lauf wiederholen (gefahrlos: ein zweiter Lauf ändert nur, was fehlt); bis dahin
+  verweigert die festgeschriebene Benennung des Kern-Graphen solche Dokumente.
 - `THIRD_PARTY_MARKDOWN=public` gibt die Dateien der Einträge ohne Eigentümer (Saat, Recherche:
   Texte Dritter) jedem Besucher ohne Token aus, sobald `PUBLIC_ACCESS` nicht `off` ist. Nur setzen, wo
   die Rechte an diesen Texten eine öffentliche Weitergabe erlauben; der Standard `hidden` gibt sie nur
