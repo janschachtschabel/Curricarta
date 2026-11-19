@@ -1,7 +1,8 @@
 """The editors' review of a document (plan M1 9.5; app/db/review.py): one review status - proposed,
-confirmed, rejected - for many of its nodes and statements at once, all or nothing, each on the revision
-it was read at. By the editors (Redaktion, Admin) alone, audited; refused as app/api/edit_answers.py says,
-a stale row with each that stands otherwise and its revision now.
+confirmed, rejected - for many of its nodes, statements and values (levels, time spans, workloads) at
+once, all or nothing, each on the revision it was read at. By the editors (Redaktion, Admin) alone,
+audited; refused as app/api/edit_answers.py says, a stale row with each that stands otherwise and its
+revision now.
 """
 
 from typing import Annotated, Literal
@@ -17,7 +18,7 @@ from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.source_content import EDITORS
 from app.core.auth import Principal
 from app.db.editing import CV
-from app.db.review import ReviewItem, StaleItems, set_review
+from app.db.review import ReviewItem, ReviewKind, StaleItems, set_review
 
 router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSES)
 Account = Annotated[Principal, Depends(require_account)]
@@ -26,7 +27,7 @@ MOST_REVIEWED = 2_000  # rows of one review: a long document's statements
 
 class ReviewItemIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    kind: Literal["node", "statement"]
+    kind: ReviewKind  # a value's by its table: level_assignment, time_span, workload
     id: UUID
     revision: int = Field(ge=1)  # the row's, as it was read
 
@@ -48,7 +49,7 @@ class ReviewOut(BaseModel):
 
 @router.post(
     "/documents/{document_id}/review",
-    summary="Set the review status of nodes and statements at once - the editors alone",
+    summary="Set the review status of nodes, statements and values at once - the editors alone",
     responses=answers("no_document: none the caller may read", REVIEW_RESPONSES)
     | {403: {"model": ErrorBody, "description": "not_editor: the editors alone review"}},
 )

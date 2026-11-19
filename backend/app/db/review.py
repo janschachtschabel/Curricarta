@@ -1,27 +1,30 @@
-"""The editors' review of a document's nodes and statements (plan M1 9.5; Paket 9 G8): one review status for
-many rows at once, all or nothing - each row on the revision it was read at, else none is set
-(StaleItems names those that stand otherwise, or no more). A row set counts its revision one up and keeps
-its origin: a review is no edit. It holds the tree's lock and refuses beside an open job, before X4 is
-done and once the document is frozen, as every change does (app/db/editing.py, ``guard``).
+"""The editors' review of a document's nodes and statements (plan M1 9.5; Paket 9 G8) and of its values -
+levels, time spans and workloads, a workload's periods among them (plan M3a E; app/db/values.py), each a
+row with its own origin and review status: one review status for many rows at once, all or nothing -
+each row on the revision it was read at, else none is set (StaleItems names those that stand otherwise,
+or no more). A row set counts its revision one up and keeps its origin: a review is no edit. It holds the
+tree's lock and refuses beside an open job, before X4 is done and once the document is frozen, as every
+change does (app/db/editing.py, ``guard``).
 
 A review changes not what the document says, but a statement rejected, or taken back from rejected,
 enters or leaves the curriculum (the Kern export and X5 leave rejected ones out): that edits the
 document (``document.edited_at``). A node rejected stays in both, but X5 reads its title as a heading
-no more (app/pipeline/x5_checks.py): that owes the document its checks too.
+no more (app/pipeline/x5_checks.py): that owes the document its checks too - as a value rejected, or
+taken back, does.
 """
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal
+from typing import Literal, get_args
 from uuid import UUID
 
 import psycopg
 
 from app.db.editing import CV, guard, mark_edited
 
-ReviewKind = Literal["node", "statement"]
+ReviewKind = Literal["node", "statement", "level_assignment", "time_span", "workload"]  # by their tables
 REJECTED = CV + "rev_rejected"
-_KINDS: tuple[ReviewKind, ...] = ("node", "statement")
+_KINDS: tuple[ReviewKind, ...] = get_args(ReviewKind)
 _CURRENT = (
     "SELECT id, revision, review_status_iri FROM {table} WHERE document_id = %s AND id = ANY(%s) FOR UPDATE"
 )

@@ -13,6 +13,7 @@ from tests.api.test_documents import an_account, client, rows, url
 from tests.api.test_node_editing import a_node
 from tests.api.test_statement_editing import a_statement
 from tests.db.l1 import CV
+from tests.db.l2 import add_value
 
 pytestmark = pytest.mark.pg
 __all__ = ["client", "url"]  # the fixtures, shared with test_documents
@@ -36,6 +37,49 @@ def test_the_editors_confirm_nodes_and_statements_at_once(client: TestClient, ur
     ) == [(CV + "rev_confirmed",), (CV + "rev_confirmed",)]
     assert rows(url, "SELECT action, subject, details FROM audit_log WHERE action = 'review.set'") == [
         ("review.set", f"document:{document}", {"status": "confirmed", "items": 2})
+    ]
+
+
+def test_the_editors_review_a_holder_s_values_as_its_rows(client: TestClient, url: str) -> None:
+    # a value is a row of its own, with its own origin and review status (plan M3a D2): reviewed so too
+    document, _ = a_document(client, url)
+    node = a_node(url, document)
+    other, _ = a_document(client, url, name="Andere", digest=b"\x02" * 32)
+    with psycopg.connect(url, autocommit=True) as connection:
+        level = add_value(connection, "level_assignment", uuid.UUID(document), "node_id", uuid.UUID(node))
+        workload = add_value(connection, "workload", uuid.UUID(document), "node_id", uuid.UUID(node))
+        period = add_value(connection, "time_span", uuid.UUID(document), "workload_id", workload)
+        elsewhere = add_value(
+            connection, "level_assignment", uuid.UUID(other), "node_id", uuid.UUID(a_node(url, other))
+        )
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+    items = [
+        {"kind": "level_assignment", "id": str(level), "revision": 1},
+        {"kind": "workload", "id": str(workload), "revision": 1},
+        {"kind": "time_span", "id": str(period), "revision": 1},
+    ]
+    path = f"/api/v1/documents/{document}/review"
+
+    answer = client.post(path, headers=editor, json={"status": "confirmed", "items": items})
+    foreign = client.post(path, headers=editor, json={
+        "status": "rejected", "items": [{"kind": "level_assignment", "id": str(elsewhere), "revision": 1}],
+    })  # fmt: skip
+
+    assert answer.status_code == 200, answer.text
+    assert [row["revision"] for row in answer.json()["revisions"]] == [2, 2, 2]
+    assert (
+        rows(
+            url,
+            "SELECT review_status_iri, origin_iri FROM level_assignment WHERE id = %s UNION ALL"
+            " SELECT review_status_iri, origin_iri FROM workload UNION ALL"
+            " SELECT review_status_iri, origin_iri FROM time_span",
+            level,
+        )
+        == [(CV + "rev_confirmed", CV + "orig_human")] * 3
+    )  # a review is no edit: the origin stays
+    assert (foreign.status_code, foreign.json()["details"]["stale"][0]["current"]) == (409, None)
+    assert rows(url, "SELECT review_status_iri FROM level_assignment WHERE id = %s", elsewhere) == [
+        (CV + "rev_proposed",)
     ]
 
 
