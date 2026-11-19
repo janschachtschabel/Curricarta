@@ -23,6 +23,7 @@ import DocumentExport from "@/components/DocumentExport.vue";
 import DocumentExtraction from "@/components/DocumentExtraction.vue";
 import DocumentFindings from "@/components/DocumentFindings.vue";
 import DocumentFreeze from "@/components/DocumentFreeze.vue";
+import DocumentKernExport from "@/components/DocumentKernExport.vue";
 import DocumentRuns from "@/components/DocumentRuns.vue";
 import DocumentSource from "@/components/DocumentSource.vue";
 import DocumentMemOrigin from "@/components/DocumentMemOrigin.vue";
@@ -259,6 +260,13 @@ watch(
         class="document__section"
         :document="document_"
         @frozen="frozen"
+        @changed="load()"
+      />
+      <DocumentKernExport
+        v-if="document_.frozen_at"
+        :key="document_.id"
+        class="document__section"
+        :document="document_"
         @changed="load()"
       />
       <DocumentExport

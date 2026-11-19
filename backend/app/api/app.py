@@ -22,6 +22,7 @@ from app.api import (
     freeze,
     internal,
     jobs,
+    kern_export,
     lexicon_review,
     lexicon_terms,
     mem,
@@ -141,6 +142,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
     app.include_router(source_checks.router)
     app.include_router(mem.router)
     app.include_router(exports.router)
+    app.include_router(kern_export.router)
     app.include_router(conversions.router)
     app.include_router(documents.router)
     app.include_router(document_findings.router)

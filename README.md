@@ -223,6 +223,23 @@ ungültig.
     Dokumentseite eines Imports nennt seine Herkunft, verfolgt den Import (Neustart, solange `IM` nicht
     fertig ist) und bietet nach dem Festschreiben den Export an: Die Datei wird mit dem Token geladen und
     gespeichert; Verletzungen stehen als Tabelle, mit Links auf die Zeilen im Baum, wo sie eine Zeile treffen.
+- Kern-Export: `GET /api/v1/documents/{id}/kern.ttl` gibt jedes festgeschriebene Dokument – extrahiert oder
+  aus MEM-Schule importiert – als RDF nach dem Curriculum-Kern 1.0 aus (Turtle, als Download), unter den IRIs,
+  die es beim Festschreiben bekam: Werk (`cur:versionOf`), Revision (`owl:versionInfo`), ersetzte Fassung,
+  Spezifikationen, Varianten, Knoten und Aussagen; Fundstellen und die Quelldatei als leere Knoten. Er nennt
+  die Quelldatei mit Prüfsumme und den Rechtestatus der Wortlaute (`dct:rights`), keine Lizenz. Die Zahl der
+  beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
+  Kommentarzeile am Anfang der Datei.
+  - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
+    (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis
+    bleibt im Speicher unter `exports/<Dokument>/`, bis sich Revision, Version, Rechtestatus oder rdflib
+    ändern; zwei Bauten ergeben dieselben Bytes.
+  - **Weigerungen:** 409 `export_not_frozen`; 409 `export_unnamed` für ein Dokument, das vor der Vergabe der
+    Spezifikations-IRIs festgeschrieben wurde, bis `python -m app.db.name_frozen` lief; 503
+    `export_unavailable` mit `Retry-After`; 429 `too_many_exports` (`EXPORTS_PER_MINUTE` zählt beide Exporte
+    zusammen). Zugriff hat, wer das Dokument und den Inhalt seines Eintrags lesen darf.
+  - **Oberfläche:** Die Dokumentseite bietet ihn nach dem Festschreiben unter „Export als Curriculum-Kern“
+    an; ein Import hat beide Knöpfe.
 - Konvertierung (X0): `POST /api/v1/sources/{id}/conversions` startet für die Datei eines
   Eintrags den Job `source.convert` (pdfplumber) oder `source.convert_docling` (Docling) (202) oder
   gibt die vorhandene Konvertierung zurück (200, eine gescheiterte startet neu). Welche Engines

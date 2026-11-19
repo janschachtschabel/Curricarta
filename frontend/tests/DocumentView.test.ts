@@ -1287,6 +1287,24 @@ describe("the page of a document imported from a MEM plan", () => {
     expect(extracted.find("#document-mem").exists()).toBe(false);
   });
 
+  it("offers a frozen document its Kern export, extracted or imported, with a way to it; a draft none", async () => {
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    const frozen = { frozen_at: "2026-11-13T10:00:00Z", iri: "https://example.org/kk/doc/x" };
+    for (const changes of [frozen, { ...frozen, mem: MEM }]) {
+      vi.spyOn(api, "getDocument").mockResolvedValue(document_(changes));
+      const shown = await open();
+      expect(shown.find("#document-kern-export").exists()).toBe(true);
+      const ways = shown.get("nav[data-test=document-sections]").findAll("a").map((link) => link.attributes("href"));
+      expect(ways).toContain("#document-kern-export");
+      shown.unmount();
+    }
+
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+    const draft = await open();
+    expect(draft.find("#document-kern-export").exists()).toBe(false);
+    expect(draft.get("nav[data-test=document-sections]").text()).not.toContain(t("documents.page.kernExport.heading"));
+  });
+
   it("shows no work packages: an import has none", async () => {
     vi.spyOn(api, "getDocument").mockResolvedValue(document_({ mem: MEM, extraction: failedImport }));
     vi.spyOn(api, "getRuns").mockResolvedValue(IM_DONE);

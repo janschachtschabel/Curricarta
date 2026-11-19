@@ -1,7 +1,8 @@
 """Start of the API: one uvicorn process that listens on the public and the internal port.
 
 The cluster scales by replicas, not by worker processes; heavy work runs in the job worker - but the
-export of a MEM import, which checks it in up to two child processes of the API (app/exports/mem_export.py).
+exports: a MEM import's, which checks it in up to two child processes of the API (app/exports/mem_export.py),
+and a frozen document's Kern Turtle, built in up to two more (app/exports/kern_export.py).
 One process keeps the Prometheus values in memory, without a multiprocess collector.
 
 uvicorn parses with h11: httptools bounds neither the URL nor the headers, and uvicorn put a

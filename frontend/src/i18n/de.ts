@@ -826,9 +826,14 @@ export const messages = {
       "Das Dokument erfüllt die Regeln von MEM-Schule nicht; die Liste nennt die betroffenen Stellen. Zeilen " +
       "bearbeitest du in einer Entwurfskopie. Fehlt dem Dokument selbst etwas, etwa das Land des Plans, " +
       "lässt sich das in der App nicht nachtragen; melde es der Administration.",
-    // when to try again the export's section says, in the seconds the server names (DocumentExport.vue)
+    // when to try again the export's section says, in the seconds the server names (useExportDownload.ts)
     export_unavailable:
-      "Die Prüfung des Exports ist nicht fertig geworden; bleibt es dabei, melde es der Administration.",
+      "Der Export ist nicht rechtzeitig fertig geworden; bleibt es dabei, melde es der Administration.",
+    // the Kern export of a document frozen before its specifications had IRIs (DocumentKernExport.vue)
+    export_unnamed:
+      "Das Dokument wurde festgeschrieben, bevor seine Spezifikationen IRIs bekamen. Melde es der " +
+      "Administration: Sie vergibt die IRIs einmal mit „python -m app.db.name_frozen“, danach lässt es sich " +
+      "exportieren.",
     too_many_exports: "Du hast in der letzten Minute viele Exporte angefordert.",
     // the editors' review of the lexicon (LexiconReviewView.vue)
     no_cue: "Diesen Hinweis der Recherche gibt es nicht mehr, und entschieden war er noch nicht. Lade die Liste neu.",
@@ -1395,6 +1400,24 @@ export const messages = {
           issuer: "der Herausgeber",
           edition: "die Fassung",
         },
+      },
+      // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
+      kernExport: {
+        heading: "Export als Curriculum-Kern",
+        contains:
+          "Die Datei beschreibt das festgeschriebene Dokument als RDF nach dem Curriculum-Kern (Turtle), unter " +
+          "den IRIs, die es beim Festschreiben bekam: Werk, Fassung und Revision, Knoten, Aussagen und ihre " +
+          "Fundstellen. Sie nennt die Quelldatei und den Rechtestatus der Wortlaute, keine Lizenz.",
+        button: "Als Curriculum-Kern exportieren",
+        working: "Der Export wird erstellt; das kann bis zu einer Minute dauern.",
+        saved: "Die Datei {name} wurde dem Browser zum Speichern übergeben.",
+        savedAccepted:
+          "Die Datei {name} wurde dem Browser zum Speichern übergeben. Beim Festschreiben " +
+          "{count|wurde|wurden} {count} {count|Verstoß|Verstöße} angenommen; der Kopf der Datei nennt die Zahl.",
+        failed: "Der Export ließ sich nicht erstellen.",
+        wait: "Versuch es in {count} {count|Sekunde|Sekunden} erneut.",
+        again: "Versuch es gleich noch einmal.",
+        saveFailed: "Die Datei wurde erstellt, ließ sich aber nicht an den Browser übergeben. Versuch es noch einmal.",
       },
       // its title, issuer and edition and its work (documentMeta.ts, DocumentEdition.vue)
       edition: {

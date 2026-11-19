@@ -74,12 +74,13 @@ export const REFUSAL_CODES = [
   "mem_unknown_plan",
   "mem_plan_taken",
   "catalog_running",
-  // the export of a frozen import from MEM-Schule (backend app/api/exports.py)
+  // the exports of a frozen document (backend app/api/exports.py, kern_export.py)
   "export_not_frozen",
   "not_mem_import",
   "export_invalid",
   "export_unavailable",
   "too_many_exports",
+  "export_unnamed",
   // the editors' review of the lexicon (backend app/api/lexicon_review.py, lexicon_terms.py)
   "no_cue",
   "no_term",

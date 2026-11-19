@@ -1,9 +1,10 @@
 """The whole way of a curriculum through the service, as one test: an account uploads a PDF, asks for its
-conversion, makes a document of it and has it extracted, X5 checks it, an editor freezes it - each step
-through the public API, each job run by the worker's own step with the real handlers, against the
-PostgreSQL and S3 test services. A model stands in (FunctionModel, as the pipeline's tests use it): it
-answers each unit with the wording of its longest block, word for word, so that X5 finds it where it
-stands. The PDF is one of the conversion tests' synthetic files (tools/make_conversion_fixtures.py)."""
+conversion, makes a document of it and has it extracted, X5 checks it, an editor freezes it and downloads
+its Kern export - each step through the public API, each job run by the worker's own step with the real
+handlers, against the PostgreSQL and S3 test services. A model stands in (FunctionModel, as the pipeline's
+tests use it): it answers each unit with the wording of its longest block, word for word, so that X5 finds
+it where it stands. The PDF is one of the conversion tests' synthetic files
+(tools/make_conversion_fixtures.py)."""
 
 import asyncio
 import re
@@ -16,6 +17,7 @@ from fastapi.testclient import TestClient
 from psycopg_pool import AsyncConnectionPool
 from pydantic_ai.messages import ModelMessage
 from pydantic_ai.models.function import FunctionModel
+from rdflib import RDF, Graph, URIRef
 
 from app.api.app import create_app
 from app.core.settings import Settings
@@ -23,6 +25,7 @@ from app.core.storage import open_storage
 from app.core.storage_async import AsyncStorage
 from app.core.storage_s3 import s3_client
 from app.db.migrate import migrate
+from app.exports.kern_rdf import CUR
 from app.jobs.context import JobContext
 from app.jobs.handlers import make_handlers
 from app.jobs.queue import Job
@@ -199,3 +202,13 @@ def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Setting
         said = statements_of(tree["nodes"])
         assert sorted(found["fields"]["verbatim"] for found in said) == sorted(model.quoted)
         assert all(found["iri"].startswith(frozen.json()["iri"]) for found in said)
+
+        # 7. exported: its Kern Turtle, every row under the IRI the document was frozen with, none by its id
+        exported = client.get(f"/api/v1/documents/{document}/kern.ttl", headers=editor)
+        assert exported.status_code == 200, exported.text
+        graph = Graph().parse(data=exported.content, format="turtle")
+        named = {str(term) for triple in graph for term in (triple[0], triple[2]) if isinstance(term, URIRef)}
+        assert not [term for term in named if term.startswith("urn:uuid:")]
+        rows = {*graph.subjects(RDF.type, CUR.CurriculumNode), *graph.subjects(RDF.type, CUR.Statement)}
+        assert rows and all(str(row).startswith(frozen.json()["iri"] + "/") for row in rows)
+        assert {found["iri"] for found in said} <= {str(row) for row in rows}

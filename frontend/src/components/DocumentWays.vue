@@ -28,6 +28,7 @@ const sections = computed(() => {
     { id: "document-findings", label: t("documents.findings.heading") },
     // as DocumentFreeze offers itself
     ...(isEditor() && shown.frozen_at === null ? [{ id: "document-freeze", label: t("documents.page.freeze.heading") }] : []),
+    ...(shown.frozen_at !== null ? [{ id: "document-kern-export", label: t("documents.page.kernExport.heading") }] : []),
     ...(mem ? [{ id: "document-export", label: t("mem.export.heading") }] : []),
     { id: "document-runs", label: t("documents.page.runs") },
   ];
