@@ -105,6 +105,7 @@ CHANGES = {
     ),
     "frame part changed": "UPDATE frame_part SET content = '{\"a\": 1}' WHERE id = %(frame_part)s",
     "specification changed": "UPDATE specification SET title = 'Neu' WHERE id = %(specification)s",
+    "specification revised": "UPDATE specification SET revision = revision + 1 WHERE id = %(specification)s",
     # an IRI it lacks alone is what it may take (python -m app.db.name_frozen): never with another change
     "specification named and changed": (
         "UPDATE specification SET iri = 'https://example.org/d/spec/a', title = 'Neu'"

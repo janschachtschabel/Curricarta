@@ -89,7 +89,7 @@ async def content(connection: psycopg.AsyncConnection, document_id: Any) -> dict
             SELECT part_kind, position, content, review_status_iri, run_id IS NULL FROM frame_part
             WHERE document_id = %(document)s""", document_id),
         "specifications": await rows(connection, """
-            SELECT s.key, s.title, array(SELECT v.key || ' ' || v.label FROM variant v
+            SELECT s.key, s.title, s.revision, array(SELECT v.key || ' ' || v.label FROM variant v
                                          WHERE v.specification_id = s.id ORDER BY 1)
             FROM specification s WHERE s.document_id = %(document)s""", document_id),
         "profile": await rows(
@@ -211,8 +211,8 @@ async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
         (anchor, document.id, document.conversion_id, frame),
     )
     await connection.execute(
-        "INSERT INTO specification (id, document_id, key, spec_kind, title)"
-        " VALUES (%s, %s, 'lp', 'curriculum', 'LP')",
+        "INSERT INTO specification (id, document_id, key, spec_kind, title, revision)"
+        " VALUES (%s, %s, 'lp', 'curriculum', 'LP', 3)",
         (specification, document.id),
     )
     await connection.execute(
