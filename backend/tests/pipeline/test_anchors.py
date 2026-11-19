@@ -709,6 +709,63 @@ def test_a_word_a_supplementing_hyphen_ends_stays_two_words_in_a_normalized_matc
     assert (found.kind, found.score) == ("normalized", None)
 
 
+# --- task A1: a hyphen a conversion left inside a block, its line break turned into a space ------------
+
+
+@pytest.mark.parametrize(
+    ("text", "wording"),
+    [
+        (
+            "Die Lernenden deuten Schwingungsbil- der und Strah- lungsarten.",
+            "Die Lernenden deuten Schwingungsbilder und Strahlungsarten.",
+        ),
+        # a part that only begins as "bis" does: the word, not its letters, keeps a hyphen
+        ("Sie untersuchen das Ge- biss eines Hundes.", "Sie untersuchen das Gebiss eines Hundes."),
+    ],
+    ids=["two words", "a part beginning like a conjunction"],
+)
+def test_a_word_a_hyphen_and_a_space_part_inside_a_block_is_normalized_and_quoted_as_it_stands(
+    text: str, wording: str
+) -> None:
+    # pdfplumber keeps a line-end hyphen and makes the break a space: "Schwingungsbil- der"
+    found = check_wording(wording, [text])
+
+    assert (found.kind, found.score, found.quote) == ("normalized", None, text)
+
+
+def test_a_hyphen_and_a_space_before_a_capital_part_two_words() -> None:
+    found = check_wording("Die Lernenden pflegen Gartenbeete.", ["Die Lernenden pflegen Garten- Beete."])
+
+    assert found.kind == "fuzzy"
+
+
+@pytest.mark.parametrize(
+    ("text", "wording"),
+    [
+        ("Sie planen Kühl- und Wärmedämmmaßnahmen.", "Sie planen Kühlund Wärmedämmmaßnahmen."),
+        ("Sie prüfen den Ein- oder Ausgang der Anlage.", "Sie prüfen den Einoder Ausgang der Anlage."),
+        ("Sie lesen die Kapitel- bis Abschnittsangaben.", "Sie lesen die Kapitelbis Abschnittsangaben."),
+        ("Sie werten Bild- sowie Tonaufnahmen aus.", "Sie werten Bildsowie Tonaufnahmen aus."),
+        ("Sie nutzen Lese- bzw. Schreibhilfen.", "Sie nutzen Lesebzw. Schreibhilfen."),
+        ("Sie üben Haupt-, neben- und Teilaufgaben.", "Sie üben Hauptneben- und Teilaufgaben."),
+    ],
+    ids=["und", "oder", "bis", "sowie", "bzw.", "comma"],
+)
+def test_a_hyphen_standing_for_the_elided_part_of_a_compound_joins_no_word(text: str, wording: str) -> None:
+    # "Kühl- und Wärmedämmmaßnahmen" is "Kühlmaßnahmen und ...": read as one word "Kühlund", a wording that
+    # glued them would pass for the document's own
+    found = check_wording(wording, [text])
+
+    assert found.kind == "fuzzy"
+
+
+def test_a_compound_with_an_elided_part_is_still_found_as_it_stands() -> None:
+    text = "Sie planen Kühl- und Wärmedämmmaßnahmen."
+
+    assert check_wording(text, [text]).kind == "exact"
+    assert check_wording("sie planen kühl- und wärmedämmmaßnahmen", [text]).kind == "normalized"
+
+
 # audit 2026-11-14 (C): the cut of a gap's mark at a wording's end tried every dot of a long run
 
 

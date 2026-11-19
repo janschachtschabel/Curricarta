@@ -2,10 +2,10 @@
 the old app's ce_api/services/extraction/anchors.py: the passage most like the wording, among the places
 its rare words lead to, tightened to what the two share (app/pipeline/anchor_passage.py). Normalized
 where the document's words there are the wording's - case, marks, spacing, composed or decomposed
-letters and words parted at a line's end or by a soft hyphen aside - else fuzzy with its likeness: no
-proof of the wording (konzept §5.1). A passage's likeness can be less than ``MIN_RATIO``, the window's
-never: a passage that holds all of the wording and runs on past a parenthesis it left out scores less
-than the window it was tightened from (``_passage``).
+letters and words parted at a line's end, by a soft hyphen or by a hyphen and a space inside a block
+aside - else fuzzy with its likeness: no proof of the wording (konzept §5.1). A passage's likeness can
+be less than ``MIN_RATIO``, the window's never: a passage that holds all of the wording and runs on past
+a parenthesis it left out scores less than the window it was tightened from (``_passage``).
 
 difflib is pure Python and its cost grows with both lengths: over a long text it once took 22 s (old
 app, audit E-20). So the wording's opening is aligned at no more than ``FUZZY_PLACES`` places, where one
@@ -16,6 +16,8 @@ gives no wording longer than ``anchor_check.MAX_FUZZY``. A table block of a whol
 import difflib
 import re
 import unicodedata
+
+import regex
 
 from app.domain.wording import unparted
 from app.pipeline.anchor_match import Hit, words
@@ -32,6 +34,13 @@ CLEARLY_WORSE = 0.05
 # How far past the window its passage may run: a wording that left out words before the longest shared
 # stretch starts the window late by as many characters; 24 hold the two or three words it drops.
 TIGHTEN_MARGIN = 24
+# A word parted inside a block: a letter, a hyphen, a space, a small letter (pdfplumber keeps a line-end
+# hyphen and makes the break a space). Not where the hyphen stands for the elided part of a compound -
+# before "und", "oder", "bis", "sowie", "bzw." ("Kühl- und Wärmedämmmaßnahmen"), or before a comma
+# ("Haupt-, Real- und ..."), which no space follows.
+_IN_BLOCK = regex.compile(
+    "(?<=\\p{L})[-\N{HYPHEN}\N{NON-BREAKING HYPHEN}]\\h+(?!(?:und|oder|bis|sowie|bzw)\\b)(?=\\p{Ll})"
+)
 
 
 def fuzzy(target: str, text: str) -> Hit | None:
@@ -49,8 +58,9 @@ def fuzzy(target: str, text: str) -> Hit | None:
 
 def _joined(text: str) -> list[str]:
     """The words of ``text`` as a normalized match compares them: composed, case folded, whole where a
-    hyphen at a line's end parted one - a block keeps its lines (app/conversion/lines.py)."""
-    return [word.casefold() for word in words(unparted(text))]
+    hyphen at a line's end parted one - a block keeps its lines (app/conversion/lines.py) - or where a
+    conversion kept that hyphen inside a block and made the break a space ("Schwingungsbil- der")."""
+    return [word.casefold() for word in words(_IN_BLOCK.sub("", unparted(text)))]
 
 
 def _apart(text: str) -> list[str]:

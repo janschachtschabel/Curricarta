@@ -182,6 +182,15 @@ def test_a_normalized_place_before_wins_over_a_fuzzy_passage_after() -> None:
     assert found is not None and (found.block_ids, found.stage) == (("p1-b1",), "normalized")
 
 
+def test_a_word_a_hyphen_and_a_space_part_inside_a_block_is_found_normalized() -> None:
+    # task A1: pdfplumber keeps a line-end hyphen inside a block and makes the break a space
+    blocks = [block(1, 1, "Anfang"), block(2, 1, "Die Lernenden deuten Schwingungsbil- der im Versuch.")]
+
+    found = find("Die Lernenden deuten Schwingungsbilder im Versuch.", searched(blocks, frozenset()), None)
+
+    assert found is not None and (found.block_ids, found.stage) == (("p2-b1",), "normalized")
+
+
 def test_a_fuzzy_passage_after_stays_where_nothing_before_is_better() -> None:
     blocks = [
         block(1, 1, "Etwas anderes."),
