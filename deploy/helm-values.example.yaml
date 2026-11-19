@@ -259,7 +259,7 @@ ingress:
     # of a MEM import waits up to 55 s in its request), the same 75 s as Compose's edge; ingress-nginx's
     # default of 60 s leaves none. The ingress buffers a body whole before the API sees it, so the API's
     # UPLOAD_READ_TIMEOUT_S never ends an upload behind it.
-    # nginx.ingress.kubernetes.io/proxy-read-timeout: "75"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "75"
   routes:                     # never the internal port: probes and /metrics stay inside the cluster
     - { path: /api/v1/, service: api, servicePort: http }
     - { path: /openapi.json, service: api, servicePort: http }

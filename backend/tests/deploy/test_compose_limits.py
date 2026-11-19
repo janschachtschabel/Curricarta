@@ -116,16 +116,14 @@ EDGE_MARGIN_S = 10
 
 def edge_read_timeouts_s() -> tuple[int, int]:
     """The read deadline towards the API of Compose's edge (deploy/nginx-api.conf) and of the Helm example's
-    ingress (its annotation, set or left as a comment for the operator to set)."""
+    ingress (its annotation: set, since ingress-nginx's default of 60 s leaves no margin)."""
     api = (DEPLOY / "nginx-api.conf").read_text(encoding="utf-8")
     location = api.split("location /api/ {", 1)[1].split("}", 1)[0]
     [compose] = [line for line in directives(location) if line.startswith("proxy_read_timeout ")]
     compose_match = re.fullmatch(r"proxy_read_timeout (\d+)s", compose)
     assert compose_match, compose
-    helm_text = (DEPLOY / "helm-values.example.yaml").read_text(encoding="utf-8")
-    [helm] = re.findall(
-        r'^\s*#?\s*nginx\.ingress\.kubernetes\.io/proxy-read-timeout: "(\d+)"', helm_text, re.M
-    )
+    helm = HELM["ingress"]["annotations"].get("nginx.ingress.kubernetes.io/proxy-read-timeout")
+    assert isinstance(helm, str) and helm.isdigit(), "the example sets the ingress's read deadline"
     return int(compose_match.group(1)), int(helm)
 
 
