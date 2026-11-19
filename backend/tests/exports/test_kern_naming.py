@@ -17,6 +17,7 @@ from app.exports.kern_naming import draft_naming, frozen_naming
 from app.exports.kern_rdf import CUR, kern_graph
 from app.exports.kern_rows import KernRows, read_document
 from app.pipeline.shacl_child import validate_graph
+from tests.db.test_document_meta import an_edition
 from tests.db.test_editing import document
 from tests.db.test_freeze import BASE, DOC, ready
 from tests.db.test_freeze_naming import specified
@@ -113,6 +114,23 @@ async def test_a_frozen_graph_names_specifications_and_variants_by_the_iris_free
     assert (variant, CUR.variantOf, specification) in frozen
     frozen.remove((URIRef(DOC), PROV.generatedAtTime, None))
     assert_isomorphic(frozen, under_frozen_names(kern_graph(rows, draft_naming()), rows))
+
+
+async def test_the_graph_states_what_the_document_supersedes(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # by the IRI of the edition it supersedes - frozen, so it has one - whatever the naming
+    older = await frozen_rows(connection, document)
+    newer = await an_edition(connection, document, "2030", freezing=True, superseding=True)
+    rows = await read_document(connection, newer.id)
+    newer_iri = URIRef(DOC.removesuffix("2024") + "2030")
+
+    for graph, subject in (
+        (kern_graph(rows), URIRef(f"urn:uuid:{newer.id}")),
+        (kern_graph(rows, frozen_naming()), newer_iri),
+    ):
+        assert list(graph.objects(subject, CUR.supersedes)) == [URIRef(DOC)]
+    assert not list(kern_graph(older).objects(None, CUR.supersedes))
 
 
 async def test_the_frozen_naming_refuses_the_rows_of_a_document_not_frozen(

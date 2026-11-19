@@ -387,7 +387,12 @@ ungültig.
   ein neues (`title`, `region` wie `DE-NW`, `short_title` als Slug wie `lp-physik`) –, nur durch
   Redaktion/Admin (sonst 403 `not_editor`); 404 `no_work` für ein Werk, das es nicht gibt. Metadaten: `PATCH
   /api/v1/documents/{id}` setzt `issuer`, `edition` und `title` (ausgelassene bleiben, `null` oder leerer
-  Text leert) – durch Eigentümer und Redaktion/Admin, 422 `invalid_field` wie beim Bearbeiten; eine Änderung
+  Text leert) und `supersedes`, die Fassung, die das Dokument ersetzt (`cur:supersedes`, die ID eines
+  Dokuments oder `null`): festgeschrieben, desselben Werks, unter einer anderen IRI, für den Aufrufer
+  lesbar und ohne Kreis über die Revisionen, sonst 422 `invalid_field` (`details.field` `supersedes`,
+  auch für ein Dokument, das er nicht sieht); die Antwort nennt sie als `supersedes` (`id`, `iri`,
+  `edition`), der Kern-Graph mit ihrer IRI, eine Entwurfskopie übernimmt sie –
+  durch Eigentümer und Redaktion/Admin, 422 `invalid_field` wie beim Bearbeiten; eine Änderung
   schuldet X5 eine Prüfung; erst wenn X4 fertig ist, wie jede Bearbeitung des Baums (409 `not_extracted`;
   vor X1 überschriebe eine Extraktion sie mit dem, was X1 liest), ein neues Werk mit speicherbarem Titel und
   einem Land des Regionenvokabulars (422 `invalid_field`). Beide nicht neben einem offenen Job und nicht
@@ -420,9 +425,11 @@ ungültig.
   eine Zeile passt nicht mehr zum heutigen Vokabular, etwa ein Knotentyp, den eine spätere Ladung unter
   seiner Funktion herausnahm (`vocabulary_changed`, `details.check`: die Prüfung, an der sie scheitert).
   Audit `document.copy`.
-  In der Oberfläche nennt die Dokumentseite unter „Werk und Fassung“ Herausgeber, Fassung, Werk, IRI und
-  Revision; bis zum Festschreiben ändern Eigentümer und Redaktion dort Titel, Herausgeber und Fassung (mit IRI
-  nur noch den Titel), und die Redaktion setzt das Werk, solange es keines hat – ein bekanntes aus den
+  In der Oberfläche nennt die Dokumentseite unter „Werk und Fassung“ Herausgeber, Fassung, Werk, IRI,
+  Revision und die ersetzte Fassung; bis zum Festschreiben ändern Eigentümer und Redaktion dort Titel, Herausgeber und Fassung (mit IRI
+  nur noch den Titel) sowie die ersetzte Fassung – zur Wahl stehen die festgeschriebenen Fassungen des
+  Werks aus den Dokumenten, die sie sehen, je IRI die neueste Revision –, und die Redaktion setzt das
+  Werk, solange es keines hat – ein bekanntes aus den
   Dokumenten, die sie sieht, oder ein neues mit Titel, Land und Kurztitel; ein Wechsel geht nur über `PATCH
   …/work`. Festgeschrieben wird, was gespeichert ist; ein ungespeicherter Eintrag geht verloren.
   „Festschreiben“ (Redaktion) fragt vorher, mit den Folgen; nennen die Befunde Verstöße, fragt es noch einmal

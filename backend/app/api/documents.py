@@ -107,6 +107,14 @@ class WorkOut(BaseModel):
     iri: str | None  # given when a document of it was first frozen
 
 
+class SupersededOut(BaseModel):
+    """The edition a document supersedes: frozen, so it has its IRI."""
+
+    id: UUID
+    iri: str
+    edition: str | None
+
+
 class MemOrigin(BaseModel):
     """The MEM-Schule plan an import was made of (plan M2, E1/E14): its attribution and the data's licence
     as recorded at the import - none where no licence was checked yet."""
@@ -132,6 +140,7 @@ class DocumentOut(BaseModel):
     revision: int  # of its edition: a draft copy is the next one
     frozen_at: datetime | None
     copy_of: UUID | None  # the frozen revision a draft copy copies
+    supersedes: SupersededOut | None  # the edition of its work it supersedes (PATCH, plan M3a B2)
     created_at: datetime
     extraction: ExtractionRef | None  # the latest extraction job, whatever became of it
     mem: MemOrigin | None  # an import's plan; none for an extracted document
@@ -487,7 +496,7 @@ async def document_out(
 async def _outs(
     connection: psycopg.AsyncConnection, documents: list[Document], who: Principal
 ) -> list[DocumentOut]:
-    """The documents as the API gives them, in three queries however many they are."""
+    """The documents as the API gives them, in four queries however many they are."""
     sectors = await notations_by_iri(connection, {document.sector_iri for document in documents})
     found = await last_jobs(connection, [unique_key(document.id) for document in documents])
     cursor = await connection.execute(
@@ -496,6 +505,14 @@ async def _outs(
     )
     works = {row[0]: WorkOut(id=row[0], title=row[1], region=row[2], short_title=row[3], iri=row[4])
              for row in await cursor.fetchall()}  # fmt: skip
+    # what they supersede: frozen, so named by its IRI - as the Kern graph states it to each reader
+    cursor = await connection.execute(
+        "SELECT id, iri, edition FROM document WHERE id = ANY(%s) AND iri IS NOT NULL",
+        ([document.supersedes_id for document in documents if document.supersedes_id is not None],),
+    )
+    superseded = {
+        row[0]: SupersededOut(id=row[0], iri=row[1], edition=row[2]) for row in await cursor.fetchall()
+    }
 
     def extraction(document: Document) -> ExtractionRef | None:
         if (latest := found.get(unique_key(document.id))) is None:
@@ -525,6 +542,7 @@ async def _outs(
             revision=document.revision,
             frozen_at=document.frozen_at,
             copy_of=document.copy_of,
+            supersedes=None if document.supersedes_id is None else superseded.get(document.supersedes_id),
             mem=None
             if document.mem_iri is None
             else MemOrigin(

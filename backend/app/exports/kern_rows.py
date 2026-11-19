@@ -26,6 +26,7 @@ _DOCUMENT = """
 SELECT d.id, d.iri, d.revision, d.frozen_at, d.rights_status, d.title, d.issuer, d.edition,
     d.document_type_iri, d.sector_iri, d.legal_form_iri, d.binding_iri, d.lifecycle_iri, d.valid_from,
     d.valid_until, d.issued,
+    (SELECT s.iri FROM document s WHERE s.id = d.supersedes_id) AS supersedes_iri,  -- frozen: it has one
     ARRAY(SELECT iri FROM (
               SELECT DISTINCT ON (region) c.iri FROM unnest(d.regions) AS region JOIN vocab_concept c
                   ON c.scheme_iri = %(regions)s AND c.notation = region

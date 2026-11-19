@@ -6,8 +6,12 @@ and refuse a frozen document and one beside its open job (``guard_document``); t
 not read yet (``guard``, NotExtracted), as every edit of the tree: before X1 an extraction would write them
 over with what it reads (once done, X1 is passed over), the work it leaves. A document named by its IRI -
 frozen once, or a draft copy of one - keeps its work, issuer and edition, which the IRI is made of
-(``DocumentNamed``); its title it may change. A change of the metadata owes X5 a check: the Kern export
-carries them.
+(``DocumentNamed``); its title it may change. With the metadata goes the edition it supersedes (plan M3a
+B2, cur:supersedes): a document the reader sees, frozen, of the same work and under another IRI - and none
+whose own chain of editions, through any revision of their IRIs, comes back to this document's IRI -, else
+FieldError ``supersedes`` ``not_offered``, a document the reader does not see refused as one there is not;
+chosen under a lock of the work, so that two drafts do not choose each other at once. A change of the metadata
+owes X5 a check: the Kern export carries them.
 
 simplify: who sees a document edits its metadata, as its tree (app/db/editing.py); the work is the
 editors' alone, which the API asks (app/api/document_meta.py).
@@ -22,7 +26,7 @@ import psycopg
 from psycopg import sql
 
 from app.db.anchors import new_entity
-from app.db.documents import DocumentError, unknown_regions
+from app.db.documents import DOCUMENT_VISIBLE, DocumentError, unknown_regions
 from app.db.editing import DOCUMENT, guard, guard_document, mark_edited, target_of
 from app.db.source_queries import Reader
 from app.domain.text import UNSTORABLE
@@ -32,6 +36,21 @@ from app.vocab.form_values import FieldError
 METADATA: Final = {"title": 1000, "issuer": 500, "edition": 200}
 # what the document's IRI is made of: fixed once it has one
 _NAMING = frozenset({"issuer", "edition"})
+SUPERSEDES = "supersedes"  # the edition it supersedes, by its document's id
+_SUPERSEDES_LOCK = 0x6B6B_6173  # with the work's hash: the lock of choosing what an edition supersedes
+# an edition the document may supersede: one the reader sees, frozen, of its work, under another IRI, whose
+# editions superseded in turn - by any revision of their IRIs - never come back to the document's IRI
+_SUPERSEDABLE = f"""
+WITH RECURSIVE chain (iri) AS (
+    SELECT d.iri FROM document d WHERE d.id = %(target)s
+    UNION
+    SELECT s.iri FROM chain c JOIN document d ON d.iri = c.iri JOIN document s ON s.id = d.supersedes_id
+)
+SELECT FROM document d, document own
+WHERE d.id = %(target)s AND own.id = %(document)s AND d.frozen_at IS NOT NULL AND d.work_id = own.work_id
+    AND d.iri IS DISTINCT FROM own.iri AND {DOCUMENT_VISIBLE}
+    AND NOT EXISTS (SELECT FROM chain WHERE chain.iri = own.iri)
+"""  # noqa: S608 - fixed parts
 
 
 class DocumentNamed(Exception):
@@ -90,33 +109,60 @@ async def set_work(
 async def set_metadata(
     connection: psycopg.AsyncConnection, reader: Reader, document_id: UUID, given: Mapping[str, object]
 ) -> bool | None:
-    """Set the metadata ``given`` (``METADATA``'s keys; a blank text, or None, none) - whether any
-    changed; None where ``reader`` sees no such document. FieldError, DocumentNamed for the issuer or
-    edition of a named document, or a refusal of ``guard``, and then nothing is changed."""
+    """Set the metadata ``given`` (``METADATA``'s keys; a blank text, or None, none) and the edition it
+    supersedes (``SUPERSEDES``: a document's id, or None) - whether any changed; None where ``reader`` sees
+    no such document. FieldError, DocumentNamed for the issuer or edition of a named document, or a refusal
+    of ``guard``, and then nothing is changed."""
     async with connection.transaction():
         target = await target_of(connection, DOCUMENT, reader, document_id)
         if target is None:
             return None
-        values = {key: _text(key, value) for key, value in given.items()}
+        values: dict[str, object] = {
+            key: value if key == SUPERSEDES else _text(key, value) for key, value in given.items()
+        }
+        if SUPERSEDES in values and not (values[SUPERSEDES] is None or isinstance(values[SUPERSEDES], UUID)):
+            raise FieldError(SUPERSEDES, "not_text")
         await guard(connection, document_id)
         cursor = await connection.execute(
-            "SELECT title, issuer, edition, iri IS NOT NULL FROM document WHERE id = %s", (document_id,)
+            "SELECT title, issuer, edition, supersedes_id, iri IS NOT NULL FROM document WHERE id = %s",
+            (document_id,),
         )
         found = await cursor.fetchone()
         assert found is not None  # noqa: S101 - the tree's lock holds the document, which target_of found
-        current = dict(zip(("title", "issuer", "edition"), found[:3], strict=True))
+        current = dict(zip(("title", "issuer", "edition", SUPERSEDES), found[:4], strict=True))
         changed = {key: value for key, value in values.items() if value != current[key]}
         if not changed:
             return False
-        if found[3] and _NAMING & changed.keys():
+        if changed.get(SUPERSEDES) is not None:
+            await _supersedable(connection, reader, document_id, changed[SUPERSEDES])
+        if found[4] and _NAMING & changed.keys():
             raise DocumentNamed(f"the document {document_id} is named by its IRI: its {sorted(changed)} stay")
-        columns = sql.SQL(", ").join(sql.SQL("{} = %s").format(sql.Identifier(key)) for key in changed)
+        columns = sql.SQL(", ").join(
+            sql.SQL("{} = %s").format(sql.Identifier("supersedes_id" if key == SUPERSEDES else key))
+            for key in changed
+        )
         await connection.execute(
             sql.SQL("UPDATE document SET {}, updated_at = now() WHERE id = %s").format(columns),
             (*changed.values(), document_id),
         )
         await mark_edited(connection, document_id)
         return True
+
+
+async def _supersedable(
+    connection: psycopg.AsyncConnection, reader: Reader, document_id: UUID, target: object
+) -> None:
+    # one choice at a time within a work: two drafts choosing each other's editions at once make a circle
+    await connection.execute(
+        "SELECT pg_advisory_xact_lock(%s, hashtext(work_id::text)) FROM document WHERE id = %s",
+        (_SUPERSEDES_LOCK, document_id),
+    )
+    cursor = await connection.execute(
+        _SUPERSEDABLE,
+        {"target": target, "document": document_id, "me": reader.account_id, "all": reader.sees_all},
+    )
+    if await cursor.fetchone() is None:
+        raise FieldError(SUPERSEDES, "not_offered")
 
 
 async def _unnamed(connection: psycopg.AsyncConnection, document_id: UUID) -> None:

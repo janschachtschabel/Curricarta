@@ -1,7 +1,8 @@
 """A document of the first layer as Curriculum-Kern 1.0 RDF (plan M1 8.3; konzept §4, §5): the document,
-the work it is a version of, its revision and the file it is in (plan M3a A1), its specifications and their
-variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
-anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them.
+the work it is a version of, its revision and the file it is in (plan M3a A1), the edition it supersedes by
+that edition's IRI (B2), its specifications and their variants, its nodes (cur:partOf the parent node, a
+root at its one specification), statements and the anchors of nodes and statements, as the rows of
+app/exports/kern_rows.py hold them.
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
@@ -102,6 +103,7 @@ def _document(graph: Graph, row: Row, names: Names, specifications: Sequence[UUI
     _add(graph, subject, DCTERMS.title, row["title"])
     _add(graph, subject, DCTERMS.publisher, row["issuer"])
     _add(graph, subject, CUR.edition, row["edition"])
+    _add(graph, subject, CUR.supersedes, _iri(row["supersedes_iri"]))  # frozen: its IRI in either naming
     for predicate, column in (
         (CUR.documentType, "document_type_iri"), (CUR.educationSector, "sector_iri"),
         (CUR.legalForm, "legal_form_iri"), (CUR.documentBinding, "binding_iri"),

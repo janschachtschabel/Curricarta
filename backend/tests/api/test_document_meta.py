@@ -143,3 +143,38 @@ def test_neither_is_set_on_a_frozen_document_or_beside_its_job(client: TestClien
         client.patch(f"/api/v1/documents/{busy}", headers=owner, json={"title": "Neu"}).json()["details"]
         != {}
     )
+
+
+def test_an_edition_is_set_to_supersede_a_frozen_one_of_its_work_and_said(
+    client: TestClient, url: str
+) -> None:
+    older, _ = a_document(client, url)
+    newer, owner = a_document(client, url, name="Lehrkraft 2", digest=b"\x02" * 32)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+    client.patch(f"/api/v1/documents/{older}/work", headers=editor, json=PHYSICS)
+    [(work,)] = rows(url, "SELECT id FROM work")
+    client.patch(f"/api/v1/documents/{newer}/work", headers=editor, json={"work_id": str(work)})
+    client.patch(f"/api/v1/documents/{older}", headers=editor, json={"edition": "2019"})
+    named(url, older, frozen=True)
+    path = f"/api/v1/documents/{newer}"
+
+    # the owner of the newer reads no document of another's: one there is not, said alike
+    hidden = client.patch(path, headers=owner, json={"supersedes": older})
+    nowhere = client.patch(path, headers=owner, json={"supersedes": str(uuid.uuid4())})
+    set_now = client.patch(path, headers=editor, json={"supersedes": older})
+    read = client.get(path, headers=owner)
+
+    for refused in (hidden, nowhere):
+        assert (refused.status_code, refused.json()["code"], refused.json()["details"]) == (
+            422, "invalid_field", {"field": "supersedes", "problem": "not_offered"},
+        )  # fmt: skip
+    assert set_now.status_code == 200, set_now.text
+    said = {"id": older, "iri": IRI, "edition": "2019"}
+    assert (set_now.json()["supersedes"], read.json()["supersedes"]) == (said, said)
+    assert rows(
+        url, "SELECT details->'fields' FROM audit_log WHERE action = 'document.edit' AND subject = %s",
+        f"document:{newer}",
+    ) == [(["supersedes"],)]  # fmt: skip
+    cleared = client.patch(path, headers=editor, json={"supersedes": None})
+    assert (cleared.status_code, cleared.json()["supersedes"]) == (200, None)
+    assert client.get(f"/api/v1/documents/{older}", headers=editor).json()["supersedes"] is None

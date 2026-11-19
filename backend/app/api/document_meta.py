@@ -1,6 +1,8 @@
 """A document's work and metadata (plan M1 9.6; Paket 9b H3, H4; app/db/document_meta.py): the editors
 (Redaktion, Admin) set its work - one there is, or one made of a title, a country and a short title -,
-its owner and the editors its issuer, edition and title. Refused as app/api/edit_answers.py says, a
+its owner and the editors its issuer, edition and title and the edition it supersedes - a frozen one of
+the same work under another IRI the caller reads, else 422 ``invalid_field`` (plan M3a B2). Refused as
+app/api/edit_answers.py says, a
 work there is not with 404 ``no_work``, and what the document's IRI is made of once it has one with 409
 ``named``. Each audited; the answer is the document.
 """
@@ -47,12 +49,14 @@ class NewWorkIn(BaseModel):
 
 
 class MetadataIn(BaseModel):
-    """The metadata to set; one left out stays, null or a blank text empties it."""
+    """The metadata to set and the edition it supersedes (a document's id); one left out stays, null or a
+    blank text empties it."""
 
     model_config = ConfigDict(extra="forbid")
     title: str | None = None
     issuer: str | None = None
     edition: str | None = None
+    supersedes: UUID | None = None
 
 
 @router.patch(
@@ -87,7 +91,7 @@ async def set_a_work(
 
 @router.patch(
     "/documents/{document_id}",
-    summary="Set the document's issuer, edition or title",
+    summary="Set the document's issuer, edition or title, or the edition it supersedes",
     responses=answers(NO_DOCUMENT, META_RESPONSES),
 )
 async def set_the_metadata(

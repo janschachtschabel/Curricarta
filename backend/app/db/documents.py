@@ -31,7 +31,7 @@ DOCUMENT_VISIBLE = "(d.owner_id = %(me)s OR %(all)s)"
 _COLUMNS = """
     d.id, d.source_id, d.conversion_id, d.owner_id, d.work_id, d.draft_iri, d.iri, d.revision, d.frozen_at,
     d.title, d.document_type_iri, d.sector_iri, d.regions, d.rights_status, d.created_at, d.updated_at,
-    d.copy_of, d.issuer, d.edition, d.mem_iri, d.mem_attribution, d.mem_licence
+    d.copy_of, d.issuer, d.edition, d.mem_iri, d.mem_attribution, d.mem_licence, d.supersedes_id
 """
 _BY_ID = f"SELECT {_COLUMNS} FROM document d WHERE d.id = %(id)s"  # noqa: S608 - fixed parts
 _VISIBLE_BY_ID = f"{_BY_ID} AND {DOCUMENT_VISIBLE}"
@@ -114,6 +114,7 @@ class Document:
     mem_iri: str | None = None  # the MEM-Schule plan it was imported from (plan M2, E1)
     mem_attribution: str | None = None  # the plan's attribution and licence, as recorded at its import (E14)
     mem_licence: str | None = None
+    supersedes_id: UUID | None = None  # the edition of its work it supersedes (plan M3a B2)
 
 
 async def create_document(
