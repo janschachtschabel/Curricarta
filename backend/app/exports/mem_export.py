@@ -16,8 +16,9 @@ the proxy's 504. The gate's version is part of the fingerprint, as the output's 
 The class chain and the base-type table are read once a process: a deployment that changes them restarts
 it.
 
-simplify: a key's bytes kept once stay, though a changed rights status leaves them unused; nothing
-clears ``exports/<document>/`` yet.
+simplify: a key's bytes kept once stay, though a changed rights status leaves them unused; only the
+document's deletion clears ``exports/<document>/`` (app/db/deleting.py: emptied by the request, or by the
+next sweep where the store was away).
 """
 
 import asyncio

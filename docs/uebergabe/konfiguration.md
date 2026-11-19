@@ -194,7 +194,10 @@ ein Test schlägt an, wenn sie veraltet.
   das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress über
   `DB_STATEMENT_TIMEOUT_S` der API (60 s) hinaus voraus, mit Abstand: 75 s in Compose
   (`deploy/nginx-api.conf`) und im Helm-Beispiel. Den Speicher der API bei zwei gleichzeitigen
-  Prüfungen misst M6. Die Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
+  Prüfungen misst M6. Die Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`, bis ihr Dokument
+  gelöscht wird (`DELETE /api/v1/documents/{id}` leert den Ort in der Anfrage, war der Speicher fort, der
+  nächste Lauf `python -m app.retention`); eine Frist haben sie nicht, auch nicht für einen Export, den ein
+  geänderter Rechtestatus nicht mehr nutzt.
 - Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`); ein `options=`
   aus `DATABASE_URL` bleibt und steht davor (beim selben Parameter gilt der Wert des Dienstes). Eine
   Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der
