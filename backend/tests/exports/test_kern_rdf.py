@@ -56,7 +56,8 @@ EXPECTED = """
     cur:legalForm cv:lf_administrativeRegulation ; cur:documentBinding cv:bind_binding ;
     cur:lifecycle cv:life_inForce ; cur:issued "2023-08"^^xsd:gYearMonth ;
     cur:validFrom "2023-08-01"^^xsd:date ;
-    cur:validUntil "2030"^^xsd:gYear ; cur:represents <urn:uuid:{spec}> ; owl:versionInfo "1" .
+    cur:validUntil "2030"^^xsd:gYear ; cur:represents <urn:uuid:{spec}> ; owl:versionInfo "1" ;
+    dct:rights "Rechtestatus der Wortlaute: unklar"@de .
 <urn:uuid:{file}> a cur:SourceFile ; cur:checksum "{checksum}" ; cur:containsDocument <urn:uuid:{doc}> .
 <urn:uuid:{spec}> a cur:Curriculum ; dct:title "Physik Sekundarstufe I" ; cur:fieldText "Physik" .
 <urn:uuid:{variant}> a cur:Variant ; skos:prefLabel "Grundkurs" ; cur:variantKind cv:var_focus ;
