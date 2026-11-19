@@ -1447,6 +1447,22 @@ export const messages = {
           "Umlaute, Leerzeichen und Bindestrich am Anfang oder Ende.",
         workSave: "Werk setzen",
         workSaved: "Werk gesetzt.",
+        // the edition it supersedes (SupersedesForm.vue; the fact in DocumentEdition.vue)
+        supersedes: "Ersetzt",
+        supersedesHeading: "Ersetzte Fassung",
+        supersedesIntro:
+          "Ersetzt dieses Dokument eine frühere Fassung desselben Werks, steht das im Kern-Graphen. Zur Wahl stehen " +
+          "die festgeschriebenen Fassungen des Werks unter einer anderen IRI.",
+        supersedesLoading: "Die Fassungen des Werks werden geladen …",
+        supersedesLoadFailed: "Die Fassungen des Werks wurden nicht geladen.",
+        supersedesNone: "Von diesem Werk ist noch keine andere Fassung festgeschrieben: Es gibt nichts zu ersetzen.",
+        supersedesNoWork: "Ersetzen lässt sich nur eine Fassung desselben Werks: Erst braucht das Dokument sein Werk.",
+        supersedesChosen: "Ersetzte Fassung",
+        supersedesNothing: "keine",
+        supersedesOption: "{edition} ({iri})",
+        supersedesSave: "Ersetzte Fassung speichern",
+        supersedesSaved: "Gespeichert.",
+        supersedesFailed: "Die ersetzte Fassung wurde nicht gespeichert.",
       },
       // where the document comes from: its entry's provenance and fetching (DocumentSource.vue)
       source: {

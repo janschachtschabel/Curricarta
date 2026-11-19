@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /**
- * A document's work and edition, on its page (plan M1 9.10, Paket 9d1 N5): its issuer, edition, work, IRI and
- * revision as they stand - what is not there said as such -, with the other revisions of its IRI (RevisionList).
- * Until it is frozen its owner and the editors change its title, issuer and edition (DocumentMetaForm); an editor
- * sets its work while it has none and no IRI (WorkForm). A change saved below has the page read the document again
+ * A document's work and edition, on its page (plan M1 9.10, Paket 9d1 N5; plan M3a B2): its issuer, edition, work,
+ * IRI, revision and the edition it supersedes as they stand - what is not there said as such -, with the other
+ * revisions of its IRI (RevisionList). Until it is frozen its owner and the editors change its title, issuer and
+ * edition (DocumentMetaForm) and the edition it supersedes (SupersedesForm); an editor sets its work while it has
+ * none and no IRI (WorkForm). A change saved below has the page read the document again
  * (`changed`). A work set is said here, the work form going with it; the keyboard it held, left on nothing as the
  * form goes, is taken to the section's heading.
  */
@@ -12,6 +13,7 @@ import { computed, nextTick, ref, watch } from "vue";
 import type { CurriculumDocument } from "@/api";
 import DocumentMetaForm from "@/components/DocumentMetaForm.vue";
 import RevisionList from "@/components/RevisionList.vue";
+import SupersedesForm from "@/components/SupersedesForm.vue";
 import WorkForm from "@/components/WorkForm.vue";
 import { workWords } from "@/documentMeta";
 import { focusIsFree } from "@/focusRescue";
@@ -27,6 +29,14 @@ const mayChange = computed(() => open.value && (props.document.own || isEditor()
 const maySetWork = computed(
   () => open.value && isEditor() && props.document.work === null && props.document.iri === null,
 );
+const supersedes = computed(() => {
+  const edition = props.document.supersedes;
+  if (!edition) return t("documents.page.edition.none");
+  return t("documents.page.edition.supersedesOption", {
+    edition: edition.edition || t("documents.page.edition.none"),
+    iri: edition.iri,
+  });
+});
 const heading = ref<HTMLElement | null>(null);
 const workForm = ref<InstanceType<typeof WorkForm> | null>(null);
 const status = ref("");
@@ -61,9 +71,12 @@ watch(maySetWork, async (now, was) => {
       <dd>{{ document.iri || t("documents.page.edition.noIri") }}</dd>
       <dt>{{ t("documents.page.edition.revision") }}</dt>
       <dd>{{ document.revision }}</dd>
+      <dt>{{ t("documents.page.edition.supersedes") }}</dt>
+      <dd>{{ supersedes }}</dd>
     </dl>
     <RevisionList v-if="document.iri" :document="document" />
     <DocumentMetaForm v-if="mayChange" :document="document" @changed="emit('changed')" />
+    <SupersedesForm v-if="mayChange" :document="document" @changed="emit('changed')" />
     <WorkForm v-if="maySetWork" ref="workForm" :document="document" @saved="workSaved" @changed="emit('changed')" />
     <!-- always in the section, so a screen reader hears what a form said before it went -->
     <p class="visually-hidden edition__status" role="status">{{ status }}</p>

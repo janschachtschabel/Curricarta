@@ -18,6 +18,7 @@ export function documentOf(changes: Partial<CurriculumDocument> = {}): Curriculu
     revision: 1,
     frozen_at: null,
     copy_of: null,
+    supersedes: null,
     created_at: "2026-10-29T10:00:00Z",
     extraction: null,
     mem: null,

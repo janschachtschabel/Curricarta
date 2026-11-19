@@ -19,6 +19,13 @@ export interface DocumentWork {
   iri: string | null;
 }
 
+/** The edition a document supersedes (backend SupersededOut): frozen, of the same work, under another IRI. */
+export interface SupersededEdition {
+  id: string;
+  iri: string;
+  edition: string | null;
+}
+
 export interface CurriculumDocument {
   id: string;
   source_id: string;
@@ -41,6 +48,8 @@ export interface CurriculumDocument {
   frozen_at: string | null;
   /** The frozen document a draft copy was made of. */
   copy_of: string | null;
+  /** The edition of its work it supersedes (cur:supersedes), set before it is frozen. */
+  supersedes: SupersededEdition | null;
   created_at: string;
   /** The latest extraction job, whatever became of it; its id only for who may follow it - the
    * owner, an admin - null for an editor, who reads the status; why it failed, for every reader. */
@@ -155,11 +164,13 @@ export function startDocumentCheck(documentId: string): Promise<Job> {
   return apiFetch<Job>(`${documentPath(documentId)}/check`, { method: "POST" });
 }
 
-/** A document's title, issuer and edition to change: one left out stays, null empties it. */
+/** A document's title, issuer and edition to change, and the edition it supersedes (a document's id): one left
+ * out stays, null empties it. */
 export interface MetaFields {
   title?: string | null;
   issuer?: string | null;
   edition?: string | null;
+  supersedes?: string | null;
 }
 
 /** A work to make for the document: its title, a region of the vocabulary and the short title its IRI takes. */
@@ -170,9 +181,10 @@ export interface NewWork {
 }
 
 /**
- * Changes the document's title, issuer or edition, by its owner or an editor (backend app/api/document_meta.py).
- * 422 `invalid_field` (`details.field`, `problem`); 409 `frozen`, `job_open`, `not_extracted`, `named` (an IRI
- * holds the issuer and the edition).
+ * Changes the document's title, issuer or edition, or the edition it supersedes, by its owner or an editor
+ * (backend app/api/document_meta.py). 422 `invalid_field` (`details.field`, `problem`; `supersedes` where the
+ * edition is no frozen one of the same work under another IRI the caller reads); 409 `frozen`, `job_open`,
+ * `not_extracted`, `named` (an IRI holds the issuer and the edition).
  */
 export function editDocument(documentId: string, fields: MetaFields): Promise<CurriculumDocument> {
   return apiFetch<CurriculumDocument>(documentPath(documentId), { method: "PATCH", body: JSON.stringify(fields) });

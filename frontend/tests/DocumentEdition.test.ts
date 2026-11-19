@@ -2,10 +2,11 @@ import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
-import type { CurriculumDocument, DocumentWork, Me } from "@/api";
+import { ApiError, type CurriculumDocument, type DocumentWork, type Me } from "@/api";
 import DocumentEdition from "@/components/DocumentEdition.vue";
 import DocumentMetaForm from "@/components/DocumentMetaForm.vue";
 import RevisionList from "@/components/RevisionList.vue";
+import SupersedesForm from "@/components/SupersedesForm.vue";
 import WorkForm from "@/components/WorkForm.vue";
 import { t } from "@/i18n/de";
 import { clearSession, setSession } from "@/session";
@@ -52,7 +53,14 @@ afterEach(() => {
 describe("a document's work and edition", () => {
   it("say its issuer, edition, work, IRI and revision, what is not there said as such", async () => {
     const named = await edition(
-      documentOf({ issuer: "MSB NRW", edition: "2019", work: KLP, iri: "https://example.org/kk/doc/x", revision: 2 }),
+      documentOf({
+        issuer: "MSB NRW",
+        edition: "2019",
+        work: KLP,
+        iri: "https://example.org/kk/doc/x",
+        revision: 2,
+        supersedes: { id: "d0", iri: "https://example.org/kk/doc/w", edition: "2008" },
+      }),
     );
 
     expect(named.get("h2").text()).toBe(t("documents.page.edition.heading"));
@@ -62,6 +70,7 @@ describe("a document's work and edition", () => {
       [t("documents.page.edition.workHeading")]: "Kernlehrplan Physik (Nordrhein-Westfalen, klp-physik)",
       [t("documents.page.edition.iri")]: "https://example.org/kk/doc/x",
       [t("documents.page.edition.revision")]: "2",
+      [t("documents.page.edition.supersedes")]: "2008 (https://example.org/kk/doc/w)",
     });
     expect(await violations(named.html())).toEqual([]);
     named.unmount();
@@ -73,6 +82,7 @@ describe("a document's work and edition", () => {
       [t("documents.page.edition.edition")]: none,
       [t("documents.page.edition.workHeading")]: none,
       [t("documents.page.edition.iri")]: t("documents.page.edition.noIri"),
+      [t("documents.page.edition.supersedes")]: none,
     });
   });
 
@@ -149,5 +159,140 @@ describe("a document's work and edition", () => {
     wrapper.findComponent(WorkForm).vm.$emit("changed");
 
     expect(wrapper.emitted("changed")).toHaveLength(2);
+  });
+});
+
+// The editions of the work KLP an edition may supersede, as listDocuments gives them, the newest first
+const FROZEN = { work: KLP, frozen_at: "2026-10-01T10:00:00Z" };
+const A1 = documentOf({ ...FROZEN, id: "a1", edition: "2008", iri: "https://example.org/kk/doc/a", revision: 1 });
+const A2 = documentOf({ ...FROZEN, id: "a2", edition: "2008", iri: "https://example.org/kk/doc/a", revision: 2 });
+const B1 = documentOf({ ...FROZEN, id: "b1", edition: "2014", iri: "https://example.org/kk/doc/b", revision: 1 });
+const OTHER: DocumentWork = { ...KLP, id: "w2", title: "Kernlehrplan Chemie" };
+
+const choice = (wrapper: VueWrapper) => wrapper.findComponent(SupersedesForm).get("select");
+const offered = (wrapper: VueWrapper) =>
+  choice(wrapper)
+    .findAll("option")
+    .map((option) => [option.attributes("value"), option.text()]);
+
+describe("what an edition supersedes", () => {
+  it("offers the frozen editions of its work, each IRI once as its latest revision, none of its own IRI", async () => {
+    // all the caller sees; the revisions of its own IRI, asked of its entry, stay out of this
+    const seen = [
+      A2,
+      documentOf({ id: "draft", work: KLP, edition: "2020" }), // a draft is none to supersede
+      documentOf({ ...FROZEN, id: "c1", work: OTHER, edition: "2001", iri: "https://example.org/kk/doc/c" }),
+      documentOf({ ...FROZEN, id: "own1", edition: "2024", iri: "https://example.org/kk/doc/own" }),
+      B1,
+      A1,
+    ];
+    vi.spyOn(api, "listDocuments").mockImplementation((source) => Promise.resolve(source ? [] : seen));
+    const copy = documentOf({ id: "own2", work: KLP, iri: "https://example.org/kk/doc/own", revision: 2 });
+
+    const wrapper = await edition(copy, EDITOR);
+
+    expect(offered(wrapper)).toEqual([
+      ["", t("documents.page.edition.supersedesNothing")],
+      ["a2", "2008 (https://example.org/kk/doc/a)"],
+      ["b1", "2014 (https://example.org/kk/doc/b)"],
+    ]);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("explains where its work has no frozen edition, and where it has no work yet", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([documentOf({ id: "draft", work: KLP })]);
+    const empty = await edition(documentOf({ work: KLP }), EDITOR);
+    expect(empty.findComponent(SupersedesForm).text()).toContain(t("documents.page.edition.supersedesNone"));
+    expect(empty.findComponent(SupersedesForm).find("select").exists()).toBe(false);
+    empty.unmount();
+
+    const workless = await edition(documentOf(), OWNER);
+    expect(workless.findComponent(SupersedesForm).text()).toContain(t("documents.page.edition.supersedesNoWork"));
+    expect(workless.findComponent(SupersedesForm).find("select").exists()).toBe(false);
+  });
+
+  it("says where the editions were not read", async () => {
+    vi.spyOn(api, "listDocuments").mockRejectedValue(new ApiError("network", 0));
+
+    const wrapper = await edition(documentOf({ work: KLP }), EDITOR);
+
+    expect(wrapper.findComponent(SupersedesForm).text()).toContain(t("documents.page.edition.supersedesLoadFailed"));
+  });
+
+  it("saves the edition chosen, and no longer one, and has the page read the document again", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    const saved = vi
+      .spyOn(api, "editDocument")
+      .mockResolvedValue(documentOf({ work: KLP, supersedes: { id: "b1", iri: B1.iri ?? "", edition: "2014" } }));
+    const wrapper = await edition(documentOf({ work: KLP }), EDITOR);
+
+    await choice(wrapper).setValue("b1");
+    await wrapper.findComponent(SupersedesForm).get("form").trigger("submit");
+    await flushPromises();
+
+    expect(saved).toHaveBeenCalledWith("d1", { supersedes: "b1" });
+    expect(wrapper.findComponent(SupersedesForm).get("[role=status]").text()).toBe(
+      t("documents.page.edition.supersedesSaved"),
+    );
+    expect(wrapper.emitted("changed")).toHaveLength(1);
+
+    await wrapper.setProps({ document: documentOf({ work: KLP, supersedes: { id: "b1", iri: B1.iri ?? "", edition: "2014" } }) });
+    await choice(wrapper).setValue("");
+    await wrapper.findComponent(SupersedesForm).get("form").trigger("submit");
+    await flushPromises();
+    expect(saved).toHaveBeenLastCalledWith("d1", { supersedes: null });
+  });
+
+  it("holds the edition it supersedes chosen, and saves nothing unchanged", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    const saved = vi.spyOn(api, "editDocument");
+    const wrapper = await edition(
+      documentOf({ work: KLP, supersedes: { id: "b1", iri: B1.iri ?? "", edition: "2014" } }),
+      EDITOR,
+    );
+
+    expect((choice(wrapper).element as HTMLSelectElement).value).toBe("b1");
+    await wrapper.findComponent(SupersedesForm).get("form").trigger("submit");
+    await flushPromises();
+
+    expect(saved).not.toHaveBeenCalled();
+    expect(wrapper.findComponent(SupersedesForm).get("[role=status]").text()).toBe(
+      t("documents.page.edition.unchanged"),
+    );
+  });
+
+  it("says the server's problem with the choice at the field, the keyboard taken there", async () => {
+    vi.spyOn(api, "listDocuments").mockResolvedValue([B1]);
+    vi.spyOn(api, "editDocument").mockRejectedValue(
+      new ApiError("server", 422, "invalid_field", "Bad.", { field: "supersedes", problem: "not_offered" }),
+    );
+    const wrapper = await edition(documentOf({ work: KLP }), EDITOR);
+    const form = wrapper.findComponent(SupersedesForm);
+
+    await choice(wrapper).setValue("b1");
+    (form.get("button[type=submit]").element as HTMLElement).focus();
+    await form.get("form").trigger("submit");
+    await flushPromises();
+
+    const select = choice(wrapper);
+    expect(select.attributes("aria-invalid")).toBe("true");
+    expect(form.get(`#${select.attributes("id")}-error`).text()).toContain(t("documents.tree.problems.not_offered"));
+    expect(globalThis.document.activeElement).toBe(select.element);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("offers no choice once the document is frozen, saying what it supersedes", async () => {
+    const frozen = documentOf({
+      ...FROZEN,
+      iri: "https://example.org/kk/doc/own",
+      supersedes: { id: "b1", iri: "https://example.org/kk/doc/b", edition: null },
+    });
+
+    const wrapper = await edition(frozen, EDITOR);
+
+    expect(wrapper.findComponent(SupersedesForm).exists()).toBe(false);
+    expect(facts(wrapper)[t("documents.page.edition.supersedes")]).toBe(
+      `${t("documents.page.edition.none")} (https://example.org/kk/doc/b)`,
+    );
   });
 });
