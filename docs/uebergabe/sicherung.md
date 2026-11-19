@@ -30,13 +30,27 @@ in `deploy/secrets/`; der ganze Ordner gehört in die Sicherung, getrennt von de
 ## Reihenfolge
 
 - **Sichern: erst die Datenbank, dann die Objekte.** Jede Zeile der Datenbank, die auf ein Objekt
-  zeigt, findet es dann in der Sicherung der Objekte, die später entsteht.
+  zeigt, findet es dann in der Sicherung der Objekte, die später entsteht – solange dazwischen nichts
+  Objekte nimmt. Das tun der tägliche Lauf `python -m app.retention` (unten, „Aufbewahrung und
+  Löschen“) und das Löschen über die API: `DELETE /api/v1/documents/{id}` leert die Rohantworten und
+  Exporte des Dokuments noch in der Anfrage. Der Lauf startet daher nie zwischen dem Abzug der
+  Datenbank und dem Archiv der Objekte: In Compose startet ihn der Zeitgeber nicht, während die
+  Sicherung läuft; im Cluster liegt der Zeitplan des CronJobs außerhalb des Fensters der Sicherung,
+  oder der CronJob steht für ihre Dauer auf `suspend: true`. Ein Löschen über die API hält nur ein
+  angehaltener Dienst auf; das Fenster ist in Compose kurz (vom Abzug bis zum Stopp von MinIO).
 - **Zurück: erst die Objekte, dann die Datenbank.** Sobald die Datenbank zurück ist, kann der Dienst
   starten, und jedes Objekt, das sie nennt, liegt schon da.
 
 Eine ältere Datenbank mit neueren Objekten hinterlässt nur Waisen: Objekte, die keine Zeile mehr
 nennt; sie kosten Platz und sonst nichts. Umgekehrt nennt die Datenbank Objekte, die fehlen: Der
 Download einer solchen Datei antwortet 404 `file_gone`, Jobs, die sie lesen, scheitern.
+
+Lief der Lauf oder ein Löschen doch zwischen Abzug und Archiv, nennt die zurückgespielte Datenbank
+Objekte, die gewollt gingen und im Archiv fehlen. Das schadet nicht weiter: Fehlende Rohantworten
+zählt das Nachspielen eines Dokuments als fehlende Antworten (`missing`), und sobald ihre Frist um ist,
+nimmt der nächste Lauf den Schlüssel aus der Zeile des Laufs (ein fehlendes Objekt gilt ihm als
+genommen); ein fehlender Export entsteht beim nächsten Abruf neu; ein Eintrag, dessen Datei der Lauf
+genommen hatte, antwortet beim Download mit 404 `file_gone`, bis dieselben Bytes neu hochgeladen werden.
 
 ## Pepper verloren
 
@@ -213,7 +227,8 @@ Datenbank steht in genau einer Zeile (ein Test hält das gegen die Migrationen).
 
 Der Lauf wird vom Zeitgeber des Betreibers gestartet, einmal am Tag: im Cluster als CronJob
 (`retention` im [Helm-Beispiel](../../deploy/helm-values.example.yaml), `17 3 * * *`, nie zwei
-zugleich), in Compose als eigener Dienst, der nur auf Anfrage läuft:
+zugleich), in Compose als eigener Dienst, der nur auf Anfrage läuft. Nie während einer Sicherung, zwischen
+dem Abzug der Datenbank und dem Archiv der Objekte (oben, „Reihenfolge“):
 
 ```text
 docker compose -f deploy/docker-compose.yml --profile retention run --rm -T retention
