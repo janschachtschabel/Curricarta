@@ -9,7 +9,7 @@ import pytest
 
 from app.conversion.docx_hidden import clean_docx
 from app.conversion.text_layer import UnreadablePdf
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 W = "http://schemas.openxmlformats.org/wordprocessingml/2006/main"
 RELATIONSHIPS = "http://schemas.openxmlformats.org/package/2006/relationships"
@@ -403,7 +403,7 @@ def test_a_chain_of_thousands_of_bases_is_walked_in_a_moment() -> None:
 
     # the chain's work grows with it, not with its square (tests/support.cpu_growth)
     half, whole = cpu_growth(walk)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.8 s of CPU time here (2026-11-18), twelve times that
     assert whole < 10
 

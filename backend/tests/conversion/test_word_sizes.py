@@ -2,7 +2,7 @@
 
 from app.conversion.docling_pages import DoclingWord
 from app.conversion.word_sizes import sized
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 
 def test_each_word_takes_the_size_of_the_text_layer_s_signs_within_it() -> None:
@@ -52,7 +52,7 @@ def test_sizing_a_page_of_many_words_on_one_line_takes_no_longer_than_reading_th
 
     # the work grows with the words and signs, not with their product (tests/support.cpu_growth)
     half, whole = cpu_growth(size)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.17 s of CPU time here (2026-11-18)
     assert whole < 2.0
     assert measured[0].size == 1.0

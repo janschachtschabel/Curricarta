@@ -8,7 +8,7 @@ from app.conversion.base import Block
 from app.pipeline.skeleton import Skeleton
 from app.pipeline.toc import leading_number, number_depth, title_key
 from tests.pipeline.test_skeleton import BODY, COVER, block, shape, skeleton, table, titles
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 LEADER = "." * 40
 
@@ -455,7 +455,7 @@ def test_contents_of_a_line_a_block_are_read_in_linear_time() -> None:
 
     # the work grows with the lines, not with their square (tests/support.cpu_growth)
     half, whole = cpu_growth(read)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.3 s of CPU time here (2026-11-18); looked back over the run at each block: 21 s
     assert whole < 3
     assert len(found[0].contents.entries) == 4000
@@ -810,7 +810,7 @@ def test_a_long_line_of_fill_signs_is_no_entry_and_costs_no_time(fill: str) -> N
 
     # the work grows with the line, not with its square (tests/support.cpu_growth)
     half, whole = cpu_growth(read)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.02 s of CPU time here (2026-11-18); 40,000 signs took a minute and more
     assert whole < 2
     assert "Stichwort" not in {entry.title for entry in found[0].contents.entries}

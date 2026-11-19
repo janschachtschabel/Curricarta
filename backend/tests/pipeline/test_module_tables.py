@@ -7,7 +7,7 @@ import pytest
 from app.conversion.base import Block
 from app.pipeline.skeleton import Skeleton
 from tests.pipeline.test_skeleton import BODY, COVER, block, in_sector, skeleton, table
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 HS = "https://w3id.org/wlo/curriculum/profile/higher-education#"
 
@@ -326,7 +326,7 @@ def test_the_levels_are_found_in_linear_time() -> None:
 
     # the work grows with the headings, not with their square (tests/support.cpu_growth)
     half, whole = cpu_growth(levels)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.6 s of CPU time here (2026-11-18); looked ahead from each heading: about 11 s
     assert whole < 4
 
