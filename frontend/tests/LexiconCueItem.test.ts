@@ -114,7 +114,10 @@ describe("a cue of the sample", () => {
   });
 
   it("says the form holds nothing any more when the entry goes with it", async () => {
+    // test-utils drops a wrapper's event history on unmount: a listener hears what the unmount says
+    const dirty = vi.fn();
     const wrapper = item();
+    await wrapper.setProps({ onDirty: dirty });
     await toggle(wrapper).trigger("click");
     await wrapper.get("textarea").setValue("noch offen");
     expect(wrapper.emitted("dirty")).toEqual([[true]]);
@@ -122,7 +125,7 @@ describe("a cue of the sample", () => {
     wrapper.unmount();
     shown = null;
 
-    expect(wrapper.emitted("dirty")?.at(-1)).toEqual([false]);
+    expect(dirty).toHaveBeenLastCalledWith(false);
   });
 
   it("hands a decision made on, and once it shows, takes the keyboard to it", async () => {
