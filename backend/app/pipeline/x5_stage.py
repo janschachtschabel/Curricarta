@@ -134,7 +134,7 @@ async def _checked(
         results = await shacl_check(
             graph, ontology_dir=settings.ontology_dir, timeout_s=settings.shacl_timeout_s, told=told
         )
-        findings += as_findings(results, document.id)
+        findings += as_findings(results, document.id, no_rows={rows.file["id"]})  # the file is no entity
     except ShaclTimeout:
         shacl = "timeout"
         message = f"the SHACL validation took longer than {settings.shacl_timeout_s} s: the gate stays shut"
