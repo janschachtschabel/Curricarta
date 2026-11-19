@@ -86,6 +86,10 @@ class SourceSettings(BaseModel):
     # its end (plan M2-6): the request waits for it, so within REQUEST_S (55 s, under the edge's 75 s) with
     # room for the waits before it (app/exports/mem_export.py); 4.0 s measured in the child for 2,400 parts
     mem_export_timeout_s: Annotated[float, Field(ge=5, le=45)] = 30.0
+    # How long the Kern export of a frozen document may build and write its Turtle, in a child process
+    # killed at its end (plan M3a C1): the request waits for it, as for the MEM export's check, within
+    # REQUEST_S (app/exports/kern_export.py)
+    kern_export_timeout_s: Annotated[float, Field(ge=5, le=45)] = 30.0
     # The licence of MEM-Schule's data, once the operators checked it (plan M2, E14): an https IRI the
     # catalogue gives every plan it reads; empty while unchecked. Imports made before take it with
     # ``python -m app.sources.mem.amend_licence IRI``

@@ -55,6 +55,7 @@ ein Test schlägt an, wenn sie veraltet.
 | `CHECK_HOST_INTERVAL_S` | Zahl ≥ 0.5, ≤ 60 | 2 | – | Dienst |
 | `MEM_SEARCH_BUDGET_S` | Zahl ≥ 10, ≤ 3600 | 300 | – | Dienst |
 | `MEM_EXPORT_TIMEOUT_S` | Zahl ≥ 5, ≤ 45 | 30 | – | Dienst |
+| `KERN_EXPORT_TIMEOUT_S` | Zahl ≥ 5, ≤ 45 | 30 | – | Dienst |
 | `MEM_DATA_LICENCE` | Text nach Muster `^(https://[^\s\x00-\x1f\x7f<>\"{}\|\\^\x60]+)?$`, höchstens 2000 Zeichen | leer | – | Dienst |
 | `MEM_SPARQL_URL` | Text nach Muster `^https://[!-"$->A-~]+$`, höchstens 2000 Zeichen | `https://sparql.mem.edufeed.org/sparql` | – | Dienst |
 | `MAX_PDF_PAGES` | Zahl ≥ 1, ≤ 5000 | 800 | – | Dienst |
@@ -198,6 +199,12 @@ ein Test schlägt an, wenn sie veraltet.
   gelöscht wird (`DELETE /api/v1/documents/{id}` leert den Ort in der Anfrage, war der Speicher fort, der
   nächste Lauf `python -m app.retention`); eine Frist haben sie nicht, auch nicht für einen Export, den ein
   geänderter Rechtestatus nicht mehr nutzt.
+- Kern-Export eines festgeschriebenen Dokuments (`GET /api/v1/documents/{id}/kern.ttl`): Die API baut den
+  Graphen und schreibt das Turtle in einem eigenen Kindprozess, höchstens zwei je Prozess, ohne SHACL-Prüfung
+  (X5 hat denselben Graphen geprüft). Gemessen: 7 s und 174 MiB Spitze im Kind für ein synthetisches
+  Dokument mit 500 Knoten, 5.000 Aussagen und 5.500 Ankern. Den Bau begrenzt `KERN_EXPORT_TIMEOUT_S`
+  (Standard 30 s, höchstens 45 s); das Warten davor teilt sich mit ihm dieselben 55 s wie beim MEM-Export.
+  Die Datei bleibt unter `exports/<Dokument>/` wie dort.
 - Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`); ein `options=`
   aus `DATABASE_URL` bleibt und steht davor (beim selben Parameter gilt der Wert des Dienstes). Eine
   Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der

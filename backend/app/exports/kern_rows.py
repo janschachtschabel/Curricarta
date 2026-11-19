@@ -1,8 +1,9 @@
 """A document of the first layer read for its Kern RDF (plan M1 8.3; app/exports/kern_rdf.py): the
-document, the work it is a version of and the file it was read off (plan M3a A1), its specifications and
-their variants, its nodes and statements, and the anchors of nodes and statements with their blocks - rows
-as the tables hold them, each with the IRI it is named by once frozen (app/exports/kern_naming.py), read in
-one snapshot.
+document - with the count of violations among its findings, those the editors accepted once it is
+frozen (plan M3a C1) -, the work it is a version of and the file it was read off (plan M3a A1), its
+specifications and their variants, its nodes and statements, and the anchors of nodes and statements with
+their blocks - rows as the tables hold them, each with the IRI it is named by once frozen
+(app/exports/kern_naming.py), read in one snapshot.
 
 No visibility check: the export serves the pipeline (X5's SHACL check) of a document it already holds;
 a route that exports for a reader checks what that reader sees first.
@@ -27,6 +28,9 @@ SELECT d.id, d.iri, d.revision, d.frozen_at, d.rights_status, d.title, d.issuer,
     d.document_type_iri, d.sector_iri, d.legal_form_iri, d.binding_iri, d.lifecycle_iri, d.valid_from,
     d.valid_until, d.issued,
     (SELECT s.iri FROM document s WHERE s.id = d.supersedes_id) AS supersedes_iri,  -- frozen: it has one
+    -- the violations among its findings: those the editors accepted, once it is frozen (app/db/freezing.py)
+    (SELECT count(*) FROM validation_finding f WHERE f.document_id = d.id AND f.severity = 'violation')
+        AS violations,
     ARRAY(SELECT iri FROM (
               SELECT DISTINCT ON (region) c.iri FROM unnest(d.regions) AS region JOIN vocab_concept c
                   ON c.scheme_iri = %(regions)s AND c.notation = region

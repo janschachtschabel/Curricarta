@@ -45,6 +45,7 @@ from app.core.storage import open_storage
 from app.core.storage_async import AsyncStorage
 from app.db.migrate import load_migrations
 from app.db.pool import create_pool
+from app.exports.kern_export import KernExporter
 from app.exports.mem_export import MemExporter
 from app.jobs.context import JobContext
 from app.jobs.handlers import make_handlers
@@ -98,6 +99,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
         # (S3's head_bucket), so it runs in a thread
         app.state.storage = AsyncStorage(await asyncio.to_thread(open_storage, settings))
         app.state.mem_exporter = MemExporter(app.state.storage, settings)  # its kept exports, its checks
+        app.state.kern_exporter = KernExporter(app.state.storage, settings)  # its kept exports, its builds
         # the uploads this process takes at once: each spools its file to /tmp (app/api/sources.py)
         app.state.upload_slots = asyncio.Semaphore(settings.max_concurrent_uploads)
         # Opened without waiting: the process starts and answers /health while the database

@@ -1,0 +1,227 @@
+"""The Kern export made and kept (app/exports/kern_export.py, plan M3a C1): a frozen document's graph built
+under its stored IRIs and written as Turtle in a child process, kept under a key of the document, its
+revision and what may change its output; asked again, the kept bytes; a build past its time or broken in its
+child is none. A synthetic document (app/exports/measure_kern.py) on a store on the file system, the real
+child throughout."""
+
+import asyncio
+from pathlib import Path
+from typing import Any
+from uuid import uuid4
+
+import pytest
+from rdflib import Graph, URIRef
+
+from app.core.storage import FileSystemStorage
+from app.core.storage_async import AsyncStorage
+from app.exports import kern_export
+from app.exports.kern_export import ExportUnnamed, KernExporter, export_key, fingerprint
+from app.exports.measure_kern import synthetic_rows
+from app.exports.mem_export import Exported, ExportUnavailable
+from tests.exports import kern_children
+from tests.support import loop_watch, make_settings
+
+pytestmark = pytest.mark.anyio
+
+
+def an_exporter(store: Path) -> KernExporter:
+    return KernExporter(AsyncStorage(FileSystemStorage(store)), make_settings(storage_dir=store))
+
+
+@pytest.fixture
+def exporter(tmp_path: Path) -> KernExporter:
+    return an_exporter(tmp_path / "store")
+
+
+def counting(monkeypatch: pytest.MonkeyPatch) -> list[int]:
+    """The children the exporter starts, counted as they go."""
+    started: list[int] = []
+    original = kern_export.run_in_child
+
+    async def run(*args: Any, **kwargs: Any) -> Any:
+        started.append(1)
+        return await original(*args, **kwargs)
+
+    monkeypatch.setattr(kern_export, "run_in_child", run)
+    return started
+
+
+def stored(store: Path) -> list[Path]:
+    return [path for path in (store / "exports").rglob("*") if path.is_file()] if store.exists() else []
+
+
+async def test_the_export_is_kept_and_not_built_again(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    started = counting(monkeypatch)
+    rows = synthetic_rows(nodes=3, statements=6)
+
+    first, second = await exporter.export(rows), await exporter.export(rows)
+
+    assert first == second and started == [1]
+    assert first.key == export_key(rows.document["id"], 1, fingerprint(rows))
+    graph = Graph().parse(data=(tmp_path / "store" / first.key).read_bytes(), format="turtle")
+    assert (URIRef(rows.document["iri"]), None, None) in graph
+
+
+async def test_two_requests_at_once_build_it_once(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    started = counting(monkeypatch)
+    rows = synthetic_rows(nodes=3, statements=6)
+
+    made = await asyncio.gather(exporter.export(rows), exporter.export(rows))
+
+    assert made[0] == made[1] and isinstance(made[0], Exported) and started == [1]
+
+
+async def test_two_builds_give_the_same_bytes(tmp_path: Path) -> None:
+    # two processes, each its own hash seed and blank nodes: the bytes stay the same - a statement of
+    # several anchors too, whose blank nodes the serializer sorts
+    rows = synthetic_rows(nodes=4, statements=12)
+    first = rows.anchors[-1]
+    rows.anchors.extend(first | {"id": uuid4(), "page_start": page} for page in range(2, 12))
+
+    one, other = await asyncio.gather(
+        an_exporter(tmp_path / "one").export(rows), an_exporter(tmp_path / "other").export(rows)
+    )
+
+    assert one.key == other.key
+    assert (tmp_path / "one" / one.key).read_bytes() == (tmp_path / "other" / other.key).read_bytes()
+
+
+async def test_two_exporters_on_one_store_keep_one_export(tmp_path: Path) -> None:
+    # two replicas build the same key: the same bytes, the second put writes them again
+    rows = synthetic_rows(nodes=2, statements=4)
+    store = tmp_path / "store"
+
+    made = await asyncio.gather(an_exporter(store).export(rows), an_exporter(store).export(rows))
+
+    assert made[0] == made[1] and len(stored(store)) == 1
+
+
+async def test_a_changed_rights_status_makes_another_export(exporter: KernExporter, tmp_path: Path) -> None:
+    rows = synthetic_rows(nodes=2, statements=2)
+    first = await exporter.export(rows)
+    rows.document["rights_status"] = "amtlich"
+
+    second = await exporter.export(rows)
+
+    assert first.key != second.key
+    assert b"amtlich" in (tmp_path / "store" / second.key).read_bytes()
+    assert b"amtlich" not in (tmp_path / "store" / first.key).read_bytes()
+
+
+def test_the_key_names_the_document_its_revision_and_the_builder_s_version() -> None:
+    rows = synthetic_rows(nodes=1, statements=1, revision=3)
+
+    key = export_key(rows.document["id"], 3, fingerprint(rows))
+
+    assert key.startswith(f"exports/{rows.document['id']}/kern-1-r3-") and key.endswith(".ttl")
+    assert len(key.rsplit("-", 1)[1]) == len("0123456789abcdef.ttl")
+
+
+def test_the_fingerprint_is_of_what_may_change_after_the_freeze_not_of_the_iris(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    rows = synthetic_rows(nodes=1, statements=1)
+    renamed = synthetic_rows(nodes=1, statements=1, base="https://example.org/other/doc/1")
+    before = fingerprint(rows)
+
+    assert fingerprint(renamed) == before  # the key names the document and its revision
+    rows.document["violations"] = 2
+    assert fingerprint(rows) != before
+    rows.document["violations"] = 0
+    monkeypatch.setattr(kern_export, "_RDFLIB", "0.0.0")
+    assert fingerprint(rows) != before
+
+
+async def test_the_file_says_its_document_revision_and_accepted_violations(
+    exporter: KernExporter, tmp_path: Path
+) -> None:
+    rows = synthetic_rows(nodes=2, statements=2, revision=2)
+    rows.document["violations"] = 3
+
+    made = await exporter.export(rows)
+
+    text = (tmp_path / "store" / made.key).read_text(encoding="utf-8")
+    head = text.splitlines()[:4]
+    assert head[1:4] == [
+        f"# document: <{rows.document['iri']}>", "# revision: 2", "# accepted violations: 3",
+    ]  # fmt: skip
+    assert "urn:uuid:" not in text
+    assert "@prefix cur: <https://w3id.org/wlo/curriculum/core#> ." in text
+
+
+async def test_a_document_with_a_row_of_no_iri_is_unnamed_and_nothing_is_built(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    started = counting(monkeypatch)
+    rows = synthetic_rows(nodes=2, statements=2)
+    rows.specifications[0]["iri"] = None  # frozen before specifications were named
+
+    with pytest.raises(ExportUnnamed):
+        await exporter.export(rows)
+    assert started == [] and stored(tmp_path / "store") == []
+
+
+async def test_a_build_past_its_time_is_none_and_leaves_nothing(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(kern_export, "build_child", kern_children.sleeping)
+    exporter._timeout_s = 0.5
+
+    with pytest.raises(ExportUnavailable):
+        await exporter.export(synthetic_rows(nodes=1, statements=1))
+    assert stored(tmp_path / "store") == []
+
+
+async def test_a_build_broken_in_its_child_is_none(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(kern_export, "build_child", kern_children.breaking)
+
+    with pytest.raises(ExportUnavailable):
+        await exporter.export(synthetic_rows(nodes=1, statements=1))
+    assert stored(tmp_path / "store") == []
+
+
+async def test_the_build_runs_beside_the_loop(exporter: KernExporter) -> None:
+    rows = synthetic_rows(nodes=60, statements=600)
+
+    async with loop_watch() as longest:
+        made = await exporter.export(rows)
+
+    assert isinstance(made, Exported)
+    assert longest[0] < 0.25, longest  # the build takes seconds: in the loop it would halt it that long
+
+
+async def test_the_child_opens_no_socket(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.setattr(kern_export, "build_child", kern_children.without_sockets)
+
+    made = await exporter.export(synthetic_rows(nodes=2, statements=4))
+
+    assert (tmp_path / "store" / made.key).is_file()
+
+
+async def test_a_wait_for_a_build_past_the_request_s_time_is_none(
+    exporter: KernExporter, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(kern_export, "REQUEST_S", 0.0)
+    monkeypatch.setattr(kern_export, "MIN_WAIT_S", 0.05)
+    exporter._children = asyncio.Semaphore(0)  # both children of the process are taken
+
+    with pytest.raises(ExportUnavailable):
+        await exporter.export(synthetic_rows(nodes=1, statements=1))
+
+
+def test_the_build_s_time_leaves_the_wait_a_part_of_the_request_s() -> None:
+    settings = make_settings(kern_export_timeout_s=45)
+
+    assert settings.kern_export_timeout_s + kern_export.MIN_WAIT_S <= kern_export.REQUEST_S
+    with pytest.raises(ValueError):
+        make_settings(kern_export_timeout_s=46)
+    with pytest.raises(ValueError):
+        make_settings(kern_export_timeout_s=4)
