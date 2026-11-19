@@ -1,13 +1,14 @@
 """A document of the first layer as Curriculum-Kern 1.0 RDF (plan M1 8.3; konzept §4, §5): the document,
-its specifications and their variants, its nodes (cur:partOf the parent node, a root at its one
-specification), statements and the anchors of nodes and statements, as the rows of
-app/exports/kern_rows.py hold them.
+the work it is a version of, its revision and the file it is in (plan M3a A1), its specifications and their
+variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
+anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them.
 
-Every row is ``urn:uuid:<id>`` - the draft IRI a document has until it is frozen (plan M1, IRIs) - so a
-SHACL focus node is the id of the row it is about. A node lacks the docking points every unit of it
-checked absent (cur:checkedAbsent). Left out in M1: the frame parts and their anchors (L2 in M3; in the
-Kern they would be nodes of function fn_frame), the profile's own terms, the anchors of the document and
-of specifications, and a specification's applicability.
+One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
+SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
+alone states when the document was frozen (prov:generatedAtTime). A node lacks the docking points every
+unit of it checked absent (cur:checkedAbsent). Left out in M1: the frame parts and their anchors (L2 in
+M3; in the Kern they would be nodes of function fn_frame), the profile's own terms, the anchors of the
+document and of specifications, and a specification's applicability.
 """
 
 from collections.abc import Mapping, Sequence
@@ -15,9 +16,10 @@ from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
-from rdflib import RDF, SKOS, XSD, Graph, Literal, Namespace, URIRef
+from rdflib import OWL, PROV, RDF, SKOS, XSD, BNode, Graph, Literal, Namespace, URIRef
 from rdflib.namespace import DCTERMS
 
+from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
 
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
@@ -31,34 +33,54 @@ _SPECIFICATION_CLASSES = {
 _TEXTS = ("levelText", "timeText", "contextText", "referenceMarker")  # details as written, xsd:string
 _DATES = {4: XSD.gYear, 7: XSD.gYearMonth, 10: XSD.date}  # by length: YYYY, YYYY-MM, YYYY-MM-DD
 
+Name = URIRef | BNode
+Names = Mapping[UUID, Name]
 
-def row_iri(row_id: UUID) -> URIRef:
-    return URIRef(f"urn:uuid:{row_id}")
 
-
-def kern_graph(rows: KernRows) -> Graph:
-    """The document's Kern graph, its namespaces bound."""
+def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
+    """The document's Kern graph under ``naming`` - a draft's where none is given - its namespaces bound."""
+    if naming is None:
+        naming = draft_naming()
     graph = Graph()
-    for prefix, namespace in (("cur", CUR), ("cv", CV), ("dct", DCTERMS), ("skos", SKOS), ("xsd", XSD)):
+    for prefix, namespace in (
+        ("cur", CUR), ("cv", CV), ("dct", DCTERMS), ("owl", OWL), ("prov", PROV), ("skos", SKOS),
+        ("xsd", XSD),
+    ):  # fmt: skip
         graph.bind(prefix, namespace)
-    document = row_iri(rows.document["id"])
+    names = _names(rows, naming)
+    document = names[rows.document["id"]]
     specifications = [row["id"] for row in rows.specifications]
-    _document(graph, rows.document, specifications)
+    _document(graph, rows.document, names, specifications)
+    if naming.frozen:
+        _add(graph, document, PROV.generatedAtTime, rows.document["frozen_at"])
+    if rows.work is not None:
+        _work(graph, rows.work, names, document)
+    _file(graph, rows.file, names, document)
     for specification in rows.specifications:
-        _specification(graph, specification)
+        _specification(graph, specification, names)
     for variant in rows.variants:
-        _variant(graph, variant)
+        _variant(graph, variant, names)
     for node in rows.nodes:
-        _node(graph, node, _parent(node, specifications, document))
+        _node(graph, node, names, _parent(node, names, specifications, document))
     at_place = {(row["node_id"], row["position"]): row["id"] for row in rows.statements}
     for statement in rows.statements:
-        _statement(graph, statement, at_place)
+        _statement(graph, statement, names, at_place)
     for anchor in rows.anchors:
-        _anchor(graph, anchor, document)
+        _anchor(graph, anchor, names, document)
     return graph
 
 
-def _add(graph: Graph, subject: URIRef, predicate: URIRef, value: Any, **literal: Any) -> None:
+def _names(rows: KernRows, naming: Naming) -> dict[UUID, Name]:
+    """Each row's name, by its id."""
+    kinds: list[tuple[RowKind, list[Row]]] = [
+        ("document", [rows.document]), ("work", [rows.work] if rows.work is not None else []),
+        ("file", [rows.file]), ("specification", rows.specifications), ("variant", rows.variants),
+        ("node", rows.nodes), ("statement", rows.statements), ("anchor", rows.anchors),
+    ]  # fmt: skip
+    return {row["id"]: naming.of(kind, row) for kind, items in kinds for row in items}
+
+
+def _add(graph: Graph, subject: Name, predicate: URIRef, value: Any, **literal: Any) -> None:
     """``subject predicate value``, where there is a value: an IRI as given, else a literal."""
     if value is None:
         return
@@ -73,9 +95,10 @@ def _date(value: str | None) -> Literal | None:
     return None if value is None else Literal(value, datatype=_DATES[len(value)])
 
 
-def _document(graph: Graph, row: Row, specifications: Sequence[UUID]) -> None:
-    subject = row_iri(row["id"])
+def _document(graph: Graph, row: Row, names: Names, specifications: Sequence[UUID]) -> None:
+    subject = names[row["id"]]
     graph.add((subject, RDF.type, CUR.Document))
+    graph.add((subject, OWL.versionInfo, Literal(str(row["revision"]))))  # its revisions share its IRI
     _add(graph, subject, DCTERMS.title, row["title"])
     _add(graph, subject, DCTERMS.publisher, row["issuer"])
     _add(graph, subject, CUR.edition, row["edition"])
@@ -94,37 +117,51 @@ def _document(graph: Graph, row: Row, specifications: Sequence[UUID]) -> None:
     ):
         _add(graph, subject, predicate, _date(row[column]))
     for specification in specifications:
-        graph.add((subject, CUR.represents, row_iri(specification)))
+        graph.add((subject, CUR.represents, names[specification]))
 
 
-def _specification(graph: Graph, row: Row) -> None:
-    subject = row_iri(row["id"])
+def _work(graph: Graph, row: Row, names: Names, document: Name) -> None:
+    subject = names[row["id"]]
+    graph.add((subject, RDF.type, CUR.Work))
+    graph.add((subject, DCTERMS.title, Literal(row["title"])))
+    graph.add((document, CUR.versionOf, subject))
+
+
+def _file(graph: Graph, row: Row, names: Names, document: Name) -> None:
+    subject = names[row["id"]]
+    graph.add((subject, RDF.type, CUR.SourceFile))
+    graph.add((subject, CUR.checksum, Literal(row["sha256"])))
+    graph.add((subject, CUR.containsDocument, document))
+
+
+def _specification(graph: Graph, row: Row, names: Names) -> None:
+    subject = names[row["id"]]
     graph.add((subject, RDF.type, _SPECIFICATION_CLASSES[row["spec_kind"]]))
     _add(graph, subject, DCTERMS.title, row["title"])
     _add(graph, subject, CUR.fieldText, row["field_text"])
 
 
-def _variant(graph: Graph, row: Row) -> None:
-    subject = row_iri(row["id"])
+def _variant(graph: Graph, row: Row, names: Names) -> None:
+    subject = names[row["id"]]
     graph.add((subject, RDF.type, CUR.Variant))
     _add(graph, subject, SKOS.prefLabel, row["label"])
     _add(graph, subject, CUR.variantKind, URIRef(row["variant_kind_iri"]))
-    graph.add((subject, CUR.variantOf, row_iri(row["specification_id"])))
+    graph.add((subject, CUR.variantOf, names[row["specification_id"]]))
 
 
-def _parent(node: Row, specifications: Sequence[UUID], document: URIRef) -> URIRef:
+def _parent(node: Row, names: Names, specifications: Sequence[UUID], document: Name) -> Name:
     """A node's parent node; a root's the one specification it applies to, else the document's one
     specification, else the document itself (cur:partOf takes all three)."""
     if node["parent_id"] is not None:
-        return row_iri(node["parent_id"])
+        return names[node["parent_id"]]
     named = [item for item in node["applies_to"] if item in specifications]
     if len(named) == 1:
-        return row_iri(named[0])
-    return row_iri(specifications[0]) if len(specifications) == 1 else document
+        return names[named[0]]
+    return names[specifications[0]] if len(specifications) == 1 else document
 
 
-def _node(graph: Graph, row: Row, parent: URIRef) -> None:
-    subject = row_iri(row["id"])
+def _node(graph: Graph, row: Row, names: Names, parent: Name) -> None:
+    subject = names[row["id"]]
     graph.add((subject, RDF.type, CUR.CurriculumNode))
     graph.add((subject, CUR.partOf, parent))
     for predicate, column in (
@@ -139,16 +176,16 @@ def _node(graph: Graph, row: Row, parent: URIRef) -> None:
     _add(graph, subject, CUR.originalTitle, row["original_title"], lang=row["title_language"])
     _add(graph, subject, CUR.position, row["position"])
     for applies in row["applies_to"]:
-        graph.add((subject, CUR.appliesTo, row_iri(applies)))
+        graph.add((subject, CUR.appliesTo, names[applies]))
     for point in row["checked_absent"]:
         graph.add((subject, CUR.checkedAbsent, URIRef(point)))
 
 
-def _statement(graph: Graph, row: Row, at_place: Mapping[tuple[UUID, int], UUID]) -> None:
-    subject = row_iri(row["id"])
+def _statement(graph: Graph, row: Row, names: Names, at_place: Mapping[tuple[UUID, int], UUID]) -> None:
+    subject = names[row["id"]]
     language = row["language"]
     graph.add((subject, RDF.type, CUR.Statement))
-    graph.add((subject, CUR.partOf, row_iri(row["node_id"])))
+    graph.add((subject, CUR.partOf, names[row["node_id"]]))
     _add(graph, subject, CUR.verbatim, row["verbatim"], lang=language)
     _add(graph, subject, CUR.leadIn, row["lead_in"], lang=language)
     for predicate, column in (
@@ -172,12 +209,12 @@ def _statement(graph: Graph, row: Row, at_place: Mapping[tuple[UUID, int], UUID]
         graph.add((subject, CUR.crossCuttingMarker, Literal(marker)))
     for position in details.get("targetsContent", []):
         if (target := at_place.get((row["node_id"], position))) is not None:
-            graph.add((subject, CUR.targetsContent, row_iri(target)))
+            graph.add((subject, CUR.targetsContent, names[target]))
 
 
-def _anchor(graph: Graph, row: Row, document: URIRef) -> None:
-    subject = row_iri(row["id"])
-    graph.add((row_iri(row["statement_id"] or row["node_id"]), CUR.anchor, subject))
+def _anchor(graph: Graph, row: Row, names: Names, document: Name) -> None:
+    subject = names[row["id"]]
+    graph.add((names[row["statement_id"] or row["node_id"]], CUR.anchor, subject))
     graph.add((subject, RDF.type, CUR.SourceAnchor))
     graph.add((subject, CUR.inDocument, document))
     for predicate, column in (

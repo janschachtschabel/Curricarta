@@ -1,0 +1,63 @@
+"""How the Kern graph (app/exports/kern_rdf.py) names a document's rows (plan M3a A1): one graph, two
+namings.
+
+A draft names every row ``urn:uuid:<id>`` - the draft IRI a document has until it is frozen (plan M1,
+IRIs) - so a SHACL focus of X5 is the id of the row it is about. A frozen document is named by the IRIs
+freezing stored: its work, the document, its specifications and their variants, its nodes and statements;
+a row of these without its IRI refuses the naming (ValueError), as no urn:uuid leaves the service in an
+export. Anchors and the file have no identity beyond their document: each is a blank node, the same one
+for the same row throughout one build - a frozen naming serves one graph.
+"""
+
+from typing import Literal, Protocol
+from uuid import UUID
+
+from rdflib import BNode, URIRef
+
+from app.exports.kern_rows import Row
+
+RowKind = Literal["work", "document", "specification", "variant", "node", "statement", "anchor", "file"]
+_NAMED_BY_IRI: frozenset[RowKind] = frozenset(
+    {"work", "document", "specification", "variant", "node", "statement"}
+)
+
+
+class Naming(Protocol):
+    frozen: bool  # whether the names are the frozen document's, which then says when it was frozen
+
+    def of(self, kind: RowKind, row: Row) -> URIRef | BNode: ...
+
+
+def row_iri(row_id: UUID) -> URIRef:
+    return URIRef(f"urn:uuid:{row_id}")
+
+
+class _DraftNaming:
+    frozen = False
+
+    def of(self, kind: RowKind, row: Row) -> URIRef | BNode:
+        return row_iri(row["id"])
+
+
+class _FrozenNaming:
+    frozen = True
+
+    def __init__(self) -> None:
+        self._blank: dict[UUID, BNode] = {}
+
+    def of(self, kind: RowKind, row: Row) -> URIRef | BNode:
+        if kind not in _NAMED_BY_IRI:
+            return self._blank.setdefault(row["id"], BNode())
+        if row["iri"] is None:
+            raise ValueError(f"the {kind} {row['id']} has no IRI: a frozen document names each of its rows")
+        return URIRef(row["iri"])
+
+
+def draft_naming() -> Naming:
+    """Every row by its urn:uuid."""
+    return _DraftNaming()
+
+
+def frozen_naming() -> Naming:
+    """Each row by its stored IRI, an anchor and the file by a blank node; a fresh one for each graph."""
+    return _FrozenNaming()

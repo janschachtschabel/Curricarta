@@ -1,0 +1,174 @@
+"""The Kern graph under its two namings (plan M3a A1): a draft names every row by its urn:uuid, as X5 checks
+it; a frozen document names its work, document, nodes and statements by the IRIs freezing stored, its
+anchors and its file by blank nodes - one graph under other names, plus the time the document was frozen.
+Either way the document says the work it is a version of, its revision and the file it is in."""
+
+from typing import Any
+
+import psycopg
+import pytest
+from rdflib import OWL, RDF, BNode, Graph, Literal, Node, URIRef
+from rdflib.compare import graph_diff, isomorphic, to_isomorphic
+from rdflib.namespace import DCTERMS, PROV
+
+from app.db.freezing import freeze
+from app.exports.kern_naming import draft_naming, frozen_naming
+from app.exports.kern_rdf import CUR, kern_graph
+from app.exports.kern_rows import KernRows, read_document
+from app.pipeline.shacl_child import validate_graph
+from tests.db.test_editing import document
+from tests.db.test_freeze import BASE, DOC, ready
+from tests.db.test_nodes import connection, url
+from tests.exports.test_kern_rdf import a_document
+from tests.pipeline.test_shacl import ONTOLOGY
+
+pytestmark = [pytest.mark.pg, pytest.mark.anyio]
+__all__ = ["connection", "document", "url"]  # the fixtures, shared with tests/db
+WORK = BASE + "work/de-nw/lp-physik"
+
+
+async def frozen_rows(connection: psycopg.AsyncConnection, document: Any) -> KernRows:
+    """The rows of a document frozen under BASE: its work, a node with a child, two statements, anchors."""
+    await ready(connection, document)
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    return await read_document(connection, document.id)
+
+
+def under_frozen_names(draft: Graph, rows: KernRows) -> Graph:
+    """The draft graph, each row's urn:uuid replaced by its stored IRI - an anchor's and the file's by a
+    blank node of its own."""
+    named = [rows.document, *rows.specifications, *rows.variants, *rows.nodes, *rows.statements]
+    names: dict[Node, Node] = {
+        URIRef(f"urn:uuid:{row['id']}"): URIRef(row["iri"]) for row in [*named, *filter(None, [rows.work])]
+    }
+    names |= {URIRef(f"urn:uuid:{row['id']}"): BNode() for row in [*rows.anchors, rows.file]}
+    renamed = Graph()
+    for subject, predicate, value in draft:
+        renamed.add((names.get(subject, subject), predicate, names.get(value, value)))
+    return renamed
+
+
+def assert_isomorphic(made: Graph, expected: Graph) -> None:
+    if not isomorphic(made, expected):
+        _, only_made, only_expected = graph_diff(to_isomorphic(made), to_isomorphic(expected))
+        pytest.fail(
+            f"made only:\n{only_made.serialize(format='nt')}\n"
+            f"expected only:\n{only_expected.serialize(format='nt')}"
+        )
+
+
+async def test_the_frozen_graph_is_the_draft_graph_under_other_names(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    rows = await frozen_rows(connection, document)
+
+    frozen = kern_graph(rows, frozen_naming())
+    draft = kern_graph(rows, draft_naming())
+
+    # the one triple only the export states: when the document was frozen - a draft has not been
+    stamped = list(frozen.triples((URIRef(DOC), PROV.generatedAtTime, None)))
+    assert stamped == [(URIRef(DOC), PROV.generatedAtTime, Literal(rows.document["frozen_at"]))]
+    frozen.remove(stamped[0])
+    assert_isomorphic(frozen, under_frozen_names(draft, rows))
+
+
+async def test_a_frozen_graph_names_no_row_by_its_id(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    rows = await frozen_rows(connection, document)
+
+    frozen = kern_graph(rows, frozen_naming())
+
+    terms = {term for triple in frozen for term in (triple[0], triple[2])}
+    assert not [term for term in terms if str(term).startswith("urn:uuid:")]
+    # an anchor each of the two statements kept: each its own blank node
+    assert len(set(frozen.subjects(RDF.type, CUR.SourceAnchor))) == len(rows.anchors) == 2
+    assert all(isinstance(anchor, BNode) for anchor in frozen.subjects(RDF.type, CUR.SourceAnchor))
+
+
+async def test_a_row_without_its_iri_refuses_the_frozen_naming(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    rows = await frozen_rows(connection, document)
+    rows.nodes[-1]["iri"] = None
+
+    with pytest.raises(ValueError, match=f"node {rows.nodes[-1]['id']} has no IRI"):
+        kern_graph(rows, frozen_naming())
+
+
+async def test_the_document_is_a_version_of_its_work_and_says_its_revision(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    rows = await frozen_rows(connection, document)
+    assert rows.work is not None
+
+    for graph, work, made in (
+        (kern_graph(rows), URIRef(f"urn:uuid:{rows.work['id']}"), URIRef(f"urn:uuid:{document.id}")),
+        (kern_graph(rows, frozen_naming()), URIRef(WORK), URIRef(DOC)),
+    ):  # fmt: skip
+        assert (made, CUR.versionOf, work) in graph
+        assert (work, RDF.type, CUR.Work) in graph
+        assert (work, DCTERMS.title, Literal("Lehrplan Physik")) in graph
+        assert list(graph.objects(made, OWL.versionInfo)) == [Literal("1")]
+    # the work is typed: the shape's sh:class cur:Work at cur:versionOf holds (cur-shapes.ttl)
+    assert not [
+        found for found in validate_graph(ONTOLOGY, kern_graph(rows)) if found.path == "cur:versionOf"
+    ]
+
+
+async def test_a_document_without_a_work_states_none(connection: psycopg.AsyncConnection) -> None:
+    ids = await a_document(connection)
+
+    draft = kern_graph(await read_document(connection, ids["doc"]))
+
+    assert not list(draft.objects(None, CUR.versionOf))
+    assert not list(draft.subjects(RDF.type, CUR.Work))
+    assert list(draft.objects(URIRef(f"urn:uuid:{ids['doc']}"), OWL.versionInfo)) == [Literal("1")]
+    assert not list(draft.objects(None, PROV.generatedAtTime))
+
+
+async def test_the_file_states_its_checksum(connection: psycopg.AsyncConnection, document: Any) -> None:
+    rows = await frozen_rows(connection, document)
+    cursor = await connection.execute(
+        "SELECT f.id, encode(f.sha256, 'hex') FROM document d JOIN conversion c ON c.id = d.conversion_id"
+        " JOIN source_file f ON f.id = c.source_file_id WHERE d.id = %s",
+        (document.id,),
+    )
+    [(file_id, checksum)] = await cursor.fetchall()
+
+    draft = kern_graph(rows)
+
+    file = URIRef(f"urn:uuid:{file_id}")
+    assert set(draft.predicate_objects(file)) == {
+        (RDF.type, CUR.SourceFile), (CUR.checksum, Literal(checksum)),
+        (CUR.containsDocument, URIRef(f"urn:uuid:{document.id}")),
+    }  # fmt: skip
+    assert not [found for found in validate_graph(ONTOLOGY, draft) if found.shape == "SourceFileShape"]
+    [blank] = kern_graph(rows, frozen_naming()).subjects(CUR.checksum, Literal(checksum))
+    assert isinstance(blank, BNode)
+
+
+async def test_x5_checks_the_graph_it_checked_before(connection: psycopg.AsyncConnection) -> None:
+    # a document without a work, as X5 builds it (no naming): the graph of before, plus its revision and
+    # its file - and the shapes find on it no more than on the graph of before
+    ids = await a_document(connection)
+    rows = await read_document(connection, ids["doc"])
+
+    made = kern_graph(rows)
+
+    assert_isomorphic(made, kern_graph(rows, draft_naming()))
+    file = URIRef(f"urn:uuid:{rows.file['id']}")
+    added = {
+        (URIRef(f"urn:uuid:{ids['doc']}"), OWL.versionInfo, Literal("1")),
+        *made.triples((file, None, None)),
+    }
+    assert {(predicate, value) for _, predicate, value in added} == {
+        (OWL.versionInfo, Literal("1")), (RDF.type, CUR.SourceFile),
+        (CUR.checksum, Literal(rows.file["sha256"])),
+        (CUR.containsDocument, URIRef(f"urn:uuid:{ids['doc']}")),
+    }  # fmt: skip
+    before = Graph()
+    for triple in made:
+        if triple not in added:
+            before.add(triple)
+    assert validate_graph(ONTOLOGY, made) == validate_graph(ONTOLOGY, before)

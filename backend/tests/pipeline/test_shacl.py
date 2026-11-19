@@ -122,25 +122,29 @@ def a_document(addressees: list[str]) -> KernRows:
     """A school document of one node and one statement, as the export reads it."""
     document, specification, node, statement = (uuid.uuid4() for _ in range(4))
     return KernRows(
-        {"id": document, "title": "Plan", "issuer": None, "edition": None,
+        {"id": document, "iri": None, "revision": 1, "frozen_at": None, "rights_status": "unklar",
+         "title": "Plan", "issuer": None, "edition": None,
          "document_type_iri": SCHOOL + "dt-Lehrplan", "sector_iri": CV + "sec_school", "legal_form_iri": None,
          "binding_iri": None, "lifecycle_iri": None, "valid_from": None, "valid_until": None, "issued": None,
          "region_iris": []},
-        [{"id": specification, "spec_kind": "curriculum", "title": "Physik", "field_text": "Physik"}],
+        [{"id": specification, "iri": None, "spec_kind": "curriculum", "title": "Physik",
+          "field_text": "Physik"}],
         [],
-        [{"id": node, "parent_id": None, "position": 1, "function_iri": CV + "fn_area",
+        [{"id": node, "iri": None, "parent_id": None, "position": 1, "function_iri": CV + "fn_area",
           "node_type_iri": SCHOOL + "Inhaltsbereich", "code": "1", "code_assigned": False,
           "original_title": "Optik", "title_language": "de", "obligation_iri": None, "scope_share_iri": None,
           "extraction_depth_iri": None, "applies_to": [], "origin_iri": CV + "orig_model",
           "review_status_iri": CV + "rev_proposed", "checked_absent": []}],
-        [{"id": statement, "node_id": node, "position": 1, "verbatim": "Die Lernenden beschreiben Licht.",
-          "language": "de", "lead_in": None, "statement_kind_iri": CV + "kind_content", "subkind_iri": None,
+        [{"id": statement, "iri": None, "node_id": node, "position": 1,
+          "verbatim": "Die Lernenden beschreiben Licht.", "language": "de", "lead_in": None,
+          "statement_kind_iri": CV + "kind_content", "subkind_iri": None,
           "obligation_iri": None, "origin_iri": CV + "orig_model", "review_status_iri": CV + "rev_proposed",
           "text_hash": "x", "details": {}, "layout_markers": [], "addressees": addressees}],
         [{"id": uuid.uuid4(), "node_id": None, "statement_id": statement, "page_start": 1, "page_end": None,
           "printed_page": None, "quote": None, "match_kind_iri": None, "match_score": None,
           "char_start": None, "char_end": None, "table_cell": None, "section_path": None,
           "blocks": ["p1-b2"]}],
+        work=None, file={"id": uuid.uuid4(), "sha256": "ab" * 32},
     )  # fmt: skip
 
 

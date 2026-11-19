@@ -43,6 +43,7 @@ EXPECTED = """
 @prefix cv: <https://w3id.org/wlo/curriculum/vocab#> .
 @prefix dct: <http://purl.org/dc/terms/> .
 @prefix land: <https://w3id.org/wlo/curriculum/region/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
 @prefix schul: <https://w3id.org/wlo/curriculum/profile/school#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
@@ -54,7 +55,8 @@ EXPECTED = """
     cur:legalForm cv:lf_administrativeRegulation ; cur:documentBinding cv:bind_binding ;
     cur:lifecycle cv:life_inForce ; cur:issued "2023-08"^^xsd:gYearMonth ;
     cur:validFrom "2023-08-01"^^xsd:date ;
-    cur:validUntil "2030"^^xsd:gYear ; cur:represents <urn:uuid:{spec}> .
+    cur:validUntil "2030"^^xsd:gYear ; cur:represents <urn:uuid:{spec}> ; owl:versionInfo "1" .
+<urn:uuid:{file}> a cur:SourceFile ; cur:checksum "{checksum}" ; cur:containsDocument <urn:uuid:{doc}> .
 <urn:uuid:{spec}> a cur:Curriculum ; dct:title "Physik Sekundarstufe I" ; cur:fieldText "Physik" .
 <urn:uuid:{variant}> a cur:Variant ; skos:prefLabel "Grundkurs" ; cur:variantKind cv:var_focus ;
     cur:variantOf <urn:uuid:{spec}> .
@@ -167,6 +169,12 @@ async def a_document(connection: psycopg.AsyncConnection) -> dict[str, Any]:
         "content": await one(connection, "SELECT id FROM statement WHERE verbatim = %s", TEXTS[3]),
     }  # fmt: skip
     ids["at_root"] = await one(connection, "SELECT id FROM anchor WHERE node_id = %s", root_id)
+    ids["file"] = await one(
+        connection, "SELECT source_file_id FROM conversion WHERE id = %s", document.conversion_id
+    )
+    ids["checksum"] = await one(
+        connection, "SELECT encode(sha256, 'hex') FROM source_file WHERE id = %s", ids["file"]
+    )
     # a node's units: what all of them checked absent the node lacks, not what one part of it lacks
     run = await start_run(connection, RunStart(document.id, None, None, "X4", None, None, None, None))
     for key, node, absent in (
