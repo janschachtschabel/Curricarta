@@ -123,7 +123,7 @@ def a_document(addressees: list[str]) -> KernRows:
     document, specification, node, statement = (uuid.uuid4() for _ in range(4))
     return KernRows(
         {"id": document, "iri": None, "revision": 1, "frozen_at": None, "rights_status": "unklar",
-         "title": "Plan", "issuer": None, "edition": None,
+         "title": "Plan", "issuer": None, "edition": None, "supersedes_iri": None,
          "document_type_iri": SCHOOL + "dt-Lehrplan", "sector_iri": CV + "sec_school", "legal_form_iri": None,
          "binding_iri": None, "lifecycle_iri": None, "valid_from": None, "valid_until": None, "issued": None,
          "region_iris": []},
