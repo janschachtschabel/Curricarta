@@ -5,10 +5,11 @@ build: the graph under the document's stored IRIs, written as Turtle in a child 
 (app/exports/kern_child.py) within KERN_EXPORT_TIMEOUT_S, its rows handed over as a file - a pickle of a
 long document as an argument of the spawn would fill the pipe the child drains only once it has started
 (app/pipeline/shacl.py). The Turtle is kept in the store under a key of the document, its revision and a
-fingerprint of what may change its output once the document is frozen: the builder's version, rdflib's,
-the rights status and the violations the editors accepted. Asked again, the kept bytes go out: a frozen
-revision's rows change no more. No SHACL check runs here: X5 checked the same graph under its draft names,
-and freezing asks for that check (plan M3a E6; test_kern_naming.py holds the two graphs alike).
+fingerprint of what may change its output once the document is frozen: the builder's version, rdflib's, the
+rights status, the violations the editors accepted, where it came from and its regions (``_MAY_CHANGE``).
+Asked again, the kept bytes go out: a frozen revision's rows change no more. No SHACL check runs here: X5
+checked the same graph under its draft names, and freezing asks for that check (plan M3a E6;
+test_kern_naming.py holds the two graphs alike).
 
 A document frozen before its specifications and variants were named is ``ExportUnnamed`` until
 ``python -m app.db.name_frozen`` named them; a build past its time or broken in its child is
@@ -43,6 +44,9 @@ REQUEST_S = mem_export.REQUEST_S  # the same edge in front of both exports
 MIN_WAIT_S = mem_export.MIN_WAIT_S
 _RDFLIB = version("rdflib")  # the serializer's: another may write other bytes
 build_child = run_child  # the child's target (a test starts another)
+# what a frozen revision's rows may still say otherwise: its rights status and an import's licence (migration
+# 0031), its register entry's address, the violations counted - and its regions, read off the vocabulary
+_MAY_CHANGE = ("rights_status", "violations", "source_url", "mem_attribution", "mem_licence", "region_iris")
 
 
 class ExportUnnamed(Exception):
@@ -62,7 +66,7 @@ def unnamed(rows: KernRows) -> bool:
 def fingerprint(rows: KernRows) -> str:
     """What the export's output depends on beside the rows a frozen revision keeps, as a digest."""
     document = rows.document
-    parts = (KERN_EXPORT, _RDFLIB, document["rights_status"], str(document["violations"]))
+    parts = (KERN_EXPORT, _RDFLIB, *(str(document[name]) for name in _MAY_CHANGE))
     return hashlib.sha256("\x00".join(parts).encode()).hexdigest()
 
 

@@ -50,9 +50,14 @@ def synthetic_rows(
     base: str = BASE,
     revision: int = 1,
     rights_status: str = "unklar",
+    source_url: str | None = None,
+    mem_iri: str | None = None,
+    mem_attribution: str | None = "MEM-Schule",
+    mem_licence: str | None = None,
 ) -> KernRows:
     """A frozen school document under ``base``: a tenth of the nodes roots, the rest their children in turn;
-    the statements spread over the nodes; an anchor for each node and each statement."""
+    the statements spread over the nodes; an anchor for each node and each statement. An import of MEM-Schule
+    where ``mem_iri`` names its plan (its attribution and licence then)."""
     ids = uuid.UUID(int=0x5EED << 64)  # the ids follow from the sizes: the same rows each call
 
     def next_id() -> uuid.UUID:
@@ -94,7 +99,9 @@ def synthetic_rows(
     document_row: Row = {
         "id": document, "iri": base, "revision": revision, "frozen_at": datetime(2026, 11, 1, tzinfo=UTC),
         "rights_status": rights_status, "violations": 0, "title": "Lehrplan Synthese",
-        "issuer": "Ministerium", "edition": "2024", "supersedes_iri": None,
+        "issuer": "Ministerium", "edition": "2024", "supersedes_iri": None, "source_url": source_url,
+        "mem_iri": mem_iri, "mem_attribution": mem_attribution if mem_iri else None,
+        "mem_licence": mem_licence if mem_iri else None,
         "document_type_iri": SCHOOL + "dt-Lehrplan", "sector_iri": CV + "sec_school", "region_iris": [],
         **dict.fromkeys(("legal_form_iri", "binding_iri", "lifecycle_iri", "valid_from", "valid_until",
                          "issued")),

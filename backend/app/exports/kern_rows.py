@@ -1,6 +1,6 @@
-"""A document of the first layer read for its Kern RDF (plan M1 8.3; app/exports/kern_rdf.py): the
-document - with the count of violations among its findings, those the editors accepted once it is
-frozen (plan M3a C1) -, the work it is a version of and the file it was read off (plan M3a A1), its
+"""A document of the first layer read for its Kern RDF (plan M1 8.3; app/exports/kern_rdf.py): the document -
+with the count of violations among its findings, those the editors accepted once it is frozen (plan M3a C1)
+and where it came from -, the work it is a version of and the file it was read off (plan M3a A1), its
 specifications and their variants, its nodes and statements, and the anchors of nodes and statements with
 their blocks - rows as the tables hold them, each with the IRI it is named by once frozen
 (app/exports/kern_naming.py), read in one snapshot.
@@ -28,6 +28,9 @@ SELECT d.id, d.iri, d.revision, d.frozen_at, d.rights_status, d.title, d.issuer,
     d.document_type_iri, d.sector_iri, d.legal_form_iri, d.binding_iri, d.lifecycle_iri, d.valid_from,
     d.valid_until, d.issued,
     (SELECT s.iri FROM document s WHERE s.id = d.supersedes_id) AS supersedes_iri,  -- frozen: it has one
+    -- where it came from: its register entry's address, an import's MEM plan, attribution and licence
+    (SELECT s.url FROM source s WHERE s.id = d.source_id) AS source_url, d.mem_iri, d.mem_attribution,
+    d.mem_licence,
     -- the violations among its findings: those the editors accepted, once it is frozen (app/db/freezing.py)
     (SELECT count(*) FROM validation_finding f WHERE f.document_id = d.id AND f.severity = 'violation')
         AS violations,

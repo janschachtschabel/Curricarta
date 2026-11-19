@@ -112,6 +112,25 @@ async def test_a_changed_rights_status_makes_another_export(exporter: KernExport
     assert b"amtlich" not in (tmp_path / "store" / first.key).read_bytes()
 
 
+@pytest.mark.parametrize(
+    ("column", "value"),
+    [("mem_licence", "https://creativecommons.org/licenses/by-sa/4.0/"),
+     ("mem_attribution", "MEM-Schule, neu"), ("source_url", "https://example.org/neu.pdf")],
+)  # fmt: skip
+async def test_what_may_change_on_a_frozen_document_is_never_served_stale(
+    exporter: KernExporter, tmp_path: Path, column: str, value: str
+) -> None:
+    # a frozen import's licence may still be recorded (migration 0031), a register entry's address edited
+    rows = synthetic_rows(nodes=1, statements=1, mem_iri="https://example.org/mem/plan-1")
+    first = await exporter.export(rows)
+    rows.document[column] = value
+
+    second = await exporter.export(rows)
+
+    assert first.key != second.key
+    assert value.encode() in (tmp_path / "store" / second.key).read_bytes()
+
+
 def test_the_key_names_the_document_its_revision_and_the_builder_s_version() -> None:
     rows = synthetic_rows(nodes=1, statements=1, revision=3)
 

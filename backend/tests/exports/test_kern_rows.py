@@ -79,3 +79,22 @@ async def test_a_rejected_statement_and_its_anchors_are_no_rows_of_the_document(
 
     assert [row["verbatim"] for row in rows.statements] == [TEXTS[2]]
     assert [row["statement_id"] for row in rows.anchors] == [rows.statements[0]["id"]]
+
+
+async def test_a_document_is_read_with_where_it_came_from(connection: psycopg.AsyncConnection) -> None:
+    document = await document_of(connection, [block(1, TEXTS[0])])
+    await connection.execute(
+        "UPDATE source SET url = %s WHERE id = (SELECT source_id FROM document WHERE id = %s)",
+        ("https://example.org/plaene/1.pdf", document.id),
+    )
+    await connection.execute(
+        "UPDATE document SET mem_iri = %s, mem_attribution = 'MEM-Schule', mem_licence = %s WHERE id = %s",
+        ("https://example.org/mem/plan-1", "https://creativecommons.org/licenses/by/4.0/", document.id),
+    )
+
+    read = (await read_document(connection, document.id)).document
+
+    assert (read["source_url"], read["mem_iri"], read["mem_attribution"], read["mem_licence"]) == (
+        "https://example.org/plaene/1.pdf", "https://example.org/mem/plan-1", "MEM-Schule",
+        "https://creativecommons.org/licenses/by/4.0/",
+    )  # fmt: skip

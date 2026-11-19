@@ -1407,7 +1407,8 @@ export const messages = {
         contains:
           "Die Datei beschreibt das festgeschriebene Dokument als RDF nach dem Curriculum-Kern (Turtle), unter " +
           "den IRIs, die es beim Festschreiben bekam: Werk, Fassung und Revision, Knoten, Aussagen und ihre " +
-          "Fundstellen. Sie nennt die Quelldatei und den Rechtestatus der Wortlaute, keine Lizenz.",
+          "Fundstellen. Sie nennt die Quelle und den Rechtestatus der Wortlaute; ein Import dazu den Plan von " +
+          "MEM-Schule, die Namensnennung und, wo eingetragen, die Lizenz der Daten.",
         button: "Als Curriculum-Kern exportieren",
         working: "Der Export wird erstellt; das kann bis zu einer Minute dauern.",
         saved: "Die Datei {name} wurde dem Browser zum Speichern übergeben.",

@@ -13,14 +13,14 @@ import psycopg
 import pytest
 from fastapi.testclient import TestClient
 from rdflib import Graph, Literal, URIRef
-from rdflib.namespace import DCTERMS
+from rdflib.namespace import DCTERMS, PROV
 
 from app.api.app import create_app
 from app.core.storage import ObjectNotFound
 from app.exports import kern_export
 from app.exports.kern_rdf import CUR
 from tests.api.test_documents import PUBLIC, an_account, client, hidden_from_its_owner, url
-from tests.api.test_exports import an_import
+from tests.api.test_exports import DOC, PLAN, an_import
 from tests.api.test_exports import export as mem_export
 from tests.api.test_freeze import BASE, a_violation, freezing, ready
 from tests.db.l1 import add_specification
@@ -28,6 +28,8 @@ from tests.exports import kern_children
 from tests.support import make_settings, selector_client
 
 pytestmark = pytest.mark.pg
+LICENCE = "https://creativecommons.org/licenses/by/4.0/"
+OTHER_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
 __all__ = ["client", "freezing", "url"]  # the fixtures, shared with test_documents and test_freeze
 
 
@@ -89,6 +91,40 @@ def test_a_frozen_mem_import_has_both_exports(in_process_shacl: None, client: Te
     assert made.content != kept.content
     graph = Graph().parse(data=kept.content, format="turtle")
     assert (None, None, CUR.Document) in graph and (None, None, CUR.Statement) in graph
+
+
+def test_a_frozen_import_names_mem_s_plan_attribution_and_licence_and_a_new_licence_is_served(
+    client: TestClient, url: str
+) -> None:
+    owner, header = an_account(url)
+    document = an_import(url, owner, mem_licence=LICENCE)
+    plan = URIRef(PLAN)
+
+    graph = Graph().parse(data=kern(client, document, header).content, format="turtle")
+
+    assert (URIRef(DOC), DCTERMS.source, plan) in graph and (URIRef(DOC), PROV.wasDerivedFrom, plan) in graph
+    assert (URIRef(DOC), DCTERMS.bibliographicCitation, Literal("MEM-Schule")) in graph
+    assert (plan, DCTERMS.license, URIRef(LICENCE)) in graph
+    # the licence of a frozen import may still be recorded anew (migration 0031): no stale export of it
+    with psycopg.connect(url, autocommit=True) as connection:
+        connection.execute("UPDATE document SET mem_licence = %s WHERE id = %s", (OTHER_LICENCE, document))
+    graph = Graph().parse(data=kern(client, document, header).content, format="turtle")
+    assert list(graph.objects(plan, DCTERMS.license)) == [URIRef(OTHER_LICENCE)]
+
+
+def test_an_entry_s_address_is_the_document_s_source(client: TestClient, url: str) -> None:
+    owner, header = an_account(url)
+    document = an_import(url, owner)
+    address = "https://example.org/plaene/sachsen.pdf"
+    with psycopg.connect(url, autocommit=True) as connection:
+        connection.execute(
+            "UPDATE source SET url = %s WHERE id = (SELECT source_id FROM document WHERE id = %s)",
+            (address, document),
+        )
+
+    graph = Graph().parse(data=kern(client, document, header).content, format="turtle")
+
+    assert (URIRef(DOC), DCTERMS.source, URIRef(address)) in graph
 
 
 def test_a_stranger_gets_404_and_a_hidden_entry_403(client: TestClient, url: str) -> None:

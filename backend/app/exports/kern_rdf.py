@@ -1,8 +1,8 @@
-"""A document of the first layer as Curriculum-Kern 1.0 RDF (plan M1 8.3; konzept §4, §5): the document,
-the work it is a version of, its revision and the file it is in (plan M3a A1), the rights status of its
-wordings (C1), the edition it supersedes by that edition's IRI (B2), its specifications and their variants,
-its nodes (cur:partOf the parent node, a root at its one specification), statements and the anchors of nodes
-and statements, as the rows of app/exports/kern_rows.py hold them.
+"""A document of the first layer as Curriculum-Kern 1.0 RDF (plan M1 8.3; konzept §4, §5): the document, the
+work it is a version of, its revision and the file it is in (plan M3a A1), the rights status of its wordings
+and where it came from (C1), the edition it supersedes by that edition's IRI (B2), its specifications and
+their variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
+anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them.
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
@@ -22,6 +22,7 @@ from rdflib.namespace import DCTERMS
 
 from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
+from app.sources.mem.tree import storable_iri
 
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
@@ -104,6 +105,7 @@ def _document(graph: Graph, row: Row, names: Names, specifications: Sequence[UUI
     graph.add(
         (subject, DCTERMS.rights, Literal(f"Rechtestatus der Wortlaute: {row['rights_status']}", lang="de"))
     )
+    _sources(graph, subject, row)
     _add(graph, subject, DCTERMS.title, row["title"])
     _add(graph, subject, DCTERMS.publisher, row["issuer"])
     _add(graph, subject, CUR.edition, row["edition"])
@@ -124,6 +126,28 @@ def _document(graph: Graph, row: Row, names: Names, specifications: Sequence[UUI
         _add(graph, subject, predicate, _date(row[column]))
     for specification in specifications:
         graph.add((subject, CUR.represents, names[specification]))
+
+
+def _sources(graph: Graph, subject: Name, row: Row) -> None:
+    """Where the document came from (plan M3a E13): its register entry's address, where it has one - an
+    uploaded entry of none leaves its file's checksum to say it -; an import's MEM plan, as its source and
+    origin, MEM's attribution, and the licence recorded for MEM's data at the plan, never the wordings'
+    (plan M2 E14, as app/exports/mem_ttl.py states them)."""
+    _add(graph, subject, DCTERMS.source, _address(row["source_url"]))
+    if row["mem_iri"] is None:
+        return
+    plan = URIRef(row["mem_iri"])
+    graph.add((subject, DCTERMS.source, plan))
+    graph.add((subject, PROV.wasDerivedFrom, plan))
+    _add(graph, subject, DCTERMS.bibliographicCitation, row["mem_attribution"])
+    _add(graph, plan, DCTERMS.license, _address(row["mem_licence"]))
+
+
+def _address(value: str | None) -> URIRef | Literal | None:
+    """An address as an IRI, where one can hold it; else as written."""
+    if not value:
+        return None
+    return URIRef(value) if storable_iri(value) else Literal(value)
 
 
 def _work(graph: Graph, row: Row, names: Names, document: Name) -> None:
