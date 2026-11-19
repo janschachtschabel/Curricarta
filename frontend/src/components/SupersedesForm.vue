@@ -2,14 +2,15 @@
 /**
  * The edition a document supersedes (plan M3a B2; backend app/api/document_meta.py), by its owner or an editor until
  * it is frozen: one of the frozen editions of its work under another IRI - each IRI once, as its latest revision -,
- * read from all the documents of its work the caller sees (listWorkDocuments); or none. The edition it
+ * read from all the documents of its work the caller sees (listWorkDocuments), read anew when the page finds another
+ * work set (the form stays while the page reads the document again); or none. The edition it
  * supersedes now is offered though the list read lacks it. Without a work, or where the work has no other frozen
  * edition, a sentence says why there is nothing to choose; while the editions are read only that is shown, so no field
  * goes from under the user. Saved, it says so and the page reads the document again (`changed`); the server's problem
  * with the choice stands at the field - the keyboard taken there from the button or from nothing -, a document closed to
  * the change meanwhile is said and read again, another refusal said.
  */
-import { computed, onMounted, ref, useId, watch } from "vue";
+import { computed, ref, useId, watch } from "vue";
 
 import { listWorkDocuments, type CurriculumDocument, type SupersededEdition } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
@@ -104,20 +105,28 @@ async function onSubmit(): Promise<void> {
   }
 }
 
-onMounted(async () => {
-  const work = props.document.work;
-  if (!work) {
-    loading.value = false;
-    return;
-  }
-  try {
-    editions.value = editionsOf(await listWorkDocuments(work.id));
-  } catch {
-    loadFailed.value = true; // said below; the rest of the page stands
-  } finally {
-    loading.value = false;
-  }
-});
+// The editions of the work the document has now: read at first and whenever its work changes; an answer for a work
+// it has no longer is let go
+let reading = 0;
+watch(
+  () => props.document.work?.id,
+  async (work) => {
+    const mine = ++reading;
+    editions.value = [];
+    loadFailed.value = false;
+    loading.value = Boolean(work);
+    if (!work) return;
+    try {
+      const found = editionsOf(await listWorkDocuments(work));
+      if (mine === reading) editions.value = found;
+    } catch {
+      if (mine === reading) loadFailed.value = true; // said below; the rest of the page stands
+    } finally {
+      if (mine === reading) loading.value = false;
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <template>

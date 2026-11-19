@@ -214,6 +214,24 @@ describe("what an edition supersedes", () => {
     expect(workless.findComponent(SupersedesForm).find("select").exists()).toBe(false);
   });
 
+  it("asks the work anew once a work is set on the page, and offers its editions", async () => {
+    // the page reads the document again and stays: the form, there before the work, is not made anew
+    const asked = vi.spyOn(api, "listWorkDocuments").mockResolvedValue([B1]);
+    const wrapper = await edition(documentOf(), EDITOR);
+    expect(asked).not.toHaveBeenCalled();
+
+    await wrapper.setProps({ document: documentOf({ work: KLP }) });
+    await flushPromises();
+
+    expect(asked).toHaveBeenCalledWith("w1");
+    expect(offered(wrapper).map(([value]) => value)).toEqual(["", "b1"]);
+    await wrapper.setProps({ document: documentOf({ work: OTHER }) });
+    await flushPromises();
+    expect(asked).toHaveBeenLastCalledWith("w2");
+    // the other work's answer holds none of its editions: the first work's are gone with it
+    expect(wrapper.findComponent(SupersedesForm).text()).toContain(t("documents.page.edition.supersedesNone"));
+  });
+
   it("says where the editions were not read", async () => {
     vi.spyOn(api, "listWorkDocuments").mockRejectedValue(new ApiError("network", 0));
 
