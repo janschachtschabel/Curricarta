@@ -21,7 +21,7 @@ from app.db.anchors import new_entity
 from app.db.draft_copy import copy_document
 from app.db.freezing import freeze
 from app.db.name_frozen import NamedFrozen, name_frozen
-from tests.db.test_editing import document
+from tests.db.test_editing import document, one
 from tests.db.test_freeze import BASE, DOC, checked, ready
 from tests.db.test_nodes import CV, connection, url, waiting_for_a_lock
 from tests.support import without_settings_variables
@@ -251,3 +251,40 @@ def test_a_database_the_command_cannot_reach_ends_it_in_one_log_line() -> None:
     assert (done.returncode, done.stdout) == (1, "")
     assert len(done.stderr.splitlines()) == 1
     assert "naming stopped" in done.stderr
+
+
+async def test_a_copy_recoded_and_given_its_old_key_anew_is_frozen_with_a_name_of_its_own(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # revision 1 named "lp" .../spec/lp and its "g8" .../variant/g8; in the copy both are recoded, keeping
+    # their names, and new rows take the old keys: the names revision 1 gave by key are held, so they count on
+    await ready(connection, document)
+    await specified(connection, document.id, "lp", "g8")
+    await specified(connection, document.id, "sek", "g8")
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    copy = await copy_document(connection, document.id)
+    await connection.execute(
+        "UPDATE specification SET key = 'lp-alt' WHERE document_id = %s AND key = 'lp'", (copy,)
+    )
+    await connection.execute(
+        "UPDATE variant SET key = 'g8-alt' WHERE specification_id ="
+        " (SELECT id FROM specification WHERE document_id = %s AND key = 'sek')",
+        (copy,),
+    )
+    await specified(connection, copy, "lp")
+    sek = await one(connection, "SELECT id FROM specification WHERE document_id = %s AND key = 'sek'", copy)
+    await connection.execute(
+        "INSERT INTO variant (id, specification_id, key, label, variant_kind_scheme, variant_kind_iri)"
+        " VALUES (%s, %s, 'g8', 'G8', %s, %s)",
+        (await new_entity(connection, "variant"), sek[0], CV + "VariantKinds", CV + "var_track"),
+    )
+    await checked(connection, Copy(copy))
+
+    frozen = await freeze(connection, copy, BASE, accept_violations=False)
+
+    assert (frozen.specifications, frozen.variants) == (1, 1)
+    assert await named(connection, copy) == [
+        ("lp", DOC + "/spec/lp-2", []),
+        ("lp-alt", DOC + "/spec/lp", [f"g8 {DOC}/spec/lp/variant/g8"]),
+        ("sek", DOC + "/spec/sek", [f"g8 {DOC}/spec/sek/variant/g8-2", f"g8-alt {DOC}/spec/sek/variant/g8"]),
+    ]

@@ -209,3 +209,37 @@ def test_a_node_named_again_numbers_its_statements_past_all_an_earlier_revision_
     assert named.nodes == {again.id: f"{DOC}/lf-1"}
     assert list(named.statements.values()) == [f"{DOC}/lf-1/s-6"]
     assert named.serials == {again.id: 6}
+
+
+def test_a_name_given_by_key_that_a_row_of_the_document_holds_is_counted_on() -> None:
+    # recoded in the copy, "lp-alt" keeps .../spec/lp: a new "lp" takes no name a row holds, though revision 1
+    # gave it to "lp"; so for a variant recoded beside a new one of its old key
+    kept = specification("lp-alt", iri=f"{DOC}/spec/lp")
+    new = specification("lp")
+    stays = specification("sek", iri=f"{DOC}/spec/sek")
+    recoded = variant(stays, "g8-alt", iri=f"{DOC}/spec/sek/variant/g8")
+    added = variant(stays, "g8")
+    given = GivenByKey(
+        specifications={"lp": f"{DOC}/spec/lp", "sek": f"{DOC}/spec/sek"},
+        variants={("sek", "g8"): f"{DOC}/spec/sek/variant/g8"},
+    )
+
+    named = name_rows(DOC, [], [], specifications=[kept, new, stays], variants=[recoded, added], given=given)
+
+    assert named.specifications == {new.id: f"{DOC}/spec/lp-2"}
+    assert named.variants == {added.id: f"{DOC}/spec/sek/variant/g8-2"}
+
+
+def test_a_name_given_by_key_is_taken_once_and_a_variant_s_only_under_its_specification() -> None:
+    # two keys a revision each named alike; a variant's name of another specification's IRI is none of its own
+    first, second = specification("a"), specification("b")
+    g8 = variant(second, "g8")
+    given = GivenByKey(
+        specifications={"a": f"{DOC}/spec/x", "b": f"{DOC}/spec/x"},
+        variants={("b", "g8"): f"{DOC}/spec/x/variant/g8"},
+    )
+
+    named = name_rows(DOC, [], [], specifications=[first, second], variants=[g8], given=given)
+
+    assert named.specifications == {first.id: f"{DOC}/spec/x", second.id: f"{DOC}/spec/b"}
+    assert named.variants == {g8.id: f"{DOC}/spec/b/variant/g8"}

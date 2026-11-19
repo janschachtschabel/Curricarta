@@ -153,10 +153,12 @@ def _specifications(
     held: _Held,
     named: Named,
 ) -> None:
+    # a name given by key is taken where no row of the document holds it and none took it in this run
+    taken = {row.iri for row in [*specifications, *variants] if row.iri is not None}
     by_id: dict[UUID, tuple[str, str]] = {}  # each specification's key and IRI
     counter = held.counter(f"{document}/spec")
     for place, row in enumerate(sorted(specifications, key=lambda one: one.key), start=1):
-        iri = row.iri or given.specifications.get(row.key)
+        iri = row.iri or _free(given.specifications.get(row.key), f"{document}/spec/", taken)
         if iri is None:
             iri = specification_iri(document, counter.take(key_segment(row.key, place)))
         if row.iri is None:
@@ -169,11 +171,19 @@ def _specifications(
         key, under = by_id[specification_id]
         counter = held.counter(f"{under}/variant")
         for place, variant in enumerate(sorted(group, key=lambda one: one.key), start=1):
-            iri = variant.iri or given.variants.get((key, variant.key))
+            iri = variant.iri or _free(given.variants.get((key, variant.key)), f"{under}/variant/", taken)
             if iri is None:
                 iri = variant_iri(under, counter.take(key_segment(variant.key, place)))
             if variant.iri is None:
                 named.variants[variant.id] = iri
+
+
+def _free(name: str | None, under: str, taken: set[str]) -> str | None:
+    """``name`` where it is one under ``under`` none of ``taken`` holds, then taken; else None."""
+    if name is None or not name.startswith(under) or name in taken:
+        return None
+    taken.add(name)
+    return name
 
 
 def _siblings(
