@@ -267,6 +267,11 @@ async def test_a_value_the_store_refuses_names_its_check_and_changes_nothing(
         await replace_values(connection, owner(document), holder, 1, ValueDrafts(
             workloads=(replace(LESSONS, amount=Decimal(5), amount_to=Decimal(4)),)))  # fmt: skip
 
+    # beyond what the column's type holds: the store's data error, refused as the checks are
+    with pytest.raises(ValueRefused) as too_long:
+        await replace_values(connection, owner(document), holder, 1, ValueDrafts(
+            workloads=(replace(LESSONS, minutes_per_unit=2**40),)))  # fmt: skip
+    assert too_long.value.check is None
     with pytest.raises(ValueRefused) as at_statement:
         await replace_values(connection, owner(document), made["statement"], 1, ValueDrafts((), (GRADE,)))
     assert at_statement.value.check == "not_held"

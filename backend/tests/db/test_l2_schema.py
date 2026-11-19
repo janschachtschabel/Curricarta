@@ -230,6 +230,22 @@ NUMBERS: dict[str, tuple[ValueTable, dict[str, Any], str]] = {
     "an amount whose end is below it": ("workload", {"amount": 51, "amount_to": 50}, "workload_amount_order"),
     "an amount below zero": ("workload", {"amount": -1, "amount_to": None}, "workload_amount_check"),
     "no minutes in a unit": ("workload", {"minutes_per_unit": 0}, "workload_minutes_per_unit_check"),
+    # numeric takes NaN and Infinity, which every order above lets pass: no number of a document is either
+    "an amount not a number": ("workload", {"amount": "NaN", "amount_to": None}, "workload_amount_finite"),
+    "an endless amount": ("workload", {"amount": "Infinity", "amount_to": None}, "workload_amount_finite"),
+    "an amount's end not a number": ("workload", {"amount_to": "NaN"}, "workload_amount_to_finite"),
+    "a span from no number": (
+        "time_span",
+        {"span_from": "NaN", "span_to": None},
+        "time_span_span_from_finite",
+    ),
+    "a span from the endless": (
+        "time_span",
+        {"span_from": "Infinity", "span_to": None},
+        "time_span_span_from_finite",
+    ),
+    "a span to no number": ("time_span", {"span_to": "NaN"}, "time_span_span_to_finite"),
+    "a span to the endless": ("time_span", {"span_to": "Infinity"}, "time_span_span_to_finite"),
     "a position below one": ("level_assignment", {"position": 0}, "level_assignment_position_check"),
 }
 

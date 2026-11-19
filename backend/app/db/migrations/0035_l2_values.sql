@@ -50,6 +50,9 @@ CREATE TABLE workload (
     FOREIGN KEY (review_status_scheme, review_status_iri) REFERENCES vocab_concept (scheme_iri, iri),
     CONSTRAINT workload_one_holder CHECK (num_nonnulls(node_id, specification_id) = 1),
     CONSTRAINT workload_amount_order CHECK (amount <= amount_to),
+    -- numeric takes NaN and Infinity, which pass every order: below Infinity is a number (NaN sorts above it)
+    CONSTRAINT workload_amount_finite CHECK (amount < 'Infinity'),
+    CONSTRAINT workload_amount_to_finite CHECK (amount_to < 'Infinity'),
     CONSTRAINT workload_workload_kind_named CHECK ((workload_kind_scheme IS NULL) = (workload_kind_iri IS NULL)),
     CHECK ((origin_iri = 'https://w3id.org/wlo/curriculum/vocab#orig_rule') = (rule_id IS NOT NULL))
 );
@@ -95,6 +98,8 @@ CREATE TABLE time_span (
     FOREIGN KEY (review_status_scheme, review_status_iri) REFERENCES vocab_concept (scheme_iri, iri),
     CONSTRAINT time_span_one_holder CHECK (num_nonnulls(node_id, specification_id, workload_id) = 1),
     CONSTRAINT time_span_span_order CHECK (span_from <= span_to),
+    CONSTRAINT time_span_span_from_finite CHECK (span_from < 'Infinity'),  -- not NaN, as the workload's
+    CONSTRAINT time_span_span_to_finite CHECK (span_to < 'Infinity'),
     CONSTRAINT time_span_no_phase CHECK (time_kind_iri <> 'https://w3id.org/wlo/curriculum/vocab#time_phase'),
     CONSTRAINT time_span_time_relation_named CHECK ((time_relation_scheme IS NULL) = (time_relation_iri IS NULL)),
     CHECK ((origin_iri = 'https://w3id.org/wlo/curriculum/vocab#orig_rule') = (rule_id IS NOT NULL))

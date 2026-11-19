@@ -3,7 +3,8 @@ gives them back (plan M3a D2): levels (cur:LevelAssignment), time spans (cur:Tim
 (cur:Workload), each a holder's set of its kind in order. A draft with an ``id`` is that row of the holder,
 kept; one without is a new row. A workload's periods (cur:inPeriod) are time spans of the workload alone,
 replaced with it. Values are IRIs and numbers: which concepts the vocabularies hold, whether a level is a
-level, and the order of the numbers the store checks (migration l2_values).
+level, and the order of the numbers the store checks (migration l2_values). A number is one, not NaN nor the
+endless: a draft refuses those itself (ValueRefused, by the name of the store's check).
 
 A level at a rule's frame part has its column already; it is written with the rules (plan M3a I).
 """
@@ -15,6 +16,20 @@ from typing import Literal
 from uuid import UUID
 
 HolderKind = Literal["node", "statement", "specification"]
+
+
+class ValueRefused(Exception):
+    """The store refuses a value of a set: ``check`` names the constraint it breaks, where it has one."""
+
+    def __init__(self, check: str | None) -> None:
+        super().__init__(f"a value breaks {check}")
+        self.check = check
+
+
+def _finite(check: str, number: Decimal | None) -> None:
+    """Refuse NaN and the endless, which the store's numeric takes and its orders let pass."""
+    if number is not None and not number.is_finite():
+        raise ValueRefused(check)
 
 
 @dataclass(frozen=True)
@@ -43,6 +58,10 @@ class TimeSpanDraft:
     time_relation: str | None = None  # cv:TimeRelations
     id: UUID | None = None
 
+    def __post_init__(self) -> None:
+        _finite("time_span_span_from_finite", self.span_from)
+        _finite("time_span_span_to_finite", self.span_to)
+
 
 @dataclass(frozen=True)
 class WorkloadDraft:
@@ -55,6 +74,10 @@ class WorkloadDraft:
     total: bool = False  # the holder's whole (cur:totalWorkload)
     periods: tuple[TimeSpanDraft, ...] = ()
     id: UUID | None = None
+
+    def __post_init__(self) -> None:
+        _finite("workload_amount_finite", self.amount)
+        _finite("workload_amount_to_finite", self.amount_to)
 
 
 @dataclass(frozen=True)

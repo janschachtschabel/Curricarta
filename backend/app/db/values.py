@@ -10,8 +10,8 @@ findings on it; a new one is an editor's proposal (origin human, proposed), and 
 changes becomes one, on its next revision. A set that changes something counts the holder's revision
 one up and notes the document edited, which owes X5 a check; one that changes nothing leaves all as it
 was. What the store refuses of a value - a concept of another vocabulary, no level, numbers out of order
-- refuses the set (ValueRefused, ``check`` the constraint's name); a statement holds levels alone, and a
-time span or workload set at one is refused as ``not_held``.
+- refuses the set (ValueRefused, ``check`` the constraint's name; none for a number beyond its column's
+type); a statement holds levels alone, and a time span or workload set at one is refused as ``not_held``.
 """
 
 from collections.abc import Sequence
@@ -48,7 +48,7 @@ from app.db.value_rows import (
     values_of,
     workload_content,
 )
-from app.domain.l2 import Holder, HolderKind, ValueDrafts
+from app.domain.l2 import Holder, HolderKind, ValueDrafts, ValueRefused
 
 __all__ = ["DOCUMENT_OF_SPECIFICATION", "UnknownValue", "ValueRefused", "replace_values", "values_of"]
 
@@ -76,14 +76,6 @@ class UnknownValue(Exception):
     def __init__(self, value_id: UUID) -> None:
         super().__init__(f"{value_id} is no value of its kind at this holder")
         self.value_id = value_id
-
-
-class ValueRefused(Exception):
-    """The store refuses a value of the set: ``check`` names the constraint it breaks."""
-
-    def __init__(self, check: str | None) -> None:
-        super().__init__(f"a value breaks {check}")
-        self.check = check
 
 
 @dataclass(frozen=True)
@@ -136,7 +128,10 @@ async def replace_values(
             return expected_revision
         try:
             await _write(connection, target.document_id, wanted, current, gone)
-        except psycopg.errors.IntegrityError as refused:
+        except (
+            psycopg.errors.IntegrityError,
+            psycopg.errors.DataError,
+        ) as refused:  # a DataError has no name
             raise ValueRefused(refused.diag.constraint_name) from refused
         cursor = await connection.execute(
             sql.SQL("UPDATE {} SET revision = revision + 1 WHERE id = %s RETURNING revision").format(table),
