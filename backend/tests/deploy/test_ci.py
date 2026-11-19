@@ -6,6 +6,7 @@ These keep a workflow from losing a check or taking an action by a tag someone c
 """
 
 import re
+import subprocess
 import tomllib
 from pathlib import Path
 from typing import Any
@@ -118,12 +119,15 @@ def test_every_check_of_the_repository_runs() -> None:
 
 
 def _python_folders(backend: Path) -> set[str]:
-    """The backend's own folders that hold Python: the environment and the caches begin with a dot."""
-    return {
-        path.name
-        for path in backend.iterdir()
-        if path.is_dir() and not path.name.startswith(".") and next(path.rglob("*.py"), None)
-    }
+    """The backend's folders holding a Python file git keeps: an untracked scratch folder is no one's."""
+    listed = subprocess.run(
+        ["git", "ls-files", "--", "*.py"],  # noqa: S607
+        cwd=backend,
+        capture_output=True,
+        text=True,
+        check=True,
+    ).stdout.splitlines()
+    return {name.split("/", 1)[0] for name in listed if "/" in name}
 
 
 def test_every_python_folder_and_the_script_ci_runs_are_linted_and_typed() -> None:
