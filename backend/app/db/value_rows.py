@@ -56,8 +56,18 @@ _STATED: Final = sql.SQL("origin_iri, review_status_iri, rule_id, revision")
 
 
 async def values_of(connection: psycopg.AsyncConnection, document_id: UUID) -> Values:
-    """The document's values by holder, each kind in order: one query a kind. A level at a rule's frame part
-    is the rules' (plan M3a I) and not among them."""
+    """The document's values by holder, each kind in order: one query a kind, all in one snapshot - in a
+    read-only transaction of its own; within the caller's, as that one reads (as app/db/tree.py does), so a
+    set between two reads never shows a workload without its periods. A level at a rule's frame part is
+    the rules' (plan M3a I) and not among them."""
+    if connection.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
+        return await _values_of(connection, document_id)
+    async with connection.transaction():
+        await connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
+        return await _values_of(connection, document_id)
+
+
+async def _values_of(connection: psycopg.AsyncConnection, document_id: UUID) -> Values:
     rows = {
         table: await read_rows(connection, table, sql.SQL("document_id = %s"), document_id)
         for table in TABLES
