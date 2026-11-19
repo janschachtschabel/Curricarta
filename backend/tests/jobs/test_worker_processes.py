@@ -63,7 +63,11 @@ async def test_two_workers_run_fifty_jobs_each_exactly_once(queue_db: str) -> No
             await request_cancel(connection, job_id, None)  # type: ignore[arg-type]
 
     workers = [start(queue_db, owner, "record") for owner in ("w1", "w2")]
-    outputs = [worker.communicate(timeout=DEADLINE_S)[0] for worker in workers]
+    try:
+        outputs = [worker.communicate(timeout=DEADLINE_S)[0] for worker in workers]
+    finally:
+        for worker in workers:
+            end_process(worker)
 
     assert [worker.returncode for worker in workers] == [0, 0], outputs
     [(runs, distinct)] = fetch(queue_db, "SELECT count(*), count(DISTINCT job_id) FROM job_run")

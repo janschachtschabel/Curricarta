@@ -101,12 +101,14 @@ def end_process(process: subprocess.Popen[str], *readers: threading.Thread) -> N
     closed: a pipe left open warns (ResourceWarning) when the object is collected, and a pipe closed
     under a reader breaks that reader."""
     process.kill()
-    process.wait(10)
-    for reader in readers:
-        reader.join(10)
-    for pipe in (process.stdin, process.stdout, process.stderr):
-        if pipe is not None:
-            pipe.close()
+    try:
+        process.wait(10)
+        for reader in readers:
+            reader.join(10)
+    finally:  # a process that would not end is the failure: no warning of an open pipe beside it
+        for pipe in (process.stdin, process.stdout, process.stderr):
+            if pipe is not None:
+                pipe.close()
 
 
 @contextmanager
