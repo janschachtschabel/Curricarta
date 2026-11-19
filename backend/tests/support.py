@@ -193,18 +193,37 @@ def cpu_seconds(work: Callable[[], object]) -> float:
             gc.enable()
 
 
-# The timer's grain on the CPU time of a thread (15.6 ms on Windows) and the work that does not grow
-CPU_GRAIN_S = 0.1
+# How long each side of a growth is measured at the least: a call that takes less is made again, so that
+# the timer's grain on a thread's CPU time (15.6 ms on Windows) is under a tenth of what is measured
+GROWTH_WINDOW_S = 0.2
+
+
+def _cpu_per_call(work: Callable[[], object]) -> float:
+    """The CPU time one call of ``work`` takes in this thread, made again until GROWTH_WINDOW_S is spent;
+    the collector held off, as in cpu_seconds. A slow call is made once: a regression ends the test after
+    it, never later."""
+    collecting = gc.isenabled()
+    gc.collect()
+    gc.disable()
+    try:
+        calls, started = 0, time.thread_time()
+        while not calls or time.thread_time() - started < GROWTH_WINDOW_S:
+            work()
+            calls += 1
+        return (time.thread_time() - started) / calls
+    finally:
+        if collecting:
+            gc.enable()
 
 
 def cpu_growth(work: Callable[[float], object]) -> tuple[float, float]:
-    """The CPU time of ``work(0.5)`` and of ``work(1)``: work on half its input, then on all of it. Work
-    linear in its input takes about twice as long on all of it, quadratic work four times - however fast
-    or busy the machine, under coverage's tracing too; ``whole < 3 * half + CPU_GRAIN_S`` tells them
-    apart. A twentieth of the input first, unmeasured: what a first call does once (an import, a cache
-    filled) would count against the half alone."""
+    """The CPU time of a call of ``work(0.5)`` and of one of ``work(1)``: work on half its input, then on
+    all of it. Work linear in its input takes about twice as long on all of it, quadratic work four
+    times - however fast or busy the machine, under coverage's tracing too; ``whole < 3 * half`` tells
+    them apart. A twentieth of the input first, unmeasured: what a first call does once (an import, a
+    cache filled) would count against the half alone."""
     work(0.05)
-    return cpu_seconds(lambda: work(0.5)), cpu_seconds(lambda: work(1))
+    return _cpu_per_call(lambda: work(0.5)), _cpu_per_call(lambda: work(1))
 
 
 @asynccontextmanager

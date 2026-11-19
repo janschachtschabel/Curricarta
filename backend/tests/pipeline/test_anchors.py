@@ -14,7 +14,7 @@ from app.pipeline import anchor_fuzzy, anchor_passage
 from app.pipeline.anchor_check import MAX_FUZZY, check_wording
 from app.pipeline.anchor_fuzzy import FUZZY_PLACES, FUZZY_QUOTE, MIN_RATIO
 from app.pipeline.anchor_match import ELIDED_GAP, words
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 TWO = ["Die Schülerinnen und Schüler\nbeschreiben die Strukturen.", "Zweiter Absatz auf der zweiten Seite."]
 
@@ -613,7 +613,7 @@ def test_a_wording_as_long_as_the_fuzzy_search_takes_is_searched_fuzzy() -> None
     assert (len(wording), found.kind) == (MAX_FUZZY, "fuzzy")
 
 
-def test_a_long_paraphrase_found_in_a_table_costs_its_thread_a_bounded_time() -> None:
+def test_a_long_paraphrase_found_in_a_table_costs_its_thread_a_bounded_time(difflib_work: list[int]) -> None:
     # X5 checks all of a document's anchors in one thread beside the event loop
     table = " ".join(
         f"Zelle {number}: Begriff{number} steht in Zeile {number % 97}." for number in range(1_200)
@@ -626,8 +626,10 @@ def test_a_long_paraphrase_found_in_a_table_costs_its_thread_a_bounded_time() ->
     spent = time.thread_time() - started
 
     assert found.kind == "fuzzy"
-    # ~3 s measured here, ~7 s under coverage as CI runs it, the old app's search the same: the bound
-    # catches a search gone unbounded (22 s, old app audit E-20), not a slower machine
+    # the count: what difflib was given to compare stays within the fuzzy stage's bound
+    assert sum(difflib_work) <= _most_difflib_may_compare(wording), f"difflib compared {sum(difflib_work):,}"
+    # and one wide bound: ~3 s measured here, ~7 s under coverage as CI runs it, the old app's search the
+    # same; it catches a search gone unbounded (22 s, old app audit E-20), not a slower machine
     assert spent < 20.0, f"{spent:.2f} s of CPU time"
 
 
@@ -720,7 +722,7 @@ def test_a_wording_with_a_long_run_of_dots_is_cut_in_linear_time() -> None:
 
     # the work grows with the dots, not with their square (tests/support.cpu_growth)
     half, whole = cpu_growth(cut_out)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.02 s of CPU time here (2026-11-18); 20,000 dots took two seconds
     assert whole < 0.5
     assert cut[0].startswith("Die Lernenden") and cut[0].endswith("beschreiben")

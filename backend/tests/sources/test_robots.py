@@ -26,7 +26,7 @@ from app.sources.robots import (
 )
 from app.sources.url_fetch import UrlNotAllowed
 from tests.sources.compressed import CHUNK, MIB, arriving, in_chunks
-from tests.support import CPU_GRAIN_S, cpu_growth, cpu_seconds
+from tests.support import cpu_growth, cpu_seconds
 
 PRODUCT = "Curricarta"
 SITE = "https://lehrplaene.example"
@@ -175,11 +175,14 @@ def test_stars_without_end_match_in_no_time() -> None:
     # the work of six stars against that of three, on an address short enough for a regex to end: it
     # took 29 s of CPU time for six there, and none for three (2026-11-18) - the matching here, microseconds
     half, whole = cpu_growth(match)
-    assert whole < 3 * half + CPU_GRAIN_S, f"{half:.2f} s of CPU time for three stars, {whole:.2f} s for six"
+    assert whole < 3 * half, f"{half:.2f} s of CPU time for three stars, {whole:.2f} s for six"
     # and one wide bound on the worst: forty stars on the longest address; a few milliseconds here
     rule = "/" + "*a" * 40 + "b"
-    worst = cpu_seconds(lambda: allows(f"User-agent: *\nDisallow: {rule}\n", "/" + "a" * 1_900))
+    allowed: list[bool] = []
+    text = f"User-agent: *\nDisallow: {rule}\n"
+    worst = cpu_seconds(lambda: allowed.append(allows(text, "/" + "a" * 1_900)))
     assert worst < 1.0
+    assert allowed == [True]  # the address does not end in b: nothing of it is disallowed
 
 
 @pytest.mark.parametrize("run", [MAX_RULE_SIGNS - 5, 240], ids=["one-long-run", "runs-str-find-walks"])
@@ -248,7 +251,7 @@ def test_a_line_of_much_space_is_read_in_no_time() -> None:
 
     # the work grows with the space, not with its square (tests/support.cpu_growth)
     half, whole = cpu_growth(parse)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.02 s of CPU time here (2026-11-18); minutes before
     assert whole < 1.0
     rules = parsed[0]

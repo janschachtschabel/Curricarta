@@ -11,7 +11,7 @@ from app.conversion.html_hidden import clean_html
 from app.conversion.html_tree import DEEPEST_NESTING, parse_page
 from app.conversion.text_layer import UnreadablePdf
 from tests.conversion.html_reading import docling_reads, naive_tree, shape
-from tests.support import CPU_GRAIN_S, cpu_growth
+from tests.support import cpu_growth
 
 BODY, END = "<html><head></head><body>", "</body></html>"
 
@@ -419,10 +419,10 @@ SLOWING_PAGES: list[Callable[[float], str]] = [
 def test_a_page_built_to_slow_the_reading_is_read_in_linear_time(page_of: Callable[[float], str]) -> None:
     # the work of the whole page against that of its half, in this thread's CPU time: twice as much
     # where the reading is linear, four times where it is quadratic, as each of these pages once was -
-    # however fast or busy the machine. 0.1 s for the timer's grain and what does not grow
+    # however fast or busy the machine
     half, whole = cpu_growth(lambda part: clean_html(page_of(part)))
 
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and a bound on the whole: five times the 4.9 s the slowest took here (list-items, 2026-11-18)
     assert whole < 25
 
@@ -435,7 +435,7 @@ def test_a_page_nested_deeper_than_any_reader_reads_is_unreadable_at_once() -> N
 
     # the work grows with the page at most, not with its square (tests/support.cpu_growth)
     half, whole = cpu_growth(read)
-    assert whole < 3 * half + CPU_GRAIN_S, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
+    assert whole < 3 * half, f"CPU time: {half:.2f} s for half, {whole:.2f} s for all"
     # and one wide bound: 0.1 s of CPU time here (2026-11-18), a hundred times that is no moment any more
     assert whole < 10
     assert reads("<div>" * (DEEPEST_NESTING - 10) + "Tief.") == "Tief."
