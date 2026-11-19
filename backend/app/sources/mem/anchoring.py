@@ -3,7 +3,8 @@
 Each row's wording is looked for in the document's order (``drafts.rows_in_order``), after the place of the
 last one found, one wording at a time beside the event loop (``asyncio.to_thread``) - so that a job asked to
 stop stops between two; a statement's without the lead-in MEM gives each (``looked_for``). A wording found
-is anchored at its blocks and their pages; its match kind, quote and span X5 reckons, as for every anchor.
+is anchored at its blocks and their pages; its match kind, quote and span X5 reckons, as for every anchor -
+a statement's with the wordings ``looked_for`` gives, in the same turn (app/pipeline/x5_stage.py).
 A wording not found is ``notFound`` with no block, on the page of the row found before it, else the text's
 first - only estimated. The search has a time budget: past it, the rows left are not looked for and are
 anchored as not found (``unsearched``), so that a plan of many long wordings the document does not hold
@@ -72,26 +73,27 @@ async def anchor_rows(
     return Anchored(anchors, stages, unsearched, stage_of)
 
 
-def looked_for(row: Row) -> str:
-    """What the search looks for of a row: a statement's wording without the lead-in MEM puts before each
-    ("Die SuS wenden ... an") where the document has one before its list, or none - unless too little is
-    left to be found in one place alone. The row's wording, kept and exported, stays MEM's."""
-    lead_in = None if row.node else _LEAD_IN.match(row.wording)
+def looked_for(wording: str, *, statement: bool) -> tuple[str, ...]:
+    """What the search looks for of a row's wording, in turn until one is found: a statement's without the
+    lead-in MEM puts before each ("Die SuS wenden ... an") where the document has one before its list, or
+    none, and then whole - a document that words the statement after the same lead-in shares it, and a rest
+    alone may be too little alike for the fuzzy stage; whole alone where too little is left to be found in
+    one place, and a node's title. The row's wording, kept and exported, stays MEM's. X5 checks an imported
+    statement's anchor with the same wordings in the same turn, so its match kind follows the search."""
+    lead_in = _LEAD_IN.match(wording) if statement else None
     if lead_in is None:
-        return row.wording
-    rest = row.wording[lead_in.end() :]
-    return rest if len(_WORD.findall(rest)) >= _LEAST_WORDS else row.wording
+        return (wording,)
+    rest = wording[lead_in.end() :]
+    return (rest, wording) if len(_WORD.findall(rest)) >= _LEAST_WORDS else (wording,)
 
 
 def _find(row: Row, searched: SearchText, before: Found | None) -> Found | None:
-    """Where the row's wording stands: as ``looked_for`` gives it, else whole, as before the lead-in was
-    left out - a document that words the statement after the same lead-in shares it, and a rest alone may
-    be too little alike for the fuzzy stage."""
-    wording = looked_for(row)
-    found = find(wording, searched, before)
-    if found is None and wording != row.wording:
-        found = find(row.wording, searched, before)
-    return found
+    """Where the row's wording stands: the first of ``looked_for`` found."""
+    for wording in looked_for(row.wording, statement=not row.node):
+        found = find(wording, searched, before)
+        if found is not None:
+            return found
+    return None
 
 
 def _not_found(searched: SearchText, before: Found | None) -> AnchorDraft:

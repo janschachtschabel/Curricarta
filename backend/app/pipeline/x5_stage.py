@@ -1,7 +1,8 @@
 """X5 of the job extract.run (plan M1 8.1-8.5; konzept §13.2 "Prüfen"): no model asked.
 
 1. Each anchor of a statement or a node's heading that has no match kind yet is checked against the
-   text of the blocks it names (app/pipeline/anchor_check.py) - CPU work, beside the event loop - and
+   text of the blocks it names (app/pipeline/anchor_check.py) - a statement imported from MEM-Schule with
+   the wording its import looked for (app/sources/mem/anchoring.py) - CPU work, beside the event loop - and
    its match kind, the document's text at the place and its span written under the attempt's lease and
    the tree's lock (who changes a tree's anchors takes it first, migration l1_nodes) - batch by batch,
    each written as it is done, within X5_ANCHOR_BUDGET_S (audit 2026-11-14): past it no further batch
@@ -50,12 +51,13 @@ from app.exports.kern_rdf import kern_graph
 from app.exports.kern_rows import read_document
 from app.jobs.context import JobContext
 from app.jobs.queue import Job, hold_lease
-from app.pipeline.anchor_check import AnchorMatch, check_wording
+from app.pipeline.anchor_check import NOT_FOUND, AnchorMatch, check_wording
 from app.pipeline.asking import Superseded, ended
 from app.pipeline.progress import report
 from app.pipeline.shacl import ShaclTimeout, as_findings, shacl_check
 from app.pipeline.x4_unit import UNIT_WITHOUT_NODE
 from app.pipeline.x5_checks import plausibility
+from app.sources.mem.anchoring import looked_for
 from app.vocab.lookup import current_release
 
 log = logging.getLogger(__name__)
@@ -194,8 +196,19 @@ def _matched(batch: Sequence[UncheckedAnchor], stop: threading.Event) -> list[An
     for anchor in batch:
         if stop.is_set():
             break
-        matches.append(check_wording(anchor.wording, anchor.texts))
+        matches.append(check_anchor(anchor))
     return matches
+
+
+def check_anchor(anchor: UncheckedAnchor) -> AnchorMatch:
+    """How the anchor's wording stands in its blocks; a MEM statement's as the import looked for it - the
+    first of ``looked_for`` its blocks hold, so that its match kind and quote follow the search."""
+    match = NOT_FOUND
+    for wording in looked_for(anchor.wording, statement=anchor.mem_statement):
+        match = check_wording(wording, anchor.texts)
+        if match.kind != NOT_FOUND.kind:
+            break
+    return match
 
 
 def checked_anchor(anchor: UncheckedAnchor, match: AnchorMatch) -> CheckedAnchor:

@@ -186,6 +186,39 @@ async def test_an_import_writes_the_plan_s_tree_as_imported_rows_then_checks_it(
     assert_checked(await last_x5_check(connection, document.id))
 
 
+async def test_x5_checks_an_imported_statement_with_the_wording_the_import_looked_for(
+    in_process_shacl: None, setup: Any
+) -> None:
+    # MEM words the statement after its lead-in, the document lists it under its own: the import looked for
+    # the rest, and X5 checks the anchor so - its kind and quote follow the search, MEM's wording is kept
+    context, connection = setup
+    statement = "https://example.org/mem/rp/t0009"
+    [row] = [row for row in FROZEN["closure"] if row["n"] == statement]
+    worded = "Die SuS " + row["label"]
+    frozen = {
+        **FROZEN,
+        "closure": [{**part, "label": worded} if part is row else part for part in FROZEN["closure"]],
+    }
+    document = await an_import(connection)  # the document's blocks hold the label without the lead-in
+
+    await run(context, await a_job(connection, document), Endpoint(frozen=frozen))
+
+    found = await rows(
+        connection,
+        "SELECT s.verbatim, replace(a.match_kind_iri, %s, ''), a.quote FROM anchor a"
+        " JOIN statement s ON s.id = a.statement_id WHERE a.document_id = %s AND s.mem_iri = %s",
+        CV, document.id, statement,
+    )  # fmt: skip
+    assert found == [(worded, "match_exact", row["label"])]
+    findings = await rows(
+        connection,
+        "SELECT f.rule FROM validation_finding f JOIN statement s ON s.id = f.focus_id"
+        " WHERE f.document_id = %s AND s.mem_iri = %s AND f.rule LIKE 'x5.%%'",
+        document.id, statement,
+    )  # fmt: skip
+    assert findings == []
+
+
 async def test_the_plan_s_answers_are_kept_raw_under_the_run(
     in_process_shacl: None, setup: Any, tmp_path: Path
 ) -> None:

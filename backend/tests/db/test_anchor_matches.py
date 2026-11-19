@@ -21,7 +21,7 @@ from app.db.anchors import (
 from app.db.migrate import migrate
 from app.db.nodes import write_subtree
 from app.db.profile import write_profile
-from app.domain.l1 import AnchorDraft, NodeDraft, ProfileDraft, SpecificationDraft, StatementDraft
+from app.domain.l1 import AnchorDraft, MemTrace, NodeDraft, ProfileDraft, SpecificationDraft, StatementDraft
 from app.vocab.store import load_vocabulary
 from tests.db.document_of import document_of
 from tests.support import ontology_vocabulary
@@ -105,6 +105,34 @@ async def test_the_anchors_to_check_have_a_wording_and_no_match_kind_their_texts
     assert sorted((anchor.wording, anchor.texts, anchor.owner) for anchor in found) == [
         (WORDING, ("Die Lernenden beschreiben", "Licht und Schatten."), told),  # whose: the finding's focus
         ("Kompetenzen", ("Kompetenzen",), node),
+    ]
+
+
+async def test_an_anchor_says_whether_it_is_a_mem_statement_s(connection: psycopg.AsyncConnection) -> None:
+    # X5 checks a MEM statement with the wording the import looked for; a MEM node's title and the
+    # model's statements whole, as before
+    document = await document_of(connection, BLOCKS)
+    imported = CV + "orig_import"
+    root = NodeDraft(
+        function=CV + "fn_area", origin=imported, review_status=PROPOSED, original_title="Kompetenzen",
+        anchors=(AnchorDraft(("p1-b1",), page_start=1),), mem=MemTrace("https://example.org/mem/n1"),
+        statements=(
+            StatementDraft(
+                verbatim="Die SuS beschreiben Licht.", kind=CV + "kind_learningOutcome",
+                addressees=(CV + "addr_learner",), anchors=(AnchorDraft(("p1-b3",), page_start=1),),
+                origin=imported, review_status=PROPOSED, mem=MemTrace("https://example.org/mem/s1"),
+            ),
+            statement(WORDING, AnchorDraft(("p1-b2", "p1-b3"), page_start=1)),
+        ),
+    )  # fmt: skip
+    await write_subtree(connection, document.id, root)
+
+    found = await unchecked_anchors(connection, document.id)
+
+    assert sorted((anchor.wording, anchor.mem_statement) for anchor in found) == [
+        ("Die Lernenden beschreiben Licht und Schatten.", False),
+        ("Die SuS beschreiben Licht.", True),
+        ("Kompetenzen", False),
     ]
 
 

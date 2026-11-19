@@ -23,7 +23,7 @@ VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 # A statement's anchor checks its wording, a node's its heading's title; the blocks in reading order
 _UNCHECKED = """
 SELECT a.id, coalesce(a.statement_id, a.node_id), coalesce(s.verbatim, n.original_title),
-    array_agg(b.text ORDER BY b.seq)
+    array_agg(b.text ORDER BY b.seq), s.mem_iri IS NOT NULL
 FROM anchor a
 LEFT JOIN statement s ON s.id = a.statement_id
 LEFT JOIN node n ON n.id = a.node_id
@@ -31,7 +31,7 @@ JOIN anchor_block ab ON ab.anchor_id = a.id
 JOIN document_block b ON b.conversion_id = ab.conversion_id AND b.block_id = ab.block_id
 WHERE a.document_id = %s AND a.match_kind_iri IS NULL AND coalesce(s.verbatim, n.original_title) IS NOT NULL
     AND (n.rule_id IS NULL OR NOT n.rule_id = ANY(%s)) AND s.review_status_iri IS DISTINCT FROM 'https://w3id.org/wlo/curriculum/vocab#rev_rejected'
-GROUP BY a.id, s.verbatim, n.original_title
+GROUP BY a.id, s.verbatim, n.original_title, s.mem_iri
 ORDER BY a.id
 """
 # The model named blocks the wording is not in; an anchor without blocks is an editor's that found none
@@ -75,6 +75,7 @@ class UncheckedAnchor:
     owner: UUID  # its statement or node
     wording: str  # the statement's, or the title of the node's heading
     texts: tuple[str, ...]  # its blocks', in reading order
+    mem_statement: bool = False  # a statement imported from MEM-Schule: X5 checks what the import looked for
 
 
 @dataclass(frozen=True)
@@ -144,8 +145,8 @@ async def unchecked_anchors(
     the nodes of ``rule_titles``, the rules that title a node from no wording of its blocks."""
     cursor = await connection.execute(_UNCHECKED, (document_id, list(rule_titles)))
     return [
-        UncheckedAnchor(found, owner, wording, tuple(texts))
-        for found, owner, wording, texts in await cursor.fetchall()
+        UncheckedAnchor(found, owner, wording, tuple(texts), mem)
+        for found, owner, wording, texts, mem in await cursor.fetchall()
     ]
 
 
