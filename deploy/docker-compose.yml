@@ -151,7 +151,7 @@ services:
 
   # The sweep of what is past its time (python -m app.retention), only when asked - from the operator's
   # timer, daily:
-  #   docker compose -f deploy/docker-compose.yml --profile retention run --rm retention
+  #   docker compose -f deploy/docker-compose.yml --profile retention run --rm -T retention
   # Its own secrets and environment: the anchor's would hand it the pepper. The store's settings are the
   # anchor's (a sweep without the store would forget its notes and leave the objects); RETENTION_*
   # (0 keeps everything) are set here, the one service that reads them

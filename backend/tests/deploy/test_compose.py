@@ -184,7 +184,7 @@ def test_the_secret_files_are_kept_out_of_git() -> None:
 
 
 def test_compose_starts_the_sweep_only_when_asked() -> None:
-    # `docker compose --profile retention run --rm retention`, from the operator's timer: never with up
+    # `docker compose --profile retention run --rm -T retention`, from the operator's timer: never with up
     sweep = SERVICES["retention"]
 
     assert sweep["profiles"] == ["retention"]
