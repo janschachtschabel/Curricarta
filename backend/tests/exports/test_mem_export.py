@@ -157,7 +157,7 @@ async def test_a_refused_state_is_kept_refused_and_checked_once(
 async def test_a_wait_for_a_check_past_the_request_s_time_is_no_export(
     in_process_shacl: None, exporter: MemExporter, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    # both checks of the process are taken: the request does not wait past what the proxy gives it
+    # both checks of the process are taken: the request does not wait past its own share (REQUEST_S)
     monkeypatch.setattr(mem_export, "REQUEST_S", 0.0)
     monkeypatch.setattr(mem_export, "MIN_WAIT_S", 0.05)
     exporter._checks = asyncio.Semaphore(0)
@@ -187,7 +187,7 @@ async def test_a_wait_for_the_key_another_export_holds_is_bounded(
 
 
 def test_the_check_s_time_leaves_the_wait_a_part_of_the_request_s() -> None:
-    # the check and the waits before it share what the proxy gives a request
+    # the check and the waits before it share the request's time (REQUEST_S)
     settings = make_settings(mem_export_timeout_s=45)
 
     assert settings.mem_export_timeout_s + mem_export.MIN_WAIT_S <= mem_export.REQUEST_S
