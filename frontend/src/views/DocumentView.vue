@@ -175,7 +175,7 @@ watch(
     </p>
     <h1 v-if="document_"><bdi class="document__title">{{ heading }}</bdi></h1>
     <h1 v-else>{{ t("app.titles.document") }}</h1>
-    <!-- the main next step and the page's sections, ahead of its ten sections -->
+    <!-- the main next step and a way to each of the page's sections, ahead of them -->
     <DocumentWays v-if="document_ && !missing" :document="document_" />
 
     <LoadingState v-if="loading && !document_" />
