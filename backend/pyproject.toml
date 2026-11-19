@@ -110,6 +110,9 @@ filterwarnings = [
     # Docling 2.150.1 reads its own deprecated table-image field while it builds the PDF pipeline (only in
     # the converter image's tests); our options never set it
     "ignore:This field is deprecated. Use `generate_page_images=True`:DeprecationWarning",
+    # torch's data loader under EasyOCR asks for pinned memory, which a CPU-only machine (ours, by design)
+    # cannot give; only the converter image's OCR tests reach it
+    "ignore:'pin_memory' argument is set as true but no accelerator is found:UserWarning",
 ]
 
 [tool.coverage.run]
