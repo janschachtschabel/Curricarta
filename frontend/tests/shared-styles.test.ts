@@ -301,7 +301,7 @@ describe("a colour that follows the scheme", () => {
    * A colour transition on a resting rule kept a button's old background after the system switched between light
    * and dark while the page was open (browser probe 2026-11-19: light text on a white button, 1.12:1, until reload):
    * the transition the custom property's change starts does not run to its end. A colour moves only while the
-   * pointer is on it; not at rest and not while focused (a focused button kept the old colour as well).
+   * pointer is on it; not at rest and not while focused (a focused button would keep the old colour as well).
    */
   it("is transitioned only on hover, never at rest nor on focus", () => {
     const rules = [...STYLESHEET.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)];
