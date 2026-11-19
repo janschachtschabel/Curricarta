@@ -295,3 +295,21 @@ describe("a link drawn as a button", () => {
     expect(shared).toContain("font-weight: inherit");
   });
 });
+
+describe("a colour that follows the scheme", () => {
+  /**
+   * A colour transition on a resting rule kept a button's old background after the system switched between light
+   * and dark while the page was open (browser probe 2026-11-19: light text on a white button, 1.12:1, until reload):
+   * the transition the custom property's change starts does not run to its end. A colour moves only while it is
+   * pointed at or focused, where a theme switch does not happen.
+   */
+  it("is transitioned only on hover or focus, never at rest", () => {
+    const rules = [...STYLESHEET.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^}]*)\}/g)];
+    const offenders = rules
+      .filter(([, , body]) => /transition\s*:[^;]*\b(?:background-color|border-color|color)\b/.test(body))
+      .map(([, selector]) => selector.trim())
+      .filter((selector) => selector.split(",").some((part) => !/:hover|:focus/.test(part)));
+
+    expect(offenders).toEqual([]);
+  });
+});

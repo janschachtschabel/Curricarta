@@ -284,6 +284,12 @@ input, select, textarea {
   border-radius: var(--radius);
   background: var(--surface);
   color: var(--text);
+}
+
+/* Colours move only while a control is pointed at or focused, never at rest: at rest a transition kept the old
+   colour after the system switched between light and dark with the page open (the transition the custom
+   property's change starts does not run to its end). */
+input:hover, select:hover, textarea:hover, input:focus-visible, select:focus-visible, textarea:focus-visible {
   transition: border-color var(--dur-1) var(--ease);
 }
 
@@ -574,6 +580,10 @@ textarea[aria-invalid="true"]:not(:disabled) {
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
+}
+
+/* As for the controls above: a button's colours move only while it is pointed at or focused. */
+.btn:hover, .btn:focus-visible {
   transition: background-color var(--dur-1) var(--ease), border-color var(--dur-1) var(--ease);
 }
 
