@@ -154,7 +154,8 @@ def _specifications(
     named: Named,
 ) -> None:
     # a name given by key is taken where no row of the document holds it and none took it in this run
-    taken = {row.iri for row in [*specifications, *variants] if row.iri is not None}
+    taken = {row.iri for row in specifications if row.iri is not None}
+    taken |= {row.iri for row in variants if row.iri is not None}
     by_id: dict[UUID, tuple[str, str]] = {}  # each specification's key and IRI
     counter = held.counter(f"{document}/spec")
     for place, row in enumerate(sorted(specifications, key=lambda one: one.key), start=1):

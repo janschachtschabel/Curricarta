@@ -17,11 +17,11 @@ from app.exports.kern_naming import draft_naming, frozen_naming
 from app.exports.kern_rdf import CUR, kern_graph
 from app.exports.kern_rows import KernRows, read_document
 from app.pipeline.shacl_child import validate_graph
-from tests.db.test_document_meta import an_edition
 from tests.db.test_editing import document
 from tests.db.test_freeze import BASE, DOC, ready
 from tests.db.test_freeze_naming import specified
 from tests.db.test_nodes import connection, url
+from tests.db.test_supersedes import an_edition
 from tests.exports.test_kern_rdf import a_document
 from tests.pipeline.test_shacl import ONTOLOGY
 

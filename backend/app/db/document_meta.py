@@ -10,8 +10,9 @@ frozen once, or a draft copy of one - keeps its work, issuer and edition, which 
 B2, cur:supersedes): a document the reader sees, frozen, of the same work and under another IRI - and none
 whose own chain of editions, through any revision of their IRIs, comes back to this document's IRI -, else
 FieldError ``supersedes`` ``not_offered``, a document the reader does not see refused as one there is not;
-chosen under a lock of the work, so that two drafts do not choose each other at once. A change of the metadata
-owes X5 a check: the Kern export carries them.
+chosen under a lock of the work, so that two drafts do not choose each other at once. Chosen in its work, it
+goes when the work changes: a document of another work supersedes none of this one's editions. A change of the
+metadata owes X5 a check: the Kern export carries them.
 
 simplify: who sees a document edits its metadata, as its tree (app/db/editing.py); the work is the
 editors' alone, which the API asks (app/api/document_meta.py).
@@ -100,9 +101,19 @@ async def set_work(
                 "INSERT INTO work (id, title, region, short_title, owner_id) VALUES (%s, %s, %s, %s, %s)",
                 (work_id, work.title, work.region, work.short_title, reader.account_id),
             )
-        await connection.execute(
-            "UPDATE document SET work_id = %s, updated_at = now() WHERE id = %s", (work_id, document_id)
+        # what it superseded was an edition of its work before: another work lets go of it (plan M3a B2)
+        cursor = await connection.execute(
+            "SELECT work_id IS DISTINCT FROM %s AND supersedes_id IS NOT NULL FROM document WHERE id = %s",
+            (work_id, document_id),
         )
+        let_go = bool((await cursor.fetchone() or (False,))[0])
+        await connection.execute(
+            "UPDATE document SET work_id = %s, updated_at = now(),"
+            " supersedes_id = CASE WHEN %s THEN NULL ELSE supersedes_id END WHERE id = %s",
+            (work_id, let_go, document_id),
+        )
+        if let_go:
+            await mark_edited(connection, document_id)  # the Kern graph said it
         return work_id
 
 
@@ -121,7 +132,7 @@ async def set_metadata(
             key: value if key == SUPERSEDES else _text(key, value) for key, value in given.items()
         }
         if SUPERSEDES in values and not (values[SUPERSEDES] is None or isinstance(values[SUPERSEDES], UUID)):
-            raise FieldError(SUPERSEDES, "not_text")
+            raise FieldError(SUPERSEDES, "not_offered")
         await guard(connection, document_id)
         cursor = await connection.execute(
             "SELECT title, issuer, edition, supersedes_id, iri IS NOT NULL FROM document WHERE id = %s",
