@@ -99,7 +99,8 @@ class ValuesIn(BaseModel):
     responses=answers("no_node: none the caller may read", VALUE_RESPONSES) | HIDDEN,
 )
 async def set_node_values(node_id: UUID, body: ValuesIn, request: Request, who: Account) -> NodeRowOut:
-    found = await _set(request, who, Holder("node", node_id), body, node_as_read)
+    gone = Refusal(404, "no_node", "No such node.")
+    found = await _set(request, who, Holder("node", node_id), body, node_as_read, gone)
     assert isinstance(found, NodeRowOut)  # noqa: S101 - the node's reader
     return found
 
@@ -112,7 +113,8 @@ async def set_node_values(node_id: UUID, body: ValuesIn, request: Request, who: 
 async def set_statement_values(
     statement_id: UUID, body: ValuesIn, request: Request, who: Account
 ) -> StatementOut:
-    found = await _set(request, who, Holder("statement", statement_id), body, statement_as_read)
+    gone = Refusal(404, "no_statement", "No such statement.")
+    found = await _set(request, who, Holder("statement", statement_id), body, statement_as_read, gone)
     assert isinstance(found, StatementOut)  # noqa: S101 - the statement's reader
     return found
 
@@ -121,10 +123,10 @@ AsRead = Callable[[psycopg.AsyncConnection, Principal, UUID], Awaitable[BaseMode
 
 
 async def _set(
-    request: Request, who: Principal, holder: Holder, body: ValuesIn, as_read: AsRead
+    request: Request, who: Principal, holder: Holder, body: ValuesIn, as_read: AsRead, gone: Refusal
 ) -> BaseModel:
-    """Set the holder's values to ``body``; the holder as the tree has it after."""
-    gone = Refusal(404, f"no_{holder.kind}", f"No such {holder.kind}.")
+    """Set the holder's values to ``body``; the holder as the tree has it after, ``gone`` where there is none
+    the caller may read."""
     async with request.app.state.pool.connection() as connection:
         document_id: UUID | None = None
         drafts = ValueDrafts()
