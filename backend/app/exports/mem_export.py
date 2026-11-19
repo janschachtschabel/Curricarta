@@ -50,7 +50,10 @@ from app.sources.mem.rules_db import mem_files
 log = logging.getLogger(__name__)
 CHECKS_AT_ONCE = 2
 _PYSHACL = version("pyshacl")  # the checker's: another may refuse what this one passed, or the other way
-REQUEST_S = 55.0  # what the proxy gives a request (60 s), short of a margin: the wait and the check share it
+# What a request may take for the wait and the check together: short of the API's own statement deadline
+# (DB_STATEMENT_TIMEOUT_S, 60 s), and so well under the edge's 75 s (deploy/nginx-api.conf, the Helm
+# example's ingress): the API words its own answer before the edge would give up
+REQUEST_S = 55.0
 MIN_WAIT_S = 5.0
 # what the export reads beside the rows: a deployment that changes one changes the output
 _INPUTS = (*MEM_SHAPE_FILES, MEM_MODEL, "mem/grundtypen.json")

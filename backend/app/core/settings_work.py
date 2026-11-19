@@ -83,8 +83,8 @@ class SourceSettings(BaseModel):
     # found on an estimated page (plan M2, Nachtrag M2-4)
     mem_search_budget_s: Annotated[float, Field(ge=10, le=3600)] = 300.0
     # How long the export of a MEM import may check it against the MEM shapes, in a child process killed at
-    # its end (plan M2-6): the request waits for it, so under the proxy's 60 s with room for the waits before
-    # it (app/exports/mem_export.py, REQUEST_S); 4.0 s measured in the child for 2,400 parts
+    # its end (plan M2-6): the request waits for it, so within REQUEST_S (55 s, under the edge's 75 s) with
+    # room for the waits before it (app/exports/mem_export.py); 4.0 s measured in the child for 2,400 parts
     mem_export_timeout_s: Annotated[float, Field(ge=5, le=45)] = 30.0
     # The licence of MEM-Schule's data, once the operators checked it (plan M2, E14): an https IRI the
     # catalogue gives every plan it reads; empty while unchecked. Imports made before take it with
