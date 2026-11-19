@@ -191,9 +191,10 @@ ein Test schlägt an, wenn sie veraltet.
 - Export eines MEM-Imports (`GET /api/v1/documents/{id}/export.ttl`): Hier startet die API selbst
   SHACL-Kindprozesse, höchstens zwei je Prozess, mit derselben Regel für Speichermangel. Gemessen: 4 s
   im Kind für 2.400 Teile. Die Prüfung begrenzt `MEM_EXPORT_TIMEOUT_S` (Standard 30 s, höchstens 45 s);
-  das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress von
-  mindestens 60 s voraus. Den Speicher der API bei zwei gleichzeitigen Prüfungen misst M6. Die
-  Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
+  das Warten davor teilt sich mit ihr 55 s. Das setzt eine Lesefrist von Proxy oder Ingress über
+  `DB_STATEMENT_TIMEOUT_S` der API (60 s) hinaus voraus, mit Abstand: 75 s in Compose
+  (`deploy/nginx-api.conf`) und im Helm-Beispiel. Den Speicher der API bei zwei gleichzeitigen
+  Prüfungen misst M6. Die Ergebnisse bleiben im Speicher unter `exports/<Dokument>/`; nichts räumt sie weg.
 - Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`); ein `options=`
   aus `DATABASE_URL` bleibt und steht davor (beim selben Parameter gilt der Wert des Dienstes). Eine
   Transaktion, die `DB_IDLE_IN_TRANSACTION_TIMEOUT_S` lang (Standard 300 s) nichts tut, beendet der

@@ -12,6 +12,7 @@ from typing import Any
 import pytest
 import yaml  # type: ignore[import-untyped]
 
+from app.exports.mem_export import REQUEST_S
 from tests.support import make_settings
 
 DEPLOY = Path(__file__).resolve().parents[3] / "deploy"
@@ -107,3 +108,36 @@ def test_the_edge_limits_requests_per_address_and_answers_429() -> None:
     # the spec and the SPA's files are not counted: the API's location holds every limit_req
     assert len([line for line in directives(api) if line.startswith("limit_req")]) == 2
     assert HELM["ingress"]["annotations"]["nginx.ingress.kubernetes.io/limit-rps"] == "50"
+
+
+# What the edge waits beyond the API's longest own deadline: the answer's way back, a slow pool connection
+EDGE_MARGIN_S = 10
+
+
+def edge_read_timeouts_s() -> tuple[int, int]:
+    """The read deadline towards the API of Compose's edge (deploy/nginx-api.conf) and of the Helm example's
+    ingress (its annotation, set or left as a comment for the operator to set)."""
+    api = (DEPLOY / "nginx-api.conf").read_text(encoding="utf-8")
+    location = api.split("location /api/ {", 1)[1].split("}", 1)[0]
+    [compose] = [line for line in directives(location) if line.startswith("proxy_read_timeout ")]
+    compose_match = re.fullmatch(r"proxy_read_timeout (\d+)s", compose)
+    assert compose_match, compose
+    helm_text = (DEPLOY / "helm-values.example.yaml").read_text(encoding="utf-8")
+    [helm] = re.findall(
+        r'^\s*#?\s*nginx\.ingress\.kubernetes\.io/proxy-read-timeout: "(\d+)"', helm_text, re.M
+    )
+    return int(compose_match.group(1)), int(helm)
+
+
+def test_the_edges_wait_for_the_api_past_its_statement_deadline() -> None:
+    # One rule at both edges: past the API's DB_STATEMENT_TIMEOUT_S (and the MEM export's wait in its
+    # request) by a margin, so that the API's own answer - a 500 for a cancelled statement - reaches the
+    # client rather than the edge's 504
+    compose, helm = edge_read_timeouts_s()
+    statement_s = {
+        int(BASE["services"]["api"]["environment"]["DB_STATEMENT_TIMEOUT_S"]),
+        int(HELM["api"]["env"]["DB_STATEMENT_TIMEOUT_S"]),
+    }
+
+    assert compose == helm
+    assert compose >= max(*statement_s, REQUEST_S) + EDGE_MARGIN_S
