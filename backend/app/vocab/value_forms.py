@@ -73,13 +73,41 @@ TABLE_OF: Mapping[ValueKind, str] = {
     "level_assignments": "level_assignment", "time_spans": "time_span", "workloads": "workload",
 }  # fmt: skip
 PERIODS: Final[ValueKind] = "time_spans"  # what a workload's periods are
-_RANK = CUR + "rank"
+_RANK, _DIMENSION = CUR + "rank", CUR + "levelDimension"
+# every concept of the class, retired ones too: a kept value may name one, and its system still rules it
 _GROUPED_VALUES = """
-SELECT c.iri, c.scheme_iri, s.pref_labels, c.properties -> %(rank)s -> 0 ->> 'value' AS rank
+SELECT c.iri, c.scheme_iri, s.pref_labels, c.properties -> %(rank)s -> 0 ->> 'value' AS rank,
+    s.properties -> %(dimension)s -> 0 ->> 'iri' AS dimension, c.retired_in IS NULL AND s.retired_in IS NULL
 FROM vocab_concept c JOIN vocab_scheme s ON s.iri = c.scheme_iri
-WHERE %(type)s = ANY (c.types) AND c.retired_in IS NULL AND s.retired_in IS NULL
+WHERE %(type)s = ANY (c.types)
 """
-_SCHEME_VALUES = "SELECT iri FROM vocab_concept WHERE scheme_iri = %s AND retired_in IS NULL"
+_SCHEME_VALUES = """
+SELECT c.iri FROM vocab_concept c JOIN vocab_scheme s ON s.iri = c.scheme_iri
+WHERE c.scheme_iri = %s AND c.retired_in IS NULL AND s.retired_in IS NULL
+"""
+
+
+@dataclass(frozen=True)
+class LevelRule:
+    """Levels of these dimensions - their system's (``cur:levelDimension``) or the assignment's own - a holder
+    of this kind never holds, but where its type is ``unless`` (a statement's kind, a specification's kind):
+    the SPARQL constraints of the core's LevelAssignmentShape, which tests/vocab/test_level_rules.py holds
+    against the shapes."""
+
+    holder: HolderKind
+    dimensions: frozenset[str]
+    unless: str | None = None
+
+
+_GRADED = frozenset(
+    {CV + "dim_grading", CV + "dim_conduct"}
+)  # at an assessment, its specification, a standard
+LEVEL_RULES: Final = (
+    LevelRule("statement", frozenset({CV + "dim_qualification"})),  # at a qualification or a specification
+    LevelRule("statement", _GRADED, unless=CV + "kind_standard"),
+    LevelRule("node", _GRADED),
+    LevelRule("specification", _GRADED, unless="assessmentSpecification"),
+)
 
 
 @dataclass(frozen=True)
@@ -89,8 +117,9 @@ class ValueForm:
     each value that has one, and each group's label."""
 
     values: Mapping[str, tuple[ConceptDetails, ...]]
-    group_of: Mapping[str, str]  # a value's IRI: its scheme's
+    group_of: Mapping[str, str]  # a value's IRI: its scheme's - a retired one's too
     groups: Mapping[str, str]  # a group's IRI: its label
+    dimension_of: Mapping[str, str | None]  # a level's IRI: its system's dimension (cv:LevelDimensions)
 
 
 async def value_form_of(connection: psycopg.AsyncConnection) -> ValueForm:
@@ -98,13 +127,18 @@ async def value_form_of(connection: psycopg.AsyncConnection) -> ValueForm:
     by_source: dict[str, tuple[ConceptDetails, ...]] = {}
     group_of: dict[str, str] = {}
     groups: dict[str, str] = {}
+    dimension_of: dict[str, str | None] = {}
     for source, value_class in _GROUPED.items():
-        cursor = await connection.execute(_GROUPED_VALUES, {"rank": _RANK, "type": value_class})
+        cursor = await connection.execute(
+            _GROUPED_VALUES, {"rank": _RANK, "dimension": _DIMENSION, "type": value_class}
+        )
         found = await cursor.fetchall()
-        for iri, scheme, labels, _ in found:
+        for iri, scheme, labels, _, dimension, _ in found:
             group_of[iri] = scheme
             groups[scheme] = _label(labels) or scheme
-        ranks = {iri: _number(rank) for iri, _, _, rank in found}
+            if source == LEVELS:
+                dimension_of[iri] = dimension
+        ranks = {iri: _number(rank) for iri, _, _, rank, _, active in found if active}
         details = await concept_details(connection, list(ranks))
         order = {
             iri: (groups[group_of[iri]].casefold(), group_of[iri], rank is None, rank or 0)
@@ -125,7 +159,7 @@ async def value_form_of(connection: psycopg.AsyncConnection) -> ValueForm:
                 sorted(details.values(), key=lambda value: value.label.casefold())
             )
         values[field.key] = by_source[field.values]
-    return ValueForm(values, group_of, groups)
+    return ValueForm(values, group_of, groups, dimension_of)
 
 
 def _label(labels: dict[str, str], language: str = "de") -> str | None:

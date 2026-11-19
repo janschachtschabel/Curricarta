@@ -17,7 +17,15 @@ from app.core.auth import Principal
 from app.domain.l2 import HolderKind
 from app.vocab.forms import FieldKind, FormField, form_of
 from app.vocab.lookup import ConceptDetails
-from app.vocab.value_forms import PERIODS, VALUE_FIELDS, VALUE_HOLDERS, ValueKind, value_form_of
+from app.vocab.value_forms import (
+    LEVEL_RULES,
+    PERIODS,
+    VALUE_FIELDS,
+    VALUE_HOLDERS,
+    ValueForm,
+    ValueKind,
+    value_form_of,
+)
 
 router = APIRouter(prefix="/api/v1", tags=["profiles"], responses=AUTH_RESPONSES)
 Account = Annotated[Principal, Depends(require_account)]
@@ -35,6 +43,7 @@ class ValueOut(BaseModel):
     examples: list[str]
     broader: list[str]  # the core values it refines: a node type's function, a subkind's kind
     group: str | None  # a level's system, a competence dimension's model (FormOut.groups); none for others
+    dimension: str | None  # a level's system's (cv:LevelDimensions), which ValueKindOut.rules name
 
 
 class FieldOut(BaseModel):
@@ -46,10 +55,20 @@ class FieldOut(BaseModel):
     values: list[ValueOut] | None  # a list's, active ones in the order of their labels
 
 
+class LevelRuleOut(BaseModel):
+    """A level of these dimensions - its system's or the assignment's own - the holder never holds, but where
+    its type (a statement's kind, a specification's) is ``unless``."""
+
+    holder: HolderKind
+    dimensions: list[str]
+    unless: str | None
+
+
 class ValueKindOut(BaseModel):
     holders: list[HolderKind]  # those offered this kind: PUT /nodes/{id}/values, /statements/{id}/values
     fields: list[FieldOut]
     periods: ValueKind | None  # the kind a workload's periods are, with that kind's fields
+    rules: list[LevelRuleOut]  # a level's, by its dimension; a range's end is of its start's system too
 
 
 class FormOut(BaseModel):
@@ -80,8 +99,13 @@ async def read_form(sector: Sector, request: Request, who: Account) -> FormOut:
         values={
             kind: ValueKindOut(
                 holders=list(VALUE_HOLDERS[kind]),
-                fields=[_field(field, valued.values, valued.group_of) for field in fields],
+                fields=[_field(field, valued.values, valued) for field in fields],
                 periods=PERIODS if kind == "workloads" else None,
+                rules=[
+                    LevelRuleOut(holder=rule.holder, dimensions=sorted(rule.dimensions), unless=rule.unless)
+                    for rule in LEVEL_RULES
+                    if kind == "level_assignments"
+                ],
             )
             for kind, fields in VALUE_FIELDS.items()
         },
@@ -90,9 +114,7 @@ async def read_form(sector: Sector, request: Request, who: Account) -> FormOut:
 
 
 def _field(
-    field: FormField,
-    offered: Mapping[str, tuple[ConceptDetails, ...]],
-    group_of: Mapping[str, str] | None = None,
+    field: FormField, offered: Mapping[str, tuple[ConceptDetails, ...]], valued: ValueForm | None = None
 ) -> FieldOut:
     values = offered.get(field.key) if field.values is not None else None
     return FieldOut(
@@ -101,13 +123,11 @@ def _field(
         required=field.required,
         many=field.many,
         most=field.most,
-        values=None
-        if values is None
-        else [_value(value, (group_of or {}).get(value.iri)) for value in values],
+        values=None if values is None else [_value(value, valued) for value in values],
     )
 
 
-def _value(value: ConceptDetails, group: str | None) -> ValueOut:
+def _value(value: ConceptDetails, valued: ValueForm | None) -> ValueOut:
     return ValueOut(
         iri=value.iri,
         notation=value.notation,
@@ -118,5 +138,6 @@ def _value(value: ConceptDetails, group: str | None) -> ValueOut:
         delimitation=value.delimitation,
         examples=list(value.examples),
         broader=list(value.broader),
-        group=group,
+        group=None if valued is None else valued.group_of.get(value.iri),
+        dimension=None if valued is None else valued.dimension_of.get(value.iri),
     )

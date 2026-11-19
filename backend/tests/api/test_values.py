@@ -75,14 +75,14 @@ def test_a_statement_s_levels_are_set_and_read_with_the_tree(client: TestClient,
     answer = client.put(
         f"/api/v1/statements/{said}/values",
         headers=editor,
-        json=values(level_assignments=[{"level": LVL + "EQF-4"}]),
+        json=values(level_assignments=[{"level": LVL + "cefr-B1"}]),
     )
 
     assert answer.status_code == 200, answer.text
     assert (answer.json()["id"], answer.json()["revision"]) == (said, 2)
     [top] = tree(client, document, editor)["nodes"]
     [statement] = top["statements"]
-    assert [level["level"] for level in statement["values"]["level_assignments"]] == [LVL + "EQF-4"]
+    assert [level["level"] for level in statement["values"]["level_assignments"]] == [LVL + "cefr-B1"]
     assert top["values"] == {"level_assignments": [], "time_spans": [], "workloads": []}
 
 
@@ -95,6 +95,34 @@ def test_a_value_of_a_kind_the_holder_may_not_hold_is_refused(client: TestClient
     assert (answer.status_code, answer.json()["code"]) == (422, "invalid_field")
     assert answer.json()["details"] == {"field": "time_spans", "problem": "not_held"}
     assert rows(url, "SELECT count(*) FROM time_span") == [(0,)]
+
+
+def test_a_level_the_shapes_never_let_the_holder_hold_is_refused(client: TestClient, url: str) -> None:
+    # a qualification level at a statement, a grade but at a standard (LevelAssignmentShape)
+    document, owner = a_document(client, url)
+    node = a_node(url, document)
+    said = a_statement(url, document, node)
+    standard = a_statement(url, document, node, statement_kind_iri=CV + "kind_standard", position=2)
+    grade = values(level_assignments=[{"level": LVL + "grade-2"}])
+
+    answers = [
+        client.put(f"/api/v1/statements/{said}/values", headers=owner, json=values(
+            level_assignments=[{"level": LVL + "cefr-B1"}, {"level": LVL + "EQF-4"}])),
+        client.put(f"/api/v1/statements/{said}/values", headers=owner, json=grade),
+        client.put(f"/api/v1/nodes/{node}/values", headers=owner, json=grade),
+        client.put(f"/api/v1/nodes/{node}/values", headers=owner, json=values(
+            level_assignments=[{"level": LVL + "DQR-4", "level_to": LVL + "EQF-5"}])),
+    ]  # fmt: skip
+    taken = client.put(f"/api/v1/statements/{standard}/values", headers=owner, json=grade)
+
+    assert [(answer.status_code, answer.json()["details"]) for answer in answers] == [
+        (422, {"field": "level_assignments[1].level", "problem": "not_offered"}),
+        (422, {"field": "level_assignments[0].level", "problem": "not_offered"}),
+        (422, {"field": "level_assignments[0].level", "problem": "not_offered"}),
+        (422, {"field": "level_assignments[0].level_to", "problem": "not_offered"}),
+    ]
+    assert taken.status_code == 200, taken.text
+    assert rows(url, "SELECT count(*) FROM level_assignment") == [(1,)]
 
 
 def test_an_unknown_unit_names_its_field(client: TestClient, url: str) -> None:

@@ -40,7 +40,7 @@ def test_an_account_reads_a_sector_s_form_with_its_values(client: TestClient, ur
     assert staged["examples"] and staged["definition"] and staged["delimitation"]
     assert set(staged) == {
         "iri", "notation", "label", "alt_labels", "definition", "note", "delimitation", "examples", "broader",
-        "group",
+        "group", "dimension",
     }  # fmt: skip
     assert staged["group"] is None  # a profile's node type is of no level system's
     statement = {field["key"]: field for field in form["statement"]}
@@ -77,6 +77,12 @@ def test_the_form_names_each_kind_of_value_its_holders_and_fields(client: TestCl
         and form["groups"][LVL + "EQF"] == "Europäischer Qualifikationsrahmen (EQR)"
     )
     assert {value["group"] for value in level["values"]} <= set(form["groups"])
+    assert eqf["dimension"] == CV + "dim_qualification" and workload["unit"]["values"][0]["dimension"] is None
+    rules = values["level_assignments"]["rules"]
+    assert {"holder": "statement", "dimensions": [CV + "dim_qualification"], "unless": None} in rules
+    assert {"holder": "statement", "dimensions": [CV + "dim_conduct", CV + "dim_grading"],
+            "unless": CV + "kind_standard"} in rules  # fmt: skip
+    assert values["workloads"]["rules"] == []
 
 
 def test_a_sector_without_a_profile_has_no_form(client: TestClient, url: str) -> None:

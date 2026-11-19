@@ -139,7 +139,8 @@ async def _set(
                 await readable_document(connection, who, request.app.state.settings, document_id)
                 drafts = _drafts(body)
                 held = (await values_of(connection, document_id)).get(holder)
-                check_values(await value_form_of(connection), holder.kind, drafts, held)
+                form, kind = await value_form_of(connection), await _type_of(connection, holder)
+                check_values(form, holder.kind, drafts, held, holder_type=kind)
                 revision = await replace_values(
                     connection, reader(who), holder, body.expected_revision, drafts
                 )
@@ -162,6 +163,16 @@ async def _set(
     if read is None:  # taken away right after
         raise gone
     return read
+
+
+async def _type_of(connection: psycopg.AsyncConnection, holder: Holder) -> str | None:
+    """A statement's kind, which some levels ask of it (LEVEL_RULES): read before the set, which a change of
+    the kind meanwhile refuses as stale - it counts the statement's revision as the set does."""
+    if holder.kind != "statement":
+        return None
+    cursor = await connection.execute("SELECT statement_kind_iri FROM statement WHERE id = %s", (holder.id,))
+    found = await cursor.fetchone()
+    return None if found is None else str(found[0])
 
 
 def _drafts(body: ValuesIn) -> ValueDrafts:
