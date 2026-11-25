@@ -2,8 +2,9 @@
 // revision the tree shows - or the one a status just set left, until the tree is read again -, a node's or a
 // statement's. Set, the revision it left is given. A row changed meanwhile is not set but said, the tree to be read
 // again, as a row the document no longer holds; a tree closed meanwhile (a job, frozen, X4 not done) is said too,
-// as a caller who is no editor; another failure is said where it was asked.
-import { ApiError, setReview, type ReviewItem } from "@/api";
+// as a caller who is no editor; another failure is said where it was asked. A row's value - a level, a time span, a
+// workload (plan M3a G) - is set alike, by its table at its own revision; set, its holder's revision moved too.
+import { ApiError, setReview, type ReviewItem, type ValueTable } from "@/api";
 import type { Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 import { failureNotice, type Notice } from "@/notice";
@@ -21,6 +22,14 @@ export type ReviewOutcome =
   | { outcome: "failed"; problem: Notice };
 
 const CLOSING: ReadonlySet<string> = new Set(["job_open", "frozen", "not_extracted"]);
+
+/** A row's value to review: by its table, at its own revision. */
+export interface ReviewedValue {
+  table: ValueTable;
+  id: string;
+  revision: number;
+  review_status: string;
+}
 
 /** The status the row stands at; none for one the vocabulary does not hold. */
 export function rowStatus(row: Row): ReviewStatus | null {
@@ -51,7 +60,20 @@ export async function reviewRow(
   status: ReviewStatus,
   revision?: number,
 ): Promise<ReviewOutcome> {
-  const item = itemOf(row, revision);
+  return reviewItem(documentId, itemOf(row, revision), status);
+}
+
+/** Set the review status of the value `value`, at `revision` where a status just set left it. */
+export function reviewValue(
+  documentId: string,
+  value: ReviewedValue,
+  status: ReviewStatus,
+  revision?: number,
+): Promise<ReviewOutcome> {
+  return reviewItem(documentId, { kind: value.table, id: value.id, revision: revision ?? value.revision }, status);
+}
+
+async function reviewItem(documentId: string, item: ReviewItem, status: ReviewStatus): Promise<ReviewOutcome> {
   try {
     const { revisions } = await setReview(documentId, status, [item]);
     return { outcome: "set", status, revision: revisions.find((one) => one.id === item.id)?.revision ?? item.revision };

@@ -135,3 +135,28 @@ describe("a row's review status to choose", () => {
     expect(reviewed).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("a value's review status to choose", () => {
+  const VALUE = { table: "workload" as const, id: "w1", revision: 2, review_status: CV + "rev_proposed" };
+
+  it("sets the value's, named by its table at its own revision, in a group named for the value", async () => {
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 3 }] });
+    reviewed = vi.fn();
+    const label = "Prüfstand von „80 Unterrichtsstunden“";
+    shown = mount(ReviewToggles, { props: { row: ROW, value: VALUE, label, documentId: "d1", onReviewed: reviewed }, attachTo: document.body });
+
+    expect(document.getElementById(shown.get("[role=group]").attributes("aria-labelledby") ?? "")?.textContent).toBe(label);
+    expect(pressed(shown)).toEqual(["true", "false", "false"]);
+    await button(shown, "Bestätigt").trigger("click");
+    await flushPromises();
+    await button(shown, "Verworfen").trigger("click");
+    await flushPromises();
+
+    expect(sent.mock.calls[0]).toEqual(["d1", "confirmed", [{ kind: "workload", id: "w1", revision: 2 }]]);
+    // another at the revision the first left, until the row is read again
+    expect(sent.mock.calls[1]?.[2]).toEqual([{ kind: "workload", id: "w1", revision: 3 }]);
+    // told with the row's key: the holder's revision moved, the tree is read again
+    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "confirmed", revision: 3 }, "statement:s1");
+    expect(await violations(shown.html())).toEqual([]);
+  });
+});
