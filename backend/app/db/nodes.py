@@ -20,6 +20,7 @@ from psycopg.types.json import Jsonb
 
 from app.db.anchors import new_entity, write_anchor
 from app.db.documents import DocumentError, ProfileValueError
+from app.db.findings import drop_value_findings
 from app.domain.l1 import AnchorDraft, MemTrace, NodeDraft, StatementDraft, check_profile_value
 from app.domain.wording import text_hash
 from app.vocab.lookup import ProfileConcepts, profile_concepts
@@ -131,6 +132,7 @@ async def drop_statements(
     async with connection.transaction():
         await lock_tree(connection, document_id)
         await connection.execute(_DROP_FINDINGS, {"document": document_id, "statements": list(statement_ids)})
+        await drop_value_findings(connection, document_id, statements=statement_ids)
         cursor = await connection.execute(
             "DELETE FROM statement WHERE document_id = %s AND id = ANY(%s)",
             (document_id, list(statement_ids)),

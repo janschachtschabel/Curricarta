@@ -49,6 +49,16 @@ ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule
 LIMIT %(most)s
 """
 _DROP_RULE = "DELETE FROM validation_finding WHERE document_id = %s AND rule = %s"
+# the findings on the values of nodes and statements about to go: a workload's periods' too
+_DROP_VALUES = """
+DELETE FROM validation_finding WHERE document_id = %(document)s AND focus_id IN (
+    SELECT id FROM level_assignment WHERE document_id = %(document)s
+        AND (node_id = ANY(%(nodes)s) OR statement_id = ANY(%(statements)s))
+    UNION ALL SELECT id FROM workload WHERE document_id = %(document)s AND node_id = ANY(%(nodes)s)
+    UNION ALL SELECT t.id FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id
+        WHERE t.document_id = %(document)s AND (t.node_id = ANY(%(nodes)s) OR w.node_id = ANY(%(nodes)s))
+)
+"""
 # a finding of ``rule`` that names the package: among its details.units (X4's), or as details.unit
 _DROP_NAMING = """
 DELETE FROM validation_finding WHERE document_id = %(document)s AND rule = %(rule)s
@@ -126,6 +136,20 @@ async def findings_of(
     counted: dict[str, int] = found[0][-1] if found else {}  # none found: none to count
     return FindingsPage(
         {severity: counted.get(severity, 0) for severity in SEVERITIES}, rows[:most], len(rows) > most
+    )
+
+
+async def drop_value_findings(
+    connection: psycopg.AsyncConnection,
+    document_id: UUID,
+    *,
+    nodes: Sequence[UUID] = (),
+    statements: Sequence[UUID] = (),
+) -> None:
+    """Drop the findings on the values of the document's ``nodes`` and ``statements``, which go with them:
+    a value is an entity of its own, and validation_finding.focus_id has no cascade."""
+    await connection.execute(
+        _DROP_VALUES, {"document": document_id, "nodes": list(nodes), "statements": list(statements)}
     )
 
 

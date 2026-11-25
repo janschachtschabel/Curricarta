@@ -27,6 +27,7 @@ from psycopg import sql
 from psycopg.rows import dict_row
 
 from app.db.documents import DOCUMENT_VISIBLE, DocumentError
+from app.db.findings import drop_value_findings
 from app.db.nodes import lock_tree, write_subtree
 from app.db.runs import done_stages
 from app.db.source_queries import Reader
@@ -220,6 +221,7 @@ async def drop_node(
         assert found is not None  # noqa: S101 - arrays of a node that stands
         nodes, statements, anchors = found
         await drop_findings(connection, target.document_id, [*nodes, *statements, *anchors])
+        await drop_value_findings(connection, target.document_id, nodes=nodes, statements=statements)
         await connection.execute("DELETE FROM node WHERE id = %s", (node_id,))
         await mark_edited(connection, target.document_id)
         return Dropped(nodes=len(nodes), statements=len(statements))

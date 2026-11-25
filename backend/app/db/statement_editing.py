@@ -44,6 +44,7 @@ from app.db.editing import (
     target_of,
     text,
 )
+from app.db.findings import drop_value_findings
 from app.db.nodes import append_statements
 from app.db.source_queries import Reader
 from app.db.value_rows import level_of, read_rows
@@ -245,6 +246,7 @@ async def drop_or_reject_statement(
         check_revision({"revision": current}, revision)
         if by_hand:  # rejected in a review or not: a review keeps the mark
             await drop_findings(connection, target.document_id, [statement_id, *anchors])
+            await drop_value_findings(connection, target.document_id, statements=[statement_id])
             await connection.execute("DELETE FROM statement WHERE id = %s", (statement_id,))
             taken = Taken("deleted", None)
         elif rejected:
