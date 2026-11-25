@@ -16,6 +16,7 @@ import psycopg
 from psycopg.types.json import Jsonb
 
 from app.core.ids import new_id
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 
 # As migration 0017 lists them (tests/db/test_runs_schema.py)
 RunOutcome = Literal["done", "failed", "budget_exhausted"]
@@ -34,9 +35,9 @@ def stage_iri(stage: Stage) -> str:
 
 _START = """
     INSERT INTO extraction_run (id, document_id, job_id, attempt, stage_scheme, stage_iri, model,
-        prompt_version, profile_version, lexicon_release, raw_response_key)
+        prompt_version, profile_version, lexicon_release, raw_response_key, graph_version)
     VALUES (%(id)s, %(document)s, %(job)s, %(attempt)s, %(scheme)s, %(stage)s, %(model)s, %(prompt)s,
-        %(profile)s, %(release)s, %(raw)s)
+        %(profile)s, %(release)s, %(raw)s, %(graph)s)
 """
 _FINISH = """
     UPDATE extraction_run SET outcome = %s, result = %s, finished_at = now()
@@ -46,16 +47,22 @@ _DONE_BY = "SELECT stage_iri FROM extraction_run WHERE job_id = %s AND outcome =
 _DONE = """
     SELECT DISTINCT stage_iri FROM extraction_run WHERE document_id = %s AND outcome = 'done'
 """
-# what began after the document's last check: a repair, or an editor's change (Paket 9 G9)
+# what began after the document's last check: a repair, or an editor's change (Paket 9 G9); or a draft's
+# last check ran under an older graph than the builder's now, or one unknown (migration 0036)
 _OWED = """
-WITH checked (at) AS (
-    SELECT coalesce(max(started_at), '-infinity') FROM extraction_run
+WITH last AS (
+    SELECT started_at, graph_version FROM extraction_run
     WHERE document_id = %(document)s AND stage_iri = %(x5)s AND outcome = 'done'
-)
+    ORDER BY started_at DESC LIMIT 1
+), checked (at) AS (SELECT coalesce(max(started_at), '-infinity') FROM last)
 SELECT EXISTS (
     SELECT FROM extraction_run, checked
     WHERE document_id = %(document)s AND stage_iri = %(x6)s AND started_at > checked.at
 ) OR EXISTS (SELECT FROM document, checked WHERE id = %(document)s AND edited_at > checked.at)
+OR EXISTS (
+    SELECT FROM document, last
+    WHERE id = %(document)s AND frozen_at IS NULL AND coalesce(last.graph_version, 0) < %(graph)s
+)
 """
 
 
@@ -80,7 +87,8 @@ class RunStart:
 
 async def start_run(connection: psycopg.AsyncConnection, run: RunStart) -> UUID:
     """A new run of the stage, not ended; its raw answers lie under ``runs/<run>/<stage>``
-    (app/llm/raw.py), as its row says."""
+    (app/llm/raw.py), as its row says. A run of X5 records the version of the graph it checks
+    (KERN_GRAPH_VERSION): this process's builder is the one it checks with."""
     run_id = new_id()
     async with connection.transaction():
         await connection.execute("INSERT INTO entity (id, kind) VALUES (%s, 'extraction_run')", (run_id,))
@@ -98,6 +106,7 @@ async def start_run(connection: psycopg.AsyncConnection, run: RunStart) -> UUID:
                 "profile": run.profile_version,
                 "release": run.lexicon_release,
                 "raw": f"runs/{run_id}/{run.stage.lower()}",
+                "graph": KERN_GRAPH_VERSION if run.stage == "X5" else None,
             },
         )
     return run_id
@@ -146,10 +155,13 @@ async def stages_done_by(connection: psycopg.AsyncConnection, job_id: UUID) -> l
 
 async def x5_owed(connection: psycopg.AsyncConnection, document_id: UUID) -> bool:
     """Whether X5 owes the document a check: a run of X6 began after its last run of X5 that ended done -
-    whatever became of the repair, it may have written (app/pipeline/x6_repair.py) -, or an editor changed
-    what it says since (``document.edited_at``, app/db/editing.py)."""
+    whatever became of the repair, it may have written (app/pipeline/x6_repair.py) -, an editor changed
+    what it says since (``document.edited_at``, app/db/editing.py), or it is a draft and that run checked
+    another graph than this builder writes - an older version, or one it recorded none of. A newer version
+    (a replica of the next image during an update) owes none: the next image checks no older graph."""
     cursor = await connection.execute(
-        _OWED, {"document": document_id, "x5": stage_iri("X5"), "x6": stage_iri("X6")}
+        _OWED,
+        {"document": document_id, "x5": stage_iri("X5"), "x6": stage_iri("X6"), "graph": KERN_GRAPH_VERSION},
     )
     found = await cursor.fetchone()
     return bool(found and found[0])

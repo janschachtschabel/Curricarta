@@ -9,6 +9,7 @@ from uuid import UUID
 import psycopg
 import pytest
 
+from app.db import runs
 from app.db.migrate import migrate
 from app.db.runs import (
     RunOutcome,
@@ -22,6 +23,7 @@ from app.db.runs import (
     start_run,
     x5_owed,
 )
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.jobs.queue import account_lane, claim, enqueue, release
 from tests.db.l1 import CV, add_conversion, add_document, seed_vocabulary
 from tests.support import waiting_on_a_lock
@@ -266,3 +268,39 @@ async def test_a_check_is_owed_once_an_editor_changed_the_document_after_its_las
     assert await x5_owed(connection, document) is True
     await finish_run(connection, await start_run(connection, run_of(made, job, "X5", attempt=2)), "done")
     assert await x5_owed(connection, document) is False
+
+
+async def test_a_run_of_x5_records_the_graph_it_checks(
+    connection: psycopg.AsyncConnection, made: dict[str, Any]
+) -> None:
+    job = await a_job(connection, made)
+    checked = await start_run(connection, run_of(made, job, "X5"))
+    read = await start_run(connection, run_of(made, job, "X1"))
+
+    cursor = await connection.execute(
+        "SELECT id, graph_version FROM extraction_run WHERE id = ANY(%s)", ([checked, read],)
+    )
+
+    assert dict(await cursor.fetchall()) == {checked: KERN_GRAPH_VERSION, read: None}
+
+
+@pytest.mark.parametrize("change", ["builder", "unknown"])
+async def test_a_draft_checked_under_an_older_graph_is_owed_a_check(
+    connection: psycopg.AsyncConnection, made: dict[str, Any], monkeypatch: pytest.MonkeyPatch, change: str
+) -> None:
+    # a builder that writes other triples (KERN_GRAPH_VERSION) checks a draft anew; a run that recorded
+    # none was made before the version was (migration 0036) or by an image that knows none
+    job, document = await a_job(connection, made), made["document"]
+    run = await start_run(connection, run_of(made, job, "X5"))
+    await finish_run(connection, run, "done")
+    assert await x5_owed(connection, document) is False
+
+    if change == "builder":
+        monkeypatch.setattr(runs, "KERN_GRAPH_VERSION", KERN_GRAPH_VERSION + 1)
+    else:
+        await connection.execute("UPDATE extraction_run SET graph_version = NULL WHERE id = %s", (run,))
+    assert await x5_owed(connection, document) is True
+    await connection.execute(
+        "UPDATE document SET iri = 'https://example.org/d/1', frozen_at = now() WHERE id = %s", (document,)
+    )
+    assert await x5_owed(connection, document) is False  # a frozen document is checked no more

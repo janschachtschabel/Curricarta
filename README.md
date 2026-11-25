@@ -131,6 +131,10 @@ Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logz
 Migration 0035 legt Niveau, Zeit und Umfang als eigene Tabellen an (`level_assignment`, `time_span`,
 `workload`); eine Entwurfskopie, die eine Replica des vorigen Images während des Updates anlegt, übernimmt
 sie nicht – folgenlos, solange noch keine Route sie schreibt.
+Migration 0036 merkt sich an jedem Lauf von X5 die Version des Kern-Graphen, den er geprüft hat. Ein Entwurf,
+dessen letzte Prüfung eine ältere oder – vor der Migration oder durch eine Replica des vorigen Images –
+keine Version nennt, schuldet X5 eine Prüfung (`POST …/check`, ohne Modell), bevor er festgeschrieben wird:
+nach dem Update also jeder bisher geprüfte Entwurf einmal, und nach jedem Update, das den Graphen ändert.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
@@ -430,7 +434,8 @@ ungültig.
   (202). Er teilt den Schlüssel der Extraktion; wartet oder läuft ein Job des Dokuments, kommt dieser zurück
   (200), wo der Aufrufer ihm folgen darf (Eigentümer, Admin), sonst 409 `job_open`. Audit `check.start`.
   Geschuldet ist die Prüfung, sobald eine Reparatur oder eine Bearbeitung (`document.edited_at`) nach dem
-  Start des letzten fertigen X5 begann.
+  Start des letzten fertigen X5 begann, und einem Entwurf, dessen letztes X5 einen älteren Kern-Graphen
+  prüfte, als die API jetzt baut (oder keine Version nennt, Migration 0036).
 - Werk: `PATCH /api/v1/documents/{id}/work` setzt das Werk des Dokuments – ein vorhandenes (`work_id`) oder
   ein neues (`title`, `region` wie `DE-NW`, `short_title` als Slug wie `lp-physik`) –, nur durch
   Redaktion/Admin (sonst 403 `not_editor`); 404 `no_work` für ein Werk, das es nicht gibt. Metadaten: `PATCH

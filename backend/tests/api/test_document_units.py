@@ -10,6 +10,7 @@ import pytest
 from fastapi.testclient import TestClient
 from psycopg.types.json import Jsonb
 
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.pipeline.x2_segments import WorkPackage
 from tests.api.test_documents import a_conversion, an_account, client, hidden_from_its_owner, make, url
 from tests.db.l1 import CV, add_entity
@@ -32,13 +33,15 @@ PACKAGES = [
 
 
 def a_run(url: str, document: str, stage: str, result: dict[str, Any] | None = None) -> UUID:
+    """A run of the stage done on the document; one of X5 checked the graph this builder writes."""
     with psycopg.connect(url, autocommit=True) as connection:
         run = add_entity(connection, "extraction_run")
         connection.execute(
             "INSERT INTO extraction_run (id, document_id, stage_scheme, stage_iri, outcome, finished_at,"
-            " result) VALUES (%s, %s, %s, %s, 'done', now(), %s)",
-            (run, document, CV + "Stages", CV + "stage_" + stage, Jsonb(result or {})),
-        )
+            " result, graph_version) VALUES (%s, %s, %s, %s, 'done', now(), %s, %s)",
+            (run, document, CV + "Stages", CV + "stage_" + stage, Jsonb(result or {}),
+             KERN_GRAPH_VERSION if stage == "X5" else None),
+        )  # fmt: skip
     return run
 
 
