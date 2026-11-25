@@ -1644,6 +1644,11 @@ export const messages = {
         not_under: "Dieser Wert passt nicht zur gewählten Funktion oder Art.",
         unknown_block: "Ein gewählter Block steht nicht in der Umwandlung; entferne die Fundstelle und wähle neu.",
         no_page: "Eine gewählte Seite gibt es in der Datei nicht; entferne die Fundstelle und wähle eine andere.",
+        // a set of values (backend app/vocab/value_checks.py, app/api/values.py)
+        not_held: "Einen Wert dieser Art trägt diese Zeile nicht.",
+        out_of_order: "Das Ende des Bereichs liegt vor seinem Anfang.",
+        unknown_value: "Diesen Wert gibt es an dieser Zeile nicht mehr; lade die Zeile neu.",
+        refused: "Die Datenbank hat diesen Wert abgewiesen; prüfe die Angaben.",
         other: "Dieser Wert lässt sich so nicht speichern.",
         elsewhere: "Ein Feld, das dieses Formular nicht zeigt, lässt sich so nicht setzen.",
       },
