@@ -1,9 +1,12 @@
 """The Kern graph under its two namings (plan M3a A1): a draft names every row by its urn:uuid, as X5 checks
 it; a frozen document names its work, document, nodes and statements by the IRIs freezing stored, its
-anchors and its file by blank nodes - one graph under other names, plus the time the document was frozen.
+anchors, its file and its values by blank nodes - one graph under other names, plus the time the document
+was frozen.
 Either way the document says the work it is a version of, its revision and the file it is in."""
 
+from decimal import Decimal
 from typing import Any
+from uuid import UUID
 
 import psycopg
 import pytest
@@ -13,14 +16,16 @@ from rdflib.namespace import DCTERMS, PROV
 
 from app.db.draft_copy import copy_document
 from app.db.freezing import freeze
+from app.db.values import replace_values
+from app.domain.l2 import Holder, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
 from app.exports.kern_naming import draft_naming, frozen_naming
 from app.exports.kern_rdf import CUR, kern_graph
 from app.exports.kern_rows import KernRows, read_document
 from app.pipeline.shacl_child import validate_graph
 from tests.db.test_editing import document
-from tests.db.test_freeze import BASE, DOC, ready
+from tests.db.test_freeze import BASE, DOC, checked, ready
 from tests.db.test_freeze_naming import specified
-from tests.db.test_nodes import connection, url
+from tests.db.test_nodes import CV, connection, owner, url
 from tests.db.test_supersedes import an_edition
 from tests.exports.test_kern_rdf import a_document
 from tests.pipeline.test_shacl import ONTOLOGY
@@ -37,14 +42,25 @@ async def frozen_rows(connection: psycopg.AsyncConnection, document: Any) -> Ker
     return await read_document(connection, document.id)
 
 
+def value_ids(rows: KernRows) -> list[UUID | None]:
+    """The ids of the rows' values, a workload's periods among them."""
+    found: list[UUID | None] = []
+    for held in rows.values.values():
+        found += [level.value.id for level in held.levels] + [span.value.id for span in held.time_spans]
+        found += [workload.value.id for workload in held.workloads]
+        found += [period.value.id for workload in held.workloads for period in workload.periods]
+    return found
+
+
 def under_frozen_names(draft: Graph, rows: KernRows) -> Graph:
-    """The draft graph, each row's urn:uuid replaced by its stored IRI - an anchor's and the file's by a
-    blank node of its own."""
+    """The draft graph, each row's urn:uuid replaced by its stored IRI - an anchor's, the file's and a
+    value's by a blank node of its own."""
     named = [rows.document, *rows.specifications, *rows.variants, *rows.nodes, *rows.statements]
     names: dict[Node, Node] = {
         URIRef(f"urn:uuid:{row['id']}"): URIRef(row["iri"]) for row in [*named, *filter(None, [rows.work])]
     }
     names |= {URIRef(f"urn:uuid:{row['id']}"): BNode() for row in [*rows.anchors, rows.file]}
+    names |= {URIRef(f"urn:uuid:{value}"): BNode() for value in value_ids(rows)}
     renamed = Graph()
     for subject, predicate, value in draft:
         renamed.add((names.get(subject, subject), predicate, names.get(value, value)))
@@ -73,6 +89,31 @@ async def test_the_frozen_graph_is_the_draft_graph_under_other_names(
     assert stamped == [(URIRef(DOC), PROV.generatedAtTime, Literal(rows.document["frozen_at"]))]
     frozen.remove(stamped[0])
     assert_isomorphic(frozen, under_frozen_names(draft, rows))
+
+
+async def test_the_frozen_graph_with_values_is_the_draft_graph_under_other_names(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # each value a blank node of its own, a workload's period too
+    top = await ready(connection, document)
+    period = TimeSpanDraft(time_kind=CV + "time_trainingYear", span_from=Decimal(1))
+    drafts = ValueDrafts(
+        levels=(LevelDraft(level="https://w3id.org/wlo/curriculum/level/EQF-4"),),
+        time_spans=(TimeSpanDraft(time_kind=CV + "time_gradeLevel", span_from=Decimal(5)),),
+        workloads=(WorkloadDraft(amount=Decimal(40), unit=CV + "unit_lesson", periods=(period,)),),
+    )
+    await replace_values(connection, owner(document), Holder("node", top), 1, drafts)
+    await checked(connection, document)
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    rows = await read_document(connection, document.id)
+
+    frozen = kern_graph(rows, frozen_naming())
+
+    assert len(value_ids(rows)) == 4
+    terms = {term for triple in frozen for term in (triple[0], triple[2])}
+    assert not [term for term in terms if str(term).startswith("urn:uuid:")]
+    frozen.remove((URIRef(DOC), PROV.generatedAtTime, None))
+    assert_isomorphic(frozen, under_frozen_names(kern_graph(rows, draft_naming()), rows))
 
 
 async def test_a_frozen_graph_names_no_row_by_its_id(

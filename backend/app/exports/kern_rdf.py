@@ -2,13 +2,14 @@
 work it is a version of, its revision and the file it is in (plan M3a A1), the rights status of its wordings
 and where it came from (C1), the edition it supersedes by that edition's IRI (B2), its specifications and
 their variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
-anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them.
+anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them, and the values of the
+second layer at their holders (plan M3a F1, app/exports/kern_values.py).
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
 alone states when the document was frozen (prov:generatedAtTime). A node lacks the docking points every
-unit of it checked absent (cur:checkedAbsent). Left out in M1: the frame parts and their anchors (L2 in
-M3; in the Kern they would be nodes of function fn_frame), the profile's own terms, the anchors of the
+unit of it checked absent (cur:checkedAbsent). Left out: the frame parts and their anchors (in the Kern
+they would be nodes of function fn_frame, plan M3a I), the profile's own terms, the anchors of the
 document and of specifications, and a specification's applicability.
 """
 
@@ -22,12 +23,13 @@ from rdflib.namespace import DCTERMS
 
 from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
+from app.exports.kern_values import add_values
 from app.sources.mem.tree import storable_iri
 
 # The version of the graph this module writes of the rows app/exports/kern_rows.py reads: X5 records it with
 # each check (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when
 # a frozen document was checked under another. tests/exports/test_kern_versions.py pins it to the source.
-KERN_GRAPH_VERSION = 1
+KERN_GRAPH_VERSION = 2
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 _SPECIFICATION_CLASSES = {
@@ -73,6 +75,7 @@ def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
         _statement(graph, statement, names, at_place)
     for anchor in rows.anchors:
         _anchor(graph, anchor, names, document)
+    add_values(graph, rows, naming)
     return graph
 
 

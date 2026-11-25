@@ -234,7 +234,9 @@ ungültig.
 - Kern-Export: `GET /api/v1/documents/{id}/kern.ttl` gibt jedes festgeschriebene Dokument – extrahiert oder
   aus MEM-Schule importiert – als RDF nach dem Curriculum-Kern 1.0 aus (Turtle, als Download), unter den IRIs,
   die es beim Festschreiben bekam: Werk (`cur:versionOf`), Revision (`owl:versionInfo`), ersetzte Fassung,
-  Spezifikationen, Varianten, Knoten und Aussagen; Fundstellen und die Quelldatei als leere Knoten. Er nennt
+  Spezifikationen, Varianten, Knoten und Aussagen mit ihren Niveaus, Zeiträumen und Umfängen
+  (`cur:levelAssignment`, `cur:timeSpan`, `cur:workload`/`cur:totalWorkload`); Fundstellen, Werte und die
+  Quelldatei als leere Knoten. Er nennt
   die Quelldatei mit Prüfsumme, als Quelle (`dct:source`) die Adresse des Eintrags, wo er eine hat (ein
   hochgeladener ohne Adresse nennt nur die Prüfsumme), und den Rechtestatus der Wortlaute (`dct:rights`),
   keine Lizenz eigener Angaben. Ein Import nennt dazu wie sein MEM-Export den MEM-Plan als Quelle und Herkunft
@@ -429,7 +431,10 @@ ungültig.
   Revisionen danach. Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
   (je Träger einmal, ein Zeitraum über seinen Umfang): Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
   endet dann mit 409 `stale_revision`, statt die Entscheidung der Redaktion still zu überschreiben. Eine Aussage zu oder von „verworfen“ ändert, was der Lehrplan sagt (Export und X5
-  lassen verworfene aus) und schuldet X5 eine Prüfung; ein Knoten verworfen bleibt in beiden. Wie beim
+  lassen verworfene aus) und schuldet X5 eine Prüfung; ein Knoten verworfen bleibt in beiden. Ein verworfener
+  Wert geht weder in den Graphen, den X5 prüft, noch in den Kern-Export – ein verworfener Umfang mit seinen
+  Zeiträumen, eine verworfene Aussage mit all ihren Werten –; die Werte eines verworfenen Knotens folgen
+  ihrem eigenen Prüfstand. Wie beim
   Bearbeiten nicht neben einem offenen Job, nicht vor X4 und nicht festgeschrieben; Audit `review.set`.
 - Erneut prüfen: `POST /api/v1/documents/{id}/check` startet den Job `extract.check` (X5 erneut, ohne
   Modell) – durch Eigentümer und Redaktion/Admin, sobald X5 das Dokument einmal geprüft hat (sonst 409

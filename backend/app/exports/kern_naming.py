@@ -6,8 +6,9 @@ IRIs) - so a SHACL focus of X5 is the id of the row it is about. A frozen docume
 freezing stored: its work, the document, its specifications and their variants, its nodes and statements;
 a row of these without its IRI refuses the naming (ValueError), as no urn:uuid leaves the service in an
 export, and so do the rows of a document not frozen - a draft copy's carry the IRIs of the revision it
-copies, but no time it was frozen. Anchors and the file have no identity beyond their document: each is a
-blank node, the same one for the same row throughout one build - a frozen naming serves one graph.
+copies, but no time it was frozen. Anchors, the file and the second layer's values (levels, time spans,
+workloads; plan M3a E4) have no identity beyond their document: each is a blank node, the same one for the
+same row throughout one build - a frozen naming serves one graph.
 """
 
 from typing import Literal, Protocol
@@ -17,7 +18,10 @@ from rdflib import BNode, URIRef
 
 from app.exports.kern_rows import Row
 
-RowKind = Literal["work", "document", "specification", "variant", "node", "statement", "anchor", "file"]
+RowKind = Literal[
+    "work", "document", "specification", "variant", "node", "statement", "anchor", "file", "level_assignment",
+    "time_span", "workload",
+]  # fmt: skip
 _NAMED_BY_IRI: frozenset[RowKind] = frozenset(
     {"work", "document", "specification", "variant", "node", "statement"}
 )

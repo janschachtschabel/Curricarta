@@ -2,15 +2,18 @@
 with the count of violations among its findings, those the editors accepted once it is frozen (plan M3a C1),
 the version of the graph its last check ran under (``checked_graph``) and where it came from -, the work it
 is a version of and the file it was read off (plan M3a A1), its specifications and their variants, its
-nodes and statements, and the anchors of nodes and statements with their blocks - rows as the tables hold
-them, each with the IRI it is named by once frozen (app/exports/kern_naming.py), read in one snapshot.
+nodes and statements, the anchors of nodes and statements with their blocks - rows as the tables hold
+them, each with the IRI it is named by once frozen (app/exports/kern_naming.py) - and the values of its
+holders (app/db/value_rows.py, plan M3a F1), read in one snapshot. A rejected statement is not read, nor
+are its anchors and values; a rejected value is left out - a workload with its periods -, and a rejected
+node's values follow their own status.
 
 No visibility check: the export serves the pipeline (X5's SHACL check) of a document it already holds;
 a route that exports for a reader checks what that reader sees first.
 """
 
 from collections.abc import Awaitable, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, field, replace
 from typing import Any
 from uuid import UUID
 
@@ -18,10 +21,13 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.db.documents import DocumentError
+from app.db.value_rows import values_of
+from app.domain.l2 import HeldValues, Level, TimeSpan, Values, Workload
 from app.vocab.lookup import REGIONS
 
 Row = dict[str, Any]
 _SNAPSHOTS = ("repeatable read", "serializable")  # the isolation levels whose queries share one snapshot
+_REJECTED = "https://w3id.org/wlo/curriculum/vocab#rev_rejected"
 
 _DOCUMENT = """
 SELECT d.id, d.iri, d.revision, d.frozen_at, d.rights_status, d.title, d.issuer, d.edition,
@@ -103,6 +109,7 @@ class KernRows:
     anchors: list[Row]  # of nodes and statements
     work: Row | None  # the work it is a version of, where the editors set one
     file: Row  # the file it was read off
+    values: Values = field(default_factory=dict)  # of its holders read, rejected ones left out
 
 
 async def read_document(connection: psycopg.AsyncConnection, document_id: UUID) -> KernRows:
@@ -143,7 +150,27 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> KernR
         work = await rows.fetchone()
         await rows.execute(_FILE, params)
         file = await rows.fetchone()
+    values = await values_of(connection, document_id)  # within this snapshot
     if file is None:  # a document is of a conversion, a conversion of a file: both columns NOT NULL
         raise DocumentError(f"no file of document {document_id}")
     specifications, variants, nodes, statements, anchors = read
-    return KernRows(document, specifications, variants, nodes, statements, anchors, work, file)
+    kept = _kept(values, {row["id"] for row in statements})
+    return KernRows(document, specifications, variants, nodes, statements, anchors, work, file, kept)
+
+
+def _kept(values: Values, statements: set[UUID]) -> Values:
+    """The values the graph states: those of the holders read - a rejected statement's go with it -, each
+    but a rejected one, a workload's periods but the rejected ones."""
+
+    def kept[T: (Level, TimeSpan, Workload)](items: tuple[T, ...]) -> tuple[T, ...]:
+        return tuple(item for item in items if item.stated.review_status != _REJECTED)
+
+    return {
+        holder: HeldValues(
+            kept(held.levels),
+            kept(held.time_spans),
+            tuple(replace(workload, periods=kept(workload.periods)) for workload in kept(held.workloads)),
+        )
+        for holder, held in values.items()
+        if holder.kind != "statement" or holder.id in statements
+    }

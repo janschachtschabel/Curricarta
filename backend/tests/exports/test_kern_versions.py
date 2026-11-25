@@ -15,17 +15,22 @@ import hashlib
 import inspect
 from types import ModuleType
 
-from app.exports import kern_child, kern_naming, kern_rdf, kern_rows
+from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_values
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 
-# what the graph X5 checks is made of: the rows read, and the triples written of them
+# what the graph X5 checks is made of: the rows read, and the triples written of them - of the values too
 # (the rows read for the file's head count too: a column read for it alone is a new version as well)
-GRAPH_DIGESTS = {1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515"}
+GRAPH_MODULES = (kern_rows, kern_rdf, kern_values)
+GRAPH_DIGESTS = {
+    1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
+    2: "fda677adcd8daf64203940791524e48daebcc4cf91be83ed512fcead595c72f6",  # the values (plan M3a F1)
+}
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
     "kern-ttl/1": "27e298e01744e2298e4e59681718e411f5f7991335462d7042896437966ae011",
     "kern-ttl/2": "d2653ec27b33ba77eb8c4315c016d581d03aee1b2d367b96206cf60640703840",  # the graph's version
+    "kern-ttl/3": "7b86aae1ff4c6ada4205560198ce783cb6d53302e7a4c70ce939927584ae423e",  # value kinds
 }
 _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 
@@ -57,7 +62,7 @@ def _versions(statement: ast.stmt) -> bool:
 
 def test_the_graph_s_version_names_the_builder_x5_checks_with() -> None:
     assert max(GRAPH_DIGESTS) == KERN_GRAPH_VERSION
-    assert source_digest(kern_rows, kern_rdf) == GRAPH_DIGESTS[KERN_GRAPH_VERSION]
+    assert source_digest(*GRAPH_MODULES) == GRAPH_DIGESTS[KERN_GRAPH_VERSION]
 
 
 def test_the_export_s_version_names_what_the_kept_file_adds_to_the_graph() -> None:
