@@ -2,8 +2,8 @@
 specification, a node, a statement - states its workloads (cur:workload, cur:totalWorkload), time spans and
 level assignments, each value typed with what its row holds, a workload's periods (cur:inPeriod) under it.
 A value the shapes take passes them, one they reject X5 finds at the value; a rejected value and every value
-of a rejected statement stay out of the graph X5 checks and of the export. How the graph names a value -
-its urn:uuid in a draft, a blank node once frozen -: test_kern_naming.py."""
+of a rejected statement stay out of the graph X5 checks and of the export (test_kern_value_rows.py). How
+the graph names a value - its urn:uuid in a draft, a blank node once frozen -: test_kern_naming.py."""
 
 import asyncio
 from dataclasses import replace
@@ -12,48 +12,33 @@ from pathlib import Path
 from typing import Any, cast
 from uuid import UUID, uuid4
 
-import psycopg
 import pytest
 from rdflib import RDF, XSD, Graph, Literal, URIRef
 
-from app.db.freezing import freeze
-from app.db.values import replace_values, values_of
 from app.domain.l2 import (
     HeldValues,
     Holder,
-    HolderKind,
     Level,
     LevelDraft,
     Stated,
     TimeSpan,
     TimeSpanDraft,
-    ValueDrafts,
     Values,
     Workload,
     WorkloadDraft,
 )
-from app.exports.kern_child import turtle
 from app.exports.kern_rdf import CUR, kern_graph
-from app.exports.kern_rows import KernRows, read_document
+from app.exports.kern_rows import KernRows
 from app.exports.measure_kern import synthetic_rows
 from app.pipeline.shacl import as_findings
 from app.pipeline.shacl_child import ShaclResult, validate_graph
-from tests.db.test_editing import document
-from tests.db.test_freeze import checked, ready
-from tests.db.test_nodes import connection, owner, url
-from tests.db.test_values import holders
 from tests.exports.test_kern_export import an_exporter
 from tests.pipeline.test_shacl import ONTOLOGY, a_document
-
-__all__ = ["connection", "document", "url"]  # the fixtures, shared with tests/db
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
 LVL = "https://w3id.org/wlo/curriculum/level/"
 VOCATIONAL = "https://w3id.org/wlo/curriculum/profile/vocational#"
-STANDARD = CV + "kind_standard"
-PROPOSED, CONFIRMED, REJECTED = CV + "rev_proposed", CV + "rev_confirmed", CV + "rev_rejected"
-STATED = Stated(CV + "orig_human", PROPOSED, None, 1)
-BASE = "https://example.org/kk/"
+STATED = Stated(CV + "orig_human", CV + "rev_proposed", None, 1)
 
 
 def uri(value_id: UUID | None) -> URIRef:
@@ -195,128 +180,6 @@ def test_a_lernfeld_with_a_workload_no_longer_lacks_its_guidance_value() -> None
 
     assert lacks(kern_graph(rows)) == {"Lernfeld ohne Zeitrichtwert.", "Lernfeld ohne Ausbildungsjahr."}
     assert lacks(kern_graph(guided)) == {"Lernfeld ohne Ausbildungsjahr."}
-
-
-async def a_document_with_values(connection: psycopg.AsyncConnection, document: Any) -> dict[Any, Any]:
-    """A node, its statement and a specification of the document, each with values set."""
-    at = await holders(connection, document)
-    year = TimeSpanDraft(time_kind=CV + "time_trainingYear", span_from=Decimal(1))
-    lessons = WorkloadDraft(amount=Decimal(40), unit=CV + "unit_lesson", periods=(year, year))
-    sets: dict[HolderKind, ValueDrafts] = {
-        "node": ValueDrafts(
-            levels=(LevelDraft(level=LVL + "EQF-4"), LevelDraft(level=LVL + "EQF-5")),
-            time_spans=(TimeSpanDraft(time_kind=CV + "time_gradeLevel", span_from=Decimal(5)),) * 2,
-            workloads=(lessons, lessons),
-        ),
-        "statement": ValueDrafts(levels=(LevelDraft(level=LVL + "cefr-B1"),)),
-        "specification": ValueDrafts(workloads=(replace(lessons, periods=(), total=True),)),
-    }
-    for kind, drafts in sets.items():
-        await replace_values(connection, owner(document), at[kind], 1, drafts)
-    return {**at, "values": await values_of(connection, document.id)}
-
-
-async def status(connection: psycopg.AsyncConnection, table: str, row: UUID | None, review: str) -> None:
-    await connection.execute(f"UPDATE {table} SET review_status_iri = %s WHERE id = %s", (review, row))  # noqa: S608
-
-
-def stated_values(graph: Graph) -> set[Any]:
-    kinds = (CUR.Workload, CUR.TimeSpan, CUR.LevelAssignment)
-    return {value for kind in kinds for value in graph.subjects(RDF.type, kind)}
-
-
-@pytest.mark.pg
-@pytest.mark.anyio
-async def test_the_rows_carry_the_document_s_values_and_a_value_of_a_kept_holder_is_in(
-    connection: psycopg.AsyncConnection, document: Any
-) -> None:
-    made = await a_document_with_values(connection, document)
-    every = [made["values"][made[kind]] for kind in ("node", "statement", "specification")]
-    node = every[0]
-    await status(connection, "level_assignment", node.levels[1].value.id, CONFIRMED)
-
-    graph = kern_graph(await read_document(connection, document.id))
-
-    ids = {each.value.id for held in every for kind in (held.levels, held.time_spans) for each in kind}
-    ids |= {each.value.id for held in every for each in held.workloads}
-    ids |= {period.value.id for held in every for each in held.workloads for period in each.periods}
-    assert stated_values(graph) == {uri(value_id) for value_id in ids} and len(ids) == 12
-    assert (uri(made["node"].id), CUR.workload, uri(node.workloads[0].value.id)) in graph
-    assert (uri(made["statement"].id), CUR.levelAssignment, uri(every[1].levels[0].value.id)) in graph
-
-
-@pytest.mark.pg
-@pytest.mark.anyio
-async def test_a_rejected_value_and_every_value_of_a_rejected_statement_stay_out(
-    connection: psycopg.AsyncConnection, document: Any
-) -> None:
-    made = await a_document_with_values(connection, document)
-    node, said = made["values"][made["node"]], made["values"][made["statement"]]
-    gone_workload, kept_workload = node.workloads
-    for table, row in (
-        ("level_assignment", node.levels[0].value.id), ("time_span", node.time_spans[0].value.id),
-        ("workload", gone_workload.value.id), ("time_span", kept_workload.periods[0].value.id),
-    ):  # fmt: skip
-        await status(connection, table, row, REJECTED)
-    await status(connection, "statement", made["statement"].id, REJECTED)
-    # a rejected node stays: its values follow their own status
-    await status(connection, "node", made["node"].id, REJECTED)
-
-    graph = kern_graph(await read_document(connection, document.id))
-
-    stated = stated_values(graph)
-    out = [
-        node.levels[0],
-        node.time_spans[0],
-        gone_workload,
-        *gone_workload.periods,
-        kept_workload.periods[0],
-    ]
-    out += [said.levels[0]]  # the rejected statement's, with it
-    assert not stated & {uri(value.value.id) for value in out}
-    kept = [node.levels[1], node.time_spans[1], kept_workload, kept_workload.periods[1]]
-    assert {uri(value.value.id) for value in kept} <= stated
-    assert set(graph.objects(uri(kept_workload.value.id), CUR.inPeriod)) == {
-        uri(kept_workload.periods[1].value.id)
-    }
-
-
-@pytest.mark.pg
-@pytest.mark.anyio
-async def test_the_draft_graph_changes_by_the_value_triples_alone(
-    connection: psycopg.AsyncConnection, document: Any
-) -> None:
-    await a_document_with_values(connection, document)
-    rows = await read_document(connection, document.id)
-
-    valued, plain = kern_graph(rows), kern_graph(replace(rows, values={}))
-
-    assert not plain - valued
-    values = stated_values(valued)
-    assert values and all(subject in values or value in values for subject, _, value in valued - plain)
-
-
-@pytest.mark.pg
-@pytest.mark.anyio
-async def test_a_frozen_document_s_values_are_exported_and_change_no_more(
-    connection: psycopg.AsyncConnection, document: Any
-) -> None:
-    # the kept export's key needs not name them (app/exports/kern_export.py, fingerprint): the store refuses
-    # every change of a frozen document's values (keep_frozen_rows), so its rows say them once for all
-    top = await ready(connection, document)
-    drafts = ValueDrafts(workloads=(WorkloadDraft(amount=Decimal(40), unit=CV + "unit_lesson"),))
-    await replace_values(connection, owner(document), Holder("node", top), 1, drafts)
-    await checked(connection, document)
-    await freeze(connection, document.id, BASE, accept_violations=False)
-    rows = await read_document(connection, document.id)
-
-    assert b"cur:workload" in turtle(rows)
-    for change in (
-        "UPDATE workload SET amount = 41 WHERE document_id = %s",
-        "DELETE FROM workload WHERE document_id = %s",
-    ):
-        with pytest.raises(psycopg.errors.ObjectNotInPrerequisiteState):
-            await connection.execute(change, (document.id,))
 
 
 @pytest.mark.anyio
