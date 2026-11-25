@@ -8,18 +8,21 @@ Levels and competence dimensions come from many level systems and competency mod
 list are not to be chosen from): each is offered with its scheme as its group, the groups in the order of
 their labels, a group's levels in their rank. A list holds active concepts of active schemes alone, as
 the editor's other lists do: a retired one is set no more, though a value keeps it until it is changed
-(app/vocab/value_checks.py). A workload's periods are time spans, with the time span's fields.
+(app/vocab/value_checks.py). A workload's periods are time spans, with the time span's fields. A
+specification's applicability contexts (plan M3a H1) have fields of their own - a sector, a formality, the
+institution and the target group as written - and hold time spans and levels with those kinds' fields.
 """
 
 from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from typing import Final, Literal
+from typing import Final, Literal, get_args
 
 import psycopg
 
+from app.domain.l1 import SpecificationKind
 from app.domain.l2 import HolderKind
-from app.vocab.forms import FormField
+from app.vocab.forms import MOST_TEXT, FormField
 from app.vocab.lookup import ConceptDetails, concept_details
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
@@ -69,6 +72,22 @@ VALUE_HOLDERS: Mapping[ValueKind, tuple[HolderKind, ...]] = {
     "time_spans": ("node", "specification"),
     "workloads": ("node", "specification"),
 }
+# An applicability context's own fields (cur:ApplicabilityContext), the kinds of value it holds, and the
+# holders it is set at: a specification alone, with its values (PUT /specifications/{id}/values)
+CONTEXT_FIELDS: tuple[FormField, ...] = (
+    FormField("sector", "concept", False, False, values=CV + "EducationSectors", path="cur:educationSector"),
+    FormField("formality", "concept", False, False, values=CV + "Formalities", path="cur:formality"),
+    FormField("institution_text", "text", False, False, most=MOST_TEXT),  # as written: no shared list
+    FormField("target_group_text", "text", False, False, most=MOST_TEXT),
+)
+CONTEXT_VALUES: tuple[ValueKind, ...] = ("level_assignments", "time_spans")
+CONTEXT_HOLDERS: tuple[HolderKind, ...] = ("specification",)
+# a level rule's holder: a holder of a set, or an applicability context within a specification's
+RuleHolder = Literal["node", "statement", "specification", "applicability_context"]
+# a specification's type as the core names its class, by X1's kind: what a level rule's ``unless`` names
+SPECIFICATION_TYPES: Mapping[str, str] = {
+    kind: CUR + kind[:1].upper() + kind[1:] for kind in get_args(SpecificationKind)
+}
 TABLE_OF: Mapping[ValueKind, str] = {
     "level_assignments": "level_assignment", "time_spans": "time_span", "workloads": "workload",
 }  # fmt: skip
@@ -94,7 +113,7 @@ class LevelRule:
     the SPARQL constraints of the core's LevelAssignmentShape, which tests/vocab/test_level_rules.py holds
     against the shapes."""
 
-    holder: HolderKind
+    holder: RuleHolder
     dimensions: frozenset[str]
     unless: str | None = None
 
@@ -106,7 +125,8 @@ LEVEL_RULES: Final = (
     LevelRule("statement", frozenset({CV + "dim_qualification"})),  # at a qualification or a specification
     LevelRule("statement", _GRADED, unless=CV + "kind_standard"),
     LevelRule("node", _GRADED),
-    LevelRule("specification", _GRADED, unless="assessmentSpecification"),
+    LevelRule("specification", _GRADED, unless=CUR + "AssessmentSpecification"),
+    LevelRule("applicability_context", _GRADED),
 )
 
 
@@ -148,7 +168,7 @@ async def value_form_of(connection: psycopg.AsyncConnection) -> ValueForm:
             sorted(details.values(), key=lambda value: (*order[value.iri], value.label.casefold()))
         )
     values: dict[str, tuple[ConceptDetails, ...]] = {}
-    for field in (field for fields in VALUE_FIELDS.values() for field in fields):
+    for field in (*(field for fields in VALUE_FIELDS.values() for field in fields), *CONTEXT_FIELDS):
         if field.values is None:
             continue
         if field.values not in by_source:

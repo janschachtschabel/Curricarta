@@ -69,13 +69,24 @@ def test_the_editor_s_routes_name_the_refusals_they_give(spec: dict[str, Any]) -
 
 def test_the_routes_of_values_name_the_refusals_they_give(spec: dict[str, Any]) -> None:
     for path, gone in (("/api/v1/nodes/{node_id}/values", "no_node"),
-                       ("/api/v1/statements/{statement_id}/values", "no_statement")):  # fmt: skip
+                       ("/api/v1/statements/{statement_id}/values", "no_statement"),
+                       ("/api/v1/specifications/{specification_id}/values", "no_specification")):  # fmt: skip
         answers = spec["paths"][path]["put"]["responses"]
         assert gone in answers["404"]["description"] and "file_hidden" in answers["403"]["description"]
         for refusal in ("details.current", "job_open", "frozen", "not_extracted"):
             assert refusal in answers["409"]["description"], (path, refusal)
         assert "no_form" not in answers["409"]["description"]  # the values' form is every sector's
         assert "invalid_field" in answers["422"]["description"]
+
+
+def test_a_specification_s_edit_names_the_refusals_it_gives(spec: dict[str, Any]) -> None:
+    answers = spec["paths"]["/api/v1/specifications/{specification_id}"]["patch"]["responses"]
+
+    assert "no_specification" in answers["404"]["description"]
+    assert "file_hidden" in answers["403"]["description"]
+    for refusal in ("details.current", "job_open", "frozen", "not_extracted"):
+        assert refusal in answers["409"]["description"], refusal
+    assert "invalid_field" in answers["422"]["description"]
 
 
 def test_the_routes_of_freezing_name_the_refusals_they_give(spec: dict[str, Any]) -> None:

@@ -2,8 +2,8 @@
 statement, each list with the active values of the sector's profile and their texts - and the second
 layer's values (plan M3a E1; app/vocab/value_forms.py): which kinds a node, a statement and a
 specification are offered, with the fields of each, levels and competence dimensions grouped by their
-level system or model. Every account reads it; a sector without an active profile has none (404
-``unknown_sector``)."""
+level system or model, and the fields of a specification's applicability context (plan M3a H1). Every
+account reads it; a sector without an active profile has none (404 ``unknown_sector``)."""
 
 from collections.abc import Mapping
 from typing import Annotated
@@ -18,10 +18,13 @@ from app.domain.l2 import HolderKind
 from app.vocab.forms import FieldKind, FormField, form_of
 from app.vocab.lookup import ConceptDetails
 from app.vocab.value_forms import (
+    CONTEXT_FIELDS,
+    CONTEXT_VALUES,
     LEVEL_RULES,
     PERIODS,
     VALUE_FIELDS,
     VALUE_HOLDERS,
+    RuleHolder,
     ValueForm,
     ValueKind,
     value_form_of,
@@ -57,9 +60,10 @@ class FieldOut(BaseModel):
 
 class LevelRuleOut(BaseModel):
     """A level of these dimensions - its system's or the assignment's own - the holder never holds, but where
-    its type (a statement's kind, a specification's) is ``unless``."""
+    its type (a statement's kind, a specification's class) is ``unless``; ``applicability_context`` for a
+    level in a specification's context."""
 
-    holder: HolderKind
+    holder: RuleHolder
     dimensions: list[str]
     unless: str | None
 
@@ -71,12 +75,21 @@ class ValueKindOut(BaseModel):
     rules: list[LevelRuleOut]  # a level's, by its dimension; a range's end is of its start's system too
 
 
+class ContextFormOut(BaseModel):
+    """A specification's applicability context (PUT /specifications/{id}/values, ``contexts``): its own
+    fields, and the kinds of value it holds, with those kinds' fields (FormOut.values)."""
+
+    fields: list[FieldOut]
+    values: list[ValueKind]
+
+
 class FormOut(BaseModel):
     sector: str
     profile: str
     node: list[FieldOut]
     statement: list[FieldOut]
     values: dict[ValueKind, ValueKindOut]
+    context: ContextFormOut
     groups: dict[str, str]  # the label of each group a value names
 
 
@@ -109,6 +122,10 @@ async def read_form(sector: Sector, request: Request, who: Account) -> FormOut:
             )
             for kind, fields in VALUE_FIELDS.items()
         },
+        context=ContextFormOut(
+            fields=[_field(field, valued.values, valued) for field in CONTEXT_FIELDS],
+            values=list(CONTEXT_VALUES),
+        ),
         groups=dict(valued.groups),
     )
 

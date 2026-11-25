@@ -6,27 +6,41 @@ other fields do (app/vocab/form_values.py); a range's end not before its start (
 level is refused where the core's shapes never let the holder hold it (LEVEL_RULES: a qualification
 level at a statement, a grading level but at a standard) and a range's end of another level system than
 its start, both ``not_offered``. A problem names its field by its path in the set, ``workloads[1].unit``,
-``workloads[0].periods[0].time_kind``. The store checks again (app/db/values.py); its refusals are named
-here by the kind they are of.
+``workloads[0].periods[0].time_kind``. A specification's applicability contexts (plan M3a H1) are checked
+so too - a context at another holder is ``not_held``, its sector and formality ones the form offers, its
+levels by the rules of a context (LEVEL_RULES) -, by paths under ``contexts[0]``. The store checks again
+(app/db/values.py); its refusals are named here by the kind they are of.
 """
 
 from collections.abc import Iterator, Mapping, Sequence
 from typing import Final
 from uuid import UUID
 
-from app.domain.l2 import HeldValues, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
+from app.domain.l2 import (
+    ContextDraft,
+    HeldValues,
+    HolderKind,
+    LevelDraft,
+    TimeSpanDraft,
+    ValueDrafts,
+    WorkloadDraft,
+)
 from app.vocab.form_values import FieldError
+from app.vocab.forms import FormField
 from app.vocab.value_forms import (
+    CONTEXT_FIELDS,
+    CONTEXT_HOLDERS,
     LEVEL_RULES,
     PERIODS,
     TABLE_OF,
     VALUE_FIELDS,
     VALUE_HOLDERS,
+    RuleHolder,
     ValueForm,
     ValueKind,
 )
 
-Draft = LevelDraft | TimeSpanDraft | WorkloadDraft
+Draft = LevelDraft | TimeSpanDraft | WorkloadDraft | ContextDraft
 # a kind's ranges: its start's field and its end's
 _RANGES: Final[Mapping[ValueKind, tuple[tuple[str, str], ...]]] = {
     "level_assignments": (),
@@ -49,11 +63,15 @@ def check_values(
     for kind, entries in given.items():
         if entries and holder not in VALUE_HOLDERS[kind]:
             raise FieldError(kind, "not_held")
+    if drafts.contexts and holder not in CONTEXT_HOLDERS:
+        raise FieldError("contexts", "not_held")
     kept = {draft.id: draft for draft in _stored(held)}
-    for at, kind, draft in _walk(given):
-        _check(form, kind, draft, at, kept.get(draft.id) if draft.id is not None else None)
-        if isinstance(draft, LevelDraft):
-            _check_level(form, holder, holder_type, draft, at)
+    for at, kind, draft, within in _walk(drafts):
+        before = kept.get(draft.id) if draft.id is not None else None
+        fields = CONTEXT_FIELDS if isinstance(draft, ContextDraft) else VALUE_FIELDS[kind]
+        _check(form, fields, kind, draft, at, before)
+        if isinstance(draft, LevelDraft):  # a context's by a context's rules, which no type of it lifts
+            _check_level(form, within or holder, None if within else holder_type, draft, at)
 
 
 def check_held_levels(
@@ -68,13 +86,13 @@ def check_held_levels(
 
 def path_of(drafts: ValueDrafts, value_id: UUID) -> str:
     """The path of the id ``value_id`` in the set, first where it is named; the set's where it is not."""
-    found = (at for at, _, draft in _walk(_given(drafts)) if draft.id == value_id)
+    found = (at for at, _, draft, _ in _walk(drafts) if draft.id == value_id)
     return next((f"{at}.id" for at in found), "values")
 
 
 def kind_of_check(check: str | None) -> str:
     """The kind of value a refusal of the store's names by its check; the set's where none does."""
-    by_table = {table: kind for kind, table in TABLE_OF.items()}
+    by_table = {table: str(kind) for kind, table in TABLE_OF.items()} | {"applicability_context": "contexts"}
     return next((by_table[table] for table in by_table if check and check.startswith(table + "_")), "values")
 
 
@@ -86,14 +104,24 @@ def _given(drafts: ValueDrafts) -> dict[ValueKind, tuple[Draft, ...]]:
     }
 
 
-def _walk(given: Mapping[ValueKind, tuple[Draft, ...]]) -> Iterator[tuple[str, ValueKind, Draft]]:
-    """Each draft of the set with its path and kind, a workload's periods after it."""
-    for kind, entries in given.items():
+def _walk(drafts: ValueDrafts) -> Iterator[tuple[str, ValueKind, Draft, RuleHolder | None]]:
+    """Each draft of the set with its path, kind and the holder its level rules are of, a workload's periods
+    after it, a context's levels and time spans after it."""
+    for kind, entries in _given(drafts).items():
         for place, draft in enumerate(entries):
-            yield f"{kind}[{place}]", kind, draft
+            yield f"{kind}[{place}]", kind, draft, None
             if isinstance(draft, WorkloadDraft):
                 for at, period in enumerate(draft.periods):
-                    yield f"{kind}[{place}].periods[{at}]", PERIODS, period
+                    yield f"{kind}[{place}].periods[{at}]", PERIODS, period, None
+    for place, context in enumerate(drafts.contexts):
+        yield f"contexts[{place}]", "level_assignments", context, None  # its own fields: CONTEXT_FIELDS
+        inner: dict[ValueKind, tuple[Draft, ...]] = {
+            "level_assignments": context.levels,
+            "time_spans": context.time_spans,
+        }
+        for kind, entries in inner.items():
+            for at, draft in enumerate(entries):
+                yield f"contexts[{place}].{kind}[{at}]", kind, draft, "applicability_context"
 
 
 def _stored(held: HeldValues | None) -> Iterator[Draft]:
@@ -105,10 +133,14 @@ def _stored(held: HeldValues | None) -> Iterator[Draft]:
     for workload in held.workloads:
         yield workload.value
         yield from (period.value for period in workload.periods)
+    for context in held.contexts:
+        yield context.value
+        yield from (level.value for level in context.levels)
+        yield from (span.value for span in context.time_spans)
 
 
 def _check_level(
-    form: ValueForm, holder: HolderKind, holder_type: str | None, draft: LevelDraft, at: str
+    form: ValueForm, holder: RuleHolder, holder_type: str | None, draft: LevelDraft, at: str
 ) -> None:
     """Refuse a level the holder never holds by the shapes (LEVEL_RULES) - at the level where its system's
     dimension rules it out, else at the dimension the assignment names -, and a range's end of another
@@ -125,15 +157,17 @@ def _check_level(
         raise FieldError(f"{at}.level_to", "not_offered")
 
 
-def _check(form: ValueForm, kind: ValueKind, draft: Draft, at: str, before: Draft | None) -> None:
-    for field in VALUE_FIELDS[kind]:
+def _check(
+    form: ValueForm, fields: Sequence[FormField], kind: ValueKind, draft: Draft, at: str, before: Draft | None
+) -> None:
+    for field in fields:
         value = getattr(draft, field.key)
         if field.kind != "concept" or value is None:
             continue
         offered = {concept.iri for concept in form.values.get(field.key, ())}
         if value not in offered and getattr(before, field.key, None) != value:
             raise FieldError(f"{at}.{field.key}", "not_offered")
-    for start, end in _RANGES[kind]:
+    for start, end in () if isinstance(draft, ContextDraft) else _RANGES[kind]:
         least, most = getattr(draft, start), getattr(draft, end)
         if least is not None and most is not None and most < least:
             raise FieldError(f"{at}.{end}", "out_of_order")

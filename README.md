@@ -248,7 +248,7 @@ ungültig.
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
   Kommentarzeile am Anfang der Datei. Hat X5 das Dokument unter einer anderen Version des Kern-Graphen
   geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
-  `Curricarta-Graph-Version` beide (`checked=unknown; built=2`), ebenso eine Kommentarzeile; festgeschrieben
+  `Curricarta-Graph-Version` beide (`checked=unknown; built=3`), ebenso eine Kommentarzeile; festgeschrieben
   wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
     (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis
@@ -315,7 +315,11 @@ ungültig.
   (auch `number`, `boolean`) und bei `workloads` die Art der Zeiträume (`periods`); Niveaus und
   Kompetenzdimensionen tragen ihr Niveausystem bzw. Kompetenzmodell als `group`, dessen Label `groups` nennt;
   ein Niveau dazu die Dimension seines Systems (`dimension`), und `rules` nennt, welche Dimensionen ein Träger
-  nach den SHACL-Formen nie trägt (Qualifikationsniveau an einer Aussage, Noten außer an einem Standard).
+  nach den SHACL-Formen nie trägt (Qualifikationsniveau an einer Aussage, Noten außer an einem Standard,
+  an einer Prüfungsspezifikation – `unless` nennt die Klasse, `cur:AssessmentSpecification` – und nie in
+  einem Geltungskontext, Träger `applicability_context`). `context` nennt die Felder eines Geltungskontexts
+  (`sector`, `formality`, `institution_text`, `target_group_text`) und die Arten seiner Werte
+  (`level_assignments`, `time_spans`).
 - Dokumente: `POST /api/v1/documents` (`source_id`, `conversion_id`, `sector`, `regions`) legt aus der
   fertigen Umwandlung eines Eintrags ein Dokument an und startet seine Extraktion (202 mit Dokument und
   Job), als Modelljob zugelassen (403 `no_budget`, 429 `too_many_jobs` / `too_many_starts`). `POST
@@ -424,19 +428,37 @@ ungültig.
   `invalid_field` mit dem Pfad des Felds (`workloads[1].unit`) und `problem` – `not_held`, `not_offered`
   (auch ein seither stillgelegter Begriff, außer er steht schon so am behaltenen Wert; ein Niveau, das der
   Träger nach `rules` nie trägt; ein Bereichsende aus einem anderen Niveausystem), `out_of_order`,
-  `unknown_value`, `refused` (die Datenbank weist den Wert ab). Audit `node.values`, `statement.values` mit den Anzahlen, ohne Inhalte.
+  `unknown_value`, `refused` (die Datenbank weist den Wert ab). Audit `node.values`, `statement.values` mit
+  den Anzahlen, ohne Inhalte.
+- Spezifikationen und Geltung: `GET /api/v1/documents/{id}/specifications` nennt, wer den Inhalt des
+  Dokuments lesen darf (sonst 404 `no_document`, 403 `file_hidden`), die Spezifikationen nach Schlüssel mit
+  Art (`spec_kind`, dazu die Klasse des Kerns als `type`), Titel, Fach (`field_text`), Revision, Varianten
+  (nur lesbar), eigenen Werten (`values`) und Geltungskontexten (`contexts`: Bildungsbereich, Formalität,
+  Einrichtung und Zielgruppe im Wortlaut, je mit eigenen `level_assignments` und `time_spans`), dazu
+  `editable` und `closed` wie der Baum. `PATCH /api/v1/specifications/{id}` (`expected_revision`, `title`,
+  `field_text`; ein leeres Fach leert es) setzt Titel und Fach; Art und Schlüssel – aus ihm ist die IRI
+  gemacht – bleiben. `PUT /api/v1/specifications/{id}/values` setzt Niveau, Zeitraum, Umfang und die
+  Geltungskontexte (`contexts`, je höchstens 20, ein Kontext mit `id` bleibt, ein ausgelassener geht mit
+  seinen Werten) als Ganzes auf der Revision der Spezifikation; ein Fehler nennt den Pfad im Satz
+  (`contexts[0].sector`, `contexts[0].level_assignments[1].level`). Abgewiesen wie die Werte, 404
+  `no_specification`; Audit `specification.edit` mit den Feldnamen, `specification.values` mit den Anzahlen
+  (`contexts`), ohne Inhalte. Der Kern-Graph nennt jeden Kontext an seiner Spezifikation
+  (`cur:applicability`); eine Spezifikation ohne Kontexte nennt, was X1 las (Bereich, Formalität, Zeit und
+  Niveau im Wortlaut), als einen Kontext. Einrichtung und Zielgruppe im Wortlaut haben im Kern noch keine
+  Eigenschaft und bleiben in der Datenbank.
   Ebenso weist `PATCH /statements/{id}` eine neue Art (`statement_kind`) ab, die ein Niveau der Aussage
   nicht zulässt (eine Note außer am Standard): 422 `invalid_field` am Pfad des Niveaus
   (`level_assignments[1].level`, `not_offered`).
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
-  `workload` –, `id` und gelesene `revision`, 1 bis
+  `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis
   2.000) setzt den Prüfstand vieler Zeilen auf einmal, nur durch Redaktion/Admin (sonst 403
   `not_editor`): alles oder nichts – steht eine Zeile anders oder nicht mehr da, 409 `stale_revision`
   mit `details.stale` (je Zeile `current`, die Revision jetzt oder `null`). Die Herkunft bleibt, die
   Revision zählt eins hoch, eine Zeile mit diesem Prüfstand bleibt, wie sie ist; die Antwort nennt die
   Revisionen danach. Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
-  (je Träger einmal, ein Zeitraum über seinen Umfang): Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
+  (je Träger einmal, ein Zeitraum über seinen Umfang, ein Geltungskontext und seine Werte über ihre
+  Spezifikation): Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
   endet dann mit 409 `stale_revision`, statt die Entscheidung der Redaktion still zu überschreiben. Eine Aussage zu oder von „verworfen“ ändert, was der Lehrplan sagt (Export und X5
   lassen verworfene aus) und schuldet X5 eine Prüfung; ein Knoten verworfen bleibt in beiden. Ein verworfener
   Wert geht weder in den Graphen, den X5 prüft, noch in den Kern-Export – ein verworfener Umfang mit seinen

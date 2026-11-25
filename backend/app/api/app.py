@@ -32,6 +32,7 @@ from app.api import (
     source_checks,
     source_register,
     sources,
+    specifications,
     statement_editing,
     system,
     usage,
@@ -153,6 +154,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
     app.include_router(node_editing.router)
     app.include_router(statement_editing.router)
     app.include_router(values.router)
+    app.include_router(specifications.router)
     app.include_router(review.router)
     app.include_router(document_meta.router)
     app.include_router(freeze.router)

@@ -4,7 +4,8 @@ value named by its ``id`` kept, one left out gone, a new or changed one an edito
 document's owner and the editors; answered with the holder as the tree has it (GET /documents/{id}/tree,
 ``values``), refused as app/api/edit_answers.py says - a value the form does not take as ``invalid_field``
 with its path in the set (app/vocab/value_checks.py), a stale revision with the holder as it stands.
-Audited by counts, never by what the values say. A specification's values follow with its editing.
+Audited by counts, never by what the values say. A specification's values and applicability contexts are
+set so too (app/api/specifications.py, ``set_values``).
 """
 
 from collections.abc import Awaitable, Callable
@@ -24,15 +25,17 @@ from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.core.auth import Principal
 from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, target_of
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
-from app.db.values import UnknownValue, ValueRefused, replace_values, values_of
+from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values, values_of
 from app.domain.l2 import Holder, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
 from app.vocab.form_values import FieldError
 from app.vocab.value_checks import check_values, kind_of_check, path_of
-from app.vocab.value_forms import value_form_of
+from app.vocab.value_forms import SPECIFICATION_TYPES, value_form_of
 
 router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSES)
 Account = Annotated[Principal, Depends(require_account)]
-_DOCUMENT_OF: Final[dict[HolderKind, str]] = {"node": DOCUMENT_OF_NODE, "statement": DOCUMENT_OF_STATEMENT}
+_DOCUMENT_OF: Final[dict[HolderKind, str]] = {
+    "node": DOCUMENT_OF_NODE, "statement": DOCUMENT_OF_STATEMENT, "specification": DOCUMENT_OF_SPECIFICATION,
+}  # fmt: skip
 MOST_VALUES: Final = 20  # of a kind at a holder, and periods of a workload
 # a concept's IRI; one no list offers is refused by the form, unechoed
 Iri = Annotated[str, StringConstraints(min_length=1, max_length=500)]
@@ -60,6 +63,9 @@ class LevelIn(BaseModel):
     dimension: Iri | None = None
     competence_dimension: Iri | None = None
 
+    def draft(self) -> LevelDraft:
+        return LevelDraft(**self.model_dump())
+
 
 class TimeSpanIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
@@ -68,6 +74,9 @@ class TimeSpanIn(BaseModel):
     span_from: Number | None = None
     span_to: Number | None = None
     time_relation: Iri | None = None
+
+    def draft(self) -> TimeSpanDraft:
+        return TimeSpanDraft(**self.model_dump())
 
 
 class WorkloadIn(BaseModel):
@@ -92,6 +101,19 @@ class ValuesIn(BaseModel):
     time_spans: list[TimeSpanIn] = Field(max_length=MOST_VALUES)
     workloads: list[WorkloadIn] = Field(max_length=MOST_VALUES)
 
+    def drafts(self) -> ValueDrafts:
+        return ValueDrafts(
+            levels=tuple(entry.draft() for entry in self.level_assignments),
+            time_spans=tuple(entry.draft() for entry in self.time_spans),
+            workloads=tuple(
+                WorkloadDraft(
+                    **entry.model_dump(exclude={"periods"}),
+                    periods=tuple(period.draft() for period in entry.periods),
+                )
+                for entry in self.workloads
+            ),
+        )
+
 
 @router.put(
     "/nodes/{node_id}/values",
@@ -100,7 +122,7 @@ class ValuesIn(BaseModel):
 )
 async def set_node_values(node_id: UUID, body: ValuesIn, request: Request, who: Account) -> NodeRowOut:
     gone = Refusal(404, "no_node", "No such node.")
-    found = await _set(request, who, Holder("node", node_id), body, node_as_read, gone)
+    found = await set_values(request, who, Holder("node", node_id), body, node_as_read, gone)
     assert isinstance(found, NodeRowOut)  # noqa: S101 - the node's reader
     return found
 
@@ -114,7 +136,7 @@ async def set_statement_values(
     statement_id: UUID, body: ValuesIn, request: Request, who: Account
 ) -> StatementOut:
     gone = Refusal(404, "no_statement", "No such statement.")
-    found = await _set(request, who, Holder("statement", statement_id), body, statement_as_read, gone)
+    found = await set_values(request, who, Holder("statement", statement_id), body, statement_as_read, gone)
     assert isinstance(found, StatementOut)  # noqa: S101 - the statement's reader
     return found
 
@@ -122,7 +144,7 @@ async def set_statement_values(
 AsRead = Callable[[psycopg.AsyncConnection, Principal, UUID], Awaitable[BaseModel | None]]
 
 
-async def _set(
+async def set_values(
     request: Request, who: Principal, holder: Holder, body: ValuesIn, as_read: AsRead, gone: Refusal
 ) -> BaseModel:
     """Set the holder's values to ``body``; the holder as the tree has it after, ``gone`` where there is none
@@ -137,7 +159,7 @@ async def _set(
                     raise gone
                 document_id = target.document_id
                 await readable_document(connection, who, request.app.state.settings, document_id)
-                drafts = _drafts(body)
+                drafts = body.drafts()
                 held = (await values_of(connection, document_id)).get(holder)
                 form, kind = await value_form_of(connection), await _type_of(connection, holder)
                 check_values(form, holder.kind, drafts, held, holder_type=kind)
@@ -167,26 +189,17 @@ async def _set(
 
 async def _type_of(connection: psycopg.AsyncConnection, holder: Holder) -> str | None:
     """A statement's kind, which some levels ask of it (LEVEL_RULES): read before the set, which a change of
-    the kind meanwhile refuses as stale - it counts the statement's revision as the set does."""
+    the kind meanwhile refuses as stale - it counts the statement's revision as the set does; a
+    specification's class, of its kind, which stays."""
+    if holder.kind == "specification":
+        cursor = await connection.execute("SELECT spec_kind FROM specification WHERE id = %s", (holder.id,))
+        found = await cursor.fetchone()
+        return None if found is None else SPECIFICATION_TYPES[found[0]]
     if holder.kind != "statement":
         return None
     cursor = await connection.execute("SELECT statement_kind_iri FROM statement WHERE id = %s", (holder.id,))
     found = await cursor.fetchone()
     return None if found is None else str(found[0])
-
-
-def _drafts(body: ValuesIn) -> ValueDrafts:
-    def span(entry: TimeSpanIn) -> TimeSpanDraft:
-        return TimeSpanDraft(**entry.model_dump())
-
-    return ValueDrafts(
-        levels=tuple(LevelDraft(**entry.model_dump()) for entry in body.level_assignments),
-        time_spans=tuple(span(entry) for entry in body.time_spans),
-        workloads=tuple(
-            WorkloadDraft(**entry.model_dump(exclude={"periods"}), periods=tuple(map(span, entry.periods)))
-            for entry in body.workloads
-        ),
-    )
 
 
 def _counts(drafts: ValueDrafts) -> dict[str, Any]:
@@ -196,4 +209,4 @@ def _counts(drafts: ValueDrafts) -> dict[str, Any]:
         "time_spans": len(drafts.time_spans),
         "workloads": len(drafts.workloads),
         "periods": sum(len(workload.periods) for workload in drafts.workloads),
-    }
+    } | ({"contexts": len(drafts.contexts)} if drafts.contexts else {})

@@ -15,7 +15,15 @@ from app.domain.l1 import WORDING_FIELDS
 from app.domain.l2 import HolderKind
 from app.vocab.forms import NODE_FIELDS, STATEMENT_FIELDS, FormField, form_of
 from app.vocab.store import load_vocabulary
-from app.vocab.value_forms import TABLE_OF, VALUE_FIELDS, VALUE_HOLDERS, ValueKind, value_form_of
+from app.vocab.value_forms import (
+    CONTEXT_FIELDS,
+    CONTEXT_VALUES,
+    TABLE_OF,
+    VALUE_FIELDS,
+    VALUE_HOLDERS,
+    ValueKind,
+    value_form_of,
+)
 from tests.support import ontology_vocabulary
 
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
@@ -162,8 +170,26 @@ def test_a_holder_is_offered_only_what_the_shapes_let_it_hold() -> None:
         "time_spans": ("node", "specification"),
         "workloads": ("node", "specification"),
     }
-    keys = [field.key for fields in VALUE_FIELDS.values() for field in fields]
-    assert len(keys) == len(set(keys))  # a field's key names it among every kind's
+    keys = [field.key for fields in (*VALUE_FIELDS.values(), CONTEXT_FIELDS) for field in fields]
+    assert len(keys) == len(set(keys))  # a field's key names it among every kind's, a context's too
+
+
+def test_an_applicability_context_s_fields_are_no_laxer_than_its_shape_and_its_values_have_room() -> None:
+    shapes = Graph().parse(ONTOLOGY / "ontologie" / "cur-shapes.ttl", format="turtle")
+    counts = shape_counts(shapes, SHS.ApplicabilityContextShape)
+
+    for field in CONTEXT_FIELDS:
+        if field.path is not None:
+            least, most = counts[field.path]  # a field's path is one the shape names
+            assert field.required or least == 0, field.key
+            assert not field.many or most is None, field.key
+    # what a context holds the shape names, and the store has a column for it (migration applicability)
+    for kind in CONTEXT_VALUES:
+        prop, value_class, _ = VALUE_SHAPES[kind]
+        [named] = [each for each in shapes.objects(SHS.ApplicabilityContextShape, SH.property)
+                   if shapes.value(each, SH.path) == CUR[prop]]  # fmt: skip
+        assert shapes.value(named, SH["class"]) == CUR[value_class], kind
+        assert "applicability_context_id" in HOLDERS_OF[TABLE_OF[kind]], kind
 
 
 @pytest.mark.pg
@@ -201,4 +227,7 @@ async def test_levels_come_grouped_by_their_scheme_active_ones_alone(
     assert CV + "time_phase" not in {kind.iri for kind in form.values["time_kind"]}  # no phase yet
     assert all(value.iri not in form.group_of for value in form.values["unit"])  # a scheme's are no group's
     concepts = {field.key for fields in VALUE_FIELDS.values() for field in fields if field.kind == "concept"}
+    concepts |= {field.key for field in CONTEXT_FIELDS if field.kind == "concept"}
     assert set(form.values) == concepts
+    assert {value.iri for value in form.values["formality"]} >= {CV + "form_formal", CV + "form_informal"}
+    assert CV + "sec_school" in {value.iri for value in form.values["sector"]}
