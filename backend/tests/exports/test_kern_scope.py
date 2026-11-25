@@ -187,3 +187,29 @@ async def test_a_rejected_context_leaves_the_graph_with_its_values_and_a_rejecte
     assert list(graph.subjects(RDF.type, CUR.ApplicabilityContext)) == [uri(kept.value.id)]
     assert list(graph.objects(uri(kept.value.id), CUR.levelAssignment)) == [uri(kept.levels[1].value.id)]
     assert (uri(rejected.levels[0].value.id), None, None) not in graph
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_all_contexts_rejected_state_no_applicability_not_what_x1_read(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # the editors' rejection stands: what X1 read returns not in its place
+    made = await specified(connection, document.id, "lp")
+    await connection.execute(
+        "UPDATE specification SET applicability = %s WHERE id = %s",
+        (Jsonb({"sector": str(SCHOOL), "timeText": "Klasse 5"}), made),
+    )
+    holder = Holder("specification", made)
+    await replace_values(
+        connection, owner(document), holder, 1, ValueDrafts(contexts=(ContextDraft(sector=str(SCHOOL)),))
+    )
+    await connection.execute(
+        "UPDATE applicability_context SET review_status_iri = %s WHERE specification_id = %s",
+        (CV + "rev_rejected", made),
+    )
+
+    graph = kern_graph(await read_document(connection, document.id))
+
+    assert list(graph.objects(uri(made), CUR.applicability)) == []
+    assert list(graph.subjects(RDF.type, CUR.ApplicabilityContext)) == []

@@ -6,10 +6,10 @@ is (app/exports/kern_naming.py): its urn:uuid in a draft, so X5 finds it at its 
 frozen. The institution and the target group as written have no property of the core yet (cur:institutionType
 and cur:targetGroup name concepts of a profile's): they stay in the store.
 
-A specification without contexts states what X1 read of it (specification.applicability) as one context:
-its sector and formality, its time and level as written (cur:timeText, cur:levelText) - a blank node in
-either naming, as it is no row of its own; none where X1 read none of these. Once the editors set a
-context, theirs stand alone. An OR of contexts (cur:alternativeContext) is not stated.
+A specification without context rows states what X1 read of it (specification.applicability) as one
+context: its sector and formality, its time and level as written (cur:timeText, cur:levelText) - a blank
+node in either naming, as it is no row of its own; none where X1 read none of these. Once the editors set a
+context, theirs stand alone - rejected all, none stands: X1's reading does not return in their place. An OR of contexts (cur:alternativeContext) is not stated.
 """
 
 from collections.abc import Mapping
@@ -37,7 +37,9 @@ def add_scope(graph: Graph, rows: KernRows, naming: Naming) -> None:
         contexts = () if held is None else held.contexts
         for context in contexts:
             graph.add((subject, CUR.applicability, _context(graph, context, naming)))
-        if not contexts and (read := _read(graph, specification["applicability"])) is not None:
+        if contexts or specification["has_contexts"]:
+            continue
+        if (read := _read(graph, specification["applicability"])) is not None:
             graph.add((subject, CUR.applicability, read))
 
 

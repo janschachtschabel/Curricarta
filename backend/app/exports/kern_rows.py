@@ -63,8 +63,10 @@ SELECT f.id, encode(f.sha256, 'hex') AS sha256 FROM document d JOIN conversion c
 JOIN source_file f ON f.id = c.source_file_id WHERE d.id = %(document)s
 """
 _SPECIFICATIONS = """
-SELECT id, iri, spec_kind, title, field_text, applicability FROM specification
-WHERE document_id = %(document)s ORDER BY key
+SELECT s.id, s.iri, s.spec_kind, s.title, s.field_text, s.applicability,
+    -- whether the editors set contexts at all, rejected ones too: then X1's reading stands no more (kern_scope)
+    EXISTS (SELECT FROM applicability_context c WHERE c.specification_id = s.id) AS has_contexts
+FROM specification s WHERE s.document_id = %(document)s ORDER BY s.key
 """
 _VARIANTS = """
 SELECT v.id, v.iri, v.specification_id, v.label, v.variant_kind_iri FROM variant v

@@ -27,7 +27,7 @@ GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope)
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
     2: "8f9b27919fa004d4e2fc31c6796476430409a883523bead68d836dbd9f0850ad",  # the values (plan M3a F1)
-    3: "270b6182587476c266ff45314d18168c89ed2a30e36e3cfa819fe84356256658",  # applicability (plan M3a H1)
+    3: "e3540fedfe24e713facc0caae6bf15fef62e9dd8fc6ae4529b76be711127c7df",  # applicability (plan M3a H1)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
