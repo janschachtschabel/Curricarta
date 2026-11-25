@@ -1,8 +1,8 @@
-"""The versions of what the Kern builders write (plan M3a, audit 2026-11-14 follow-up): KERN_GRAPH_VERSION,
-which X5 records with each check (app/db/runs.py), and KERN_EXPORT, which names the kept exports
-(app/exports/kern_export.py). Each is pinned to a digest of the source that decides what it versions - its
-syntax tree, without docstrings, comments and the version's own line -, so a change of what is written
-without a new version turns a test here red.
+"""The versions of what the Kern builders write (plan M3a): KERN_GRAPH_VERSION, which X5 records with each
+check (app/db/runs.py), and KERN_EXPORT, which names the kept exports (app/exports/kern_export.py). Each
+is pinned to a digest of the source that decides what it versions - its syntax tree, without docstrings,
+comments and the version's own line -, so a change of what is written without a new version turns a test
+here red.
 
 A red test here: bump the version beside the builder, then pin the new digest under the new version.
 Never pin a version again: its checks (X5) and its kept files stand for the old source. The syntax tree is
