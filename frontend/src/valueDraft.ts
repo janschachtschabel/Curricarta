@@ -1,6 +1,7 @@
 // A holder's levels, time spans and workloads as their form edits them (plan M3a G; backend app/api/values.py): each
 // value an entry of its kind - kept by its `id`, a new one without -, its fields by the keys of its kind's form, a
-// list's value as an IRI or "", a number as written (the German way, "7,5"), a yes or no as such. A set is sent
+// list's value as an IRI or "", a number as written (the German way: "7,5", "12.000" - the comma its only decimal
+// sign, a dot only where it groups thousands, as the panel's own words write them), a yes or no as such. A set is sent
 // whole: what it leaves out goes. A workload's periods are kept as they are stored; this form does not edit them.
 // Compared as the server stores them, a number by its value, so that nothing changed is nothing to save; each kind
 // is one field where a set meets another stored meanwhile (rowConflict.rebase): a kind only the other changed is
@@ -41,7 +42,8 @@ const MOST_DIGITS = 15; // the store's (backend app/api/values.py, Number)
 const MOST_WHOLE = 2 ** 31 - 1; // a whole number's, the store's integer
 // a whole number, as the document says it: minutes per unit
 const WHOLE: ReadonlySet<string> = new Set(["minutes_per_unit"]);
-const NUMBER = /^\d+(?:[.,]\d+)?$/;
+// digits, or thousands grouped by dots, then the decimals after a comma
+const NUMBER = /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/;
 
 let made = 0;
 function nextKey(): string {
@@ -113,7 +115,7 @@ export function withoutEntry(draft: ValuesDraft, kind: ValueKind, key: string): 
 /** A number as written, as a number; none where it is empty or no number. */
 function numberOf(text: string): number | null {
   const trimmed = text.trim();
-  return NUMBER.test(trimmed) ? Number(trimmed.replace(",", ".")) : null;
+  return NUMBER.test(trimmed) ? Number(trimmed.replaceAll(".", "").replace(",", ".")) : null;
 }
 
 // an entry as the server stores it: a number by its value, nothing as none
@@ -165,13 +167,13 @@ function problemOf(field: FormField, value: string | boolean | undefined): strin
   if (field.kind !== "number") return null;
   const number = numberOf(text);
   if (WHOLE.has(field.key)) {
-    return number !== null && Number.isInteger(number) && number >= 1 && number <= MOST_WHOLE && /^\d+$/.test(text)
+    return number !== null && Number.isInteger(number) && number >= 1 && number <= MOST_WHOLE && !text.includes(",")
       ? null
       : t("documents.tree.values.problems.not_whole");
   }
   if (number === null) return t("documents.tree.values.problems.not_number");
   // leading zeros are no digits of the value; trailing ones after the comma are
-  const digits = text.replace(/[.,]/, "").replace(/^0+(?=\d)/, "").length;
+  const digits = text.replace(/[.,]/g, "").replace(/^0+(?=\d)/, "").length;
   return digits > MOST_DIGITS ? t("documents.tree.values.problems.too_many_digits") : null;
 }
 

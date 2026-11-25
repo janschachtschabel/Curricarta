@@ -13,6 +13,7 @@ import {
   withoutEntry,
   type ValuesDraft,
 } from "@/valueDraft";
+import { t } from "@/i18n/de";
 
 import { CV, LVL, form_, noValues } from "./treeFixtures";
 
@@ -66,8 +67,27 @@ describe("a holder's values as a draft", () => {
     const before = draftOfValues(FORM, held());
 
     expect(sameValues(before, draftOfValues(FORM, held()))).toBe(true);
-    expect(sameValues(before, edited(before, "workloads", 0, "amount", "7.50"))).toBe(true);
+    expect(sameValues(before, edited(before, "workloads", 0, "amount", "7,50"))).toBe(true);
     expect(sameValues(before, edited(before, "workloads", 0, "amount", "8"))).toBe(false);
+  });
+
+  it("takes the comma alone as the decimal sign, a dot only as it groups thousands", () => {
+    const at = (amount: string, minutes = "") => {
+      let draft = withEntry(FORM, draftOfValues(FORM, noValues()), "workloads").draft;
+      draft = edited(edited(edited(draft, "workloads", 0, "amount", amount), "workloads", 0, "unit", CV + "unit_hour"), "workloads", 0, "minutes_per_unit", minutes);
+      return { faults: checkDraft(FORM, draft), set: requestOf(FORM, draft).workloads[0] };
+    };
+
+    // as the panel's own words write them: never a thousandth of it
+    expect(at("12.000").set?.amount).toBe(12000);
+    expect(at("1.800,5").set?.amount).toBe(1800.5);
+    expect(at("1.234.567").set?.amount).toBe(1234567);
+    expect(at("12.000").faults).toEqual([]);
+    expect(at("45", "1.000").set?.minutes_per_unit).toBe(1000);
+    for (const written of ["7.50", "1.8", "12.00", "1.8000", ".5", "1,", "1.000.0"]) {
+      expect(at(written).faults, written).toEqual([["workloads[0].amount", t("documents.tree.values.problems.not_number")]]);
+      expect(at(written).set?.amount, written).toBeNull();
+    }
   });
 
   it("adds an empty entry of a kind after the others, and takes one away by its key", () => {
