@@ -1,7 +1,10 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import type { HeldLevel, HeldTimeSpan, HeldWorkload } from "@/api";
-import { t } from "@/i18n/de";
+import { messages, t } from "@/i18n/de";
 import { levelInWay, levelWords, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
 
 import { CV, LVL, form_, noValues, value_ } from "./treeFixtures";
@@ -125,3 +128,15 @@ describe("a level that stands in the way of a change of its holder", () => {
     expect(levelInWay(values, FORM, "statement_kind", "Nein.")).toBeNull();
   });
 });
+
+describe("the counted words of the units", () => {
+  // a key that missed its notation would fall back to "Einheit: 3" without a word
+  it("are one for each unit of cv:WorkloadUnits, by its notation", () => {
+    const source = readFileSync(join(process.cwd(), "..", "ontology", "ontologie", "cur-vokabular.ttl"), "utf8");
+    const notations = [...source.matchAll(/skos:inScheme cv:WorkloadUnits[^.]*?skos:notation "([A-Za-z]+)"/gs)].map(([, notation]) => notation);
+
+    expect(notations.length).toBeGreaterThan(0);
+    expect(Object.keys(messages.documents.tree.values.units).sort()).toEqual(notations.sort());
+  });
+});
+
