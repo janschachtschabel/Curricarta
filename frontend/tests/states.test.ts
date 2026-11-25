@@ -13,7 +13,7 @@ import ValueSection from "@/components/ValueSection.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 
-import { form_, node_, noValues } from "./treeFixtures";
+import { CV, form_, node_, noValues } from "./treeFixtures";
 
 describe("the loading state", () => {
   it("says so politely, in its own words or the general ones", () => {
@@ -114,11 +114,30 @@ describe("a row's values", () => {
     wrapper.unmount();
   });
 
-  it("say where none is entered yet, and only read where the tree is closed", () => {
+  it("say where none is entered yet, to a reader who may not change them", () => {
     const wrapper = mount(ValueSection, { props: { ...props, editable: false } });
 
     expect(wrapper.get(".value-list__none").text()).toBe(t("documents.tree.values.none"));
     expect(wrapper.find("form").exists()).toBe(false);
+  });
+
+  // a job open on the document: read as they are, with nothing to change - the panel's line says why. Its form
+  // stays only where a draft of the row's own fields was open as the tree closed (`editable` kept), not for the values
+  it.each([
+    ["closed to everyone", false],
+    ["closed under a draft of the row's fields", true],
+  ])("only read where a job keeps the tree closed: %s", (_case, editable) => {
+    const workload = {
+      id: "w1", origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1, amount: 80, amount_to: null,
+      unit: CV + "unit_lesson", workload_kind: null, is_recommendation: false, minutes_per_unit: null, total: false, periods: [],
+    };
+    const row = rowsOf([node_("a", { values: { ...noValues(), workloads: [workload] } })]).get("node:a") as Row;
+    const wrapper = mount(ValueSection, { props: { ...props, row, editable, closedBy: "job_open" } });
+
+    expect(wrapper.get(".value-list__words").text()).toBe("80 Unterrichtsstunden");
+    expect(wrapper.find("form").exists()).toBe(false);
+    expect(wrapper.find("button").exists()).toBe(false);
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
   });
 });
 
