@@ -92,6 +92,32 @@ async def test_two_builds_give_the_same_bytes(tmp_path: Path) -> None:
     assert (tmp_path / "one" / one.key).read_bytes() == (tmp_path / "other" / other.key).read_bytes()
 
 
+async def test_two_builds_of_what_x1_read_of_the_applicability_give_the_same_bytes(tmp_path: Path) -> None:
+    # the contexts of what X1 read are blank nodes of no row (app/exports/kern_scope.py): two of them, each
+    # build its own process, the same bytes
+    cv = "https://w3id.org/wlo/curriculum/vocab#"
+    rows = synthetic_rows(nodes=2, statements=4)
+    [first] = rows.specifications
+    read = {
+        "sector": cv + "sec_school",
+        "formality": cv + "form_formal",
+        "timeText": "Klasse 5",
+        "levelText": "B",
+    }
+    rows.specifications[:] = [
+        first | {"applicability": read},
+        first | {"id": uuid4(), "iri": first["iri"] + "-2", "applicability": read | {"timeText": "Klasse 7"}},
+    ]
+
+    one, other = await asyncio.gather(
+        an_exporter(tmp_path / "one").export(rows), an_exporter(tmp_path / "other").export(rows)
+    )
+
+    made = (tmp_path / "one" / one.key).read_bytes()
+    assert made == (tmp_path / "other" / other.key).read_bytes()
+    assert made.count(b"cur:ApplicabilityContext") == 2
+
+
 async def test_two_exporters_on_one_store_keep_one_export(tmp_path: Path) -> None:
     # two replicas build the same key: the same bytes, the second put writes them again
     rows = synthetic_rows(nodes=2, statements=4)
