@@ -1811,6 +1811,12 @@ export const messages = {
           semester: "{count|Semester|Semester}",
           year: "{count|Jahr|Jahre}",
         },
+        // a number's problem, found before the set is sent (valueDraft.ts)
+        problems: {
+          not_number: "Hier gehört eine Zahl ab 0 hin, etwa 7,5.",
+          not_whole: "Hier gehört eine ganze Zahl von 1 bis 2.147.483.647 hin.",
+          too_many_digits: "Diese Zahl hat mehr als 15 Ziffern.",
+        },
       },
       // cv:ReviewStatuses by notation without its "rev_" (reviewStatus.ts)
       statuses: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", rejected: "Verworfen" },

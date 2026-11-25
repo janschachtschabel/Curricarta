@@ -1,0 +1,185 @@
+import { describe, expect, it } from "vitest";
+
+import type { HeldValues } from "@/api";
+import {
+  checkDraft,
+  draftOfValues,
+  kindsOf,
+  offeredFor,
+  rebaseValues,
+  requestOf,
+  sameValues,
+  withEntry,
+  withoutEntry,
+  type ValuesDraft,
+} from "@/valueDraft";
+
+import { CV, LVL, form_, noValues } from "./treeFixtures";
+
+const FORM = form_();
+const STATED = { origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1 };
+
+function held(): HeldValues {
+  return {
+    level_assignments: [
+      { id: "l1", ...STATED, level: LVL + "B1", level_to: null, relation: CV + "lrel_minimum", dimension: null, competence_dimension: null },
+    ],
+    time_spans: [{ id: "t1", ...STATED, time_kind: CV + "time_gradeLevel", span_from: 7, span_to: 8, time_relation: null }],
+    workloads: [
+      {
+        id: "w1",
+        ...STATED,
+        amount: 7.5,
+        amount_to: null,
+        unit: CV + "unit_hour",
+        workload_kind: null,
+        is_recommendation: true,
+        minutes_per_unit: null,
+        total: false,
+        periods: [{ id: "p1", ...STATED, time_kind: CV + "time_gradeLevel", span_from: 7, span_to: null, time_relation: null }],
+      },
+    ],
+  };
+}
+
+function edited(draft: ValuesDraft, kind: keyof ValuesDraft, at: number, key: string, value: string | boolean): ValuesDraft {
+  const entries = draft[kind].map((entry, index) => (index === at ? { ...entry, fields: { ...entry.fields, [key]: value } } : entry));
+  return { ...draft, [kind]: entries };
+}
+
+describe("a holder's values as a draft", () => {
+  it("holds each value with its id, its lists' IRIs, its numbers as written the German way, and its yes or no", () => {
+    const draft = draftOfValues(FORM, held());
+
+    expect(draft.level_assignments[0]).toMatchObject({
+      id: "l1",
+      fields: { level: LVL + "B1", level_to: "", relation: CV + "lrel_minimum", dimension: "", competence_dimension: "" },
+    });
+    expect(draft.time_spans[0]?.fields).toMatchObject({ span_from: "7", span_to: "8", time_relation: "" });
+    expect(draft.workloads[0]?.fields).toMatchObject({ amount: "7,5", amount_to: "", is_recommendation: true, total: false });
+    // every entry its own key, which the form keys its fields by
+    const keys = [...draft.level_assignments, ...draft.time_spans, ...draft.workloads].map((entry) => entry.key);
+    expect(new Set(keys).size).toBe(3);
+  });
+
+  it("sees nothing to save where nothing changed, nor where a number is written another way", () => {
+    const before = draftOfValues(FORM, held());
+
+    expect(sameValues(before, draftOfValues(FORM, held()))).toBe(true);
+    expect(sameValues(before, edited(before, "workloads", 0, "amount", "7.50"))).toBe(true);
+    expect(sameValues(before, edited(before, "workloads", 0, "amount", "8"))).toBe(false);
+  });
+
+  it("adds an empty entry of a kind after the others, and takes one away by its key", () => {
+    const before = draftOfValues(FORM, held());
+
+    const added = withEntry(FORM, before, "time_spans");
+    expect(added.draft.time_spans).toHaveLength(2);
+    expect(added.entry).toMatchObject({ id: null, fields: { time_kind: "", span_from: "", span_to: "", time_relation: "" } });
+    expect(sameValues(before, added.draft)).toBe(false);
+
+    const removed = withoutEntry(added.draft, "time_spans", added.entry.key);
+    expect(sameValues(before, removed)).toBe(true);
+    expect(withoutEntry(before, "level_assignments", before.level_assignments[0]?.key ?? "").level_assignments).toEqual([]);
+  });
+
+  it("finds each problem before anything is asked, by its path in the set", () => {
+    let draft = withEntry(FORM, draftOfValues(FORM, noValues()), "workloads").draft;
+    draft = edited(draft, "workloads", 0, "amount_to", "zehn");
+    draft = edited(draft, "workloads", 0, "minutes_per_unit", "45,5");
+    draft = withEntry(FORM, draft, "level_assignments").draft;
+
+    expect(checkDraft(FORM, draft)).toEqual([
+      ["level_assignments[0].level", "Dieses Feld braucht einen Wert."],
+      ["workloads[0].amount", "Dieses Feld braucht einen Wert."],
+      ["workloads[0].amount_to", "Hier gehört eine Zahl ab 0 hin, etwa 7,5."],
+      ["workloads[0].unit", "Dieses Feld braucht einen Wert."],
+      ["workloads[0].minutes_per_unit", "Hier gehört eine ganze Zahl von 1 bis 2.147.483.647 hin."],
+    ]);
+    expect(checkDraft(FORM, edited(draft, "workloads", 0, "amount", "1234567890123456"))).toContainEqual([
+      "workloads[0].amount",
+      "Diese Zahl hat mehr als 15 Ziffern.",
+    ]);
+  });
+
+  it("sends the whole set: the values kept by their ids, the new without, numbers as numbers, empty as none", () => {
+    let draft = withEntry(FORM, draftOfValues(FORM, held()), "level_assignments").draft;
+    draft = edited(draft, "level_assignments", 1, "level", LVL + "B2");
+
+    expect(requestOf(FORM, draft)).toEqual({
+      level_assignments: [
+        { id: "l1", level: LVL + "B1", level_to: null, relation: CV + "lrel_minimum", dimension: null, competence_dimension: null },
+        { id: null, level: LVL + "B2", level_to: null, relation: null, dimension: null, competence_dimension: null },
+      ],
+      time_spans: [{ id: "t1", time_kind: CV + "time_gradeLevel", span_from: 7, span_to: 8, time_relation: null }],
+      workloads: [
+        {
+          id: "w1",
+          amount: 7.5,
+          amount_to: null,
+          unit: CV + "unit_hour",
+          workload_kind: null,
+          is_recommendation: true,
+          minutes_per_unit: null,
+          total: false,
+          // kept as they are: the form does not edit them
+          periods: [{ id: "p1", time_kind: CV + "time_gradeLevel", span_from: 7, span_to: null, time_relation: null }],
+        },
+      ],
+    });
+  });
+});
+
+describe("the kinds and values a holder is offered", () => {
+  it("offers a node every kind, a statement its levels alone", () => {
+    expect(kindsOf(FORM, "node")).toEqual(["level_assignments", "time_spans", "workloads"]);
+    expect(kindsOf(FORM, "statement")).toEqual(["level_assignments"]);
+  });
+
+  it("leaves out the levels a holder never holds, and a range's end of another system than its start", () => {
+    const draft = withEntry(FORM, draftOfValues(FORM, noValues()), "level_assignments").draft;
+    const entry = draft.level_assignments[0];
+    if (!entry) throw new Error("an entry");
+    const iris = (key: string, holder: "node" | "statement", at = entry) =>
+      offeredFor(FORM, "level_assignments", key, at, holder, null).map((value) => value.iri);
+
+    expect(iris("level", "node")).toContain(LVL + "Q4");
+    expect(iris("level", "statement")).toEqual([LVL + "B1", LVL + "B2"]);
+    expect(iris("dimension", "statement")).toEqual([CV + "dim_proficiency"]);
+    const chosen = { ...entry, fields: { ...entry.fields, level: LVL + "B1" } };
+    expect(iris("level_to", "node", chosen)).toEqual([LVL + "B1", LVL + "B2"]);
+    // the value held stays offered, though no longer fitting: the server says why it refuses it
+    const holding = { ...entry, fields: { ...entry.fields, level: LVL + "Q4" } };
+    expect(iris("level", "statement", holding)).toContain(LVL + "Q4");
+  });
+
+  it("offers a statement of the kind a rule excepts every level", () => {
+    const form = form_();
+    form.values.level_assignments.rules = [{ holder: "statement", dimensions: [CV + "dim_qualification"], unless: CV + "kind_standard" }];
+    const entry = withEntry(form, draftOfValues(form, noValues()), "level_assignments").entry;
+
+    const offered = offeredFor(form, "level_assignments", "level", entry, "statement", CV + "kind_standard");
+
+    expect(offered.map((value) => value.iri)).toContain(LVL + "Q4");
+  });
+});
+
+describe("a set laid beside the holder's values as another stored them meanwhile", () => {
+  it("takes in a kind only the other changed and puts a kind both changed before the user", () => {
+    const before = draftOfValues(FORM, held());
+    const mine = edited(edited(before, "level_assignments", 0, "relation", ""), "time_spans", 0, "span_to", "9");
+    const theirs = held();
+    theirs.level_assignments[0] = { ...theirs.level_assignments[0], relation: CV + "lrel_target" };
+    theirs.workloads = [];
+    const stored = draftOfValues(FORM, theirs);
+
+    const laid = rebaseValues(before, mine, stored);
+
+    expect(laid.clashes).toEqual(["level_assignments"]);
+    expect(laid.taken).toEqual(["workloads"]);
+    expect(laid.draft.workloads).toEqual([]);
+    // the user's until decided, and their change the other did not make
+    expect(laid.draft.level_assignments[0]?.fields.relation).toBe("");
+    expect(laid.draft.time_spans[0]?.fields.span_to).toBe("9");
+  });
+});
