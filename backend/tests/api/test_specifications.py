@@ -117,7 +117,10 @@ def test_a_specification_s_values_and_contexts_are_set_as_a_whole(client: TestCl
     )  # fmt: skip
     assert changed["time_spans"] == []
     audited = "SELECT details FROM audit_log WHERE action = 'specification.values' ORDER BY id"
-    assert [found["contexts"] for (found,) in rows(url, audited)] == [1, 1]
+    # every context taken away: the audit says so too
+    emptied = client.put(path, headers=owner, json=values(3))
+    assert (emptied.status_code, emptied.json()["contexts"]) == (200, [])
+    assert [found["contexts"] for (found,) in rows(url, audited)] == [1, 1, 0]
 
 
 def test_a_context_or_level_the_form_does_not_take_is_refused_at_its_field(

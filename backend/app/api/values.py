@@ -169,7 +169,7 @@ async def set_values(
                 if revision is None:  # taken away meanwhile
                     raise gone
                 await audit(connection, who, f"{holder.kind}.values", f"{holder.kind}:{holder.id}", {
-                    "document": str(document_id), "revision": revision, **_counts(drafts),
+                    "document": str(document_id), "revision": revision, **_counts(drafts, holder.kind),
                 })  # fmt: skip
         except StaleRevision as error:
             raise stale(holder.kind, await as_read(connection, who, holder.id)) from error
@@ -202,11 +202,12 @@ async def _type_of(connection: psycopg.AsyncConnection, holder: Holder) -> str |
     return None if found is None else str(found[0])
 
 
-def _counts(drafts: ValueDrafts) -> dict[str, Any]:
-    """What the audit says of a set: how many of each kind, never what they say."""
+def _counts(drafts: ValueDrafts, holder: HolderKind) -> dict[str, Any]:
+    """What the audit says of a set: how many of each kind, never what they say - a specification's contexts
+    always, none among them too."""
     return {
         "level_assignments": len(drafts.levels),
         "time_spans": len(drafts.time_spans),
         "workloads": len(drafts.workloads),
         "periods": sum(len(workload.periods) for workload in drafts.workloads),
-    } | ({"contexts": len(drafts.contexts)} if drafts.contexts else {})
+    } | ({"contexts": len(drafts.contexts)} if holder == "specification" else {})
