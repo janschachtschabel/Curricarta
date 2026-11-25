@@ -5,11 +5,13 @@ import type { FormField } from "@/api";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 
 import { violations } from "./axe";
-import { CV, form_ } from "./treeFixtures";
+import { messages } from "@/i18n/de";
+
+import { CV, LVL, form_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
 // the field's v-model, as the form would hold it
-let model: string | string[] = "";
+let model: string | string[] | boolean = "";
 
 afterEach(() => {
   shown?.unmount();
@@ -23,7 +25,12 @@ function field(key: string): FormField {
   return found;
 }
 
-function input(of: FormField, value: string | string[], error: string | null = null): VueWrapper {
+function input(
+  of: FormField,
+  value: string | string[] | boolean,
+  error: string | null = null,
+  more: Record<string, unknown> = {},
+): VueWrapper {
   model = value;
   shown = mount(FormFieldInput, {
     props: {
@@ -31,7 +38,8 @@ function input(of: FormField, value: string | string[], error: string | null = n
       values: of.values ?? [],
       error,
       modelValue: value,
-      "onUpdate:modelValue": (next: string | string[]) => {
+      ...more,
+      "onUpdate:modelValue": (next: string | string[] | boolean) => {
         model = next;
         void shown?.setProps({ modelValue: next });
       },
@@ -142,5 +150,56 @@ describe("a field of a row's form", () => {
     const boxes = input(field("addressees"), []);
     (boxes.vm as unknown as { focus: () => void }).focus();
     expect(document.activeElement).toBe(boxes.get("input[type=checkbox]").element);
+  });
+});
+
+describe("a field of a value's form", () => {
+  const values = form_().values;
+  function valueField(kind: keyof typeof values, key: string): FormField {
+    const found = values[kind].fields.find((item) => item.key === key);
+    if (!found) throw new Error(key);
+    return found;
+  }
+  const LABELS = { labels: messages.documents.tree.values.fields };
+
+  it("edits a number as written, the German way, in a box that asks a keyboard for digits", async () => {
+    const wrapper = input(valueField("workloads", "amount"), "7,5", null, { ...LABELS, controlId: "w-amount" });
+    const box = wrapper.get("input");
+
+    expect(wrapper.get("label").text()).toBe("Umfang (Pflichtfeld)");
+    expect([box.attributes("id"), box.attributes("type"), box.attributes("inputmode")]).toEqual(["w-amount", "text", "decimal"]);
+    expect((box.element as HTMLInputElement).value).toBe("7,5");
+    await box.setValue("80");
+    expect(model).toBe("80");
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("sets a yes or no by a box its label names", async () => {
+    const wrapper = input(valueField("workloads", "is_recommendation"), false, null, LABELS);
+    const box = wrapper.get("input[type=checkbox]");
+
+    expect(wrapper.get(`label[for=${box.attributes("id")}]`).text()).toBe("Richtwert, nicht verbindlich");
+    await box.setValue(true);
+    expect(model).toBe(true);
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
+  it("offers a list of many systems grouped by system, in the form's order", () => {
+    const wrapper = input(valueField("level_assignments", "level"), "", null, { ...LABELS, groups: form_().groups });
+
+    const groups = wrapper.findAll("optgroup").map((group) => [group.attributes("label"), group.findAll("option").map((option) => option.text())]);
+    expect(groups).toEqual([
+      ["Sprachniveaus", ["GER B1", "GER B2"]],
+      ["Qualifikationsstufen", ["Stufe Q4"]],
+    ]);
+    // the empty choice and a value of no group stand outside the groups
+    expect(wrapper.get("select > option").text()).toBe("Bitte wählen");
+  });
+
+  it("keeps a value no group offers any more as a choice of its own", () => {
+    const wrapper = input(valueField("level_assignments", "level"), LVL + "gone", null, { ...LABELS, groups: form_().groups });
+
+    expect(wrapper.find("select > option:last-child").text()).toBe("unbekannt: ⁨" + LVL + "gone⁩");
+    expect((wrapper.get("select").element as HTMLSelectElement).value).toBe(LVL + "gone");
   });
 });

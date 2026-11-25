@@ -75,3 +75,20 @@ describe("a deep tree row on a narrow screen", () => {
     expect(233 - 6 * px).toBeGreaterThanOrEqual(0.6 * 320);
   });
 });
+
+describe("an entry of a row's values on a narrow screen", () => {
+  // jsdom lays nothing out: below 40rem the entry's fields stand one under another, a select keeping the width to
+  // show its value, and wide its columns collapse to the container rather than widen the page (SC 1.4.10)
+  it("stacks its fields one under another, and caps its columns at its width", () => {
+    const file = "components/ValueItemForm.vue";
+    expect(narrowRule(file, ".value-item__fields")).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\)/);
+    expect(stylesOf(source(file))).toMatch(/repeat\(auto-fill, minmax\(min\(12rem, 100%\), 1fr\)\)/);
+  });
+
+  it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
+    expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
+      /overflow-wrap:\s*anywhere/,
+    );
+  });
+});
+

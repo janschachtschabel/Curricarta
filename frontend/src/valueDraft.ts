@@ -65,7 +65,7 @@ function written(value: number | null): string {
   return value === null ? "" : WRITTEN.format(value);
 }
 
-function entryOf(form: Form, kind: ValueKind, stored: Record<string, unknown> & { id: string }): Entry {
+function entryOf(form: Form, kind: ValueKind, stored: Record<string, unknown> & { id: string }, key: string): Entry {
   const fields = Object.fromEntries(
     fieldsOf(form, kind).map((field) => {
       const value = stored[field.key];
@@ -75,7 +75,7 @@ function entryOf(form: Form, kind: ValueKind, stored: Record<string, unknown> & 
     }),
   );
   const periods = Array.isArray(stored.periods) ? (stored.periods as HeldTimeSpan[]).map(periodOf) : [];
-  return { key: nextKey(), id: stored.id, fields, periods };
+  return { key, id: stored.id, fields, periods };
 }
 
 function periodOf(span: HeldTimeSpan): TimeSpanIn {
@@ -83,11 +83,17 @@ function periodOf(span: HeldTimeSpan): TimeSpanIn {
   return { id, time_kind, span_from, span_to, time_relation };
 }
 
-/** The holder's values as a draft, each kind the form knows. */
-export function draftOfValues(form: Form, values: HeldValues): ValuesDraft {
+/**
+ * The holder's values as a draft, each kind the form knows - an entry of `previous` keeping its key where it holds
+ * the same value, so that its controls stay as the row is read again.
+ */
+export function draftOfValues(form: Form, values: HeldValues, previous?: ValuesDraft): ValuesDraft {
   const draft = {} as ValuesDraft;
   for (const kind of VALUE_KINDS) {
-    draft[kind] = (values[kind] as unknown as (Record<string, unknown> & { id: string })[]).map((one) => entryOf(form, kind, one));
+    const keys = new Map((previous?.[kind] ?? []).filter((entry) => entry.id !== null).map((entry) => [entry.id, entry.key]));
+    draft[kind] = (values[kind] as unknown as (Record<string, unknown> & { id: string })[]).map((one) =>
+      entryOf(form, kind, one, keys.get(one.id) ?? nextKey()),
+    );
   }
   return draft;
 }
@@ -129,8 +135,13 @@ function asFields(draft: ValuesDraft): Record<ValueKind, string> {
 
 /** Whether the two drafts set the same values. */
 export function sameValues(a: ValuesDraft, b: ValuesDraft): boolean {
-  const [left, right] = [asFields(a), asFields(b)];
-  return VALUE_KINDS.every((kind) => left[kind] === right[kind]);
+  return changedKinds(a, b).length === 0;
+}
+
+/** The kinds whose values `draft` changes from `before`, in their order. */
+export function changedKinds(before: ValuesDraft, draft: ValuesDraft): ValueKind[] {
+  const [left, right] = [asFields(before), asFields(draft)];
+  return VALUE_KINDS.filter((kind) => left[kind] !== right[kind]);
 }
 
 /** The draft's problems the server would refuse, in the order of the set; none where it may be sent. */
@@ -164,20 +175,22 @@ function problemOf(field: FormField, value: string | boolean | undefined): strin
   return digits > MOST_DIGITS ? t("documents.tree.values.problems.too_many_digits") : null;
 }
 
+/** An entry of the kind `kind` as a set names it: a number none where it is empty or no number. */
+export function valueOf(form: Form, kind: ValueKind, entry: Entry): Record<string, unknown> {
+  const value: Record<string, unknown> = { id: entry.id };
+  for (const field of fieldsOf(form, kind)) {
+    const held = entry.fields[field.key];
+    if (typeof held === "boolean") value[field.key] = held;
+    else if (field.kind === "number") value[field.key] = numberOf(held ?? "");
+    else value[field.key] = held?.trim() ? held : null;
+  }
+  if (kind === "workloads") value.periods = entry.periods;
+  return value;
+}
+
 /** The draft as a set sends it - checked first (`checkDraft`). */
 export function requestOf(form: Form, draft: ValuesDraft): ValuesIn {
-  const set = (kind: ValueKind) =>
-    draft[kind].map((entry) => {
-      const value: Record<string, unknown> = { id: entry.id };
-      for (const field of fieldsOf(form, kind)) {
-        const held = entry.fields[field.key];
-        if (typeof held === "boolean") value[field.key] = held;
-        else if (field.kind === "number") value[field.key] = numberOf(held ?? "");
-        else value[field.key] = held?.trim() ? held : null;
-      }
-      if (kind === "workloads") value.periods = entry.periods;
-      return value;
-    });
+  const set = (kind: ValueKind) => draft[kind].map((entry) => valueOf(form, kind, entry));
   return {
     level_assignments: set("level_assignments") as unknown as ValuesIn["level_assignments"],
     time_spans: set("time_spans") as unknown as ValuesIn["time_spans"],

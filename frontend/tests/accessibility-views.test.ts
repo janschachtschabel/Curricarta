@@ -16,8 +16,9 @@ import { clearSession, setSession } from "@/session";
 import { describeViolations, pageViolations } from "./axe";
 import { block, blockPage, conversion, table } from "./conversions";
 import { CV, LABELS, REGION, cueDecision, newTerm, nodeType, reviewCue, termDecision } from "./lexiconFixtures";
+import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
-import { NO_VALUES_FORM } from "./treeFixtures";
+import { CV as TREE_CV, LVL, NO_VALUES_FORM, form_, node_, noValues, tree_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -365,6 +366,53 @@ describe("accessibility of the pages", () => {
     vi.spyOn(api, "getConversion").mockRejectedValue(new api.ApiError("server", 404, "no_conversion"));
     const wrapper = await show("/quellen/s1/bloecke");
     expect(wrapper.text()).toContain(t("conversionPage.notConvertedTitle"));
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
+  it("the tree's page with a node's values in their form, an entry added and a problem at its field, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
+    const stated = { origin: TREE_CV + "orig_human", review_status: TREE_CV + "rev_proposed", revision: 1 };
+    const values = {
+      ...noValues(),
+      level_assignments: [{ id: "l1", ...stated, level: LVL + "B1", level_to: null, relation: null, dimension: null, competence_dimension: null }],
+      time_spans: [{ id: "t1", ...stated, time_kind: TREE_CV + "time_gradeLevel", span_from: 7, span_to: 8, time_relation: null }],
+    };
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getTree").mockResolvedValue(tree_([node_("a", { values })]));
+    vi.spyOn(api, "getForm").mockResolvedValue(form_());
+    vi.spyOn(api, "getDocumentBlocks").mockRejectedValue(new api.ApiError("server", 404, "no_such_page"));
+    const wrapper = await show("/dokumente/d1/baum?zeile=node:a");
+    const add = wrapper.findAll(".value-section__add").find((button) => button.text() === "Umfang hinzufügen");
+    await add?.trigger("click");
+    await wrapper.get(".value-section form").trigger("submit");
+    await flushPromises();
+    expect(wrapper.find(".value-section .field__error").exists()).toBe(true);
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
+  it("the tree's page of a frozen document, a node's values read in words, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Lehrkraft", roles: ["nutzer"] });
+    const values = {
+      ...noValues(),
+      workloads: [
+        { id: "w1", origin: TREE_CV + "orig_human", review_status: TREE_CV + "rev_confirmed", revision: 1, amount: 80, amount_to: null,
+          unit: TREE_CV + "unit_lesson", workload_kind: null, is_recommendation: true, minutes_per_unit: null, total: false, periods: [] },
+      ],
+    };
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getTree").mockResolvedValue(tree_([node_("a", { values })], { editable: false, reviewable: false, closed: "frozen" }));
+    vi.spyOn(api, "getForm").mockResolvedValue(form_());
+    vi.spyOn(api, "getDocumentBlocks").mockRejectedValue(new api.ApiError("server", 404, "no_such_page"));
+    const wrapper = await show("/dokumente/d1/baum?zeile=node:a");
+    expect(wrapper.get(".value-list__words").text()).toBe("80 Unterrichtsstunden, Richtwert");
 
     const found = await pageViolations();
 

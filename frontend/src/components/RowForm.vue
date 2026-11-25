@@ -54,7 +54,7 @@ defineExpose({ focusField });
       :values="offeredValues(fields, field, draft)"
       :error="errors[field.key] ?? null"
       :model-value="draft[field.key] ?? (field.many ? [] : '')"
-      @update:model-value="(value) => change(field.key, value)"
+      @update:model-value="(value) => typeof value !== 'boolean' && change(field.key, value)"
     />
     <slot />
     <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->

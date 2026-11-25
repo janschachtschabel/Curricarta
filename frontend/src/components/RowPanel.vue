@@ -13,7 +13,10 @@
  * meanwhile or closed to change, the tree is read again. An editor sets the row's review status here
  * (ReviewToggles, Paket 9c2c M2/M3): set or changed meanwhile, it is said here and the tree read again, the keyboard
  * left on its toggle; closed to change, the toggles go with the tree read again, the keyboard to the heading; the
- * row no more, as a row found gone; refused to the caller's role, only said.
+ * row no more, as a row found gone; refused to the caller's role, only said. A node's or a statement's levels, time
+ * spans and workloads stand under its form (ValueSection, plan M3a G), set as a whole: saved, or a value's review
+ * status set - the holder's revision moved with it -, the tree is read again; a draft of them is a draft as the
+ * form's is, to the leave guard and where the tree closes under it.
  */
 import { computed, nextTick, ref, useId, watch } from "vue";
 
@@ -23,6 +26,7 @@ import RowCreator from "@/components/RowCreator.vue";
 import RowDetail from "@/components/RowDetail.vue";
 import RowEditor from "@/components/RowEditor.vue";
 import ReviewToggles from "@/components/ReviewToggles.vue";
+import ValueSection from "@/components/ValueSection.vue";
 import type { Row, RowKey } from "@/documentTree";
 import { t } from "@/i18n/de";
 import type { AnchorTaking } from "@/anchorDraft";
@@ -53,8 +57,10 @@ const creator = ref<InstanceType<typeof RowCreator> | null>(null);
 // the row whose change the closing tree refused: its editor stays, the draft shown to copy
 const refused = ref<RowKey | null>(null);
 const status = ref("");
-// a draft open in the editor
-const draftOpen = ref(false);
+// a draft open in the editor, of the row's fields and of its values
+const fieldsOpen = ref(false);
+const valuesOpen = ref(false);
+const draftOpen = computed(() => fieldsOpen.value || valuesOpen.value);
 
 const editing = computed(() => !!props.row && (props.tree.editable || refused.value === props.row.key));
 const reason = computed(() => {
@@ -116,9 +122,9 @@ function cancel(): void {
   emit("cancel");
 }
 
-function dirty(open: boolean): void {
-  draftOpen.value = open;
-  emit("dirty", open);
+function dirty(open: boolean, of: "fields" | "values" = "fields"): void {
+  (of === "fields" ? fieldsOpen : valuesOpen).value = open;
+  emit("dirty", draftOpen.value);
 }
 
 function closed(): void {
@@ -202,6 +208,20 @@ defineExpose({ addAnchor, focus: toHeading });
         @closed="closed"
         @gone="gone"
         @dirty="dirty"
+      />
+      <ValueSection
+        :key="row.key"
+        :row="row"
+        :form="form"
+        :document-id="documentId"
+        :editable="editing"
+        :reviewable="tree.reviewable"
+        :closed-by="tree.editable ? null : tree.closed"
+        :on-saved="() => emit('changed')"
+        :on-reviewed="reviewed"
+        @closed="closed"
+        @gone="gone"
+        @dirty="(open) => dirty(open, 'values')"
       />
       <RowDetail :row="row" :form="form" :fields="!editing" @show="(page) => emit('show', page)" />
     </template>

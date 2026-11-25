@@ -1,13 +1,19 @@
 // The four states a data view has besides "all here": loading, empty, failed,
 // and partly there.
-import { mount } from "@vue/test-utils";
-import { describe, expect, it } from "vitest";
+import { flushPromises, mount } from "@vue/test-utils";
+import { describe, expect, it, vi } from "vitest";
+
+import * as api from "@/api";
 
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
+import ValueSection from "@/components/ValueSection.vue";
+import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
+
+import { form_, node_, noValues } from "./treeFixtures";
 
 describe("the loading state", () => {
   it("says so politely, in its own words or the general ones", () => {
@@ -80,3 +86,39 @@ describe("the partial state", () => {
     expect(wrapper.emitted("retry")).toHaveLength(1);
   });
 });
+
+describe("a row's values", () => {
+  const ROW = rowsOf([node_("a", { values: noValues() })]).get("node:a") as Row;
+  const props = { row: ROW, form: form_(), documentId: "d1", reviewable: false, closedBy: null };
+
+  it("say while they are saved that they are, quietly, the button keeping the keyboard", async () => {
+    let answer: (row: api.NodeRow) => void = () => undefined;
+    vi.spyOn(api, "setNodeValues").mockImplementation(() => new Promise((done) => (answer = done)));
+    const wrapper = mount(ValueSection, { props: { ...props, editable: true }, attachTo: document.body });
+    await wrapper.findAll(".value-section__add")[1]?.trigger("click");
+    await wrapper.get("fieldset select").setValue(form_().values.time_spans.fields[0]?.values?.[0]?.iri);
+    const save = wrapper.get("form button[type=submit]");
+    (save.element as HTMLElement).focus();
+
+    await wrapper.get("form").trigger("submit");
+
+    expect(wrapper.get(".loading").text()).toBe(t("documents.tree.values.saving"));
+    expect(wrapper.get(".loading").attributes("role")).toBeUndefined();
+    expect(save.attributes("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(save.element);
+    const { statements, children, ...row } = node_("a", { revision: 2 });
+    void [statements, children];
+    answer(row);
+    await flushPromises();
+    expect(wrapper.find(".loading").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("say where none is entered yet, and only read where the tree is closed", () => {
+    const wrapper = mount(ValueSection, { props: { ...props, editable: false } });
+
+    expect(wrapper.get(".value-list__none").text()).toBe(t("documents.tree.values.none"));
+    expect(wrapper.find("form").exists()).toBe(false);
+  });
+});
+

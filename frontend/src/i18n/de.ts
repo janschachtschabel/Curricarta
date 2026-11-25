@@ -1783,6 +1783,59 @@ export const messages = {
       },
       // a row's levels, time spans and workloads (plan M3a G: valueWords.ts, valueDraft.ts, ValueSection.vue)
       values: {
+        // a value's fields by their keys (backend app/vocab/value_forms.py)
+        fields: {
+          level: "Niveau",
+          level_to: "Bis Niveau",
+          relation: "Art der Zuordnung",
+          dimension: "Niveaudimension",
+          competence_dimension: "Kompetenzbereich",
+          time_kind: "Art des Zeitraums",
+          span_from: "Von",
+          span_to: "Bis",
+          time_relation: "Zeitbezug",
+          amount: "Umfang",
+          amount_to: "Bis",
+          unit: "Einheit",
+          workload_kind: "Art des Umfangs",
+          is_recommendation: "Richtwert, nicht verbindlich",
+          minutes_per_unit: "Minuten je Einheit",
+          total: "Gesamtumfang der Zeile",
+        },
+        heading: "Niveau, Zeit, Umfang",
+        none: "Noch nichts erfasst.",
+        // each kind, over its values and in a conflict (ValueSection.vue, ValueConflict.vue)
+        kinds: { level_assignments: "Niveau", time_spans: "Zeitraum", workloads: "Umfang" },
+        add: {
+          level_assignments: "Niveau hinzufügen",
+          time_spans: "Zeitraum hinzufügen",
+          workloads: "Umfang hinzufügen",
+        },
+        // who stated a value, and how far it is reviewed
+        stated: "{origin} · {status}",
+        reviewLabel: "Prüfstand von „{value}“",
+        save: "Werte speichern",
+        saving: "Die Werte werden gespeichert …",
+        saveFailed: "Die Werte wurden nicht gespeichert.",
+        // a set laid beside the values as another stored them (ValueConflict.vue)
+        conflict: {
+          intro:
+            "Jemand hat die Werte dieser Zeile geändert, während du sie bearbeitet hast. Entscheide bei jeder Art unten, welcher Stand gilt, und speichere dann erneut.",
+          introNothing:
+            "Jemand hat die Werte dieser Zeile geändert, während du sie bearbeitet hast. Diese Änderungen sind übernommen; speichere erneut, um deine dazuzulegen.",
+          introAgain:
+            "Jemand hat diese Zeile inzwischen gespeichert. Deine Werte sind noch nicht gespeichert; speichere erneut.",
+          yours: "Dein Stand",
+          empty: "keine",
+        },
+        // an entry of the values' form (ValueItemForm.vue): by its kind and place
+        entry: {
+          level_assignments: "Niveau {place}",
+          time_spans: "Zeitraum {place}",
+          workloads: "Umfang {place}",
+        },
+        remove: "{entry} entfernen",
+        periodsKept: "Zeiträume dieses Umfangs: {spans}. Sie bleiben beim Speichern, wie sie sind.",
         // a value in words (valueWords.ts)
         words: {
           levelRange: "{from} bis {to}",

@@ -5,6 +5,7 @@ import ExtractionStart from "@/components/ExtractionStart.vue";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 import ImportForm from "@/components/ImportForm.vue";
 import UploadForm from "@/components/UploadForm.vue";
+import { messages } from "@/i18n/de";
 import { router } from "@/router";
 import LoginView from "@/views/LoginView.vue";
 
@@ -51,4 +52,29 @@ describe("a required field", () => {
       wrapper.unmount();
     }
   });
+
+  it("of a value's form is said to be required, one the form leaves free is not, a yes or no never", () => {
+    const fields = form_().values.workloads.fields;
+    for (const [key, expected] of [
+      ["amount", "true"],
+      ["unit", "true"],
+      ["amount_to", undefined],
+      ["workload_kind", undefined],
+    ] as const) {
+      const field = fields.find((one) => one.key === key);
+      if (!field) throw new Error(key);
+      const wrapper = mount(FormFieldInput, {
+        props: { field, values: field.values ?? [], modelValue: "", labels: messages.documents.tree.values.fields },
+      });
+      expect(wrapper.get("input, select").attributes("aria-required"), key).toBe(expected);
+      expect(wrapper.get("label").text().endsWith("(Pflichtfeld)"), key).toBe(expected === "true");
+      wrapper.unmount();
+    }
+    const flag = fields.find((one) => one.key === "total");
+    if (!flag) throw new Error("total");
+    const box = mount(FormFieldInput, { props: { field: flag, values: [], modelValue: false, labels: messages.documents.tree.values.fields } });
+    expect(box.get("input[type=checkbox]").attributes("aria-required")).toBeUndefined();
+    box.unmount();
+  });
 });
+

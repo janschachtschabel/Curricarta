@@ -1,15 +1,21 @@
 // A row's levels, time spans and workloads in words (plan M3a G): each list's value by the label the values' form
 // gives it - one the form no longer offers by its IRI, as formWords.ts does -, then what else the value says, the
 // parts it leaves out left out. A range reads by its two ends, a number the German way; a workload counts its unit
-// in the catalogue's word for it, where it has one, else names it by its label. A workload's periods follow it.
-import type { Form, HeldLevel, HeldTimeSpan, HeldValues, HeldWorkload, ValueKind } from "@/api";
+// in the catalogue's word for it, where it has one, else names it by its label. A workload's periods follow it. A
+// stored value is shown with who stated it and how far it is reviewed.
+import type { Form, HeldLevel, HeldTimeSpan, HeldValues, HeldWorkload, ValueKind, ValueTable } from "@/api";
 import { valueLabel } from "@/formWords";
 import { LOCALE, messages, t } from "@/i18n/de";
+import { conceptWord } from "@/registerWords";
+import { CV, statusWord } from "@/reviewStatus";
+import type { ReviewedValue } from "@/rowReview";
 
 /** A level as a set or a holder names it. */
 export type LevelValue = Pick<HeldLevel, "level" | "level_to" | "relation" | "dimension" | "competence_dimension">;
 export type TimeSpanValue = Pick<HeldTimeSpan, "time_kind" | "span_from" | "span_to" | "time_relation">;
-export type WorkloadValue = Omit<HeldWorkload, "id" | "origin" | "review_status" | "revision" | "periods"> & {
+/** A workload as a set or a holder names it - in a draft, its amount none where it is not yet a number. */
+export type WorkloadValue = Omit<HeldWorkload, "id" | "origin" | "review_status" | "revision" | "periods" | "amount"> & {
+  amount: number | null;
   periods: readonly TimeSpanValue[];
 };
 
@@ -59,8 +65,9 @@ export function timeSpanWords(value: TimeSpanValue, form: Form): string {
 }
 
 function amountWords(value: WorkloadValue, form: Form): string {
-  const amount = range(value.amount, value.amount_to);
   const unit = form.values.workloads.fields.find((field) => field.key === "unit")?.values?.find((one) => one.iri === value.unit);
+  if (value.amount === null) return unit?.label ?? value.unit;
+  const amount = range(value.amount, value.amount_to);
   const notation = unit?.notation ?? "";
   if (Object.hasOwn(UNITS, notation)) {
     const counted = t(`documents.tree.values.units.${notation}`, { count: value.amount_to ?? value.amount });
@@ -98,4 +105,39 @@ export function valueWords(kind: ValueKind, value: LevelValue | TimeSpanValue | 
   if (kind === "level_assignments") return levelWords(value as LevelValue, form);
   if (kind === "time_spans") return timeSpanWords(value as TimeSpanValue, form);
   return workloadWords(value as WorkloadValue, form);
+}
+
+/** A holder's stored value as the panel shows it: in words, who stated it and how far it is reviewed, how to review it. */
+export interface ShownValue {
+  id: string;
+  words: string;
+  stated: string;
+  review: ReviewedValue;
+}
+
+const TABLES: Readonly<Record<ValueKind, ValueTable>> = {
+  level_assignments: "level_assignment",
+  time_spans: "time_span",
+  workloads: "workload",
+};
+
+/** The holder's values of each kind of `kinds`, in their order, as the panel shows them. */
+export function shownValues(form: Form, kinds: readonly ValueKind[], values: HeldValues): Map<ValueKind, ShownValue[]> {
+  const shown = new Map<ValueKind, ShownValue[]>();
+  for (const kind of kinds) {
+    const held = values[kind] as (HeldLevel | HeldTimeSpan | HeldWorkload)[];
+    shown.set(
+      kind,
+      held.map((value) => ({
+        id: value.id,
+        words: valueWords(kind, value as unknown as LevelValue, form),
+        stated: t("documents.tree.values.stated", {
+          origin: conceptWord(messages.documents.tree.origins, `${CV}orig_`, value.origin),
+          status: statusWord(value.review_status),
+        }),
+        review: { table: TABLES[kind], id: value.id, revision: value.revision, review_status: value.review_status },
+      })),
+    );
+  }
+  return shown;
 }
