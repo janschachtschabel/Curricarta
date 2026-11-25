@@ -10,7 +10,7 @@ its start, both ``not_offered``. A problem names its field by its path in the se
 here by the kind they are of.
 """
 
-from collections.abc import Iterator, Mapping
+from collections.abc import Iterator, Mapping, Sequence
 from typing import Final
 from uuid import UUID
 
@@ -54,6 +54,16 @@ def check_values(
         _check(form, kind, draft, at, kept.get(draft.id) if draft.id is not None else None)
         if isinstance(draft, LevelDraft):
             _check_level(form, holder, holder_type, draft, at)
+
+
+def check_held_levels(
+    form: ValueForm, holder: HolderKind, holder_type: str | None, levels: Sequence[LevelDraft]
+) -> None:
+    """Check the levels a holder holds against the type ``holder_type`` it is to have - a statement's kind
+    changed -, as a set of them at a holder of that type is checked (LEVEL_RULES); FieldError at the first
+    level that stands in the way, by its path among the holder's values."""
+    for place, level in enumerate(levels):
+        _check_level(form, holder, holder_type, level, f"level_assignments[{place}]")
 
 
 def path_of(drafts: ValueDrafts, value_id: UUID) -> str:

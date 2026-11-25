@@ -415,6 +415,9 @@ ungültig.
   (auch ein seither stillgelegter Begriff, außer er steht schon so am behaltenen Wert; ein Niveau, das der
   Träger nach `rules` nie trägt; ein Bereichsende aus einem anderen Niveausystem), `out_of_order`,
   `unknown_value`, `refused` (die Datenbank weist den Wert ab). Audit `node.values`, `statement.values` mit den Anzahlen, ohne Inhalte.
+  Ebenso weist `PATCH /statements/{id}` eine neue Art (`statement_kind`) ab, die ein Niveau der Aussage
+  nicht zulässt (eine Note außer am Standard): 422 `invalid_field` am Pfad des Niveaus
+  (`level_assignments[1].level`, `not_offered`).
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
   `workload` –, `id` und gelesene `revision`, 1 bis

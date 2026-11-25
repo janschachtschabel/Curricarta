@@ -125,6 +125,28 @@ def test_a_level_the_shapes_never_let_the_holder_hold_is_refused(client: TestCli
     assert rows(url, "SELECT count(*) FROM level_assignment") == [(1,)]
 
 
+def test_a_standard_recoded_while_it_holds_a_grade_is_refused_at_the_grade(
+    client: TestClient, url: str
+) -> None:
+    # the kind a level asks of its statement (LEVEL_RULES) is checked where the kind changes, as where the
+    # level is set: the level's path in the statement's values names what stands in the way
+    document, owner = a_document(client, url)
+    standard = a_statement(url, document, a_node(url, document), statement_kind_iri=CV + "kind_standard")
+    path = f"/api/v1/statements/{standard}"
+    taken = client.put(f"{path}/values", headers=owner, json=values(
+        level_assignments=[{"level": LVL + "cefr-B1"}, {"level": LVL + "grade-2"}],
+    ))  # fmt: skip
+    edit = {"expected_revision": taken.json()["revision"], "fields": {"statement_kind": CV + "kind_content"}}
+
+    recoded = client.patch(path, headers=owner, json=edit)
+    worded = client.patch(path, headers=owner, json=edit | {"fields": {"lead_in": "Die"}})
+
+    assert recoded.status_code == 422, recoded.text
+    assert recoded.json()["details"] == {"field": "level_assignments[1].level", "problem": "not_offered"}
+    assert rows(url, "SELECT statement_kind_iri FROM statement") == [(CV + "kind_standard",)]
+    assert worded.status_code == 200, worded.text  # another field leaves the levels as they are
+
+
 def test_an_unknown_unit_names_its_field(client: TestClient, url: str) -> None:
     document, owner = a_document(client, url)
     made = a_node(url, document)

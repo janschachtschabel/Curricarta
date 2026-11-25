@@ -6,9 +6,11 @@ A statement's fields go by the form's keys - its wording parts among them, kept 
 whatever else they hold -, its addressees as one of them, all at once. Its anchors are given whole or
 not at all: each the blocks of the document's conversion where the editor found it, its pages theirs,
 for X5 to check; or, where no block holds it, the page it stands on (match kind notFound). A new wording
-takes its hash, and its anchors with blocks are checked anew. A statement taken away a run wrote is
-rejected and stays, so that no repair proposes it again; one an editor wrote is deleted, with the
-findings on it and its anchors.
+takes its hash, and its anchors with blocks are checked anew. A new kind is refused where a level the
+statement holds never stands at a statement of that kind (app/vocab/value_checks.py, LEVEL_RULES: a grade
+but at a standard), at that level's path, as a set of the levels would be. A statement taken away a run
+wrote is rejected and stays, so that no repair proposes it again; one an editor wrote is deleted, with
+the findings on it and its anchors.
 """
 
 from collections.abc import Mapping, Sequence
@@ -17,6 +19,7 @@ from typing import Any, Literal, LiteralString
 from uuid import UUID
 
 import psycopg
+from psycopg import sql
 from psycopg.types.json import Jsonb
 
 from app.db.anchors import write_anchor
@@ -43,10 +46,13 @@ from app.db.editing import (
 )
 from app.db.nodes import append_statements
 from app.db.source_queries import Reader
+from app.db.value_rows import level_of, read_rows
 from app.domain.l1 import MATCH_NOT_FOUND, WORDING_FIELDS, AnchorDraft, StatementDraft
 from app.domain.wording import text_hash
 from app.vocab.form_values import FieldError, check_under, checked
 from app.vocab.forms import STATEMENT_FIELDS
+from app.vocab.value_checks import check_held_levels
+from app.vocab.value_forms import value_form_of
 
 REJECTED = CV + "rev_rejected"
 DOCUMENT_OF_STATEMENT = f"""
@@ -132,6 +138,8 @@ async def edit_statement(
         check_under(form, merged, given=values)
         if merged == current and drafts is None:
             return revision
+        if merged["statement_kind"] != current["statement_kind"]:
+            await _check_levels(connection, statement_id, str(merged["statement_kind"]))
         kept = {name: value for name, value in details.items() if name not in WORDING_FIELDS}
         changed = [column for key, column in _COLUMNS.items() if merged[key] != current[key]]
         if any(merged[name] != current[name] for name in WORDING_FIELDS):
@@ -158,6 +166,13 @@ async def edit_statement(
             await leave_unchecked(connection, "a.statement_id", statement_id)
         await mark_edited(connection, target.document_id)
         return await returned_revision(cursor)
+
+
+async def _check_levels(connection: psycopg.AsyncConnection, statement_id: UUID, kind: str) -> None:
+    """Refuse the kind ``kind`` where a level the statement holds never stands at one of it (FieldError)."""
+    rows = await read_rows(connection, "level_assignment", sql.SQL("statement_id = %s"), statement_id)
+    if rows:
+        check_held_levels(await value_form_of(connection), "statement", kind, [level_of(row) for row in rows])
 
 
 async def add_statement(
