@@ -9,7 +9,7 @@ from the store between its build and its reading. Exports of both kinds are coun
 and minute (429 ``too_many_exports``, EXPORTS_PER_MINUTE). The violations the editors accepted when they
 froze it are counted in a header (``Curricarta-Accepted-Violations``), as in the file's head (plan M3a E7);
 where X5 checked it under another graph than is built now, ``Curricarta-Graph-Version`` names both
-(``checked=unknown; built=1``), as the file's head does.
+(``checked=unknown; built=2``), as the file's head does.
 
 The database connections are let go before the build: it runs in a child process for seconds.
 """
@@ -28,6 +28,7 @@ from app.core.auth import Principal
 from app.core.storage import ObjectNotFound
 from app.exports.kern_child import checked_under
 from app.exports.kern_export import ExportUnnamed, KernExporter
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.exports.kern_rows import read_document
 from app.exports.mem_export import ExportUnavailable
 
@@ -48,7 +49,7 @@ GRAPH_HEADER = "Curricarta-Graph-Version"
             "content": {"text/turtle": {"schema": {"type": "string", "format": "binary"}}},
             "description": "The document's Kern Turtle, as a download; the violations the editors accepted "
             f"when they froze it in {VIOLATIONS_HEADER}; where X5 checked it under another graph than is "
-            f"built now, both versions in {GRAPH_HEADER} (checked=unknown; built=1)",
+            f"built now, both versions in {GRAPH_HEADER} (checked=unknown; built={KERN_GRAPH_VERSION})",
         },
         403: {
             "model": ErrorBody,
