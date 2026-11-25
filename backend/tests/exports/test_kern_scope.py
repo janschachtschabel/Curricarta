@@ -162,3 +162,28 @@ async def test_the_frozen_graph_with_contexts_is_the_draft_graph_under_other_nam
     assert len(list(frozen.subjects(RDF.type, CUR.ApplicabilityContext))) == 2
     frozen.remove((URIRef(DOC), PROV.generatedAtTime, None))
     assert_isomorphic(frozen, under_frozen_names(kern_graph(rows, draft_naming()), rows))
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_a_rejected_context_leaves_the_graph_with_its_values_and_a_rejected_value_alone(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    specification = Holder("specification", await specified(connection, document.id, "lp"))
+    two = ContextDraft(sector=str(SCHOOL), levels=(LevelDraft(level=LVL + "EQF-4"),) * 2)
+    await replace_values(connection, owner(document), specification, 1, ValueDrafts(contexts=(two, two)))
+    rejected, kept = (await read_document(connection, document.id)).values[specification].contexts
+    await connection.execute(
+        "UPDATE applicability_context SET review_status_iri = %s WHERE id = %s",
+        (CV + "rev_rejected", rejected.value.id),
+    )
+    await connection.execute(
+        "UPDATE level_assignment SET review_status_iri = %s WHERE id = %s",
+        (CV + "rev_rejected", kept.levels[0].value.id),
+    )
+
+    graph = kern_graph(await read_document(connection, document.id))
+
+    assert list(graph.subjects(RDF.type, CUR.ApplicabilityContext)) == [uri(kept.value.id)]
+    assert list(graph.objects(uri(kept.value.id), CUR.levelAssignment)) == [uri(kept.levels[1].value.id)]
+    assert (uri(rejected.levels[0].value.id), None, None) not in graph
