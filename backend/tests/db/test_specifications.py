@@ -4,6 +4,7 @@ formality, institution and target group as written, and time spans and levels of
 by document with its variants. Under the tree's lock, as every edit; the key, which its IRI is made of,
 stays."""
 
+import asyncio
 import uuid
 from dataclasses import replace
 from decimal import Decimal
@@ -23,7 +24,7 @@ from app.db.values import UnknownValue, ValueRefused, replace_values, values_of
 from app.domain.l2 import ContextDraft, Holder, LevelDraft, TimeSpanDraft, ValueDrafts
 from app.vocab.form_values import FieldError
 from tests.db.test_editing import a_finding, document, edited_at, one
-from tests.db.test_nodes import CV, connection, owner, url
+from tests.db.test_nodes import CV, connection, owner, url, waiting_for_a_lock
 from tests.db.test_values import holders, revision_of
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -265,3 +266,39 @@ async def test_a_finding_on_a_context_or_its_value_names_the_specification(
     assert {(row.focus_id, row.holder_kind, row.holder_id, row.focus_label) for row in rows} == {
         (each, "specification", made.id, "LP") for each in focus
     }
+
+
+@pytest.mark.parametrize("second", ["edit", "values"])
+async def test_two_editors_of_a_specification_at_once_one_wins(
+    url: str, connection: psycopg.AsyncConnection, document: Any, second: str
+) -> None:
+    # both on revision 1: the second waits for the tree's lock, then finds the revision the first wrote - an
+    # edit of its title against an edit, or against a set of its values
+    made = await specification(connection, document)
+    async with (
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as other,
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as watcher,
+    ):
+        waiting: asyncio.Task[int | None] | None = None
+        try:
+            async with other.transaction():
+                assert await edit_specification(other, owner(document), made.id, 1, {"title": "Physik"}) == 2
+                waiting = asyncio.create_task(
+                    edit_specification(connection, owner(document), made.id, 1, {"title": "Chemie"})
+                    if second == "edit"
+                    else replace_values(
+                        connection, owner(document), made, 1, ValueDrafts(contexts=(CONTEXT,))
+                    )
+                )
+                await waiting_for_a_lock(watcher, connection.info.backend_pid)
+        finally:
+            with pytest.raises(StaleRevision) as lost:
+                if waiting is not None:
+                    await waiting
+
+    assert lost.value.current == 2
+    assert await one(connection, "SELECT title, revision FROM specification WHERE id = %s", made.id) == (
+        "Physik",
+        2,
+    )
+    assert await one(connection, "SELECT count(*) FROM applicability_context") == (0,)
