@@ -148,6 +148,8 @@ async function remove(kind: ValueKind, place: number): Promise<void> {
   if (!gone) return;
   const next = entries[place + 1];
   draft.value = withoutEntry(draft.value, kind, gone.key);
+  // a problem names its entry by its place, which the entries after it no longer hold
+  clear();
   await nextTick();
   if (next) toFirstField(next, kind);
   else document.getElementById(`${sid}-add-${kind}`)?.focus();

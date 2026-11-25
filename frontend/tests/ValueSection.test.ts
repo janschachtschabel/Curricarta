@@ -234,6 +234,21 @@ describe("a row's values in their form", () => {
     expect(await violations(wrapper.html())).toEqual([]);
   });
 
+  it("lets no problem pass to another entry when one before it is taken away", async () => {
+    const wrapper = section(nodeRow(noValues()));
+    await button(wrapper, "Umfang hinzufügen").trigger("click");
+    await button(wrapper, "Umfang hinzufügen").trigger("click");
+    await entry(wrapper, "Umfang 2").get("input").setValue("20");
+    await entry(wrapper, "Umfang 2").get("select").setValue(CV + "unit_hour");
+    await save(wrapper); // the first's amount and unit are missing
+    expect(entry(wrapper, "Umfang 1").find(".field__error").exists()).toBe(true);
+
+    await button(wrapper, "Umfang 1 entfernen").trigger("click");
+
+    // the second, the first now, is not given the problems of the one taken away
+    expect(wrapper.findAll(".field__error")).toHaveLength(0);
+  });
+
   it("says the server's problem at the field of the entry it names, the keyboard taken there", async () => {
     vi.spyOn(api, "setNodeValues").mockRejectedValue(
       new ApiError("server", 422, "invalid_field", "Not offered.", { field: "workloads[0].unit", problem: "not_offered" }),
