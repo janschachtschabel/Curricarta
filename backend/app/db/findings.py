@@ -26,9 +26,9 @@ _ADD = """
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 # The row a finding is about by its entity's kind, named by its wording or title - cut, and said to be
-# -; a value's holder (plan M3a F2), a period's its workload's, by which the value is named; the stage of
-# its run; the counts of all the document's findings beside each, so that one statement reads both in one
-# snapshot
+# -; a value's holder (plan M3a F2), a period's its workload's, an applicability context's and its values'
+# the context's specification (plan M3a H1), by which the value is named; the stage of its run; the counts
+# of all the document's findings beside each, so that one statement reads both in one snapshot
 _ROWS = """
 SELECT f.rule, f.severity, replace(r.stage_iri, %(stages)s, ''), e.kind, f.focus_id,
     CASE WHEN length(l.label) > %(label)s THEN left(l.label, %(label)s - 1) || '…' ELSE l.label END,
@@ -43,14 +43,17 @@ LEFT JOIN extraction_run r ON r.id = f.run_id
 LEFT JOIN level_assignment la ON la.id = f.focus_id
 LEFT JOIN time_span ts ON ts.id = f.focus_id
 LEFT JOIN workload w ON w.id = coalesce(ts.workload_id, f.focus_id)  -- the value, or a period's workload
+-- the context, or the context a value stands in
+LEFT JOIN applicability_context ac
+    ON ac.id = coalesce(la.applicability_context_id, ts.applicability_context_id, f.focus_id)
 CROSS JOIN LATERAL (SELECT
     CASE WHEN coalesce(la.node_id, ts.node_id, w.node_id) IS NOT NULL THEN 'node'
         WHEN la.statement_id IS NOT NULL THEN 'statement'
-        WHEN coalesce(la.specification_id, ts.specification_id, w.specification_id) IS NOT NULL
-            THEN 'specification'
+        WHEN coalesce(la.specification_id, ts.specification_id, w.specification_id, ac.specification_id)
+            IS NOT NULL THEN 'specification'
         WHEN la.frame_part_id IS NOT NULL THEN 'frame_part' END AS kind,
     coalesce(la.node_id, ts.node_id, w.node_id, la.statement_id, la.specification_id, ts.specification_id,
-        w.specification_id, la.frame_part_id) AS id
+        w.specification_id, ac.specification_id, la.frame_part_id) AS id
 ) AS h
 LEFT JOIN statement s ON s.id = coalesce(h.id, f.focus_id)
 LEFT JOIN node n ON n.id = coalesce(h.id, f.focus_id)

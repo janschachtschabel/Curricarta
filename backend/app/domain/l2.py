@@ -2,9 +2,12 @@
 gives them back (plan M3a D2): levels (cur:LevelAssignment), time spans (cur:TimeSpan) and workloads
 (cur:Workload), each a holder's set of its kind in order. A draft with an ``id`` is that row of the holder,
 kept; one without is a new row. A workload's periods (cur:inPeriod) are time spans of the workload alone,
-replaced with it. Values are IRIs and numbers: which concepts the vocabularies hold, whether a level is a
-level, and the order of the numbers the store checks (migration l2_values). A number is one, not NaN nor the
-endless: a draft refuses those itself (ValueRefused, by the name of the store's check).
+replaced with it. A specification's applicability contexts (cur:ApplicabilityContext, plan M3a H1) are
+set with its values: each with a sector, a formality, the institution and the target group as written, and
+time spans and levels of its own, replaced with it as a workload's periods are. Values are IRIs and
+numbers: which concepts the vocabularies hold, whether a level is a level, and the order of the numbers the
+store checks (migrations l2_values, applicability). A number is one, not NaN nor the endless: a draft
+refuses those itself (ValueRefused, by the name of the store's check).
 
 A level at a rule's frame part has its column already; it is written with the rules (plan M3a I).
 """
@@ -81,12 +84,27 @@ class WorkloadDraft:
 
 
 @dataclass(frozen=True)
+class ContextDraft:
+    """An applicability context: an AND of what it states (cur:educationSector, cur:formality, the
+    institution and the target group as written) and of the time spans and levels it holds."""
+
+    sector: str | None = None  # cv:EducationSectors
+    formality: str | None = None  # cv:Formalities
+    institution_text: str | None = None
+    target_group_text: str | None = None
+    levels: tuple[LevelDraft, ...] = ()
+    time_spans: tuple[TimeSpanDraft, ...] = ()
+    id: UUID | None = None
+
+
+@dataclass(frozen=True)
 class ValueDrafts:
     """A holder's values, every kind of them: what a set leaves out goes."""
 
     levels: tuple[LevelDraft, ...] = ()
     time_spans: tuple[TimeSpanDraft, ...] = ()
     workloads: tuple[WorkloadDraft, ...] = ()
+    contexts: tuple[ContextDraft, ...] = ()  # a specification's alone
 
 
 @dataclass(frozen=True)
@@ -119,12 +137,21 @@ class Workload:
 
 
 @dataclass(frozen=True)
+class Context:
+    value: ContextDraft  # its levels and time spans empty: they stand in ``levels`` and ``time_spans``
+    stated: Stated
+    levels: tuple[Level, ...] = ()
+    time_spans: tuple[TimeSpan, ...] = ()
+
+
+@dataclass(frozen=True)
 class HeldValues:
     """A holder's stored values, each kind in order."""
 
     levels: tuple[Level, ...] = ()
     time_spans: tuple[TimeSpan, ...] = ()
     workloads: tuple[Workload, ...] = ()
+    contexts: tuple[Context, ...] = ()  # a specification's
 
 
 Values = Mapping[Holder, HeldValues]

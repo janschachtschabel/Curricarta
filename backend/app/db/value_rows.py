@@ -1,6 +1,7 @@
-"""The second layer's values as rows (plan M3a D2; migration l2_values): which columns each table holds,
-a draft's content as the columns take it, a row read back as a draft - and the document's values read by
-holder (``values_of``), which app/db/values.py sets."""
+"""The second layer's values as rows (plan M3a D2; migrations l2_values, applicability): which columns each
+table holds, a draft's content as the columns take it, a row read back as a draft - and the document's
+values read by holder (``values_of``), which app/db/values.py sets. A specification's applicability contexts
+are read with its values, each with the time spans and levels it holds (plan M3a H1)."""
 
 from collections import defaultdict
 from typing import Any, Final, LiteralString
@@ -11,6 +12,8 @@ from psycopg import sql
 from psycopg.rows import dict_row
 
 from app.domain.l2 import (
+    Context,
+    ContextDraft,
     HeldValues,
     Holder,
     HolderKind,
@@ -30,7 +33,12 @@ COLUMN_OF: Final[dict[HolderKind, LiteralString]] = {
     "statement": "statement_id",
     "specification": "specification_id",
 }
-TABLES: Final[tuple[LiteralString, ...]] = ("level_assignment", "time_span", "workload")
+TABLES: Final[tuple[LiteralString, ...]] = (
+    "level_assignment",
+    "time_span",
+    "workload",
+    "applicability_context",
+)
 # Each table's content columns: what a set writes and compares, beside holder and position
 CONTENT: Final[dict[str, tuple[LiteralString, ...]]] = {
     "level_assignment": (
@@ -45,12 +53,25 @@ CONTENT: Final[dict[str, tuple[LiteralString, ...]]] = {
         "amount", "amount_to", "unit_scheme", "unit_iri", "workload_kind_scheme", "workload_kind_iri",
         "is_recommendation", "minutes_per_unit", "total",
     ),
+    "applicability_context": (
+        "sector_scheme", "sector_iri", "formality_scheme", "formality_iri", "institution_text",
+        "target_group_text",
+    ),
 }  # fmt: skip
-# the holders' columns each table has: a level's at a frame part and a time span's at a workload read too
+# the holders' columns each table has: a level's at a frame part, a time span's at a workload and both at an
+# applicability context read too
 HOLDERS_OF: Final[dict[str, tuple[LiteralString, ...]]] = {
-    "level_assignment": ("node_id", "statement_id", "specification_id", "frame_part_id"),
-    "time_span": ("node_id", "specification_id", "workload_id"),
+    "level_assignment": (
+        "node_id", "statement_id", "specification_id", "frame_part_id", "applicability_context_id",
+    ),
+    "time_span": ("node_id", "specification_id", "workload_id", "applicability_context_id"),
     "workload": ("node_id", "specification_id"),
+    "applicability_context": ("specification_id",),
+}  # fmt: skip
+# the rows that hold values of their own beside their holder's, by the column those name them by
+NESTED: Final[dict[str, tuple[LiteralString, tuple[LiteralString, ...]]]] = {
+    "workload": ("workload_id", ("time_span",)),
+    "applicability_context": ("applicability_context_id", ("level_assignment", "time_span")),
 }
 _STATED: Final = sql.SQL("origin_iri, review_status_iri, rule_id, revision")
 
@@ -76,21 +97,36 @@ async def _values_of(connection: psycopg.AsyncConnection, document_id: UUID) -> 
     spans: defaultdict[Holder, list[TimeSpan]] = defaultdict(list)
     periods: defaultdict[UUID, list[TimeSpan]] = defaultdict(list)
     workloads: defaultdict[Holder, list[Workload]] = defaultdict(list)
+    contexts: defaultdict[Holder, list[Context]] = defaultdict(list)
+    in_context: defaultdict[UUID, list[Level]] = defaultdict(list)
+    spans_in_context: defaultdict[UUID, list[TimeSpan]] = defaultdict(list)
     for row in rows["level_assignment"]:
-        if (holder := holder_of(row)) is not None:
-            levels[holder].append(Level(level_of(row), stated_of(row)))
+        level = Level(level_of(row), stated_of(row))
+        if row["applicability_context_id"] is not None:
+            in_context[row["applicability_context_id"]].append(level)
+        elif (holder := holder_of(row)) is not None:
+            levels[holder].append(level)
     for row in rows["time_span"]:
         span = TimeSpan(time_span_of(row), stated_of(row))
         if row["workload_id"] is not None:
             periods[row["workload_id"]].append(span)
+        elif row["applicability_context_id"] is not None:
+            spans_in_context[row["applicability_context_id"]].append(span)
         elif (holder := holder_of(row)) is not None:
             spans[holder].append(span)
     for row in rows["workload"]:
         if (holder := holder_of(row)) is not None:
             workloads[holder].append(Workload(workload_of(row), stated_of(row), tuple(periods[row["id"]])))
+    for row in rows["applicability_context"]:
+        held = (tuple(in_context[row["id"]]), tuple(spans_in_context[row["id"]]))
+        contexts[Holder("specification", row["specification_id"])].append(
+            Context(context_of(row), stated_of(row), *held)
+        )
     return {
-        holder: HeldValues(tuple(levels[holder]), tuple(spans[holder]), tuple(workloads[holder]))
-        for holder in {*levels, *spans, *workloads}
+        holder: HeldValues(
+            tuple(levels[holder]), tuple(spans[holder]), tuple(workloads[holder]), tuple(contexts[holder])
+        )
+        for holder in {*levels, *spans, *workloads, *contexts}
     }
 
 
@@ -158,6 +194,22 @@ def workload_content(draft: WorkloadDraft) -> dict[str, Any]:
         "workload_kind_iri": draft.workload_kind, "is_recommendation": draft.is_recommendation,
         "minutes_per_unit": draft.minutes_per_unit, "total": draft.total,
     }  # fmt: skip
+
+
+def context_content(draft: ContextDraft) -> dict[str, Any]:
+    return {
+        "sector_scheme": _scheme("EducationSectors", draft.sector), "sector_iri": draft.sector,
+        "formality_scheme": _scheme("Formalities", draft.formality), "formality_iri": draft.formality,
+        "institution_text": draft.institution_text, "target_group_text": draft.target_group_text,
+    }  # fmt: skip
+
+
+def context_of(row: dict[str, Any]) -> ContextDraft:
+    """A context's row as a draft, without the values it holds."""
+    return ContextDraft(
+        sector=row["sector_iri"], formality=row["formality_iri"], institution_text=row["institution_text"],
+        target_group_text=row["target_group_text"], id=row["id"],
+    )  # fmt: skip
 
 
 def level_of(row: dict[str, Any]) -> LevelDraft:

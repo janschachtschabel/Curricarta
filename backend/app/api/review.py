@@ -27,7 +27,7 @@ MOST_REVIEWED = 2_000  # rows of one review: a long document's statements
 
 class ReviewItemIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    kind: ReviewKind  # a value's by its table: level_assignment, time_span, workload
+    kind: ReviewKind  # a value's by its table: level_assignment, time_span, workload, applicability_context
     id: UUID
     revision: int = Field(ge=1)  # the row's, as it was read
 

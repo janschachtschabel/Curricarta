@@ -1,17 +1,20 @@
 """The second layer's values at their holders (plan M3a D2, E11; migration l2_values): read by document,
-and set as a holder's whole - its levels, time spans and workloads with their periods - in one change.
+and set as a holder's whole - its levels, time spans and workloads with their periods, a specification's
+applicability contexts with the time spans and levels each holds (plan M3a H1) - in one change.
 
 A set is made on the holder's revision under the tree's lock, as an editor's change of a node is
 (app/db/editing.py): it refuses a frozen document, one beside its open job and one whose extraction has
 not read every package; StaleRevision where the holder stands at another revision. A draft naming an
-``id`` keeps that row - one of the holder's, of the draft's kind; a period one of that workload's - and
-anything else named by id refuses the whole set (UnknownValue). A row the set leaves out goes, with the
-findings on it; a new one is an editor's proposal (origin human, proposed), and a kept one whose content
-changes becomes one, on its next revision. A set that changes something counts the holder's revision
-one up and notes the document edited, which owes X5 a check; one that changes nothing leaves all as it
-was. What the store refuses of a value - a concept of another vocabulary, no level, numbers out of order
-- refuses the set (ValueRefused, ``check`` the constraint's name; none for a number beyond its column's
-type); a statement holds levels alone, and a time span or workload set at one is refused as ``not_held``.
+``id`` keeps that row - one of the holder's, of the draft's kind; a period one of that workload's, a
+context's value one of that context's - and anything else named by id refuses the whole set
+(UnknownValue). A row the set leaves out goes, with the findings on it - a context with its values -; a new
+one is an editor's proposal (origin human, proposed), and a kept one whose content changes becomes one, on
+its next revision. A set that changes something counts the holder's revision one up and notes the document
+edited, which owes X5 a check; one that changes nothing leaves all as it was. What the store refuses of a
+value - a concept of another vocabulary, no level, numbers out of order - refuses the set (ValueRefused,
+``check`` the constraint's name; none for a number beyond its column's type); a statement holds levels
+alone, and a time span or workload set at one is refused as ``not_held``, as is a context set at any holder
+but a specification.
 """
 
 from collections.abc import Sequence
@@ -40,7 +43,9 @@ from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.value_rows import (
     COLUMN_OF,
     HOLDERS_OF,
+    NESTED,
     TABLES,
+    context_content,
     level_content,
     read_rows,
     row_content,
@@ -62,12 +67,17 @@ _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "statement": DOCUMENT_OF_STATEMENT,
     "specification": DOCUMENT_OF_SPECIFICATION,
 }
-_POSITIONS: Final = "SET CONSTRAINTS level_assignment_position, time_span_position, workload_position"
+_POSITIONS: Final = (
+    "SET CONSTRAINTS level_assignment_position, time_span_position, workload_position,"
+    " applicability_context_position"
+)
 _PROPOSAL: Final = sql.SQL(
     "origin_iri = %s, rule_id = NULL, review_status_iri = %s, revision = revision + 1, updated_at = now()"
 )
 # A row as it stands: its holder's column and row, its position, what it says
 Standing = tuple[tuple[str, UUID], int, dict[str, Any]]
+# A value held under a workload or a context, as a set has it: its table, the id it keeps, what it says
+Inner = tuple[LiteralString, UUID | None, dict[str, Any]]
 
 
 class UnknownValue(Exception):
@@ -82,14 +92,15 @@ class UnknownValue(Exception):
 class _Row:
     """A value as the set has it: where it stands (``table``, its holder's column and row, its position)
     and what it says; ``id`` its kept row's, None for a new one - a new workload with the contents of its
-    periods, which stand under it once it is written."""
+    periods, a new context with those of its time spans and levels, which stand under it once it is written
+    (``inner``: each one's table, position and content)."""
 
     table: LiteralString
     id: UUID | None
     holder: tuple[LiteralString, UUID]
     position: int
     content: dict[str, Any]
-    periods: tuple[dict[str, Any], ...] = ()
+    inner: tuple[tuple[LiteralString, int, dict[str, Any]], ...] = ()
 
 
 async def replace_values(
@@ -146,23 +157,26 @@ async def replace_values(
 async def _current(
     connection: psycopg.AsyncConnection, column: LiteralString, holder_id: UUID
 ) -> dict[UUID, Standing]:
-    """The holder's rows of every kind and its workloads' periods, locked, by id."""
+    """The holder's rows of every kind, its workloads' periods and its contexts' values, locked, by id."""
     found: dict[UUID, Standing] = {}
-    workloads = []
+    outer: dict[str, list[UUID]] = {table: [] for table in NESTED}
     for table in (each for each in TABLES if column in HOLDERS_OF[each]):
         where = sql.SQL("{} = %s").format(sql.Identifier(column))
         for row in await read_rows(connection, table, where, holder_id, lock=True):
             found[row["id"]] = ((column, holder_id), row["position"], row_content(table, row))
-            if table == "workload":
-                workloads.append(row["id"])
-    for row in await read_rows(
-        connection, "time_span", sql.SQL("workload_id = ANY(%s)"), workloads, lock=True
-    ):
-        found[row["id"]] = (
-            ("workload_id", row["workload_id"]),
-            row["position"],
-            row_content("time_span", row),
-        )
+            if table in outer:
+                outer[table].append(row["id"])
+    for table, (inner_column, inner_tables) in NESTED.items():
+        if not outer[table]:
+            continue
+        where = sql.SQL("{} = ANY(%s)").format(sql.Identifier(inner_column))
+        for inner in inner_tables:
+            for row in await read_rows(connection, inner, where, outer[table], lock=True):
+                found[row["id"]] = (
+                    (inner_column, row[inner_column]),
+                    row["position"],
+                    row_content(inner, row),
+                )
     return found
 
 
@@ -173,6 +187,8 @@ def _planned(
     place, or is named twice; ValueRefused where the holder has no column for a kind of them."""
     planned: list[_Row] = []
     if holder[0] not in HOLDERS_OF["workload"] and (drafts.time_spans or drafts.workloads):
+        raise ValueRefused("not_held")
+    if holder[0] not in HOLDERS_OF["applicability_context"] and drafts.contexts:
         raise ValueRefused("not_held")
 
     def row(table: LiteralString, value_id: UUID | None, at: tuple[LiteralString, UUID], place: int,
@@ -186,24 +202,38 @@ def _planned(
             raise UnknownValue(value_id)
         return _Row(table, value_id, at, place, content)
 
+    def nested(
+        outer: tuple[LiteralString, UUID | None, int, dict[str, Any]], inner: list[Inner]
+    ) -> list[_Row]:
+        """A workload with its periods, a context with its values: each inner one kept under the kept outer
+        row, or new with a new one, under which it is written; positions count by kind."""
+        table, outer_id, place, content = outer
+        counted: dict[str, int] = {}
+        placed = []
+        for kind, inner_id, inner_content in inner:
+            counted[kind] = counted.get(kind, 0) + 1
+            placed.append((kind, inner_id, counted[kind], inner_content))
+        if outer_id is None:  # what it holds is new as it is
+            if (named := next((each[1] for each in placed if each[1] is not None), None)) is not None:
+                raise UnknownValue(named)
+            return [_Row(table, None, holder, place, content, tuple((k, at, c) for k, _, at, c in placed))]
+        column = NESTED[table][0]
+        return [row(table, outer_id, holder, place, content)] + [
+            row(kind, inner_id, (column, outer_id), at, inner_content)
+            for kind, inner_id, at, inner_content in placed
+        ]
+
     for place, level in enumerate(drafts.levels, 1):
         planned.append(row("level_assignment", level.id, holder, place, level_content(level)))
     for place, span in enumerate(drafts.time_spans, 1):
         planned.append(row("time_span", span.id, holder, place, time_content(span)))
     for place, workload in enumerate(drafts.workloads, 1):
-        if workload.id is None:  # its periods are new as it is
-            if (
-                named := next((each.id for each in workload.periods if each.id is not None), None)
-            ) is not None:
-                raise UnknownValue(named)
-            periods = tuple(time_content(period) for period in workload.periods)
-            planned.append(_Row("workload", None, holder, place, workload_content(workload), periods))
-            continue
-        planned.append(row("workload", workload.id, holder, place, workload_content(workload)))
-        for at, period in enumerate(workload.periods, 1):
-            planned.append(
-                row("time_span", period.id, ("workload_id", workload.id), at, time_content(period))
-            )
+        periods: list[Inner] = [("time_span", period.id, time_content(period)) for period in workload.periods]
+        planned += nested(("workload", workload.id, place, workload_content(workload)), periods)
+    for place, context in enumerate(drafts.contexts, 1):
+        held: list[Inner] = [("level_assignment", level.id, level_content(level)) for level in context.levels]
+        held += [("time_span", span.id, time_content(span)) for span in context.time_spans]
+        planned += nested(("applicability_context", context.id, place, context_content(context)), held)
     return planned
 
 
@@ -226,10 +256,9 @@ async def _write(
     for row in wanted:
         if row.id is None:
             made = await _insert(connection, document_id, row)
-            for at, period in enumerate(row.periods, 1):
-                await _insert(
-                    connection, document_id, _Row("time_span", None, ("workload_id", made), at, period)
-                )
+            for table, at, content in row.inner:
+                inner = _Row(table, None, (NESTED[row.table][0], made), at, content)
+                await _insert(connection, document_id, inner)
             continue
         _, position, content = current[row.id]
         if content != row.content:

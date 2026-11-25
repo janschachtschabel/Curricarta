@@ -41,7 +41,8 @@ async def test_a_document_s_values_are_read_in_one_snapshot(
     monkeypatch.setattr(value_rows, "read_rows", read_and_meanwhile_set)
     seen = await values_of(connection, document.id)
 
-    assert tables == ["level_assignment", "time_span", "workload"]  # the set came between two reads
+    # the set came between two reads
+    assert tables == ["level_assignment", "time_span", "workload", "applicability_context"]
     assert seen == {}  # read before the set, all of it
     monkeypatch.undo()
     [workload] = (await values_of(connection, document.id))[holder].workloads
