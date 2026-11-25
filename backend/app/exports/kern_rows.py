@@ -64,7 +64,7 @@ JOIN source_file f ON f.id = c.source_file_id WHERE d.id = %(document)s
 """
 _SPECIFICATIONS = """
 SELECT s.id, s.iri, s.spec_kind, s.title, s.field_text, s.applicability,
-    -- whether the editors set contexts at all, rejected ones too: then X1's reading stands no more (kern_scope)
+    -- whether the editors set contexts at all, rejected ones too: X1's reading stands no more (kern_scope)
     EXISTS (SELECT FROM applicability_context c WHERE c.specification_id = s.id) AS has_contexts
 FROM specification s WHERE s.document_id = %(document)s ORDER BY s.key
 """

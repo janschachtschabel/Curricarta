@@ -9,7 +9,8 @@ and cur:targetGroup name concepts of a profile's): they stay in the store.
 A specification without context rows states what X1 read of it (specification.applicability) as one
 context: its sector and formality, its time and level as written (cur:timeText, cur:levelText) - a blank
 node in either naming, as it is no row of its own; none where X1 read none of these. Once the editors set a
-context, theirs stand alone - rejected all, none stands: X1's reading does not return in their place. An OR of contexts (cur:alternativeContext) is not stated.
+context, theirs stand alone - rejected all, none stands: X1's reading does not return in their place. An OR
+of contexts (cur:alternativeContext) is not stated.
 """
 
 from collections.abc import Mapping
