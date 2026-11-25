@@ -25,7 +25,9 @@ from app.exports.kern_naming import Naming, RowKind, frozen_naming
 from app.exports.kern_rdf import kern_graph
 from app.exports.kern_rows import KernRows, Row
 
-KERN_EXPORT = "kern-ttl/1"  # the version of what the build writes: another makes the kept exports unused
+# the version of what the build writes beside the graph (KERN_GRAPH_VERSION): another makes the kept exports
+# unused; tests/exports/test_kern_versions.py pins it to the source
+KERN_EXPORT = "kern-ttl/1"
 ANSWER = "kern.ttl"
 _LIBRARIES = ("rdflib",)
 

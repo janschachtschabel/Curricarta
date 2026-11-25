@@ -24,6 +24,10 @@ from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
 from app.sources.mem.tree import storable_iri
 
+# The version of the graph this module writes of the rows app/exports/kern_rows.py reads: X5 records it with
+# each check (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when
+# a frozen document was checked under another. tests/exports/test_kern_versions.py pins it to the source.
+KERN_GRAPH_VERSION = 1
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 _SPECIFICATION_CLASSES = {
