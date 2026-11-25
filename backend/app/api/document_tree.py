@@ -94,7 +94,7 @@ Closed = Literal["frozen", "job_open", "not_extracted"]
 class TreeOut(BaseModel):
     editable: bool  # the caller may edit the nodes and statements now
     reviewable: bool  # the caller may set their review status now
-    closed: Closed | None  # why nobody may now, whoever reads (_closed)
+    closed: Closed | None  # why nobody may now, whoever reads (closed_of)
     counts: ReviewCountsOut
     nodes: list[NodeOut]  # from the top, in their order
 
@@ -121,7 +121,7 @@ async def read_document_tree(document_id: UUID, request: Request, who: Account) 
     if tree is None:  # seen in the same snapshot as the document: never so
         raise Refusal(404, "no_document", "No such document.")
     editor = bool(who.roles & EDITORS)
-    closed = _closed(frozen=document.frozen_at is not None, job_open=job is not None, extracted=all_there)
+    closed = closed_of(frozen=document.frozen_at is not None, job_open=job is not None, extracted=all_there)
     nodes, statements = review_counts(tree)
     return TreeOut(
         editable=closed is None and (editor or document.owner_id == who.account_id),
@@ -132,7 +132,7 @@ async def read_document_tree(document_id: UUID, request: Request, who: Account) 
     )
 
 
-def _closed(*, frozen: bool, job_open: bool, extracted: bool) -> Closed | None:
+def closed_of(*, frozen: bool, job_open: bool, extracted: bool) -> Closed | None:
     """Why the tree is closed to change, the reason that lasts longest first: frozen stays, a job ends
     soon - and may be the extraction that has yet to read every package."""
     if frozen:

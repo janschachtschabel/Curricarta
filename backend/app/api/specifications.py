@@ -17,7 +17,7 @@ from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstra
 
 from app.api.deps import require_account
 from app.api.document_access import readable_content, readable_document, reader, visible_document
-from app.api.document_tree import Closed, _closed
+from app.api.document_tree import Closed, closed_of
 from app.api.edit_answers import HIDDEN, REFUSED, Responses, answers, audit, refusal_of, stale
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.source_content import EDITORS
@@ -156,7 +156,7 @@ async def read_specifications(document_id: UUID, request: Request, who: Account)
         found = await specifications_of(connection, document_id)
         job = await open_job(connection, unique_key(document_id))
         all_there = await extracted(connection, document_id)
-    closed = _closed(frozen=document.frozen_at is not None, job_open=job is not None, extracted=all_there)
+    closed = closed_of(frozen=document.frozen_at is not None, job_open=job is not None, extracted=all_there)
     return SpecificationsOut(
         editable=closed is None and (bool(who.roles & EDITORS) or document.owner_id == who.account_id),
         closed=closed,
