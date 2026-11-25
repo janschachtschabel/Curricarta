@@ -201,7 +201,10 @@ ein Test schlägt an, wenn sie veraltet.
   geänderter Rechtestatus nicht mehr nutzt.
 - Kern-Export eines festgeschriebenen Dokuments (`GET /api/v1/documents/{id}/kern.ttl`): Die API baut den
   Graphen und schreibt das Turtle in einem eigenen Kindprozess, höchstens zwei je Prozess, ohne SHACL-Prüfung
-  (X5 hat denselben Graphen geprüft). Gemessen: 7 s und 174 MiB Spitze im Kind für ein synthetisches
+  (X5 hat denselben Graphen geprüft; jeder Lauf von X5 merkt sich die Graph-Version, unter der er prüfte,
+  Migration 0036). Ein festgeschriebenes Dokument, das unter einer anderen Version als der heutigen geprüft
+  wurde – oder vor Migration 0036, Version unbekannt –, wird nicht neu geprüft: Kopfzeile der Datei und
+  `Curricarta-Graph-Version` nennen beide Versionen. Gemessen: 7 s und 174 MiB Spitze im Kind für ein synthetisches
   Dokument mit 500 Knoten, 5.000 Aussagen und 5.500 Ankern. Den Bau begrenzt `KERN_EXPORT_TIMEOUT_S`
   (Standard 30 s, höchstens 45 s); das Warten davor teilt sich mit ihm dieselben 55 s wie beim MEM-Export.
   Die Datei bleibt unter `exports/<Dokument>/` wie dort.

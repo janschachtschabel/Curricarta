@@ -20,9 +20,13 @@ from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 
 # what the graph X5 checks is made of: the rows read, and the triples written of them
-GRAPH_DIGESTS = {1: "c01f82885ea6716c0383b650e0ea9113060feec71d014f2e2606937aefd585fa"}
+# (the rows read for the file's head count too: a column read for it alone is a new version as well)
+GRAPH_DIGESTS = {1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515"}
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
-EXPORT_DIGESTS = {"kern-ttl/1": "27e298e01744e2298e4e59681718e411f5f7991335462d7042896437966ae011"}
+EXPORT_DIGESTS = {
+    "kern-ttl/1": "27e298e01744e2298e4e59681718e411f5f7991335462d7042896437966ae011",
+    "kern-ttl/2": "d2653ec27b33ba77eb8c4315c016d581d03aee1b2d367b96206cf60640703840",  # the graph's version
+}
 _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 
 

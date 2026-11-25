@@ -18,7 +18,7 @@ from rdflib.namespace import DCTERMS, PROV
 from app.api.app import create_app
 from app.core.storage import ObjectNotFound
 from app.exports import kern_export
-from app.exports.kern_rdf import CUR
+from app.exports.kern_rdf import CUR, KERN_GRAPH_VERSION
 from tests.api.test_documents import PUBLIC, an_account, client, hidden_from_its_owner, url
 from tests.api.test_exports import DOC, PLAN, an_import
 from tests.api.test_exports import export as mem_export
@@ -62,6 +62,7 @@ def test_a_frozen_extracted_document_is_exported_under_its_iris(freezing: TestCl
     assert answer.headers["cache-control"] == "private, no-store"
     assert answer.headers["content-length"] == str(len(answer.content))
     assert answer.headers["curricarta-accepted-violations"] == "0"
+    assert "curricarta-graph-version" not in answer.headers  # checked under the graph it is built with
     graph = Graph().parse(data=answer.content, format="turtle")
     named = {str(term) for triple in graph for term in (triple[0], triple[2]) if isinstance(term, URIRef)}
     assert not [term for term in named if term.startswith("urn:uuid:")]
@@ -79,6 +80,23 @@ def test_accepted_violations_are_counted_in_the_answer_and_the_file(freezing: Te
     assert answer.status_code == 200, answer.text
     assert answer.headers["curricarta-accepted-violations"] == "1"
     assert "# accepted violations: 1\n" in answer.text
+
+
+def test_a_document_checked_under_an_unknown_graph_says_so(freezing: TestClient, url: str) -> None:
+    # frozen before X5 recorded the graph it checked (migration 0036): it cannot be checked again
+    document, editor, _ = frozen(freezing, url, violation=True)
+    with psycopg.connect(url, autocommit=True) as connection:
+        connection.execute(
+            "UPDATE extraction_run SET graph_version = NULL WHERE document_id = %s", (document,)
+        )
+
+    answer = kern(freezing, document, editor)
+
+    assert answer.status_code == 200, answer.text
+    assert answer.headers["curricarta-graph-version"] == f"checked=unknown; built={KERN_GRAPH_VERSION}"
+    assert answer.headers["curricarta-accepted-violations"] == "1"  # the count accepted, as it was
+    line = f"# checked under graph version: unknown, built with graph version: {KERN_GRAPH_VERSION}\n"
+    assert line in answer.text
 
 
 def test_a_frozen_mem_import_has_both_exports(in_process_shacl: None, client: TestClient, url: str) -> None:

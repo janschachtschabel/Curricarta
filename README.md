@@ -239,12 +239,15 @@ ungültig.
   keine Lizenz eigener Angaben. Ein Import nennt dazu wie sein MEM-Export den MEM-Plan als Quelle und Herkunft
   (`prov:wasDerivedFrom`), die Namensnennung und, wo eingetragen, die Lizenz der MEM-Daten am Plan. Die Zahl der
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
-  Kommentarzeile am Anfang der Datei.
+  Kommentarzeile am Anfang der Datei. Hat X5 das Dokument unter einer anderen Version des Kern-Graphen
+  geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
+  `Curricarta-Graph-Version` beide (`checked=unknown; built=1`), ebenso eine Kommentarzeile; festgeschrieben
+  wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
     (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis
-    bleibt im Speicher unter `exports/<Dokument>/`, bis sich Revision, Version, rdflib, Rechtestatus,
-    Adresse des Eintrags, Lizenz oder Namensnennung des Imports oder die Länder ändern; zwei Bauten ergeben
-    dieselben Bytes.
+    bleibt im Speicher unter `exports/<Dokument>/`, bis sich Revision, Version des Exports oder des
+    Kern-Graphen, rdflib, Rechtestatus, Zahl der angenommenen Verstöße, Adresse des Eintrags, Lizenz oder
+    Namensnennung des Imports oder die Länder ändern; zwei Bauten ergeben dieselben Bytes.
   - **Weigerungen:** 409 `export_not_frozen`; 409 `export_unnamed` für ein Dokument, das vor der Vergabe der
     Spezifikations-IRIs festgeschrieben wurde, bis `python -m app.db.name_frozen` lief; 503
     `export_unavailable` mit `Retry-After`; 429 `too_many_exports` (`EXPORTS_PER_MINUTE` zählt beide Exporte

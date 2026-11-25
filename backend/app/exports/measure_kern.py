@@ -24,6 +24,7 @@ from pathlib import Path
 
 from app.core.child import run_in_child
 from app.exports.kern_child import turtle
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.exports.kern_rows import KernRows, Row
 
 CV = "https://w3id.org/wlo/curriculum/vocab#"
@@ -98,7 +99,8 @@ def synthetic_rows(
     ]  # fmt: skip
     document_row: Row = {
         "id": document, "iri": base, "revision": revision, "frozen_at": datetime(2026, 11, 1, tzinfo=UTC),
-        "rights_status": rights_status, "violations": 0, "title": "Lehrplan Synthese",
+        "rights_status": rights_status, "violations": 0, "checked_graph": KERN_GRAPH_VERSION,
+        "title": "Lehrplan Synthese",
         "issuer": "Ministerium", "edition": "2024", "supersedes_iri": None, "source_url": source_url,
         "mem_iri": mem_iri, "mem_attribution": mem_attribution if mem_iri else None,
         "mem_licence": mem_licence if mem_iri else None,

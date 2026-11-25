@@ -7,7 +7,9 @@ The bytes are the same for the same rows in every process: the serializer sorts 
 a blank node - an anchor, the file - sorts by its label, which rdflib draws at random; here each takes the
 next of a fixed row of labels, in the order the graph names its rows (read in a fixed order). Comment
 lines head the file: the document's IRI, its revision and the violations the editors accepted when they
-froze it (plan M3a E7).
+froze it (plan M3a E7) - and, where X5 checked it under another graph than this builder writes
+(KERN_GRAPH_VERSION), the version it checked and this one's: frozen, it is checked no more, and the
+count stays the one accepted.
 
 What the child does not answer - it raised, or ended without its file - the parent counts as no export.
 """
@@ -22,12 +24,12 @@ from rdflib import BNode, URIRef
 
 from app.core.child import ChildLog, log_peak, stand_alone, write
 from app.exports.kern_naming import Naming, RowKind, frozen_naming
-from app.exports.kern_rdf import kern_graph
+from app.exports.kern_rdf import KERN_GRAPH_VERSION, kern_graph
 from app.exports.kern_rows import KernRows, Row
 
 # the version of what the build writes beside the graph (KERN_GRAPH_VERSION): another makes the kept exports
 # unused; tests/exports/test_kern_versions.py pins it to the source
-KERN_EXPORT = "kern-ttl/1"
+KERN_EXPORT = "kern-ttl/2"
 ANSWER = "kern.ttl"
 _LIBRARIES = ("rdflib",)
 
@@ -58,7 +60,24 @@ def turtle(rows: KernRows) -> bytes:
         f"# revision: {document['revision']}\n"
         f"# accepted violations: {document['violations']}\n"
     )
+    if (checked := _checked_version(document)) is not None:
+        head += f"# checked under graph version: {checked}, built with graph version: {KERN_GRAPH_VERSION}\n"
     return head.encode() + graph.serialize(format="turtle", encoding="utf-8")
+
+
+def checked_under(document: Row) -> str | None:
+    """``checked=<version>; built=<version>`` where X5 checked the frozen document under another graph than
+    this builder writes - ``unknown`` where its check recorded none (migration 0036) -; None where it is
+    the same."""
+    checked = _checked_version(document)
+    return None if checked is None else f"checked={checked}; built={KERN_GRAPH_VERSION}"
+
+
+def _checked_version(document: Row) -> str | None:
+    checked = document["checked_graph"]
+    if checked == KERN_GRAPH_VERSION:
+        return None
+    return "unknown" if checked is None else str(checked)
 
 
 def run_child(rows: str, told: ChildLog, out: str) -> None:

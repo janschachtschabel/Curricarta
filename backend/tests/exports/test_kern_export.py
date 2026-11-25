@@ -15,7 +15,9 @@ from rdflib import Graph, URIRef
 from app.core.storage import FileSystemStorage
 from app.core.storage_async import AsyncStorage
 from app.exports import kern_export
+from app.exports.kern_child import checked_under
 from app.exports.kern_export import ExportUnnamed, KernExporter, export_key, fingerprint
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.exports.measure_kern import synthetic_rows
 from app.exports.mem_export import Exported, ExportUnavailable
 from tests.exports import kern_children
@@ -136,7 +138,7 @@ def test_the_key_names_the_document_its_revision_and_the_builder_s_version() -> 
 
     key = export_key(rows.document["id"], 3, fingerprint(rows))
 
-    assert key.startswith(f"exports/{rows.document['id']}/kern-1-r3-") and key.endswith(".ttl")
+    assert key.startswith(f"exports/{rows.document['id']}/kern-2-r3-") and key.endswith(".ttl")
     assert len(key.rsplit("-", 1)[1]) == len("0123456789abcdef.ttl")
 
 
@@ -153,6 +155,9 @@ def test_the_fingerprint_is_of_what_may_change_after_the_freeze_not_of_the_iris(
     rows.document["violations"] = 0
     monkeypatch.setattr(kern_export, "_RDFLIB", "0.0.0")
     assert fingerprint(rows) != before
+    monkeypatch.undo()
+    monkeypatch.setattr(kern_export, "KERN_GRAPH_VERSION", KERN_GRAPH_VERSION + 1)
+    assert fingerprint(rows) != before  # the graph's builder
 
 
 async def test_the_file_says_its_document_revision_and_accepted_violations(
@@ -170,6 +175,26 @@ async def test_the_file_says_its_document_revision_and_accepted_violations(
     ]  # fmt: skip
     assert "urn:uuid:" not in text
     assert "@prefix cur: <https://w3id.org/wlo/curriculum/core#> ." in text
+    assert "# checked under" not in text  # X5 checked the graph this builder writes
+
+
+@pytest.mark.parametrize(("checked", "said"), [(None, "unknown"), (KERN_GRAPH_VERSION + 1, "newer")])
+async def test_a_document_checked_under_another_graph_says_so_in_its_head(
+    exporter: KernExporter, tmp_path: Path, checked: int | None, said: str
+) -> None:
+    # frozen, it is checked no more: the file says which graph X5 checked, and keeps the count it accepted
+    rows = synthetic_rows(nodes=1, statements=1)
+    rows.document.update(checked_graph=checked, violations=2)
+    version = said if checked is None else str(checked)
+
+    made = await exporter.export(rows)
+
+    head = (tmp_path / "store" / made.key).read_text(encoding="utf-8").splitlines()[:5]
+    assert head[3:] == [
+        "# accepted violations: 2",
+        f"# checked under graph version: {version}, built with graph version: {KERN_GRAPH_VERSION}",
+    ]
+    assert checked_under(rows.document) == f"checked={version}; built={KERN_GRAPH_VERSION}"
 
 
 async def test_a_document_with_a_row_of_no_iri_is_unnamed_and_nothing_is_built(

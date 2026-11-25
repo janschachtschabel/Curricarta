@@ -7,7 +7,9 @@ document is exported (409 ``export_not_frozen``), only one whose rows all have t
 ran); a build that did not end in its time is no answer (503 ``export_unavailable``, try again), nor one gone
 from the store between its build and its reading. Exports of both kinds are counted together per account
 and minute (429 ``too_many_exports``, EXPORTS_PER_MINUTE). The violations the editors accepted when they
-froze it are counted in a header (``Curricarta-Accepted-Violations``), as in the file's head (plan M3a E7).
+froze it are counted in a header (``Curricarta-Accepted-Violations``), as in the file's head (plan M3a E7);
+where X5 checked it under another graph than is built now, ``Curricarta-Graph-Version`` names both
+(``checked=unknown; built=1``), as the file's head does.
 
 The database connections are let go before the build: it runs in a child process for seconds.
 """
@@ -24,6 +26,7 @@ from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.api.limits import within_limit
 from app.core.auth import Principal
 from app.core.storage import ObjectNotFound
+from app.exports.kern_child import checked_under
 from app.exports.kern_export import ExportUnnamed, KernExporter
 from app.exports.kern_rows import read_document
 from app.exports.mem_export import ExportUnavailable
@@ -32,6 +35,7 @@ router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSE
 Account = Annotated[Principal, Depends(require_account)]
 RETRY_AFTER_S = 30
 VIOLATIONS_HEADER = "Curricarta-Accepted-Violations"
+GRAPH_HEADER = "Curricarta-Graph-Version"
 
 
 @router.get(
@@ -43,7 +47,8 @@ VIOLATIONS_HEADER = "Curricarta-Accepted-Violations"
         200: {
             "content": {"text/turtle": {"schema": {"type": "string", "format": "binary"}}},
             "description": "The document's Kern Turtle, as a download; the violations the editors accepted "
-            f"when they froze it in {VIOLATIONS_HEADER}",
+            f"when they froze it in {VIOLATIONS_HEADER}; where X5 checked it under another graph than is "
+            f"built now, both versions in {GRAPH_HEADER} (checked=unknown; built=1)",
         },
         403: {
             "model": ErrorBody,
@@ -97,6 +102,8 @@ async def export_kern(document_id: UUID, request: Request, who: Account) -> Obje
         "Cache-Control": "private, no-store",
         VIOLATIONS_HEADER: str(rows.document["violations"]),
     }
+    if (versions := checked_under(rows.document)) is not None:
+        headers[GRAPH_HEADER] = versions
     if stream.size is not None:
         headers["Content-Length"] = str(stream.size)
     return ObjectDownload(stream, media_type="text/turtle; charset=utf-8", headers=headers)

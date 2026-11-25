@@ -5,11 +5,13 @@ build: the graph under the document's stored IRIs, written as Turtle in a child 
 (app/exports/kern_child.py) within KERN_EXPORT_TIMEOUT_S, its rows handed over as a file - a pickle of a
 long document as an argument of the spawn would fill the pipe the child drains only once it has started
 (app/pipeline/shacl.py). The Turtle is kept in the store under a key of the document, its revision and a
-fingerprint of what may change its output once the document is frozen: the builder's version, rdflib's, the
-rights status, the violations the editors accepted, where it came from and its regions (``_MAY_CHANGE``).
-Asked again, the kept bytes go out: a frozen revision's rows change no more. No SHACL check runs here: X5
-checked the same graph under its draft names, and freezing asks for that check (plan M3a E6;
-test_kern_naming.py holds the two graphs alike).
+fingerprint of what may change its output once the document is frozen: the builder's version and the
+graph's (KERN_EXPORT, KERN_GRAPH_VERSION), rdflib's, the rights status, the violations the editors
+accepted, where it came from and its regions (``_MAY_CHANGE``). Asked again, the kept bytes go out: a
+frozen revision's rows change no more. No SHACL check runs here: X5 checked the same graph under its draft
+names, and freezing asks for that check (plan M3a E6; test_kern_naming.py holds the two graphs alike) -
+under the graph's version it recorded, which the file and the answer name where it is not the builder's
+now (app/exports/kern_child.py, ``checked_under``).
 
 A document frozen before its specifications and variants were named is ``ExportUnnamed`` until
 ``python -m app.db.name_frozen`` named them; a build past its time or broken in its child is
@@ -35,6 +37,7 @@ from app.core.settings import Settings
 from app.core.storage_async import AsyncStorage
 from app.exports import mem_export
 from app.exports.kern_child import ANSWER, KERN_EXPORT, run_child
+from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.exports.kern_rows import KernRows
 from app.exports.mem_export import Exported, ExportUnavailable
 
@@ -66,7 +69,7 @@ def unnamed(rows: KernRows) -> bool:
 def fingerprint(rows: KernRows) -> str:
     """What the export's output depends on beside the rows a frozen revision keeps, as a digest."""
     document = rows.document
-    parts = (KERN_EXPORT, _RDFLIB, *(str(document[name]) for name in _MAY_CHANGE))
+    parts = (KERN_EXPORT, str(KERN_GRAPH_VERSION), _RDFLIB, *(str(document[name]) for name in _MAY_CHANGE))
     return hashlib.sha256("\x00".join(parts).encode()).hexdigest()
 
 
