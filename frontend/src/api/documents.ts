@@ -73,8 +73,12 @@ export interface DocumentFinding {
   severity: FindingSeverity;
   /** The stage whose run found it, "X5". */
   stage: string | null;
-  /** The row it is about: its kind ("statement", "node", "document" …), and its wording or title. */
-  focus: { kind: string; id: string; label: string | null };
+  /**
+   * The row it is about: its kind ("statement", "node", "document", "workload" …), and its wording or title;
+   * a value's ("level_assignment", "time_span", "workload") the row that holds it - a workload's period its
+   * workload's -, whose wording or title the label is; none for another row and for a value no longer there.
+   */
+  focus: { kind: string; id: string; label: string | null; holder_kind: string | null; holder_id: string | null };
   /** The property, or the place in the model's answer, where it names one. */
   path: string | null;
   /** The server's: English but where `message_lang` says otherwise. */

@@ -16,7 +16,7 @@ const WRONG: DocumentFinding = {
   rule: "x5.wording_not_found",
   severity: "violation",
   stage: "X5",
-  focus: { kind: "statement", id: "s1", label: "Die Lernenden messen." },
+  focus: { kind: "statement", id: "s1", label: "Die Lernenden messen.", holder_kind: null, holder_id: null },
   path: null,
   message: "the wording is not in the blocks its anchor names",
   message_lang: null,
@@ -26,7 +26,7 @@ const LOST: DocumentFinding = {
   rule: "x4.unknown_block",
   severity: "warning",
   stage: "X4",
-  focus: { kind: "document", id: "d1", label: null },
+  focus: { kind: "document", id: "d1", label: null, holder_kind: null, holder_id: null },
   path: "$.statements[0].blockIds[0]",
   message: "a block the conversion does not hold",
   message_lang: null,
@@ -36,7 +36,7 @@ const ENGLISH: DocumentFinding = {
   rule: "x1.regions_differ",
   severity: "info",
   stage: "X1",
-  focus: { kind: "document", id: "d1", label: null },
+  focus: { kind: "document", id: "d1", label: null, holder_kind: null, holder_id: null },
   path: null,
   message: "the Länder read differ from those asked",
   message_lang: null,
@@ -146,7 +146,7 @@ describe("a document's findings", () => {
   });
 
   it("leads from a finding about a node or a statement to its row in the tree, from one about the document nowhere", async () => {
-    const atNode: DocumentFinding = { ...WRONG, focus: { kind: "node", id: "n1", label: "Optik" } };
+    const atNode: DocumentFinding = { ...WRONG, focus: { kind: "node", id: "n1", label: "Optik", holder_kind: null, holder_id: null } };
     vi.spyOn(api, "getFindings").mockResolvedValue(page({ findings: [WRONG, atNode, LOST] }));
 
     const wrapper = open();

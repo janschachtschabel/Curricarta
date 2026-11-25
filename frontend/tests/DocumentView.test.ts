@@ -35,7 +35,7 @@ const REPAIRABLE: FindingsPage = {
       rule: "x5.wording_not_found",
       severity: "violation",
       stage: "X5",
-      focus: { kind: "statement", id: "s1", label: "Die Lernenden messen." },
+      focus: { kind: "statement", id: "s1", label: "Die Lernenden messen.", holder_kind: null, holder_id: null },
       path: null,
       message: "the wording is not in the blocks its anchor names",
       message_lang: null,

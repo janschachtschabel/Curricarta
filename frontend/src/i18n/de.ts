@@ -1223,12 +1223,20 @@ export const messages = {
         specification: "Spezifikation",
         anchor: "Anker",
         variant: "Variante",
+        // the second layer's values, each named with the row that holds it (valueAt)
+        level_assignment: "Niveauzuordnung",
+        time_span: "Zeitraum",
+        workload: "Umfang",
       },
       // what a finding is about: its kind, its wording or title, the work package it names
       about: "{kind} „{label}“",
       inUnit: "{what}, Paket {unit}",
       // a statement a repair of its package dropped, its findings of an earlier stage staying (findingWords.ts)
       statementGone: "Entfernte Aussage",
+      // a value and its holder - a node or a statement, said as `about` says a row
+      valueAt: "{value} bei {holder}",
+      // a value replaced or taken away since X5 found something on it: its finding stays until X5 checks again
+      valueGone: "Entfernter Wert",
       // by the rule's name without its stage: the reading of an answer names its rules alike at X1,
       // X3, X4 and X6 (tests/findingWords.test.ts); SHACL's messages as the server gives them
       rules: {
