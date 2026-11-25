@@ -14,6 +14,7 @@ import psycopg
 import pytest
 from rdflib import RDF, Graph, URIRef
 
+from app.db.anchors import new_entity
 from app.db.freezing import freeze
 from app.db.values import replace_values, values_of
 from app.domain.l2 import Holder, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
@@ -32,6 +33,15 @@ CV = "https://w3id.org/wlo/curriculum/vocab#"
 LVL = "https://w3id.org/wlo/curriculum/level/"
 CONFIRMED, REJECTED = CV + "rev_confirmed", CV + "rev_rejected"
 BASE = "https://example.org/kk/"
+# a value added - a copy of one of its table's rows under an entity of its own, at a free position -,
+# changed and taken away
+FROZEN_CHANGES = (
+    "INSERT INTO {table} SELECT (jsonb_populate_record(NULL::{table}, to_jsonb(t)"
+    " || jsonb_build_object('id', %(added)s::uuid, 'position', 9))).*"
+    " FROM {table} t WHERE document_id = %(document)s LIMIT 1",
+    "UPDATE {table} SET updated_at = now() WHERE document_id = %(document)s",
+    "DELETE FROM {table} WHERE document_id = %(document)s",
+)
 
 
 def uri(value_id: UUID | None) -> URIRef:
@@ -137,16 +147,23 @@ async def test_a_frozen_document_s_values_are_exported_and_change_no_more(
     # the kept export's key needs not name them (app/exports/kern_export.py, fingerprint): the store refuses
     # every change of a frozen document's values (keep_frozen_rows), so its rows say them once for all
     top = await ready(connection, document)
-    drafts = ValueDrafts(workloads=(WorkloadDraft(amount=Decimal(40), unit=CV + "unit_lesson"),))
+    period = TimeSpanDraft(time_kind=CV + "time_trainingYear", span_from=Decimal(1))
+    drafts = ValueDrafts(
+        levels=(LevelDraft(level=LVL + "EQF-4"),),
+        time_spans=(TimeSpanDraft(time_kind=CV + "time_gradeLevel", span_from=Decimal(5)),),
+        workloads=(WorkloadDraft(amount=Decimal(40), unit=CV + "unit_lesson", periods=(period,)),),
+    )
     await replace_values(connection, owner(document), Holder("node", top), 1, drafts)
     await checked(connection, document)
     await freeze(connection, document.id, BASE, accept_violations=False)
     rows = await read_document(connection, document.id)
 
-    assert b"cur:workload" in turtle(rows)
-    for change in (
-        "UPDATE workload SET amount = 41 WHERE document_id = %s",
-        "DELETE FROM workload WHERE document_id = %s",
-    ):
-        with pytest.raises(psycopg.errors.ObjectNotInPrerequisiteState):
-            await connection.execute(change, (document.id,))
+    made = turtle(rows)
+    assert b"cur:workload" in made and b"cur:timeSpan" in made and b"cur:levelAssignment" in made
+    for table in ("workload", "time_span", "level_assignment"):
+        added = await new_entity(connection, table)
+        for change in FROZEN_CHANGES:
+            with pytest.raises(psycopg.errors.ObjectNotInPrerequisiteState):
+                await connection.execute(
+                    change.format(table=table), {"document": document.id, "added": added}
+                )
