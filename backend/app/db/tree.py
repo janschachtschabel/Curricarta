@@ -1,8 +1,8 @@
 """A document's structure read back as a tree (plan M1 4.6, 9.2), by those who see its document
 (app/db/documents.py): its nodes from its top, each with its statements and children in their
 order, all in one snapshot - as the editor shows it, each node and statement with the fields of its
-form and its anchors and values (app/db/value_rows.py), each node with the findings on it and its
-statements counted. Written by app/db/nodes.py."""
+form and its anchors and values (app/db/value_rows.py), each node with the findings on it, its
+statements and the values of both counted. Written by app/db/nodes.py."""
 
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
@@ -50,7 +50,8 @@ FROM anchor a JOIN document d ON d.id = a.document_id
 WHERE a.document_id = %(id)s AND (a.node_id IS NOT NULL OR a.statement_id IS NOT NULL) AND {DOCUMENT_VISIBLE}
 ORDER BY a.id
 """  # noqa: S608 - fixed parts
-# the findings on a node, its statements and the anchors of both, by node and severity
+# the findings on a node, its statements, the anchors and the values of both - a workload's periods too
+# (plan M3a F2) -, by node and severity
 _FINDINGS = f"""
 WITH owner (focus_id, node_id) AS (
     SELECT id, id FROM node WHERE document_id = %(id)s
@@ -58,6 +59,13 @@ WITH owner (focus_id, node_id) AS (
     UNION ALL SELECT a.id, coalesce(a.node_id, s.node_id) FROM anchor a
         LEFT JOIN statement s ON s.id = a.statement_id
         WHERE a.document_id = %(id)s AND (a.node_id IS NOT NULL OR a.statement_id IS NOT NULL)
+    UNION ALL SELECT v.id, coalesce(v.node_id, s.node_id) FROM level_assignment v
+        LEFT JOIN statement s ON s.id = v.statement_id
+        WHERE v.document_id = %(id)s AND (v.node_id IS NOT NULL OR v.statement_id IS NOT NULL)
+    UNION ALL SELECT id, node_id FROM workload WHERE document_id = %(id)s AND node_id IS NOT NULL
+    UNION ALL SELECT t.id, coalesce(t.node_id, w.node_id) FROM time_span t
+        LEFT JOIN workload w ON w.id = t.workload_id
+        WHERE t.document_id = %(id)s AND coalesce(t.node_id, w.node_id) IS NOT NULL
 )
 SELECT o.node_id, f.severity, count(*)
 FROM validation_finding f JOIN owner o ON o.focus_id = f.focus_id JOIN document d ON d.id = f.document_id

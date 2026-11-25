@@ -1,5 +1,8 @@
-"""Findings on the second layer's values (plan M3a F2): a node or statement taken away takes the findings
-on its values along, as it takes those on itself and its anchors."""
+"""Findings on the second layer's values (plan M3a F2): a value keeps its own focus, as X5 finds it at the
+value's row, and the list names the value's holder - a node, a statement, a specification; a workload's
+period by the workload's holder -, with that holder's wording or title; a value no longer there names none.
+A node counts the findings on its values and on its statements' values. A node or statement taken away
+takes the findings on its values along, as it takes those on itself and its anchors."""
 
 from decimal import Decimal
 from typing import Any
@@ -9,8 +12,10 @@ import psycopg
 import pytest
 
 from app.db.editing import drop_node
+from app.db.findings import findings_of
 from app.db.nodes import drop_statements, write_subtree
 from app.db.statement_editing import HandAnchor, add_statement, drop_or_reject_statement
+from app.db.tree import read_tree
 from app.db.values import replace_values, values_of
 from app.domain.l2 import HeldValues, Holder, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
 from tests.db.test_editing import a_finding, document, one
@@ -66,6 +71,61 @@ async def a_tree(connection: psycopg.AsyncConnection, document: Any) -> dict[str
 async def findings_left(connection: psycopg.AsyncConnection) -> set[Any]:
     cursor = await connection.execute("SELECT focus_id FROM validation_finding")
     return {found for (found,) in await cursor.fetchall()}
+
+
+async def test_a_finding_on_a_value_names_its_holder(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await a_tree(connection, document)
+    level, span, *_ = ids(made["node_values"])
+    [said_level] = ids(made["said_values"])
+    for focus in (level, said_level):
+        await a_finding(connection, document, focus)
+    kept = ValueDrafts(levels=(made["node_values"].levels[0].value,))
+    await valued(connection, document, Holder("node", made["top"]), kept)  # its time span goes
+    await a_finding(connection, document, span)  # as X5 left it, of rows read before
+
+    rows = (await findings_of(connection, document.id)).rows
+
+    found = {(row.focus_kind, row.focus_id, row.focus_label, row.holder_kind, row.holder_id) for row in rows}
+    assert found == {
+        ("level_assignment", level, "Optik", "node", made["top"]),
+        ("level_assignment", said_level, "Sie messen.", "statement", made["said"]),
+        ("time_span", span, None, None, None),  # no longer there: no holder to name
+    }
+
+
+async def test_a_period_s_and_a_workload_s_findings_name_the_workload_s_holder(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await a_tree(connection, document)
+    _, span, workload, period = ids(made["node_values"])
+    for focus in (span, workload, period):
+        await a_finding(connection, document, focus)
+
+    rows = (await findings_of(connection, document.id)).rows
+
+    assert {(row.focus_kind, row.focus_id, row.holder_kind, row.holder_id) for row in rows} == {
+        ("time_span", span, "node", made["top"]), ("workload", workload, "node", made["top"]),
+        ("time_span", period, "node", made["top"]),
+    }  # fmt: skip
+    assert {row.focus_label for row in rows} == {"Optik"}
+
+
+async def test_a_node_counts_the_findings_of_its_values(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await a_tree(connection, document)
+    level, span, workload, period = ids(made["node_values"])
+    for focus in (level, span, workload, period, *ids(made["said_values"])):
+        await a_finding(connection, document, focus)
+
+    tree = await read_tree(connection, owner(document), document.id)
+
+    assert tree is not None
+    [top] = tree
+    assert top.findings == {"violation": 0, "warning": 5, "info": 0}  # its own and its statement's values
+    assert top.children[0].findings == {"violation": 0, "warning": 0, "info": 0}
 
 
 async def test_dropping_a_node_drops_the_findings_on_its_values_and_its_statements_values(

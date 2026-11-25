@@ -13,6 +13,7 @@ from psycopg.types.json import Jsonb
 from tests.api.test_document_units import a_run
 from tests.api.test_documents import a_conversion, an_account, client, hidden_from_its_owner, make, url
 from tests.db.l1 import add_node, add_statement
+from tests.db.l2 import add_value
 
 pytestmark = pytest.mark.pg
 __all__ = ["client", "url"]  # the fixtures, shared with test_documents
@@ -53,23 +54,49 @@ def test_a_document_s_findings_are_read_gravest_first_with_the_rows_they_are_abo
         "counts": {"violation": 2, "warning": 2, "info": 1},
         "findings": [
             {"rule": "shacl.StatementShape", "severity": "violation", "stage": "X5",
-             "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen."},
+             "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen.",
+                       "holder_kind": None, "holder_id": None},
              "path": None, "message": "Aussage ohne Adressat.", "message_lang": "de", "unit": None},
             {"rule": "x5.wording_not_found", "severity": "violation", "stage": "X5",
-             "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen."},
+             "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen.",
+                       "holder_kind": None, "holder_id": None},
              "path": None, "message": "not in the blocks", "message_lang": None, "unit": None},
             {"rule": "x4.unknown_block", "severity": "warning", "stage": "X4",
-             "focus": {"kind": "document", "id": document, "label": None},
+             "focus": {"kind": "document", "id": document, "label": None, "holder_kind": None,
+                       "holder_id": None},
              "path": None, "message": "x4.unknown_block", "message_lang": None, "unit": "E1"},
             {"rule": "x5.retired_value", "severity": "warning", "stage": "X5",
-             "focus": {"kind": "node", "id": str(node), "label": "Optik"},
+             "focus": {"kind": "node", "id": str(node), "label": "Optik", "holder_kind": None,
+                       "holder_id": None},
              "path": "cur:nodeType", "message": "x5.retired_value", "message_lang": None, "unit": None},
             {"rule": "x5.unit_without_statements", "severity": "info", "stage": "X5",
-             "focus": {"kind": "document", "id": document, "label": None},
+             "focus": {"kind": "document", "id": document, "label": None, "holder_kind": None,
+                       "holder_id": None},
              "path": None, "message": "x5.unit_without_statements", "message_lang": None, "unit": "E3"},
         ],
         "truncated": False,
         "repairable": [],  # X2 parted the document into no packages
+    }  # fmt: skip
+
+
+def test_a_finding_on_a_value_names_its_holder(client: TestClient, url: str) -> None:
+    # the value stays the focus, as X5 found it; its holder is the row the page leads to
+    owner, header = an_account(url)
+    document = make(client, url, header, a_conversion(url, owner))["document"]["id"]
+    with psycopg.connect(url, autocommit=True) as connection:
+        node = add_node(connection, uuid.UUID(document), original_title="Optik")
+        statement = add_statement(connection, uuid.UUID(document), node, verbatim="Die Lernenden messen.")
+        level = add_value(connection, "level_assignment", uuid.UUID(document), "statement_id", statement)
+    finding(url, document, a_run(url, document, "X5"), "shacl.LevelAssignmentShape", "violation", level,
+            message="Qualifikationsniveau an einer Aussage.", details={"lang": "de"})  # fmt: skip
+
+    answer = client.get(f"/api/v1/documents/{document}/findings", headers=header)
+
+    assert answer.status_code == 200, answer.text
+    [found] = answer.json()["findings"]
+    assert found["focus"] == {
+        "kind": "level_assignment", "id": str(level), "label": "Die Lernenden messen.",
+        "holder_kind": "statement", "holder_id": str(statement),
     }  # fmt: skip
 
 

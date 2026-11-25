@@ -327,7 +327,9 @@ ungültig.
   kopiert, und `mem` (Plan-IRI, Namensnennung und Lizenz eines Imports aus MEM-Schule, sonst leer); die Job-ID nur für Eigentümer und Admins, den Fehlercode des letzten Jobs,
   `extraction.error_code`, alle Leser; `units`: die Arbeitspakete mit Stand `done` samt Zahl der Aussagen,
   `open`, `frame` oder `none`, vor X2 leer; `findings`: die Befunde der Stufen, Verstöße zuerst, je mit Art,
-  Wortlaut oder Titel der Zeile, die sie betreffen (gekürzt mit „…“), dem Arbeitspaket, das sie nennen, und
+  Wortlaut oder Titel der Zeile, die sie betreffen (gekürzt mit „…“) – bei einem Wert (Niveau, Zeitraum,
+  Umfang) die seines Trägers, den `focus.holder_kind` und `focus.holder_id` nennen (ein Zeitraum eines
+  Umfangs den des Umfangs; keinen, wo der Wert nicht mehr besteht) –, dem Arbeitspaket, das sie nennen, und
   der Sprache der Meldung, wo die Stufe sie kennt (`message_lang`: „de“ für die deutschen Meldungen der
   SHACL-Formen, sonst Englisch) – höchstens 500, die Zahlen je Schwere über alle). Je Dokument wartet oder
   läuft höchstens ein Extraktionsjob (`job.unique_key`, Migration 0018): ein Start dabei gibt den laufenden
@@ -347,7 +349,8 @@ ungültig.
   in einer Entwurfskopie tragen die übernommenen Zeilen ihre schon, neue erst nach dem Festschreiben) und
   Fundstellen (Seiten, gedruckte Seite, Zitat, Fundart, Wert, Blöcke in Dokumentreihenfolge), je Aussage
   `by_hand` (von Hand angelegt: `DELETE` löscht sie; aus einem Lauf: sie wird verworfen), je Knoten die
-  Zahl der Befunde je Schwere an ihm, seinen Fundstellen, seinen Aussagen und deren Fundstellen (nicht an
+  Zahl der Befunde je Schwere an ihm, seinen Fundstellen, seinen Aussagen, deren Fundstellen und den Werten
+  beider (nicht an
   seinen Kindern), dazu die Zahl der Knoten und Aussagen je Prüfstand. `editable`: Eigentümer und
   Redaktion/Admin dürfen jetzt bearbeiten, `reviewable`: Redaktion/Admin dürfen den Prüfstand setzen –
   beides nicht, solange ein Job des Dokuments wartet oder läuft, nicht, bevor X4 jedes Arbeitspaket gelesen

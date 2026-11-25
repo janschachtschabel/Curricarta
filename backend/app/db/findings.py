@@ -26,12 +26,13 @@ _ADD = """
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
 """
 # The row a finding is about by its entity's kind, named by its wording or title - cut, and said to be
-# -; the stage of its run; the counts of all the document's findings beside each, so that one statement
-# reads both in one snapshot
+# -; a value's holder (plan M3a F2), a period's its workload's, by which the value is named; the stage of
+# its run; the counts of all the document's findings beside each, so that one statement reads both in one
+# snapshot
 _ROWS = """
 SELECT f.rule, f.severity, replace(r.stage_iri, %(stages)s, ''), e.kind, f.focus_id,
     CASE WHEN length(l.label) > %(label)s THEN left(l.label, %(label)s - 1) || '…' ELSE l.label END,
-    f.path, f.message, f.details ->> 'lang', f.details ->> 'unit',
+    f.path, f.message, f.details ->> 'lang', f.details ->> 'unit', h.kind, h.id,
     (SELECT json_object_agg(c.severity, c.n) FROM (
         SELECT severity, count(*) AS n FROM validation_finding
         WHERE document_id = %(document)s GROUP BY severity
@@ -39,9 +40,21 @@ SELECT f.rule, f.severity, replace(r.stage_iri, %(stages)s, ''), e.kind, f.focus
 FROM validation_finding f
 JOIN entity e ON e.id = f.focus_id
 LEFT JOIN extraction_run r ON r.id = f.run_id
-LEFT JOIN statement s ON s.id = f.focus_id
-LEFT JOIN node n ON n.id = f.focus_id
-LEFT JOIN specification sp ON sp.id = f.focus_id
+LEFT JOIN level_assignment la ON la.id = f.focus_id
+LEFT JOIN time_span ts ON ts.id = f.focus_id
+LEFT JOIN workload w ON w.id = coalesce(ts.workload_id, f.focus_id)  -- the value, or a period's workload
+CROSS JOIN LATERAL (SELECT
+    CASE WHEN coalesce(la.node_id, ts.node_id, w.node_id) IS NOT NULL THEN 'node'
+        WHEN la.statement_id IS NOT NULL THEN 'statement'
+        WHEN coalesce(la.specification_id, ts.specification_id, w.specification_id) IS NOT NULL
+            THEN 'specification'
+        WHEN la.frame_part_id IS NOT NULL THEN 'frame_part' END AS kind,
+    coalesce(la.node_id, ts.node_id, w.node_id, la.statement_id, la.specification_id, ts.specification_id,
+        w.specification_id, la.frame_part_id) AS id
+) AS h
+LEFT JOIN statement s ON s.id = coalesce(h.id, f.focus_id)
+LEFT JOIN node n ON n.id = coalesce(h.id, f.focus_id)
+LEFT JOIN specification sp ON sp.id = coalesce(h.id, f.focus_id)
 LEFT JOIN document d ON d.id = f.focus_id
 CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, d.title) AS label) AS l
 WHERE f.document_id = %(document)s
@@ -96,7 +109,9 @@ class FindingRow:
     """A finding as the document's page lists it: ``stage`` its run's ("X5"), ``focus_kind`` the kind of
     the row it is about ("statement", "node", "document" …) and ``focus_label`` that row's wording or
     title, where it has one; ``message_lang`` the message's language where the stage knew it (SHACL's
-    German, "de"), else none - English; ``unit`` the work package it names."""
+    German, "de"), else none - English; ``unit`` the work package it names; ``holder_kind`` and ``holder_id``
+    the row a value it is about is held by - a node, a statement, a specification, a rule's frame part -,
+    none for a finding about another row and for a value no longer there."""
 
     rule: str
     severity: Severity
@@ -108,6 +123,8 @@ class FindingRow:
     message: str
     message_lang: str | None
     unit: str | None
+    holder_kind: str | None = None
+    holder_id: UUID | None = None
 
 
 @dataclass(frozen=True)

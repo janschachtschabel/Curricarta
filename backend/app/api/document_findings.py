@@ -1,6 +1,7 @@
 """A document's findings (plan M1 8b; table validation_finding): what the extraction's stages found on it
 - X5's checks, the SHACL gate, the reading of the model's answers - gravest first, each with the kind
-and the wording or title of the row it is about, the counts of all beside and at most
+and the wording or title of the row it is about - a value named by its holder (plan M3a F2) -, the
+counts of all beside and at most
 ``MOST_FINDINGS`` listed. Who may read the document reads them (app/api/document_access.py); its
 owner reads too which work packages a repair would ask again (POST /documents/{id}/repair).
 """
@@ -25,9 +26,14 @@ Account = Annotated[Principal, Depends(require_account)]
 
 
 class FocusOut(BaseModel):
-    kind: str  # the kind of the row: "statement", "node", "document", "frame_part" …
+    kind: str  # the kind of the row: "statement", "node", "document", "frame_part", "workload" …
     id: UUID
-    label: str | None  # its wording or title, cut to what a list shows; none for a row without
+    # its wording or title - a value's holder's -, cut to what a list shows; none for a row without
+    label: str | None
+    # a value's ("level_assignment", "time_span", "workload"): the row that holds it - "node", "statement",
+    # "specification", "frame_part"; a period its workload's -, none for another row and a value gone
+    holder_kind: str | None
+    holder_id: UUID | None
 
 
 class FindingOut(BaseModel):
@@ -82,7 +88,13 @@ async def read_findings(document_id: UUID, request: Request, who: Account) -> Fi
                 rule=row.rule,
                 severity=row.severity,
                 stage=row.stage,
-                focus=FocusOut(kind=row.focus_kind, id=row.focus_id, label=row.focus_label),
+                focus=FocusOut(
+                    kind=row.focus_kind,
+                    id=row.focus_id,
+                    label=row.focus_label,
+                    holder_kind=row.holder_kind,
+                    holder_id=row.holder_id,
+                ),
                 path=row.path,
                 message=row.message,
                 message_lang=row.message_lang,
