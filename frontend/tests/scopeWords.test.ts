@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import type { ApplicabilityContext, ScopeForm, ScopeLevel, ScopeTimeSpan, ScopeWorkload } from "@/api";
-import { contextWords, labelsOf, levelWords, spanWords, workloadWords } from "@/scopeWords";
+import { t } from "@/i18n/de";
+import { contextWords, joined, labelsOf, levelWords, spanWords, stated, workloadWords } from "@/scopeWords";
 
 const CV = "https://w3id.org/wlo/curriculum/vocab#";
 const LVL = "https://w3id.org/wlo/curriculum/level/";
@@ -62,8 +63,22 @@ describe("the words of a specification's values and contexts", () => {
       target_group_text: "Erwachsene", level_assignments: [level()], time_spans: [span()],
     };
     expect(contextWords(context, labels)).toEqual([
-      "Schulbildung", "formal", "Einrichtung: Gymnasium", "Zielgruppe: Erwachsene", "EQR 4", "Jahrgangsstufe 5–6",
+      "Schulbildung", "formal", "Einrichtung: Gymnasium", "Zielgruppe: Erwachsene", "EQR 4 (Vorgeschlagen)",
+      "Jahrgangsstufe 5–6 (Vorgeschlagen)",
     ]);
+  });
+
+  it("say a context's value's review status, and a context that states nothing as such", () => {
+    const rejected = level({ review_status: CV + "rev_rejected" });
+    const empty: ApplicabilityContext = {
+      ...STATED, sector: null, formality: null, institution_text: null, target_group_text: null,
+      level_assignments: [], time_spans: [],
+    };
+
+    expect(contextWords({ ...empty, level_assignments: [rejected] }, labels)).toEqual(["EQR 4 (Verworfen)"]);
+    expect(contextWords(empty, labels)).toEqual([t("documents.page.scope.emptyContext")]);
+    expect(stated("EQR 4", CV + "rev_confirmed")).toBe("EQR 4 (Bestätigt)");
+    expect(joined(["a", "b"])).toBe(`a${t("documents.page.scope.separator")}b`);
   });
 
   it("name a concept no list holds by the last part of its IRI", () => {

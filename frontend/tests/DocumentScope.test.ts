@@ -45,12 +45,24 @@ describe("a document's applicability on its page", () => {
     const text = wrapper.get("section").text();
     expect(wrapper.get("h2").text()).toBe(t("documents.page.scope.heading"));
     expect(wrapper.get("h3").text()).toBe("Physik");
-    for (const said of ["Lehrplan", "Naturwissenschaften", "G8", "EQR 4", "80 Unterrichtsstunden insgesamt"]) {
+    for (const said of ["Lehrplan", "Naturwissenschaften", "G8", "EQR 4 (Vorgeschlagen)", "80 Unterrichtsstunden insgesamt (Vorgeschlagen)"]) {
       expect(text).toContain(said);
     }
     const [context] = wrapper.findAll("[data-test=scope-context]");
-    expect(context.text()).toBe("Schulbildung · formal · Einrichtung: Gymnasium · Jahrgangsstufe 5–6");
+    expect(context.text()).toBe("Vorgeschlagen Schulbildung · formal · Einrichtung: Gymnasium · Jahrgangsstufe 5–6 (Vorgeschlagen)");
     expect(await violations(wrapper.element)).toEqual([]);
+  });
+
+  it("says a rejected context as rejected, by its word beside its tone", async () => {
+    const valued = valuedSpecification();
+    const [context] = valued.contexts;
+    const rejected = { ...valued, contexts: [{ ...context, review_status: "https://w3id.org/wlo/curriculum/vocab#rev_rejected" }] };
+    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [rejected] }));
+    const wrapper = await open();
+
+    const badge = wrapper.get("[data-test=scope-context] .status-badge");
+    expect(badge.text()).toBe("Verworfen");
+    expect(badge.classes()).toContain("error");
   });
 
   it("says what is not there: no field, no values, no context", async () => {

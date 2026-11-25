@@ -17,7 +17,8 @@ import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import SpecificationForm from "@/components/SpecificationForm.vue";
 import { t } from "@/i18n/de";
-import { contextWords, labelsOf, levelWords, spanWords, workloadWords } from "@/scopeWords";
+import { REVIEW_TONES, statusOf, statusWord } from "@/reviewStatus";
+import { contextWords, joined, labelsOf, levelWords, spanWords, stated, workloadWords } from "@/scopeWords";
 import { useSectionReading } from "@/sectionReading";
 
 // `refresh`: bumped by the page as the extraction moves on, which may write the specifications (X1)
@@ -45,10 +46,16 @@ const readOnly = computed(() => {
 function ownValues(specification: Specification): string[] {
   const values = specification.values;
   return [
-    ...values.level_assignments.map((level) => levelWords(level, labels.value)),
-    ...values.time_spans.map((span) => spanWords(span, labels.value)),
-    ...values.workloads.map((workload) => workloadWords(workload, labels.value)),
+    ...values.level_assignments.map((level) => stated(levelWords(level, labels.value), level.review_status)),
+    ...values.time_spans.map((span) => stated(spanWords(span, labels.value), span.review_status)),
+    ...values.workloads.map((workload) => stated(workloadWords(workload, labels.value), workload.review_status)),
   ];
+}
+
+/** The tone of a review status's badge; its word stands in it. */
+function tone(reviewStatus: string): string {
+  const status = statusOf(reviewStatus);
+  return status ? REVIEW_TONES[status] : "neutral";
 }
 
 function keep(specification: Specification): void {
@@ -99,15 +106,21 @@ watch(() => props.refresh, reload);
           </dd>
           <dt>{{ t("documents.page.scope.variants") }}</dt>
           <dd>
-            <bdi>{{ specification.variants.map((variant) => variant.label).join(", ") || t("documents.page.scope.none") }}</bdi>
+            <bdi>{{
+              joined(
+                specification.variants.map((variant) => variant.label),
+                t("documents.page.scope.listSeparator"),
+              ) || t("documents.page.scope.none")
+            }}</bdi>
           </dd>
           <dt>{{ t("documents.page.scope.values") }}</dt>
-          <dd>{{ ownValues(specification).join(" · ") || t("documents.page.scope.noValues") }}</dd>
+          <dd>{{ joined(ownValues(specification)) || t("documents.page.scope.noValues") }}</dd>
           <dt>{{ t("documents.page.scope.contexts") }}</dt>
           <dd>
             <ul v-if="specification.contexts.length" class="scope__contexts">
               <li v-for="context in specification.contexts" :key="context.id" data-test="scope-context">
-                <bdi>{{ contextWords(context, labels).join(" · ") }}</bdi>
+                <!-- the badge's word, then what the context states: one space between, on one line -->
+                <span class="status-badge" :class="tone(context.review_status)">{{ statusWord(context.review_status) }}</span> <bdi>{{ joined(contextWords(context, labels)) }}</bdi>
               </li>
             </ul>
             <template v-else>{{ t("documents.page.scope.noContexts") }}</template>

@@ -1,8 +1,10 @@
 // A specification's values and applicability contexts in words (plan M3a H1; DocumentScope.vue): each concept by the
 // label the values' form gives it - one no list holds, a retired one, by the last part of its IRI -, numbers as the
-// page writes them, a context as the list of all it states.
+// page writes them, a stored value with its review status - a rejected one stands in neither the graph nor the
+// export -, a context as the list of all it states, one that states nothing said so.
 import type { ApplicabilityContext, ScopeForm, ScopeLevel, ScopeTimeSpan, ScopeWorkload } from "@/api";
 import { t } from "@/i18n/de";
+import { statusWord } from "@/reviewStatus";
 
 /** A concept's label by its IRI. */
 export type Labels = ReadonlyMap<string, string>;
@@ -51,13 +53,27 @@ export function workloadWords(workload: ScopeWorkload, labels: Labels): string {
   return words;
 }
 
-/** All a context states, each part in words: its sector, formality, institution, target group, levels, time spans. */
+/** A stored value's words with its review status. */
+export function stated(words: string, reviewStatus: string): string {
+  return t("documents.page.scope.withStatus", { value: words, status: statusWord(reviewStatus) });
+}
+
+/** Parts of one thing, as the page sets them apart. */
+export function joined(parts: readonly string[], separator = t("documents.page.scope.separator")): string {
+  return parts.join(separator);
+}
+
+/**
+ * All a context states, each part in words: its sector, formality, institution, target group, levels and time spans
+ * with their review status; a context that states nothing, said so.
+ */
 export function contextWords(context: ApplicabilityContext, labels: Labels): string[] {
-  return [
+  const parts = [
     ...[context.sector, context.formality].filter((iri) => iri !== null).map((iri) => conceptLabel(iri, labels)),
     ...(context.institution_text ? [t("documents.page.scope.institution", { text: context.institution_text })] : []),
     ...(context.target_group_text ? [t("documents.page.scope.targetGroup", { text: context.target_group_text })] : []),
-    ...context.level_assignments.map((level) => levelWords(level, labels)),
-    ...context.time_spans.map((span) => spanWords(span, labels)),
+    ...context.level_assignments.map((level) => stated(levelWords(level, labels), level.review_status)),
+    ...context.time_spans.map((span) => stated(spanWords(span, labels), span.review_status)),
   ];
+  return parts.length ? parts : [t("documents.page.scope.emptyContext")];
 }

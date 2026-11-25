@@ -1453,6 +1453,12 @@ export const messages = {
         amountRange: "{from}–{to} {unit}",
         recommended: "{value}, Empfehlung",
         whole: "{value} insgesamt",
+        // a stored value with its review status (cv:ReviewStatuses), as the tree says it
+        withStatus: "{value} ({status})",
+        emptyContext: "ohne Angaben",
+        // between the parts of a context or the values of a holder, and between the variants of a specification
+        separator: " · ",
+        listSeparator: ", ",
         // the title and field of one specification (SpecificationForm.vue)
         formHeading: "Titel und Fach von „{title}“",
         title: "Titel",
