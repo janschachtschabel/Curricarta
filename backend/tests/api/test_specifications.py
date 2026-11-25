@@ -186,3 +186,51 @@ def test_a_frozen_document_s_specifications_are_read_only(client: TestClient, ur
 
     assert (listed["editable"], listed["closed"]) == (False, "frozen")
     assert (edit.status_code, edit.json()["code"]) == (409, "frozen")
+
+
+def test_an_editor_sets_another_s_specification_and_a_stale_set_answers_it_as_it_stands(
+    client: TestClient, url: str
+) -> None:
+    document, _ = a_document(client, url)
+    made = a_specification(url, document)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+
+    edit = {"expected_revision": 1, "title": "Chemie"}
+    edited = client.patch(f"/api/v1/specifications/{made}", headers=editor, json=edit)
+    stale = client.put(
+        f"/api/v1/specifications/{made}/values", headers=editor, json=values(contexts=[CONTEXT])
+    )
+
+    assert edited.status_code == 200, edited.text
+    assert (stale.status_code, stale.json()["code"]) == (409, "stale_revision")
+    current = stale.json()["details"]["current"]
+    assert (current["id"], current["title"], current["revision"], current["contexts"]) == (
+        made,
+        "Chemie",
+        2,
+        [],
+    )
+
+
+def test_a_frozen_document_s_values_and_hidden_content_are_refused(client: TestClient, url: str) -> None:
+    document, owner = a_document(client, url)
+    made = a_specification(url, document)
+    hidden_from_its_owner(url, document)
+
+    patched = client.patch(f"/api/v1/specifications/{made}", headers=owner, json={"expected_revision": 1})
+    put = client.put(f"/api/v1/specifications/{made}/values", headers=owner, json=values())
+    frozen_document, frozen_owner = a_document(client, url, name="Zweite", digest=b"\x02" * 32)
+    frozen = a_specification(url, frozen_document)
+    with psycopg.connect(url, autocommit=True) as connection:
+        connection.execute(
+            "UPDATE document SET iri = 'https://example.org/curriculum/2', frozen_at = now() WHERE id = %s",
+            (frozen_document,),
+        )
+    refused = client.put(f"/api/v1/specifications/{frozen}/values", headers=frozen_owner, json=values(
+        contexts=[CONTEXT]))  # fmt: skip
+
+    assert [(answer.status_code, answer.json()["code"]) for answer in (patched, put)] == [
+        (403, "file_hidden")
+    ] * 2
+    assert (refused.status_code, refused.json()["code"]) == (409, "frozen")
+    assert rows(url, "SELECT count(*) FROM applicability_context") == [(0,)]
