@@ -9,7 +9,7 @@ import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 
 import { violations } from "./axe";
-import { CV, form_, node_, statement_ } from "./treeFixtures";
+import { CV, LVL, form_, node_, noValues, statement_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -125,6 +125,22 @@ describe("a row's editor", () => {
 
     expect(wrapper.get(".field__error").text()).toBe("Dieses Feld braucht einen Wert.");
     expect(document.activeElement).toBe(wrapper.get("textarea, input").element);
+  });
+
+  it("names the level that stands in the way where a change of the kind is refused at it", async () => {
+    vi.spyOn(api, "editStatement").mockRejectedValue(
+      new ApiError("server", 422, "invalid_field", "Not offered.", { field: "level_assignments[0].level", problem: "not_offered" }),
+    );
+    const level = { id: "l1", origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1, level: LVL + "B1", level_to: null, relation: null, dimension: null, competence_dimension: null };
+    const row = rowsOf([node_("a", { statements: [{ ...SAID, values: { ...noValues(), level_assignments: [level] } }] })]).get("statement:s1") as Row;
+    shown = mount(RowEditor, { props: { row, form: form_() }, attachTo: document.body });
+    await write(shown, "Neu.");
+
+    await save(shown);
+
+    expect(shown.get(".row-editor__problem[role=alert]").text()).toContain(
+      t("documents.tree.values.heldInWay", { value: "GER B1", problem: t("documents.tree.problems.not_offered") }),
+    );
   });
 
   it("says a failure above the form, which stays to try again", async () => {

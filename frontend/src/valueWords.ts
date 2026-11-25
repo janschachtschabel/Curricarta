@@ -2,7 +2,7 @@
 // gives it - one the form no longer offers by its IRI, as formWords.ts does -, then what else the value says, the
 // parts it leaves out left out. A range reads by its two ends, a number the German way; a workload counts its unit
 // in the catalogue's word for it, where it has one, else names it by its label. A workload's periods follow it.
-import type { Form, HeldLevel, HeldTimeSpan, HeldWorkload, ValueKind } from "@/api";
+import type { Form, HeldLevel, HeldTimeSpan, HeldValues, HeldWorkload, ValueKind } from "@/api";
 import { valueLabel } from "@/formWords";
 import { LOCALE, messages, t } from "@/i18n/de";
 
@@ -79,6 +79,18 @@ export function workloadWords(value: WorkloadValue, form: Form): string {
     value.total && t("documents.tree.values.words.total"),
     periods && t("documents.tree.values.words.periods", { spans: periods }),
   ]);
+}
+
+const LEVEL_AT = /^level_assignments\[(\d+)\]\./;
+
+/**
+ * Words for a change of the holder refused at one of its levels (`level_assignments[0].level`: a statement's kind
+ * its level does not allow), naming that level and the problem's words; none for another place.
+ */
+export function levelInWay(values: HeldValues, form: Form, field: string, problem: string): string | null {
+  const at = LEVEL_AT.exec(field);
+  const level = at ? values.level_assignments[Number(at[1])] : undefined;
+  return level ? t("documents.tree.values.heldInWay", { value: levelWords(level, form), problem }) : null;
 }
 
 /** A value of the kind `kind` in words. */

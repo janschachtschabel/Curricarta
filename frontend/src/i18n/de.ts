@@ -1811,6 +1811,8 @@ export const messages = {
           semester: "{count|Semester|Semester}",
           year: "{count|Jahr|Jahre}",
         },
+        // a change of a statement refused at one of its levels (rowSave.ts): `level_assignments[0].level`
+        heldInWay: "Das Niveau „{value}“ unter „Niveau, Zeit, Umfang“ steht dem entgegen; ändere oder entferne es zuerst. {problem}",
         // a number's problem, found before the set is sent (valueDraft.ts)
         problems: {
           not_number: "Hier gehört eine Zahl ab 0 hin, etwa 7,5.",

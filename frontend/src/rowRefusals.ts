@@ -1,7 +1,8 @@
 // What a refused change to a document's tree means to the editor (plan M1 9.8, Paket 9c2 K5-K7, L6): the row
 // gone, the tree closed, a field's problem - at the field where the form holds it, above the form where not -,
 // or another failure. Saving, adding and taking away say each the same way; a stale revision is the caller's,
-// as each meets it differently.
+// as each meets it differently. A field the form does not hold may be named in the caller's words (`elsewhere`):
+// a statement's level that stands in the way of its change (plan M3a G).
 import type { Ref } from "vue";
 
 import { ApiError, type EditFields, type FormField } from "@/api";
@@ -27,23 +28,27 @@ export function problemText(problem: unknown): string {
   return typeof problem === "string" && Object.hasOwn(words, problem) ? words[problem] : t("documents.tree.problems.other");
 }
 
+/** Words for the problem `words` of the field `field` the form does not hold; none where the caller has none. */
+export type Elsewhere = (field: string, words: string) => string | null;
+
 /** What `error` means for a change of the form's `fields`; `failed` heads a failure the user may try again. */
-export function refusalOf(error: unknown, fields: readonly FormField[], failed: string): Refusal {
+export function refusalOf(error: unknown, fields: readonly FormField[], failed: string, elsewhere?: Elsewhere): Refusal {
   const code = error instanceof ApiError ? error.code : undefined;
   const details = error instanceof ApiError ? error.details : {};
   if (code && GONE.has(code)) return { outcome: "gone" };
   if (code && CLOSING.has(code)) return { outcome: "closed", code };
   // a statement without an anchor: a problem of its anchors' list
   if (code === "anchor_missing") return invalidAt(fields, ANCHORS, t("refusals.anchor_missing"), failed);
-  if (code === "invalid_field") return invalidAt(fields, details.field, problemText(details.problem), failed);
+  if (code === "invalid_field") return invalidAt(fields, details.field, problemText(details.problem), failed, elsewhere);
   return { outcome: "failed", problem: failureNotice(error, failed) };
 }
 
-function invalidAt(fields: readonly FormField[], field: unknown, words: string, failed: string): Refusal {
+function invalidAt(fields: readonly FormField[], field: unknown, words: string, failed: string, elsewhere?: Elsewhere): Refusal {
   if (typeof field === "string" && fields.some((one) => one.key === field)) {
     return { outcome: "invalid", errors: { [field]: words }, problem: null };
   }
-  const notice = { text: failed, explanation: t("documents.tree.problems.elsewhere"), failed: true };
+  const named = typeof field === "string" ? elsewhere?.(field, words) : null;
+  const notice = { text: failed, explanation: named ?? t("documents.tree.problems.elsewhere"), failed: true };
   return { outcome: "invalid", errors: {}, problem: notice };
 }
 

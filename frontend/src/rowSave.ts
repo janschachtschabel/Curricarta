@@ -6,7 +6,8 @@
 // draft. A field's problem stands at the field - a required field emptied before anything is asked - any other
 // failure above the form, the draft kept to try again. While a field both changed is undecided nothing is
 // saved; what the user typed while a change was saved is laid on the row as stored. A statement's anchors are a
-// field of its draft beside the form's (anchorDraft.ts, Paket 9c2b L2), sent - all of them - once they changed.
+// field of its draft beside the form's (anchorDraft.ts, Paket 9c2b L2), sent - all of them - once they changed. A
+// change of a statement's kind refused at one of its levels names that level (plan M3a G).
 import { computed, ref, shallowRef, watch, type Ref } from "vue";
 
 import {
@@ -28,6 +29,7 @@ import type { Notice } from "@/notice";
 import { rebase, type Clash } from "@/rowConflict";
 import { changedFields, draftOf, type Draft } from "@/rowDraft";
 import { applyRefusal, emptiedRequired, refusalOf } from "@/rowRefusals";
+import { levelInWay } from "@/valueWords";
 
 /** How a save went: the editor says each in its own way. */
 export type SaveOutcome = "saved" | "unchanged" | "undecided" | "conflict" | "invalid" | "closed" | "gone" | "failed";
@@ -117,7 +119,10 @@ export function useRowSave(row: Ref<Row>, form: Ref<Form>) {
       conflict.value = { clashes: laid.clashes, taken: laid.taken, stored };
       return "conflict";
     }
-    const refusal = refusalOf(error, drafted.value, t("documents.tree.form.saveFailed"));
+    const current = row.value;
+    const values = current.kind === "node" ? current.node.values : current.statement.values;
+    const elsewhere = (field: string, words: string) => levelInWay(values, form.value, field, words);
+    const refusal = refusalOf(error, drafted.value, t("documents.tree.form.saveFailed"), elsewhere);
     return applyRefusal(refusal, { closed, errors, problem });
   }
 

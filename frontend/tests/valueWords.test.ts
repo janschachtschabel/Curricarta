@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
 
 import type { HeldLevel, HeldTimeSpan, HeldWorkload } from "@/api";
-import { levelWords, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
+import { t } from "@/i18n/de";
+import { levelInWay, levelWords, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
 
-import { CV, LVL, form_, value_ } from "./treeFixtures";
+import { CV, LVL, form_, noValues, value_ } from "./treeFixtures";
 
 const STATED = { id: "v1", origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1 };
 
@@ -110,5 +111,17 @@ describe("a value of any kind in words", () => {
     expect(valueWords("level_assignments", level(), FORM)).toBe("GER B1");
     expect(valueWords("time_spans", span({ span_from: 7 }), FORM)).toBe("Jahrgangsstufe ab 7");
     expect(valueWords("workloads", workload(), FORM)).toBe("80 Unterrichtsstunden");
+  });
+});
+
+describe("a level that stands in the way of a change of its holder", () => {
+  it("is named by its place in the holder's values, another place not", () => {
+    const values = { ...noValues(), level_assignments: [level(), level({ level: LVL + "B2" })] };
+
+    expect(levelInWay(values, FORM, "level_assignments[1].level", "Nein.")).toBe(
+      t("documents.tree.values.heldInWay", { value: "GER B2", problem: "Nein." }),
+    );
+    expect(levelInWay(values, FORM, "level_assignments[2].level", "Nein.")).toBeNull();
+    expect(levelInWay(values, FORM, "statement_kind", "Nein.")).toBeNull();
   });
 });
