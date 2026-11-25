@@ -1,31 +1,36 @@
 """The levels a holder may hold, as the form checks them (app/vocab/value_checks.py) and as the core's shapes
 do (LevelAssignmentShape, its SPARQL constraints): a level the set takes passes the shape, one it refuses
 the shape rejects - a qualification level at a statement, a grading or conduct level at a node or at a
-statement other than a standard, a range's end of another level system than its start."""
+statement other than a standard, a range's end of another level system than its start. The shapes check
+each case's level as the Kern graph states it at its holder (app/exports/kern_values.py)."""
 
 from collections.abc import AsyncIterator
+from dataclasses import replace
 from pathlib import Path
 from typing import NamedTuple
+from uuid import uuid4
 
 import psycopg
 import pytest
-from rdflib import RDF, Graph, Namespace, URIRef
+from rdflib import Namespace
 
 from app.db.migrate import migrate
-from app.domain.l2 import HolderKind, LevelDraft, ValueDrafts
+from app.domain.l2 import HeldValues, Holder, HolderKind, Level, LevelDraft, Stated, ValueDrafts
+from app.exports.kern_rdf import kern_graph
 from app.pipeline.shacl_child import validate_graph
 from app.vocab.form_values import FieldError
 from app.vocab.store import load_vocabulary
 from app.vocab.value_checks import check_values, kind_of_check
 from app.vocab.value_forms import ValueForm, value_form_of
+from tests.pipeline.test_shacl import a_document
 from tests.support import ontology_vocabulary
 
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 LVL = Namespace("https://w3id.org/wlo/curriculum/level/")
-EX = Namespace("https://example.org/level-rules/")
 LEARNING, STANDARD = str(CV.kind_learningOutcome), str(CV.kind_standard)
+STATED = Stated(str(CV.orig_human), str(CV.rev_proposed), None, 1)
 
 
 class Case(NamedTuple):
@@ -77,26 +82,28 @@ def refused(form: ValueForm, case: Case) -> str | None:
 
 
 def shape_rejected() -> set[str]:
-    """The cases whose assignment LevelAssignmentShape rejects, all checked in one graph."""
-    data = Graph()
+    """The cases whose assignment LevelAssignmentShape rejects, all checked in one graph: a document's
+    node, a learning outcome and a standard of it, each case's level at its holder."""
+    rows = a_document([str(CV.addr_learner)])
+    outcome = rows.statements[0] | {"statement_kind_iri": LEARNING}
+    standard = outcome | {"id": uuid4(), "position": 2, "statement_kind_iri": STANDARD}
+    holders = {
+        None: Holder("node", rows.nodes[0]["id"]),
+        LEARNING: Holder("statement", outcome["id"]),
+        STANDARD: Holder("statement", standard["id"]),
+    }
+    held: dict[Holder, list[Level]] = {holder: [] for holder in holders.values()}
+    named: dict[str, str] = {}
     for case in CASES:
-        holder, assignment = EX[f"{case.name}/holder"], EX[case.name]
-        if case.holder == "node":
-            data.add((holder, RDF.type, CUR.CurriculumNode))
-        else:
-            data.add((holder, RDF.type, CUR.Statement))
-            data.add((holder, CUR.statementKind, URIRef(str(case.kind))))
-        data.add((holder, CUR.levelAssignment, assignment))
-        data.add((assignment, RDF.type, CUR.LevelAssignment))
-        data.add((assignment, CUR.level, URIRef(case.level)))
-        data.add((assignment, CUR.origin, CV.orig_human))
-        if case.level_to is not None:
-            data.add((assignment, CUR.levelTo, URIRef(case.level_to)))
-        if case.dimension is not None:
-            data.add((assignment, CUR.levelDimension, URIRef(case.dimension)))
-    results = validate_graph(ONTOLOGY, data)
+        draft = LevelDraft(level=case.level, level_to=case.level_to, dimension=case.dimension, id=uuid4())
+        held[holders[case.kind]].append(Level(draft, STATED))
+        named[f"urn:uuid:{draft.id}"] = case.name
+    values = {holder: HeldValues(levels=tuple(levels)) for holder, levels in held.items()}
+    results = validate_graph(
+        ONTOLOGY, kern_graph(replace(rows, statements=[outcome, standard], values=values))
+    )
     return {
-        found.focus.removeprefix(str(EX))
+        named[found.focus]
         for found in results
         if found.severity == "violation" and found.shape == "LevelAssignmentShape"
     }
