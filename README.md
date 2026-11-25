@@ -415,7 +415,9 @@ ungültig.
   `not_editor`): alles oder nichts – steht eine Zeile anders oder nicht mehr da, 409 `stale_revision`
   mit `details.stale` (je Zeile `current`, die Revision jetzt oder `null`). Die Herkunft bleibt, die
   Revision zählt eins hoch, eine Zeile mit diesem Prüfstand bleibt, wie sie ist; die Antwort nennt die
-  Revisionen danach. Eine Aussage zu oder von „verworfen“ ändert, was der Lehrplan sagt (Export und X5
+  Revisionen danach. Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
+  (je Träger einmal, ein Zeitraum über seinen Umfang): Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
+  endet dann mit 409 `stale_revision`, statt die Entscheidung der Redaktion still zu überschreiben. Eine Aussage zu oder von „verworfen“ ändert, was der Lehrplan sagt (Export und X5
   lassen verworfene aus) und schuldet X5 eine Prüfung; ein Knoten verworfen bleibt in beiden. Wie beim
   Bearbeiten nicht neben einem offenen Job, nicht vor X4 und nicht festgeschrieben; Audit `review.set`.
 - Erneut prüfen: `POST /api/v1/documents/{id}/check` startet den Job `extract.check` (X5 erneut, ohne

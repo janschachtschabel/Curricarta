@@ -2,7 +2,11 @@
 levels, time spans and workloads, a workload's periods among them (plan M3a E; app/db/values.py), each a
 row with its own origin and review status: one review status for many rows at once, all or nothing -
 each row on the revision it was read at, else none is set (StaleItems names those that stand otherwise,
-or no more). A row set counts its revision one up and keeps its origin: a review is no edit. It holds the
+or no more). A row set counts its revision one up and keeps its origin: a review is no edit. A value set
+counts its holder's revision one up as well - a node's, a statement's or a specification's, a period's
+through its workload; once a holder, and not where the holder's own review counted it -, as the holder's
+revision is the token a set of its values is made on (app/db/values.py): a set read before the review is
+stale. It holds the
 tree's lock and refuses beside an open job, before X4 is done and once the document is frozen, as every
 change does (app/db/editing.py, ``guard``).
 
@@ -15,7 +19,7 @@ taken back, does.
 
 from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Literal, get_args
+from typing import Literal, LiteralString, get_args
 from uuid import UUID
 
 import psycopg
@@ -35,6 +39,21 @@ _SET = """
 UPDATE {table} SET review_status_iri = %s, revision = revision + 1, updated_at = now()
 WHERE id = ANY(%s) RETURNING id, revision
 """
+# a value's holder by its table: the row of its own holder's column - a period's, its workload's holder's
+_HOLDER_OF: dict[str, LiteralString] = {
+    "level_assignment": (
+        "SELECT id, node_id, statement_id, specification_id FROM level_assignment WHERE id = ANY(%s)"
+    ),
+    "time_span": (
+        "SELECT t.id, coalesce(t.node_id, w.node_id), NULL::uuid, coalesce(t.specification_id,"
+        " w.specification_id) FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id"
+        " WHERE t.id = ANY(%s)"
+    ),
+    "workload": "SELECT id, node_id, NULL::uuid, specification_id FROM workload WHERE id = ANY(%s)",
+}
+_HOLDER_TABLES = ("node", "statement", "specification")  # in the order _HOLDER_OF names their columns
+_LOCK = "SELECT FROM {table} WHERE document_id = %s AND id = ANY(%s) ORDER BY id FOR UPDATE"
+_RAISE = "UPDATE {table} SET revision = revision + 1 WHERE id = ANY(%s) RETURNING id, revision"
 
 
 @dataclass(frozen=True)
@@ -63,14 +82,17 @@ async def set_review(
     connection: psycopg.AsyncConnection, document_id: UUID, status: str, items: Sequence[ReviewItem]
 ) -> dict[UUID, int]:
     """Set the review status ``status`` (an IRI of cv:ReviewStatuses) of the document's rows ``items``; the
-    revision of each after - one already at the status stays as it is. A row named twice is set once, on
-    the revision named first. StaleItems or a refusal of ``guard``, and then none is set."""
+    revision of each after - one already at the status stays as it is, unless it holds a value set. A row
+    named twice is set once, on the revision named first. StaleItems or a refusal of ``guard``, and then
+    none is set."""
     first: dict[tuple[str, UUID], ReviewItem] = {}
     for item in items:
         first.setdefault((item.kind, item.id), item)
     named = list(first.values())
     async with connection.transaction():
         await guard(connection, document_id)
+        # the values' holders, which a set locks before its values (app/db/values.py): so here too
+        holders = await _holders(connection, document_id, named)
         found: dict[tuple[str, UUID], tuple[int, str]] = {}
         for kind in _KINDS:
             ids = [item.id for item in named if item.kind == kind]
@@ -88,6 +110,7 @@ async def set_review(
             raise StaleItems(stale)
         revisions = {item.id: found[(item.kind, item.id)][0] for item in named}
         edited = False
+        changed: set[UUID] = set()
         for kind in _KINDS:
             changing = [
                 item.id for item in named if item.kind == kind and found[(kind, item.id)][1] != status
@@ -96,8 +119,38 @@ async def set_review(
                 continue
             cursor = await connection.execute(_SET.format(table=kind), (status, changing))
             revisions |= {row: revision for row, revision in await cursor.fetchall()}
+            changed.update(changing)
             was = {found[(kind, row)][1] for row in changing}
             edited = edited or REJECTED in {status, *was}
+        # each holder of a value changed one up, once - one whose own review changed it counted already
+        held = {holder for value, holder in holders.items() if value in changed and holder[1] not in changed}
+        for table in _HOLDER_TABLES:
+            if raised := sorted(row for of, row in held if of == table):
+                cursor = await connection.execute(_RAISE.format(table=table), (raised,))
+                revisions |= {row: revision for row, revision in await cursor.fetchall() if row in revisions}
         if edited:
             await mark_edited(connection, document_id)
         return revisions
+
+
+async def _holders(
+    connection: psycopg.AsyncConnection, document_id: UUID, named: Sequence[ReviewItem]
+) -> dict[UUID, tuple[str, UUID]]:
+    """The holder of each value ``named`` of the document - by its table and id -, locked: before the values
+    are, as a set of values locks them (app/db/values.py). A value of none (a rule's level) is not there."""
+    holders: dict[UUID, tuple[str, UUID]] = {}
+    for kind, query in _HOLDER_OF.items():
+        ids = [item.id for item in named if item.kind == kind]
+        if ids:
+            cursor = await connection.execute(query, (ids,))
+            for value, *columns in await cursor.fetchall():
+                holder = next(
+                    ((table, row) for table, row in zip(_HOLDER_TABLES, columns, strict=True) if row), None
+                )
+                if holder is not None:
+                    holders[value] = holder
+    for table in _HOLDER_TABLES:
+        rows = sorted({row for of, row in holders.values() if of == table})
+        if rows:
+            await connection.execute(_LOCK.format(table=table), (document_id, rows))
+    return holders

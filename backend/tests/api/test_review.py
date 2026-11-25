@@ -12,7 +12,8 @@ from tests.api.test_document_tree import a_document
 from tests.api.test_documents import an_account, client, rows, url
 from tests.api.test_node_editing import a_node
 from tests.api.test_statement_editing import a_statement
-from tests.db.l1 import CV, add_entity
+from tests.api.test_values import LVL, values
+from tests.db.l1 import CV, add_entity, add_specification
 from tests.db.l2 import add_value
 
 pytestmark = pytest.mark.pg
@@ -81,6 +82,73 @@ def test_the_editors_review_a_holder_s_values_as_its_rows(client: TestClient, ur
     assert rows(url, "SELECT review_status_iri FROM level_assignment WHERE id = %s", elsewhere) == [
         (CV + "rev_proposed",)
     ]
+
+
+@pytest.mark.parametrize(
+    ("status", "kept"),
+    [("rejected", [{"level": LVL + "EQF-5"}]), ("confirmed", [])],
+    ids=["changed", "dropped"],
+)
+def test_a_set_of_values_read_before_their_review_is_stale(
+    client: TestClient, url: str, status: str, kept: list[dict[str, str]]
+) -> None:
+    # the holder's revision is the one token of its set of values (app/db/values.py): a review of a value
+    # counts it too, so a view read before the review neither undoes nor drops what the editors decided
+    document, owner = a_document(client, url)
+    node = a_node(url, document)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+    path = f"/api/v1/nodes/{node}/values"
+    first = client.put(path, headers=owner, json=values(level_assignments=[{"level": LVL + "EQF-4"}]))
+    level = first.json()["values"]["level_assignments"][0]["id"]
+    review = client.post(f"/api/v1/documents/{document}/review", headers=editor, json={
+        "status": status, "items": [{"kind": "level_assignment", "id": level, "revision": 1}],
+    })  # fmt: skip
+
+    stale = client.put(path, headers=owner, json=values(
+        first.json()["revision"], level_assignments=[{"id": level} | each for each in kept],
+    ))  # fmt: skip
+
+    assert review.status_code == 200, review.text
+    assert stale.status_code == 409, stale.text
+    assert (stale.json()["code"], stale.json()["details"]["current"]["revision"]) == ("stale_revision", 3)
+    assert rows(url, "SELECT level_iri, review_status_iri FROM level_assignment") == [
+        (LVL + "EQF-4", CV + "rev_" + status)
+    ]
+
+
+def test_a_holder_reviewed_with_its_values_counts_its_revision_once(client: TestClient, url: str) -> None:
+    # a period's holder is its workload's; a holder named in the review is answered with its revision after
+    document, _ = a_document(client, url)
+    node = a_node(url, document)
+    said = a_statement(url, document, node)
+    with psycopg.connect(url, autocommit=True) as connection:
+        workload = add_value(connection, "workload", uuid.UUID(document), "node_id", uuid.UUID(node))
+        period = add_value(connection, "time_span", uuid.UUID(document), "workload_id", workload)
+        level = add_value(
+            connection, "level_assignment", uuid.UUID(document), "statement_id", uuid.UUID(said)
+        )
+        specification = add_specification(connection, uuid.UUID(document))
+        laid_down = add_value(connection, "workload", uuid.UUID(document), "specification_id", specification)
+    _, editor = an_account(url, "Redaktion", ("redaktion",))
+    items = [
+        {"kind": "node", "id": node, "revision": 1},
+        {"kind": "time_span", "id": str(period), "revision": 1},
+        {"kind": "level_assignment", "id": str(level), "revision": 1},
+        {"kind": "workload", "id": str(laid_down), "revision": 1},
+    ]
+
+    answer = client.post(
+        f"/api/v1/documents/{document}/review", headers=editor, json={"status": "confirmed", "items": items}
+    )
+
+    assert answer.status_code == 200, answer.text
+    assert [row["revision"] for row in answer.json()["revisions"]] == [2, 2, 2, 2]
+    assert rows(
+        url,
+        "SELECT revision FROM node UNION ALL SELECT revision FROM statement"
+        " UNION ALL SELECT revision FROM specification",
+    ) == [(2,), (2,), (2,)]
+    assert rows(url, "SELECT revision FROM workload WHERE id = %s", workload) == [(1,)]  # not reviewed
 
 
 def test_a_rule_s_level_is_not_reviewed_with_the_values(client: TestClient, url: str) -> None:
