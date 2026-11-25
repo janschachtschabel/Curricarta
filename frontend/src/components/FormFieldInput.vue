@@ -30,7 +30,9 @@ const props = defineProps<{
 }>();
 const model = defineModel<string | string[] | boolean>({ required: true });
 
-const id = props.controlId ?? useId();
+// asked for always, as a component's ids are counted in the order they are asked for
+const ownId = useId();
+const id = props.controlId ?? ownId;
 const errorId = `${id}-error`;
 const control = ref<HTMLElement | null>(null);
 const group = ref<HTMLElement | null>(null);
