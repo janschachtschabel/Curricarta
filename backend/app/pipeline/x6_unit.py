@@ -3,9 +3,10 @@ lease, the tree's lock first (who changes a tree takes it first, plan M1 Paket 4
 package's statements stand is read, and nothing changes them meanwhile.
 
 The statements the model wrote and nobody has touched since (origin model, proposed, first revision) go
-with their anchors; those the editors hold - changed, confirmed, rejected, written by hand - stay, and a
-statement of the new answer with the wording of one of them is left out (konzept: a rejected statement
-is kept so that it is not proposed again). The new statements come after every position the package
+with their anchors; those the editors hold - changed, confirmed, rejected, written by hand, given values
+(a set or a review of a statement's levels counts its revision, app/db/values.py, app/db/review.py) -
+stay, and a statement of the new answer with the wording of one of them is left out (konzept: a rejected
+statement is kept so that it is not proposed again). The new statements come after every position the package
 used, so none takes the place a held statement points to; a statement points to content by that
 content's new position - by the held one's where its wording is held and not rejected -, and to none
 the answer lost. The findings of reading the package's earlier answers make way for this reading's,

@@ -130,7 +130,8 @@ Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api pytho
 Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logzeile und Exit-Code 1.
 Migration 0035 legt Niveau, Zeit und Umfang als eigene Tabellen an (`level_assignment`, `time_span`,
 `workload`); eine Entwurfskopie, die eine Replica des vorigen Images während des Updates anlegt, übernimmt
-sie nicht – folgenlos, solange noch keine Route sie schreibt.
+sie nicht: Die Kopie eines mit Werten festgeschriebenen Dokuments kommt dann ohne sie. Darum alle Replicas
+aktualisieren, bevor Werte gesetzt werden (`PUT …/values`).
 Migration 0036 merkt sich an jedem Lauf von X5 die Version des Kern-Graphen, den er geprüft hat. Ein Entwurf,
 dessen letzte Prüfung eine ältere oder – vor der Migration oder durch eine Replica des vorigen Images –
 keine Version nennt, schuldet X5 eine Prüfung (`POST …/check`, ohne Modell), bevor er festgeschrieben wird:

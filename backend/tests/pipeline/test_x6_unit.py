@@ -14,7 +14,10 @@ import pytest
 from app.db.findings import Finding, add_findings
 from app.db.nodes import lock_tree
 from app.db.runs import RunStart, start_run
+from app.db.source_queries import Reader
 from app.db.units import done_units
+from app.db.values import replace_values
+from app.domain.l2 import Holder, LevelDraft, ValueDrafts
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import LeaseLost
 from app.pipeline.x4_unit import PART, write_unit
@@ -119,6 +122,32 @@ async def test_a_new_statement_points_to_the_content_the_editors_hold_in_its_pla
         (3, "Licht alt", {}),
         (4, "Neu erklären", {"targetsContent": [3]}),
     ]
+
+
+async def test_a_repair_keeps_a_statement_that_holds_a_level(setup: Any) -> None:
+    # a set of a statement's levels counts its revision one up (app/db/values.py): the editors hold it, and
+    # its levels do not go with a statement nobody touched
+    _, connection = setup
+    document, job, _, x6, unit = await written(connection)
+    await connection.execute(
+        "UPDATE extraction_run SET outcome = 'done', finished_at = now() WHERE document_id = %s"
+        " AND stage_iri = %s",
+        (document.id, CV + "stage_X4"),
+    )  # X4 done: the tree is the editors' to change
+    (said,) = await rows(connection, "SELECT id FROM statement WHERE verbatim = 'Aussage alt'")
+    level = ValueDrafts(levels=(LevelDraft(level="https://w3id.org/wlo/curriculum/level/cefr-B1"),))
+    await replace_values(
+        connection, Reader(document.owner_id, sees_all=False), Holder("statement", said[0]), 1, level
+    )
+
+    made = await rewrite_unit(connection, job, document, unit, read(statement("Neu")), run_id=x6)
+
+    assert made == Rewritten(statements=1, dropped=0)
+    assert [verbatim for _, _, verbatim, _ in await statements_of(connection, document)] == [
+        "Aussage alt",
+        "Neu",
+    ]
+    assert await rows(connection, "SELECT statement_id FROM level_assignment") == [said]
 
 
 async def test_an_answer_of_no_statement_leaves_a_package_that_had_some_as_it_was(setup: Any) -> None:
