@@ -1781,6 +1781,37 @@ export const messages = {
         draftNone: "Noch keine Fundstelle. Wähle in der Quelle die Blöcke, in denen die Aussage steht, und übernimm sie; steht sie in keinem, übernimm die Seite als nicht gefunden.",
         remove: "Entfernen",
       },
+      // a row's levels, time spans and workloads (plan M3a G: valueWords.ts, valueDraft.ts, ValueSection.vue)
+      values: {
+        // a value in words (valueWords.ts)
+        words: {
+          levelRange: "{from} bis {to}",
+          numberRange: "{from}–{to}",
+          span: "{kind} {span}",
+          spanFrom: "{kind} ab {from}",
+          spanTo: "{kind} bis {to}",
+          amount: "{amount} {unit}",
+          // a unit without a counted word below: by its label
+          amountLabelled: "{unit}: {amount}",
+          recommendation: "Richtwert",
+          minutes: "je {minutes} {minutes|Minute|Minuten}",
+          total: "Gesamtumfang",
+          periods: "in {spans}",
+        },
+        // a workload's unit counted, by its notation in cv:WorkloadUnits; one not here is named by its label
+        units: {
+          lesson: "{count|Unterrichtsstunde|Unterrichtsstunden}",
+          teachingUnit: "{count|Unterrichtseinheit|Unterrichtseinheiten}",
+          hour: "{count|Zeitstunde|Zeitstunden}",
+          weeklyLesson: "{count|Wochenstunde|Wochenstunden}",
+          ectsCredit: "{count|ECTS-Leistungspunkt|ECTS-Leistungspunkte}",
+          day: "{count|Tag|Tage}",
+          week: "{count|Woche|Wochen}",
+          month: "{count|Monat|Monate}",
+          semester: "{count|Semester|Semester}",
+          year: "{count|Jahr|Jahre}",
+        },
+      },
       // cv:ReviewStatuses by notation without its "rev_" (reviewStatus.ts)
       statuses: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", rejected: "Verworfen" },
       filter: {
