@@ -15,16 +15,17 @@ import hashlib
 import inspect
 from types import ModuleType
 
+from app.db import value_rows
 from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_values
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 
 # what the graph X5 checks is made of: the rows read, and the triples written of them - of the values too
 # (the rows read for the file's head count too: a column read for it alone is a new version as well)
-GRAPH_MODULES = (kern_rows, kern_rdf, kern_values)
+GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values)  # value_rows: how the values are read
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
-    2: "fda677adcd8daf64203940791524e48daebcc4cf91be83ed512fcead595c72f6",  # the values (plan M3a F1)
+    2: "8f9b27919fa004d4e2fc31c6796476430409a883523bead68d836dbd9f0850ad",  # the values (plan M3a F1)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
