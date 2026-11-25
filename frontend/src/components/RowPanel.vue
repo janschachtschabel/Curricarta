@@ -150,10 +150,11 @@ function dropped(done: Exclude<DropOutcome, { outcome: "failed" }>, key: RowKey)
 }
 
 // heard even where another row was chosen meanwhile (ReviewToggles' onReviewed): then the tree is only read again
-function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey): void {
+// - a value's told in its own words (ValueSection)
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, words?: string): void {
   const here = key === props.row?.key;
   if (here && done.outcome === "gone") return gone();
-  if (here) status.value = sayAnew(status.value, reviewWords(done));
+  if (here) status.value = sayAnew(status.value, words ?? reviewWords(done));
   if (here && done.outcome === "closed") toHeading();
   if (done.outcome !== "refused") emit("changed");
 }

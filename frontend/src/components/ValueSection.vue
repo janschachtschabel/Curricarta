@@ -9,7 +9,8 @@
  * form, the draft kept. Where the tree closed - on this save, or under an open draft as it was read anew
  * (`closedBy`) - it says why and keeps the draft, in words, to copy. Elsewhere its values read in words (ValueList).
  * Each value says who stated it and how far it is reviewed; the editors set its review status here (ReviewToggles),
- * which the panel hears (`onReviewed`) - one gone meanwhile as one changed, its row kept. A statement's level and time in
+ * which the panel hears (`onReviewed`) with words that name the value - one gone meanwhile as one changed, its
+ * row kept. A statement's level and time in
  * its wording stand above, to copy from. It tells the panel whether a draft is open (the leave guard).
  */
 import { computed, nextTick, onBeforeUnmount, ref, toRef, useId, watch } from "vue";
@@ -31,7 +32,7 @@ import type { ReviewOutcome } from "@/rowReview";
 import { word } from "@/registerWords";
 import { isFull, kindsOf, MOST_VALUES, withEntry, withoutEntry, type Entry } from "@/valueDraft";
 import { useValueSave } from "@/valueSave";
-import { shownValues, type ShownValue } from "@/valueWords";
+import { shownValues, valueReviewWords, type ShownValue } from "@/valueWords";
 
 const props = defineProps<{
   row: Row;
@@ -46,7 +47,8 @@ const props = defineProps<{
   /** A set saved: a prop, so that a save landing after another row was chosen still has the tree read anew. */
   onSaved?: () => void;
   /** How a value's review went, with the row's key. */
-  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey) => void;
+  /** How a value's review went, with the row's key and, where it was set or met a change, words naming the value. */
+  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, words?: string) => void;
 }>();
 const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boolean] }>();
 
@@ -110,9 +112,11 @@ function errorsOf(entry: Entry): Partial<Record<string, string>> {
   );
 }
 
-// A value reviewed that is gone or changed meanwhile is no row gone: the tree is read again, the row kept
-function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey): void {
-  props.onReviewed?.(done.outcome === "gone" ? { outcome: "stale" } : done, key);
+// A value reviewed that is gone or changed meanwhile is no row gone: the tree is read again, the row kept. Told in
+// words that name the value, apart from the row's own status set beside it
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, value: string): void {
+  const told = done.outcome === "gone" ? ({ outcome: "stale" } as const) : done;
+  props.onReviewed?.(told, key, valueReviewWords(told, value));
 }
 
 watch(dirty, (open) => emit("dirty", open), { immediate: true });
@@ -224,7 +228,7 @@ async function submit(): Promise<void> {
                 :value="storedOf(kind, entry.id)?.review"
                 :label="t('documents.tree.values.reviewLabel', { value: storedOf(kind, entry.id)?.words ?? '' })"
                 :document-id="documentId"
-                :on-reviewed="reviewed"
+                :on-reviewed="(done, key) => reviewed(done, key, storedOf(kind, entry.id)?.words ?? '')"
               />
             </template>
           </ValueItemForm>

@@ -144,7 +144,11 @@ describe("a row's values as they read", () => {
     await groups[2]?.findAll("button")[1]?.trigger("click");
     await flushPromises();
 
-    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "confirmed", revision: 2 }, "node:a");
+    expect(reviewed).toHaveBeenCalledWith(
+      { outcome: "set", status: "confirmed", revision: 2 },
+      "node:a",
+      "Prüfstand von „80 Unterrichtsstunden, Richtwert“: Bestätigt.",
+    );
     expect(await violations(wrapper.html())).toEqual([]);
   });
 
@@ -157,7 +161,11 @@ describe("a row's values as they read", () => {
     await wrapper.findAll("[role=group]")[2]?.findAll("button")[1]?.trigger("click");
     await flushPromises();
 
-    expect(reviewed).toHaveBeenCalledWith({ outcome: "stale" }, "node:a");
+    expect(reviewed).toHaveBeenCalledWith(
+      { outcome: "stale" },
+      "node:a",
+      "Der Wert „80 Unterrichtsstunden, Richtwert“ wurde inzwischen geändert; der Baum wird neu geladen. Setze den Prüfstand erneut.",
+    );
   });
 });
 

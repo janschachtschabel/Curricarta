@@ -94,7 +94,8 @@ describe("the values of the row chosen", () => {
     await flushPromises();
 
     expect(wrapper.emitted("changed")).toHaveLength(2);
-    expect(wrapper.get(".row-panel__status").text()).toBe("Prüfstand: Bestätigt.");
+    // the value's, told apart from the row's own: "Prüfstand: Bestätigt."
+    expect(wrapper.get(".row-panel__status").text()).toBe("Prüfstand von „80 Unterrichtsstunden“: Bestätigt.");
   });
 
   it("read in words where the tree is closed", () => {

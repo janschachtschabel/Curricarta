@@ -1814,6 +1814,9 @@ export const messages = {
         // who stated a value, and how far it is reviewed
         stated: "{origin} · {status}",
         reviewLabel: "Prüfstand von „{value}“",
+        // a value's review status set, told apart from the row's own (RowPanel.vue)
+        reviewSet: "Prüfstand von „{value}“: {status}.",
+        reviewStale: "Der Wert „{value}“ wurde inzwischen geändert; der Baum wird neu geladen. Setze den Prüfstand erneut.",
         // the most entries of a kind a row takes (valueDraft.MOST_VALUES)
         most: "Mehr als {most} {most|Eintrag|Einträge} dieser Art nimmt eine Zeile nicht an.",
         save: "Werte speichern",

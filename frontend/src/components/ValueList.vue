@@ -19,7 +19,8 @@ const props = defineProps<{
   shown: Map<ValueKind, ShownValue[]>;
   reviewable: boolean;
   documentId: string;
-  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey) => void;
+  /** How a value's review went, with the row's key and the value's words. */
+  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, value: string) => void;
 }>();
 
 const kinds = computed(() => [...props.shown].filter(([, values]) => values.length));
@@ -39,7 +40,7 @@ const kinds = computed(() => [...props.shown].filter(([, values]) => values.leng
           :value="value.review"
           :label="t('documents.tree.values.reviewLabel', { value: value.words })"
           :document-id="documentId"
-          :on-reviewed="onReviewed"
+          :on-reviewed="(done, key) => onReviewed?.(done, key, value.words)"
         />
       </dd>
     </template>

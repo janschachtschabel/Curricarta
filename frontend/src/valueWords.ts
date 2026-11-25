@@ -7,8 +7,8 @@ import type { Form, HeldLevel, HeldTimeSpan, HeldValues, HeldWorkload, ValueKind
 import { valueLabel } from "@/formWords";
 import { LOCALE, messages, t } from "@/i18n/de";
 import { conceptWord } from "@/registerWords";
-import { CV, statusWord } from "@/reviewStatus";
-import type { ReviewedValue } from "@/rowReview";
+import { CV, statusIri, statusWord } from "@/reviewStatus";
+import type { ReviewedValue, ReviewOutcome } from "@/rowReview";
 
 /** A level as a set or a holder names it. */
 export type LevelValue = Pick<HeldLevel, "level" | "level_to" | "relation" | "dimension" | "competence_dimension">;
@@ -140,4 +140,11 @@ export function shownValues(form: Form, kinds: readonly ValueKind[], values: Hel
     );
   }
   return shown;
+}
+
+/** How a value's review went, in words naming the value; none where the row's words say it (closed, refused). */
+export function valueReviewWords(done: Exclude<ReviewOutcome, { outcome: "failed" }>, value: string): string | undefined {
+  if (done.outcome === "set") return t("documents.tree.values.reviewSet", { value, status: statusWord(statusIri(done.status)) });
+  if (done.outcome === "stale") return t("documents.tree.values.reviewStale", { value });
+  return undefined;
 }
