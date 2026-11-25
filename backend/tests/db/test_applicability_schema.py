@@ -5,16 +5,18 @@ reviewed. It holds time spans and levels of its own (tests/db/test_l2_schema.py)
 specification; what the core's shapes say of a context beside (an OR context, plan M3a: none yet) X5
 checks."""
 
+import shutil
 import uuid
 from collections.abc import Iterator
+from pathlib import Path
 from typing import Any
 
 import psycopg
 import pytest
 from psycopg import errors
 
-from app.db.migrate import migrate
-from tests.db.l1 import CV, add_conversion, add_document, add_entity, add_specification
+from app.db.migrate import MIGRATIONS, migrate
+from tests.db.l1 import CV, add_conversion, add_document, add_entity, add_node, add_specification
 from tests.db.l2 import add_value, seed_l2_vocabulary
 
 pytestmark = pytest.mark.pg
@@ -155,3 +157,41 @@ def test_a_context_is_an_entity_of_its_own_kind(
             (wrong, held["document_id"], held["specification_id"], CV + "Origins", CV + "orig_human",
              CV + "ReviewStatuses", CV + "rev_proposed"),
         )  # fmt: skip
+
+
+def test_values_stored_before_the_migration_stand_after_it(empty_database_url: str, tmp_path: Path) -> None:
+    # 0037 makes the one-holder checks and the positions of time spans and levels anew over their rows
+    before = tmp_path / "migrations"
+    before.mkdir()
+    for migration in MIGRATIONS.iterdir():
+        if migration.name.endswith(".sql") and migration.name < "0037":
+            shutil.copyfile(str(migration), before / migration.name)
+    migrate(empty_database_url, before)
+    with psycopg.connect(empty_database_url, autocommit=True) as connection:
+        seed_l2_vocabulary(connection)
+        document = add_document(connection, add_conversion(connection))
+        node = add_node(connection, document)
+        specification = add_specification(connection, document)
+        workload = add_value(connection, "workload", document, "node_id", node)
+        made = {
+            add_value(connection, "time_span", document, "workload_id", workload),
+            add_value(connection, "time_span", document, "specification_id", specification),
+            add_value(connection, "level_assignment", document, "node_id", node),
+            add_value(connection, "level_assignment", document, "specification_id", specification),
+        }
+
+        migrate(empty_database_url)
+
+        stood = connection.execute(
+            "SELECT id FROM time_span UNION ALL SELECT id FROM level_assignment"
+        ).fetchall()
+        # the constraints made anew hold the old rows: none not valid, and a second level at a place refused
+        invalid = connection.execute(
+            "SELECT conname FROM pg_constraint WHERE conrelid IN ('time_span'::regclass,"
+            " 'level_assignment'::regclass) AND NOT convalidated"
+        ).fetchall()
+        with pytest.raises(errors.UniqueViolation) as twice:
+            add_value(connection, "level_assignment", document, "node_id", node)
+    assert {found for (found,) in stood} == made
+    assert invalid == []
+    assert twice.value.diag.constraint_name == "level_assignment_position"
