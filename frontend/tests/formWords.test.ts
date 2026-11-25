@@ -6,7 +6,7 @@ import { shownValue, valueLabel, valueText } from "@/formWords";
 import { CV } from "./treeFixtures";
 
 function value(iri: string, label: string): FormValue {
-  return { iri, notation: null, label, alt_labels: [], definition: null, note: null, delimitation: null, examples: [], broader: [] };
+  return { iri, notation: null, label, alt_labels: [], definition: null, note: null, delimitation: null, examples: [], broader: [], group: null, dimension: null };
 }
 
 const FIELDS: FormField[] = [

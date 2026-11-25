@@ -17,6 +17,7 @@ import { describeViolations, pageViolations } from "./axe";
 import { block, blockPage, conversion, table } from "./conversions";
 import { CV, LABELS, REGION, cueDecision, newTerm, nodeType, reviewCue, termDecision } from "./lexiconFixtures";
 import { detail } from "./registerEntries";
+import { NO_VALUES_FORM } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -192,6 +193,7 @@ describe("accessibility of the pages", () => {
       profile: "https://w3id.org/wlo/curriculum/profile/school#Terminology",
       node: [{ key: "node_type", kind: "concept", required: false, many: false, most: null, values: [nodeType("Inhaltsbereich", [CV + "fn_area"])] }],
       statement: [],
+    ...NO_VALUES_FORM,
     });
     const wrapper = await show("/lexikon");
     const [sample, terms] = wrapper.findAll("section");

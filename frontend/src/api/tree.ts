@@ -1,7 +1,8 @@
 // A document's nodes and statements as the editor reads them (backend app/api/document_tree.py) and changes
 // them (app/api/node_editing.py, statement_editing.py), the form their fields follow (app/api/profiles.py),
 // and the pages of the conversion the document was read off - the blocks its anchors name
-// (app/api/document_blocks.py).
+// (app/api/document_blocks.py). A node's levels, time spans and workloads and a statement's levels - the second
+// layer's values (app/api/value_answers.py) - are set as a whole (app/api/values.py).
 import type { BlockPage } from "./conversions";
 import type { FindingSeverity } from "./documents";
 import { apiFetch } from "./http";
@@ -41,6 +42,8 @@ export interface TreeStatement {
   /** An editor's own from the first: taking it away deletes it; a run's is rejected and kept. */
   by_hand: boolean;
   anchors: TreeAnchor[];
+  /** Its levels; set by `setStatementValues`. */
+  values: HeldValues;
 }
 
 /** A node as a change of it answers: without its statements and children (backend NodeRowOut). */
@@ -58,11 +61,66 @@ export interface NodeRow {
   /** On the node and its anchors, its statements and theirs - not its children's. */
   findings: Record<FindingSeverity, number>;
   anchors: TreeAnchor[];
+  /** Its levels, time spans and workloads; set by `setNodeValues`. */
+  values: HeldValues;
 }
 
 export interface TreeNode extends NodeRow {
   statements: TreeStatement[];
   children: TreeNode[];
+}
+
+/** A kind of the second layer's values, by its key in a set of them (backend ValueKind). */
+export type ValueKind = "level_assignments" | "time_spans" | "workloads";
+
+/** What may hold a kind of value (backend HolderKind); a specification's values follow with its editing. */
+export type HolderKind = "node" | "statement" | "specification";
+
+/** A value as the tree answers it: who stated it, how far it is reviewed (backend StatedOut). */
+interface StatedValue {
+  /** Names it in a set that keeps it and in a review. */
+  id: string;
+  origin: string;
+  review_status: string;
+  /** The value's own, as a review names it. */
+  revision: number;
+}
+
+/** A level, or a range of levels of one system (backend LevelOut); its fields' IRIs by the values' form. */
+export interface HeldLevel extends StatedValue {
+  level: string;
+  level_to: string | null;
+  relation: string | null;
+  dimension: string | null;
+  competence_dimension: string | null;
+}
+
+export interface HeldTimeSpan extends StatedValue {
+  time_kind: string;
+  span_from: number | null;
+  span_to: number | null;
+  time_relation: string | null;
+}
+
+export interface HeldWorkload extends StatedValue {
+  amount: number;
+  amount_to: number | null;
+  unit: string;
+  workload_kind: string | null;
+  is_recommendation: boolean;
+  /** A whole number. */
+  minutes_per_unit: number | null;
+  /** The holder's whole. */
+  total: boolean;
+  /** The time spans it is given in, in order. */
+  periods: HeldTimeSpan[];
+}
+
+/** A holder's values, each kind in order (backend ValuesOut). */
+export interface HeldValues {
+  level_assignments: HeldLevel[];
+  time_spans: HeldTimeSpan[];
+  workloads: HeldWorkload[];
 }
 
 /** Why nobody may change the tree now, whoever reads it: the reason that lasts longest. */
@@ -95,9 +153,14 @@ export interface FormValue {
   examples: string[];
   /** The core values it refines: a node type's function, a subkind's kind. */
   broader: string[];
+  /** A level's system, a competence dimension's model (`Form.groups`); none for others. */
+  group: string | null;
+  /** A level's system's dimension (cv:LevelDimensions), which a value kind's `rules` name. */
+  dimension: string | null;
 }
 
-export type FieldKind = "text" | "longtext" | "concept" | "concepts";
+/** A number and a yes or no: fields of the second layer's values alone. */
+export type FieldKind = "text" | "longtext" | "concept" | "concepts" | "number" | "boolean";
 
 export interface FormField {
   key: string;
@@ -110,11 +173,34 @@ export interface FormField {
   values: FormValue[] | null;
 }
 
+/**
+ * Levels of these dimensions - their system's or the assignment's own - the holder never holds, but where its
+ * type (a statement's kind) is `unless` (backend LevelRuleOut).
+ */
+export interface LevelRule {
+  holder: HolderKind;
+  dimensions: string[];
+  unless: string | null;
+}
+
+/** A kind of value: who is offered it, and its fields (backend ValueKindOut). */
+export interface ValueKindForm {
+  holders: HolderKind[];
+  fields: FormField[];
+  /** The kind a workload's periods are, with that kind's fields. */
+  periods: ValueKind | null;
+  rules: LevelRule[];
+}
+
 export interface Form {
   sector: string;
   profile: string;
   node: FormField[];
   statement: FormField[];
+  /** The second layer's values: one form for every sector. */
+  values: Record<ValueKind, ValueKindForm>;
+  /** The label of each group a value names. */
+  groups: Record<string, string>;
 }
 
 /** The fields a change names, by the keys of the form: left out stays, none (or a blank text) clears. */
@@ -142,9 +228,12 @@ export interface Taken {
 /** A review status by its cv:ReviewStatuses name without "rev_" (backend ReviewIn). */
 export type ReviewStatus = "proposed" | "confirmed" | "rejected";
 
-/** A row a review names, at the revision it was read at (backend ReviewItemIn). */
+/** A value as a review names it: by its table (backend ReviewKind). */
+export type ValueTable = "level_assignment" | "time_span" | "workload";
+
+/** A row or a value a review names, at the revision it was read at (backend ReviewItemIn). */
 export interface ReviewItem {
-  kind: "node" | "statement";
+  kind: "node" | "statement" | ValueTable;
   id: string;
   revision: number;
 }
@@ -152,6 +241,43 @@ export interface ReviewItem {
 /** Each row a review named, once, in the order asked, at its revision after (backend ReviewOut). */
 export interface Reviewed {
   revisions: { id: string; revision: number }[];
+}
+
+/** A level as a set names it: by its `id` one the holder keeps, without a new one (backend LevelIn). */
+export interface LevelIn {
+  id: string | null;
+  level: string;
+  level_to: string | null;
+  relation: string | null;
+  dimension: string | null;
+  competence_dimension: string | null;
+}
+
+export interface TimeSpanIn {
+  id: string | null;
+  time_kind: string;
+  span_from: number | null;
+  span_to: number | null;
+  time_relation: string | null;
+}
+
+export interface WorkloadIn {
+  id: string | null;
+  amount: number;
+  amount_to: number | null;
+  unit: string;
+  workload_kind: string | null;
+  is_recommendation: boolean;
+  minutes_per_unit: number | null;
+  total: boolean;
+  periods: TimeSpanIn[];
+}
+
+/** A holder's values, every kind named: what the set leaves out goes (backend ValuesIn, without the revision). */
+export interface ValuesIn {
+  level_assignments: LevelIn[];
+  time_spans: TimeSpanIn[];
+  workloads: WorkloadIn[];
 }
 
 /** A page of the document's own conversion, with the count of its pages (backend DocumentPageOut). */
@@ -255,6 +381,26 @@ export function setReview(documentId: string, status: ReviewStatus, items: Revie
   return apiFetch<Reviewed>(`${documentPath(documentId)}/review`, {
     method: "POST",
     body: JSON.stringify({ status, items }),
+  });
+}
+
+/**
+ * Set a node's levels, time spans and workloads as a whole, read at the node's revision `revision`; the node as it
+ * then stands. 409 `stale_revision` (details.current: the node as stored), `job_open`, `frozen`, `not_extracted`;
+ * 422 `invalid_field` (details.field: the path in the set, `workloads[1].unit`; details.problem).
+ */
+export function setNodeValues(id: string, revision: number, values: ValuesIn): Promise<NodeRow> {
+  return apiFetch<NodeRow>(`/api/v1/nodes/${encodeURIComponent(id)}/values`, {
+    method: "PUT",
+    body: JSON.stringify({ expected_revision: revision, ...values }),
+  });
+}
+
+/** Set a statement's levels as `setNodeValues` a node's values; the statement as it then stands. */
+export function setStatementValues(id: string, revision: number, values: ValuesIn): Promise<TreeStatement> {
+  return apiFetch<TreeStatement>(`/api/v1/statements/${encodeURIComponent(id)}/values`, {
+    method: "PUT",
+    body: JSON.stringify({ expected_revision: revision, ...values }),
   });
 }
 

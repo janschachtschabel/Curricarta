@@ -8,6 +8,7 @@ import { t } from "@/i18n/de";
 
 import { violations } from "./axe";
 import { CV, LABELS, SCHOOL, newTerm, nodeType, termDecision } from "./lexiconFixtures";
+import { NO_VALUES_FORM } from "./treeFixtures";
 
 const AREA = nodeType("Inhaltsbereich", [CV + "fn_area"]);
 let shown: VueWrapper | null = null;
@@ -26,6 +27,7 @@ const FORM: Form = {
   profile: SCHOOL + "Terminology",
   node: [{ key: "node_type", kind: "concept", required: false, many: false, most: null, values: [AREA] }],
   statement: [],
+  ...NO_VALUES_FORM,
 };
 
 async function section(): Promise<VueWrapper> {

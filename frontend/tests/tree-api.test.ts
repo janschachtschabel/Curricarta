@@ -11,7 +11,9 @@ import {
   getDocumentBlocks,
   getForm,
   getTree,
+  setNodeValues,
   setReview,
+  setStatementValues,
   startDocumentCheck,
 } from "@/api";
 
@@ -154,6 +156,21 @@ describe("the tree's requests", () => {
     expect(call(1)[1].body).toBeUndefined();
     expect(set.revisions).toEqual([{ id: "s1", revision: 4 }]);
     expect(job.kind).toBe(CHECK_KIND);
+  });
+
+  it("set a node's and a statement's values as a whole, on the holder's revision, and review a value", async () => {
+    const set = { level_assignments: [], time_spans: [], workloads: [{ id: null, amount: 80, amount_to: null, unit: "urn:u",
+      workload_kind: null, is_recommendation: true, minutes_per_unit: null, total: false, periods: [] }] };
+
+    await setNodeValues("n/1", 3, set);
+    await setStatementValues("s/1", 4, { level_assignments: [], time_spans: [], workloads: [] });
+    await setReview("d1", "confirmed", [{ kind: "workload", id: "w1", revision: 2 }]);
+
+    expect([call(0)[0], call(0)[1].method]).toEqual(["/api/v1/nodes/n%2F1/values", "PUT"]);
+    expect(JSON.parse(call(0)[1].body as string)).toEqual({ expected_revision: 3, ...set });
+    expect([call(1)[0], call(1)[1].method]).toEqual(["/api/v1/statements/s%2F1/values", "PUT"]);
+    expect(JSON.parse(call(1)[1].body as string)).toEqual({ expected_revision: 4, level_assignments: [], time_spans: [], workloads: [] });
+    expect(JSON.parse(call(2)[1].body as string).items).toEqual([{ kind: "workload", id: "w1", revision: 2 }]);
   });
 
   it("give a change of a row changed meanwhile back with the row as stored", async () => {

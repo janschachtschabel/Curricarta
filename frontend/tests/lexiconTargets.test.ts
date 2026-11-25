@@ -5,6 +5,7 @@ import { ApiError, type Form, type FormValue } from "@/api";
 import { grouped, targetLoader } from "@/lexiconTargets";
 
 import { CV, SCHOOL } from "./lexiconFixtures";
+import { NO_VALUES_FORM } from "./treeFixtures";
 
 function value(name: string, functions: string[]): FormValue {
   return {
@@ -17,6 +18,8 @@ function value(name: string, functions: string[]): FormValue {
     delimitation: null,
     examples: [],
     broader: functions,
+    group: null,
+    dimension: null,
   };
 }
 
@@ -32,6 +35,7 @@ function form(sector: string): Form {
       { key: "node_type", kind: "concept", required: false, many: false, most: null, values: [AREA, FIELD] },
     ],
     statement: [],
+    ...NO_VALUES_FORM,
   };
 }
 

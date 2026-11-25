@@ -125,5 +125,7 @@ export function nodeType(name: string, functions: string[]): FormValue {
     delimitation: null,
     examples: [],
     broader: functions,
+    group: null,
+    dimension: null,
   };
 }
