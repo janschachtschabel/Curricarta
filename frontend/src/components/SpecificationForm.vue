@@ -40,12 +40,19 @@ const failure = ref<Notice | null>(null);
 const submit = ref<HTMLElement | null>(null);
 
 const inputs = computed(() => [
-  { key: "title" as const, label: t("documents.page.scope.title"), hint: t("documents.page.scope.titleHint"), max: 1000 },
+  {
+    key: "title" as const,
+    label: t("documents.page.scope.title"),
+    hint: t("documents.page.scope.titleHint"),
+    max: 1000,
+    required: true,
+  },
   {
     key: "field_text" as const,
     label: t("documents.page.scope.fieldText"),
     hint: t("documents.page.scope.fieldTextHint"),
     max: 2000,
+    required: false,
   },
 ]);
 
@@ -142,6 +149,7 @@ async function refused(error: unknown): Promise<void> {
         type="text"
         :maxlength="input.max"
         autocomplete="off"
+        :aria-required="input.required || undefined"
         :aria-invalid="faults[input.key] !== undefined || undefined"
         :aria-describedby="describedBy(input.key)"
       />
@@ -154,7 +162,13 @@ async function refused(error: unknown): Promise<void> {
       <AppIcon name="warning" /> <NoticeText :notice="failure" />
     </p>
     <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
-    <button ref="submit" type="submit" class="btn primary" :aria-disabled="busy || undefined">
+    <button
+      ref="submit"
+      type="submit"
+      class="btn primary"
+      :aria-label="t('documents.page.scope.saveNamed', { title: base.title })"
+      :aria-disabled="busy || undefined"
+    >
       {{ t("documents.page.scope.save") }}
     </button>
     <!-- always in the page, so a screen reader hears each change of its text -->

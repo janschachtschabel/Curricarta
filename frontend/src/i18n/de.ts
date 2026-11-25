@@ -1462,11 +1462,13 @@ export const messages = {
         // the title and field of one specification (SpecificationForm.vue)
         formHeading: "Titel und Fach von „{title}“",
         title: "Titel",
-        titleHint: "Wie das Dokument die Spezifikation nennt: Fach, Beruf, Studiengang oder Kurs.",
+        titleHint: "Pflichtfeld. Wie das Dokument die Spezifikation nennt: Fach, Beruf, Studiengang oder Kurs.",
         fieldText: "Fach",
         fieldTextHint:
           "Fach oder Feld im Wortlaut des Dokuments. Ein Lehrplan ohne Fach bekommt in der Prüfung einen Hinweis.",
         save: "Titel und Fach speichern",
+        // the button's name for a screen reader, its visible words first (WCAG 2.5.3): which specification it saves
+        saveNamed: "Titel und Fach speichern: {title}",
         saved: "Gespeichert.",
         unchanged: "Nichts geändert.",
         saveFailed: "Titel und Fach wurden nicht gespeichert.",

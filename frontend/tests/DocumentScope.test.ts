@@ -117,6 +117,24 @@ describe("a document's applicability on its page", () => {
 });
 
 describe("the title and field of a specification", () => {
+  it("says the title is required, and names the specification its button saves", async () => {
+    vi.mocked(api.getSpecifications).mockResolvedValue(
+      specificationsOf({ specifications: [specificationOf(), specificationOf({ id: "s2", key: "ch", title: "Chemie" })] }),
+    );
+    const wrapper = await open();
+
+    const input = title(wrapper);
+    expect(input.attributes("aria-required")).toBe("true");
+    expect(wrapper.get(`#${input.attributes("id")}-hint`).text()).toMatch(/^Pflichtfeld./);
+    expect(fieldText(wrapper).attributes("aria-required")).toBeUndefined();
+    const names = wrapper.findAll("form button[type=submit]").map((button) => button.attributes("aria-label"));
+    expect(names).toEqual([
+      t("documents.page.scope.saveNamed", { title: "Physik" }),
+      t("documents.page.scope.saveNamed", { title: "Chemie" }),
+    ]);
+    expect(await violations(wrapper.element)).toEqual([]);
+  });
+
   it("sends only what changed, on the revision read, and shows what was saved", async () => {
     const saved = specificationOf({ field_text: "Naturwissenschaften", revision: 2 });
     vi.spyOn(api, "editSpecification").mockResolvedValue(saved);
