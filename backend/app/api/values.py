@@ -28,7 +28,7 @@ from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values, values_of
 from app.domain.l2 import Holder, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
 from app.vocab.form_values import FieldError
-from app.vocab.value_checks import check_values, kind_of_check, path_of
+from app.vocab.value_checks import check_values, path_of, refused_field
 from app.vocab.value_forms import SPECIFICATION_TYPES, value_form_of
 
 router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSES)
@@ -177,7 +177,7 @@ async def set_values(
             refused = FieldError(path_of(drafts, error.value_id), "unknown_value")
             raise await refusal_of(connection, who, document_id, refused) from error
         except ValueRefused as error:
-            refused = FieldError(kind_of_check(error.check), "refused")
+            refused = FieldError(refused_field(error.check, error.context), "refused")
             raise await refusal_of(connection, who, document_id, refused) from error
         except REFUSED as error:
             raise await refusal_of(connection, who, document_id, error) from error

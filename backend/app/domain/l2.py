@@ -22,11 +22,13 @@ HolderKind = Literal["node", "statement", "specification"]
 
 
 class ValueRefused(Exception):
-    """The store refuses a value of a set: ``check`` names the constraint it breaks, where it has one."""
+    """The store refuses a value of a set: ``check`` names the constraint it breaks, where it has one;
+    ``context`` the place of the applicability context in the set the value is or stands in, where it does."""
 
-    def __init__(self, check: str | None) -> None:
+    def __init__(self, check: str | None, context: int | None = None) -> None:
         super().__init__(f"a value breaks {check}")
         self.check = check
+        self.context = context
 
 
 def _finite(check: str, number: Decimal | None) -> None:

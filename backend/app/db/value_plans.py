@@ -4,7 +4,7 @@ workload's periods and a context's time spans and levels under their outer row. 
 none of those, or one named twice, refuses the set (UnknownValue); a kind the holder has no column for is
 ``not_held`` (ValueRefused)."""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Any, LiteralString
 from uuid import UUID
 
@@ -37,7 +37,8 @@ class Planned:
     """A value as the set has it: where it stands (``table``, its holder's column and row, its position)
     and what it says; ``id`` its kept row's, None for a new one - a new workload with the contents of its
     periods, a new context with those of its time spans and levels, which stand under it once it is written
-    (``inner``: each one's table, position and content)."""
+    (``inner``: each one's table, position and content); ``context`` the place in the set (from 0) of the
+    applicability context it is or stands in, where it does."""
 
     table: LiteralString
     id: UUID | None
@@ -45,6 +46,7 @@ class Planned:
     position: int
     content: dict[str, Any]
     inner: tuple[tuple[LiteralString, int, dict[str, Any]], ...] = ()
+    context: int | None = None
 
 
 def planned(
@@ -100,5 +102,6 @@ def planned(
     for place, context in enumerate(drafts.contexts, 1):
         held: list[Inner] = [("level_assignment", level.id, level_content(level)) for level in context.levels]
         held += [("time_span", span.id, time_content(span)) for span in context.time_spans]
-        planned += nested(("applicability_context", context.id, place, context_content(context)), held)
+        rows = nested(("applicability_context", context.id, place, context_content(context)), held)
+        planned += [replace(each, context=place - 1) for each in rows]
     return planned

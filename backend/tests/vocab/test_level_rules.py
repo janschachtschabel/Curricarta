@@ -31,7 +31,7 @@ from app.exports.kern_rdf import kern_graph
 from app.pipeline.shacl_child import validate_graph
 from app.vocab.form_values import FieldError
 from app.vocab.store import load_vocabulary
-from app.vocab.value_checks import check_values, kind_of_check
+from app.vocab.value_checks import check_values, kind_of_check, refused_field
 from app.vocab.value_forms import SPECIFICATION_TYPES, RuleHolder, ValueForm, value_form_of
 from tests.pipeline.test_shacl import a_document
 from tests.support import ontology_vocabulary
@@ -176,3 +176,19 @@ async def test_each_level_names_its_system_s_dimension(form: ValueForm) -> None:
 )
 def test_a_store_s_refusal_names_the_kind_of_its_check(check: str | None, kind: str) -> None:
     assert kind_of_check(check) == kind
+    assert refused_field(check, None) == kind
+
+
+@pytest.mark.parametrize(
+    ("check", "context", "field"),
+    [
+        ("level_assignment_level_fits", 1, "contexts[1].level_assignments"),
+        ("time_span_span_order", 0, "contexts[0].time_spans"),
+        ("applicability_context_institution_text_check", 2, "contexts[2]"),
+        (None, 0, "contexts[0]"),
+    ],
+)
+def test_a_store_s_refusal_in_a_context_names_that_context(
+    check: str | None, context: int, field: str
+) -> None:
+    assert refused_field(check, context) == field

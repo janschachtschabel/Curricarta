@@ -158,18 +158,32 @@ async def _write(
                 sql.SQL("DELETE FROM {} WHERE id = ANY(%s)").format(sql.Identifier(table)), (list(gone),)
             )
     for row in wanted:
-        if row.id is None:
-            made = await _insert(connection, document_id, row)
-            for table, at, content in row.inner:
-                inner = Planned(table, None, (NESTED[row.table][0], made), at, content)
-                await _insert(connection, document_id, inner)
-            continue
-        _, position, content = current[row.id]
-        if content != row.content:
-            await _update(connection, row, proposal=True)
-        elif position != row.position:
-            await _update(connection, row, proposal=False)
+        try:
+            await _written(connection, document_id, row, current)
+        except (
+            psycopg.errors.IntegrityError,
+            psycopg.errors.DataError,
+        ) as refused:  # a DataError has no name
+            raise ValueRefused(refused.diag.constraint_name, row.context) from refused
     await connection.execute(f"{_POSITIONS} IMMEDIATE")
+
+
+async def _written(
+    connection: psycopg.AsyncConnection, document_id: UUID, row: Planned, current: dict[UUID, Standing]
+) -> None:
+    """The row as the set has it: new - with what it holds -, changed, or moved."""
+    if row.id is None:
+        made = await _insert(connection, document_id, row)
+        for table, at, content in row.inner:
+            await _insert(
+                connection, document_id, Planned(table, None, (NESTED[row.table][0], made), at, content)
+            )
+        return
+    _, position, content = current[row.id]
+    if content != row.content:
+        await _update(connection, row, proposal=True)
+    elif position != row.position:
+        await _update(connection, row, proposal=False)
 
 
 async def _insert(connection: psycopg.AsyncConnection, document_id: UUID, row: Planned) -> UUID:

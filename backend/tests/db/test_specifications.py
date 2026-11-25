@@ -302,3 +302,26 @@ async def test_two_editors_of_a_specification_at_once_one_wins(
         2,
     )
     assert await one(connection, "SELECT count(*) FROM applicability_context") == (0,)
+
+
+async def test_a_value_the_store_refuses_in_a_context_names_that_context(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await specification(connection, document)
+    await replace_values(connection, owner(document), made, 1, ValueDrafts(contexts=(CONTEXT,)))
+    [kept] = (await values_of(connection, document.id))[made].contexts
+    no_level = LevelDraft(level=CV + "unit_lesson")  # no level concept (level_assignment_level_fits)
+
+    with pytest.raises(ValueRefused) as new_one:
+        await replace_values(connection, owner(document), made, 2, ValueDrafts(
+            contexts=(replace(CONTEXT, id=kept.value.id), replace(CONTEXT, levels=(no_level,)))))  # fmt: skip
+    with pytest.raises(ValueRefused) as in_kept:
+        await replace_values(connection, owner(document), made, 2, ValueDrafts(
+            contexts=(replace(CONTEXT, id=kept.value.id, levels=(no_level,)),)))  # fmt: skip
+    with pytest.raises(ValueRefused) as own:
+        await replace_values(connection, owner(document), made, 2, ValueDrafts(levels=(no_level,)))
+
+    assert (new_one.value.check, new_one.value.context) == ("level_assignment_level_fits", 1)
+    assert (in_kept.value.check, in_kept.value.context) == ("level_assignment_level_fits", 0)
+    assert (own.value.check, own.value.context) == ("level_assignment_level_fits", None)
+    assert await revision_of(connection, made) == 2

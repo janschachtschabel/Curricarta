@@ -13,7 +13,7 @@ levels by the rules of a context (LEVEL_RULES) -, by paths under ``contexts[0]``
 """
 
 from collections.abc import Iterator, Mapping, Sequence
-from typing import Final
+from typing import Final, Literal
 from uuid import UUID
 
 from app.domain.l2 import (
@@ -41,12 +41,17 @@ from app.vocab.value_forms import (
 )
 
 Draft = LevelDraft | TimeSpanDraft | WorkloadDraft | ContextDraft
+# what a draft of a set is: a kind of value, or an applicability context
+DraftKind = ValueKind | Literal["contexts"]
 # a kind's ranges: its start's field and its end's
-_RANGES: Final[Mapping[ValueKind, tuple[tuple[str, str], ...]]] = {
+_RANGES: Final[Mapping[DraftKind, tuple[tuple[str, str], ...]]] = {
     "level_assignments": (),
     "time_spans": (("span_from", "span_to"),),
     "workloads": (("amount", "amount_to"),),
+    "contexts": (),
 }
+# the kinds of value a context holds, by the store's tables: a refusal of one of them is named under it
+_IN_CONTEXT: Final = frozenset({"level_assignments", "time_spans"})
 
 
 def check_values(
@@ -66,10 +71,10 @@ def check_values(
     if drafts.contexts and holder not in CONTEXT_HOLDERS:
         raise FieldError("contexts", "not_held")
     kept = {draft.id: draft for draft in _stored(held)}
-    for at, kind, draft, within in _walk(drafts):
+    for at, of, draft, within in _walk(drafts):
         before = kept.get(draft.id) if draft.id is not None else None
-        fields = CONTEXT_FIELDS if isinstance(draft, ContextDraft) else VALUE_FIELDS[kind]
-        _check(form, fields, kind, draft, at, before)
+        fields = CONTEXT_FIELDS if of == "contexts" else VALUE_FIELDS[of]
+        _check(form, fields, of, draft, at, before)
         if isinstance(draft, LevelDraft):  # a context's by a context's rules, which no type of it lifts
             _check_level(form, within or holder, None if within else holder_type, draft, at)
 
@@ -96,6 +101,15 @@ def kind_of_check(check: str | None) -> str:
     return next((by_table[table] for table in by_table if check and check.startswith(table + "_")), "values")
 
 
+def refused_field(check: str | None, context: int | None) -> str:
+    """The field a refusal of the store's is answered at: the kind its check is of - under the applicability
+    context ``context`` (its place in the set), where the refused value is or stands in one."""
+    kind = kind_of_check(check)
+    if context is None:
+        return kind
+    return f"contexts[{context}].{kind}" if kind in _IN_CONTEXT else f"contexts[{context}]"
+
+
 def _given(drafts: ValueDrafts) -> dict[ValueKind, tuple[Draft, ...]]:
     return {
         "level_assignments": drafts.levels,
@@ -104,7 +118,7 @@ def _given(drafts: ValueDrafts) -> dict[ValueKind, tuple[Draft, ...]]:
     }
 
 
-def _walk(drafts: ValueDrafts) -> Iterator[tuple[str, ValueKind, Draft, RuleHolder | None]]:
+def _walk(drafts: ValueDrafts) -> Iterator[tuple[str, DraftKind, Draft, RuleHolder | None]]:
     """Each draft of the set with its path, kind and the holder its level rules are of, a workload's periods
     after it, a context's levels and time spans after it."""
     for kind, entries in _given(drafts).items():
@@ -114,7 +128,7 @@ def _walk(drafts: ValueDrafts) -> Iterator[tuple[str, ValueKind, Draft, RuleHold
                 for at, period in enumerate(draft.periods):
                     yield f"{kind}[{place}].periods[{at}]", PERIODS, period, None
     for place, context in enumerate(drafts.contexts):
-        yield f"contexts[{place}]", "level_assignments", context, None  # its own fields: CONTEXT_FIELDS
+        yield f"contexts[{place}]", "contexts", context, None
         inner: dict[ValueKind, tuple[Draft, ...]] = {
             "level_assignments": context.levels,
             "time_spans": context.time_spans,
@@ -158,7 +172,7 @@ def _check_level(
 
 
 def _check(
-    form: ValueForm, fields: Sequence[FormField], kind: ValueKind, draft: Draft, at: str, before: Draft | None
+    form: ValueForm, fields: Sequence[FormField], kind: DraftKind, draft: Draft, at: str, before: Draft | None
 ) -> None:
     for field in fields:
         value = getattr(draft, field.key)
@@ -167,7 +181,7 @@ def _check(
         offered = {concept.iri for concept in form.values.get(field.key, ())}
         if value not in offered and getattr(before, field.key, None) != value:
             raise FieldError(f"{at}.{field.key}", "not_offered")
-    for start, end in () if isinstance(draft, ContextDraft) else _RANGES[kind]:
+    for start, end in _RANGES[kind]:
         least, most = getattr(draft, start), getattr(draft, end)
         if least is not None and most is not None and most < least:
             raise FieldError(f"{at}.{end}", "out_of_order")
