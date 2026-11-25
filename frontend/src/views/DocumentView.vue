@@ -1,19 +1,17 @@
 <script setup lang="ts">
 /**
  * One document made of an entry's conversion (plan M1 7.5, 7a, 8b): what it is for, its extraction
- * (DocumentExtraction: followed, cancelled, started again), its work packages (DocumentUnits), what
- * the stages found on it with the repair offered to its owner (DocumentFindings) and the runs of its
- * stages (DocumentRuns). The page reads the document again when its extraction has moved on or a
- * repair was started, its work packages and findings at each progress too. No repair is offered
- * while a job of the document waits or runs: one followed under the extraction, or one just started
- * and not yet read with the document. Which revision it is stands at the top (RevisionNotice: frozen,
- * with the draft copy for an editor; or a draft copy); where it comes from (DocumentSource) and its work
- * and edition (DocumentEdition) beside its facts, what its specifications are and where they apply below
- * (DocumentScope, plan M3a H1); an editor freezes it below its findings (DocumentFreeze,
+ * (DocumentExtraction: followed, cancelled, started again), its work packages (DocumentUnits), what the stages
+ * found on it with the repair offered to its owner (DocumentFindings) and the runs of its stages (DocumentRuns).
+ * The page reads the document again when its extraction has moved on or a repair was started, its work packages
+ * and findings at each progress too. No repair is offered while a job of the document waits or runs: one followed
+ * under the extraction, or one just started and not yet read with the document. Which revision it is stands at
+ * the top (RevisionNotice: frozen, with the draft copy for an editor; or a draft copy); where it comes from
+ * (DocumentSource) and its work and edition (DocumentEdition) beside its facts, what its specifications are and
+ * where they apply below (DocumentScope, plan M3a H1); an editor freezes it below its findings (DocumentFreeze,
  * plan M1 9.10, Paket 9d1).
- * A document newly frozen - by the freeze, or a reading that finds it so under a form - is said: the
- * keyboard, where nothing holds it, goes to the notice, which names itself; held elsewhere, it stays and a
- * region says it.
+ * A document newly frozen - by the freeze, or a reading that finds it so under a form - is said: the keyboard, where
+ * nothing holds it, goes to the notice, which names itself; held elsewhere, it stays and a region says it.
  */
 import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
@@ -228,7 +226,8 @@ watch(
       <!-- an import: the plan it was made of, its attribution and licence -->
       <DocumentMemOrigin v-if="document_.mem" class="document__section" :origin="document_.mem" />
       <DocumentEdition :key="document_.id" class="document__section" :document="document_" @changed="load()" />
-      <DocumentScope :key="document_.id" class="document__section" :document-id="document_.id" :sector="document_.sector" :refresh="unitsRead" />
+      <DocumentScope :key="document_.id" class="document__section" :document-id="document_.id"
+        :sector="document_.sector" :refresh="unitsRead" />
       <!-- keyed: what a start of the document before gave back late stays with that one -->
       <DocumentExtraction
         :key="document_.id"
