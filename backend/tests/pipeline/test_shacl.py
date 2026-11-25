@@ -129,7 +129,7 @@ def a_document(addressees: list[str]) -> KernRows:
          "region_iris": [], "violations": 0, "source_url": None, "mem_iri": None, "mem_attribution": None,
          "mem_licence": None},
         [{"id": specification, "iri": None, "spec_kind": "curriculum", "title": "Physik",
-          "field_text": "Physik"}],
+          "field_text": "Physik", "applicability": {}}],
         [],
         [{"id": node, "iri": None, "parent_id": None, "position": 1, "function_iri": CV + "fn_area",
           "node_type_iri": SCHOOL + "Inhaltsbereich", "code": "1", "code_assigned": False,

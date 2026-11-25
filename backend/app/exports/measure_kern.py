@@ -110,7 +110,7 @@ def synthetic_rows(
     }  # fmt: skip
     specification_row = {
         "id": specification, "iri": f"{base}/spec/s1", "spec_kind": "curriculum", "title": "Synthese",
-        "field_text": "Synthese",
+        "field_text": "Synthese", "applicability": {},
     }  # fmt: skip
     return KernRows(
         document_row, [specification_row], [], node_rows, statement_rows, anchors, work=None,

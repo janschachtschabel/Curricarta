@@ -1,12 +1,14 @@
 """A document of the first layer read for its Kern RDF (plan M1 8.3; app/exports/kern_rdf.py): the document -
 with the count of violations among its findings, those the editors accepted once it is frozen (plan M3a C1),
 the version of the graph its last check ran under (``checked_graph``) and where it came from -, the work it
-is a version of and the file it was read off (plan M3a A1), its specifications and their variants, its
-nodes and statements, the anchors of nodes and statements with their blocks - rows as the tables hold
-them, each with the IRI it is named by once frozen (app/exports/kern_naming.py) - and the values of its
-holders (app/db/value_rows.py, plan M3a F1), read in one snapshot. A rejected statement is not read, nor
-are its anchors and values; a rejected value is left out - a workload with its periods -, and a rejected
-node's values follow their own status.
+is a version of and the file it was read off (plan M3a A1), its specifications - with what X1 read of
+their applicability (plan M3a H1) - and their variants, its nodes and statements, the anchors of nodes and
+statements with their blocks - rows as the tables hold them, each with the IRI it is named by once frozen
+(app/exports/kern_naming.py) - and the values of its
+holders (app/db/value_rows.py, plan M3a F1) and the specifications' applicability contexts, read in one
+snapshot. A rejected statement is not read, nor are its anchors and values; a rejected value is left out - a
+workload with its periods, a context with its values -, and a rejected node's values follow their own
+status.
 
 No visibility check: the export serves the pipeline (X5's SHACL check) of a document it already holds;
 a route that exports for a reader checks what that reader sees first.
@@ -22,7 +24,7 @@ from psycopg.rows import dict_row
 
 from app.db.documents import DocumentError
 from app.db.value_rows import values_of
-from app.domain.l2 import HeldValues, Level, TimeSpan, Values, Workload
+from app.domain.l2 import Context, HeldValues, Level, TimeSpan, Values, Workload
 from app.vocab.lookup import REGIONS
 
 Row = dict[str, Any]
@@ -61,7 +63,7 @@ SELECT f.id, encode(f.sha256, 'hex') AS sha256 FROM document d JOIN conversion c
 JOIN source_file f ON f.id = c.source_file_id WHERE d.id = %(document)s
 """
 _SPECIFICATIONS = """
-SELECT id, iri, spec_kind, title, field_text FROM specification
+SELECT id, iri, spec_kind, title, field_text, applicability FROM specification
 WHERE document_id = %(document)s ORDER BY key
 """
 _VARIANTS = """
@@ -160,9 +162,9 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> KernR
 
 def _kept(values: Values, statements: set[UUID]) -> Values:
     """The values the graph states: those of the holders read - a rejected statement's go with it -, each
-    but a rejected one, a workload's periods but the rejected ones."""
+    but a rejected one, a workload's periods and a context's values but the rejected ones."""
 
-    def kept[T: (Level, TimeSpan, Workload)](items: tuple[T, ...]) -> tuple[T, ...]:
+    def kept[T: (Level, TimeSpan, Workload, Context)](items: tuple[T, ...]) -> tuple[T, ...]:
         return tuple(item for item in items if item.stated.review_status != _REJECTED)
 
     return {
@@ -170,6 +172,10 @@ def _kept(values: Values, statements: set[UUID]) -> Values:
             kept(held.levels),
             kept(held.time_spans),
             tuple(replace(workload, periods=kept(workload.periods)) for workload in kept(held.workloads)),
+            tuple(
+                replace(context, levels=kept(context.levels), time_spans=kept(context.time_spans))
+                for context in kept(held.contexts)
+            ),
         )
         for holder, held in values.items()
         if holder.kind != "statement" or holder.id in statements

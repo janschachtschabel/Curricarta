@@ -34,15 +34,16 @@ def add_values(graph: Graph, rows: KernRows, naming: Naming) -> None:
                 continue
             subject = naming.of(kind, row)
             for level in held.levels:
-                graph.add((subject, CUR.levelAssignment, _level(graph, level, naming)))
+                graph.add((subject, CUR.levelAssignment, level_value(graph, level, naming)))
             for span in held.time_spans:
-                graph.add((subject, CUR.timeSpan, _time_span(graph, span, naming)))
+                graph.add((subject, CUR.timeSpan, time_span_value(graph, span, naming)))
             for workload in held.workloads:
                 predicate = CUR.totalWorkload if workload.value.total else CUR.workload
                 graph.add((subject, predicate, _workload(graph, workload, naming)))
 
 
-def _named(graph: Graph, kind: RowKind, value_id: UUID | None, type_: URIRef, naming: Naming) -> Name:
+def named(graph: Graph, kind: RowKind, value_id: UUID | None, type_: URIRef, naming: Naming) -> Name:
+    """The value's name under the naming, typed ``type_``."""
     subject = naming.of(kind, {"id": value_id})
     graph.add((subject, RDF.type, type_))
     return subject
@@ -60,9 +61,10 @@ def _add(graph: Graph, subject: Name, predicate: URIRef, value: str | Decimal | 
         graph.add((subject, predicate, Literal(value)))
 
 
-def _level(graph: Graph, level: Level, naming: Naming) -> Name:
+def level_value(graph: Graph, level: Level, naming: Naming) -> Name:
+    """The level assignment, named and typed, with what its row holds; its name."""
     value = level.value
-    subject = _named(graph, "level_assignment", value.id, CUR.LevelAssignment, naming)
+    subject = named(graph, "level_assignment", value.id, CUR.LevelAssignment, naming)
     _add(graph, subject, CUR.level, value.level)
     _add(graph, subject, CUR.levelTo, value.level_to)
     _add(graph, subject, CUR.levelRelation, value.relation)
@@ -72,9 +74,10 @@ def _level(graph: Graph, level: Level, naming: Naming) -> Name:
     return subject
 
 
-def _time_span(graph: Graph, span: TimeSpan, naming: Naming) -> Name:
+def time_span_value(graph: Graph, span: TimeSpan, naming: Naming) -> Name:
+    """The time span, named and typed, with what its row holds; its name."""
     value = span.value
-    subject = _named(graph, "time_span", value.id, CUR.TimeSpan, naming)
+    subject = named(graph, "time_span", value.id, CUR.TimeSpan, naming)
     _add(graph, subject, CUR.timeKind, value.time_kind)
     _add(graph, subject, CUR["from"], value.span_from)
     _add(graph, subject, CUR.to, value.span_to)
@@ -84,7 +87,7 @@ def _time_span(graph: Graph, span: TimeSpan, naming: Naming) -> Name:
 
 def _workload(graph: Graph, workload: Workload, naming: Naming) -> Name:
     value = workload.value
-    subject = _named(graph, "workload", value.id, CUR.Workload, naming)
+    subject = named(graph, "workload", value.id, CUR.Workload, naming)
     _add(graph, subject, CUR.amount, value.amount)
     _add(graph, subject, CUR.amountTo, value.amount_to)
     _add(graph, subject, CUR.unit, value.unit)
@@ -92,5 +95,5 @@ def _workload(graph: Graph, workload: Workload, naming: Naming) -> Name:
     graph.add((subject, CUR.isRecommendation, Literal(value.is_recommendation)))
     _add(graph, subject, CUR.minutesPerUnit, value.minutes_per_unit)
     for period in workload.periods:
-        graph.add((subject, CUR.inPeriod, _time_span(graph, period, naming)))
+        graph.add((subject, CUR.inPeriod, time_span_value(graph, period, naming)))
     return subject

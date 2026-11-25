@@ -16,22 +16,25 @@ import inspect
 from types import ModuleType
 
 from app.db import value_rows
-from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_values
+from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_scope, kern_values
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 
 # what the graph X5 checks is made of: the rows read, and the triples written of them - of the values too
 # (the rows read for the file's head count too: a column read for it alone is a new version as well)
-GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values)  # value_rows: how the values are read
+# value_rows: how the values are read; kern_scope: a specification's applicability (plan M3a H1)
+GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope)
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
     2: "8f9b27919fa004d4e2fc31c6796476430409a883523bead68d836dbd9f0850ad",  # the values (plan M3a F1)
+    3: "270b6182587476c266ff45314d18168c89ed2a30e36e3cfa819fe84356256658",  # applicability (plan M3a H1)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
     "kern-ttl/1": "27e298e01744e2298e4e59681718e411f5f7991335462d7042896437966ae011",
     "kern-ttl/2": "d2653ec27b33ba77eb8c4315c016d581d03aee1b2d367b96206cf60640703840",  # the graph's version
     "kern-ttl/3": "7b86aae1ff4c6ada4205560198ce783cb6d53302e7a4c70ce939927584ae423e",  # value kinds
+    "kern-ttl/4": "89c8fb757df5f3c45dcd26bc6e095ba51904fe10152a00ec26e9c7e1a94332d1",  # contexts
 }
 _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 

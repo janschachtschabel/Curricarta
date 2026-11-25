@@ -138,7 +138,7 @@ def test_the_key_names_the_document_its_revision_and_the_builder_s_version() -> 
 
     key = export_key(rows.document["id"], 3, fingerprint(rows))
 
-    assert key.startswith(f"exports/{rows.document['id']}/kern-3-r3-") and key.endswith(".ttl")
+    assert key.startswith(f"exports/{rows.document['id']}/kern-4-r3-") and key.endswith(".ttl")
     assert len(key.rsplit("-", 1)[1]) == len("0123456789abcdef.ttl")
 
 

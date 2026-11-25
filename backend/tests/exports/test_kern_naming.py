@@ -49,6 +49,9 @@ def value_ids(rows: KernRows) -> list[UUID | None]:
         found += [level.value.id for level in held.levels] + [span.value.id for span in held.time_spans]
         found += [workload.value.id for workload in held.workloads]
         found += [period.value.id for workload in held.workloads for period in workload.periods]
+        for context in held.contexts:  # an applicability context and the values it holds (plan M3a H1)
+            found += [context.value.id, *(each.value.id for each in context.levels)]
+            found += [each.value.id for each in context.time_spans]
     return found
 
 
