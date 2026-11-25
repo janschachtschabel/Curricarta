@@ -1,9 +1,9 @@
 """A frozen document stays as it was written (migration freeze; plan M1 9.6, Paket 9b H1): the database
 refuses every change to its nodes, statements and their addressees, anchors and their blocks, frame
-parts, specifications and their variants, its profile and its values (workloads, time spans, levels), and
-to the document's own row but its rights status; a document not frozen changes as before. One draft at most
-is open under an IRI, and what a statement's origin and run said of a hand-written one before is kept as its
-own mark."""
+parts, specifications and their variants, its profile and its values (workloads, time spans, levels,
+applicability contexts), and to the document's own row but its rights status; a document not frozen changes
+as before. One draft at most is open under an IRI, and what a statement's origin and run said of a
+hand-written one before is kept as its own mark."""
 
 import shutil
 import uuid
@@ -76,6 +76,9 @@ def filled(connection: psycopg.Connection) -> dict[str, Any]:
     made["level_assignment"] = add_value(
         connection, "level_assignment", document, "statement_id", made["statement"]
     )
+    made["applicability_context"] = add_value(
+        connection, "applicability_context", document, "specification_id", made["specification"]
+    )
     return made
 
 
@@ -120,7 +123,7 @@ CHANGES = {
     "profile changed": "UPDATE document_profile SET new_terms = '[1]' WHERE document_id = %(document)s",
     **{
         f"{table} {name}": query.format(table=table)
-        for table in ("workload", "time_span", "level_assignment")
+        for table in ("workload", "time_span", "level_assignment", "applicability_context")
         for name, query in (
             # a copy of the row at the next position, under an entity of its own
             (
@@ -144,7 +147,7 @@ CHANGES = {
 def change(connection: psycopg.Connection, made: dict[str, Any], name: str) -> None:
     passed = {"entity_node": add_entity(connection, "node"), "addressees": CV + "Addressees",
               "teacher": CV + "addr_teacher", "other": add_document(connection, made)}  # fmt: skip
-    for table in ("workload", "time_span", "level_assignment"):
+    for table in ("workload", "time_span", "level_assignment", "applicability_context"):
         passed[f"entity_{table}"] = add_entity(connection, table)
     connection.execute(CHANGES[name], made | passed)
 

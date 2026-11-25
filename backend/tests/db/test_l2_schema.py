@@ -26,12 +26,15 @@ from tests.db.l2 import FKF, LVL, ValueTable, add_value, seed_l2_vocabulary
 
 pytestmark = pytest.mark.pg
 
-# The holders each table takes now: those of later packages come with their own migrations
+# The holders each table takes now - an applicability context's since migration applicability -: those of
+# later packages come with their own migrations
 HOLDERS: dict[ValueTable, tuple[str, ...]] = {
-    "time_span": ("node_id", "specification_id", "workload_id"),
+    "time_span": ("node_id", "specification_id", "workload_id", "applicability_context_id"),
     "workload": ("node_id", "specification_id"),
-    "level_assignment": ("node_id", "statement_id", "specification_id", "frame_part_id"),
-}
+    "level_assignment": (
+        "node_id", "statement_id", "specification_id", "frame_part_id", "applicability_context_id",
+    ),
+}  # fmt: skip
 PAIRS = [(table, holder) for table, holders in HOLDERS.items() for holder in holders]
 
 
@@ -69,6 +72,9 @@ def holders(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, u
         "specification_id": specification,
         "frame_part_id": frame_part,
         "workload_id": add_value(connection, "workload", document, "specification_id", specification),
+        "applicability_context_id": add_value(
+            connection, "applicability_context", document, "specification_id", specification
+        ),
     }
 
 
@@ -297,7 +303,8 @@ def test_with_its_holder_the_value_goes(
         connection, "level_assignment", held["document_id"], "node_id", held["node_id"], position=3
     )
     holding = {"node_id": "node", "statement_id": "statement", "specification_id": "specification",
-               "frame_part_id": "frame_part", "workload_id": "workload"}[holder]  # fmt: skip
+               "frame_part_id": "frame_part", "workload_id": "workload",
+               "applicability_context_id": "applicability_context"}[holder]  # fmt: skip
 
     connection.execute(f"DELETE FROM {holding} WHERE id = %s", (held[holder],))  # noqa: S608 - the test's names
 

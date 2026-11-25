@@ -136,6 +136,10 @@ Migration 0036 merkt sich an jedem Lauf von X5 die Version des Kern-Graphen, den
 dessen letzte Prüfung eine ältere oder – vor der Migration oder durch eine Replica des vorigen Images –
 keine Version nennt, schuldet X5 eine Prüfung (`POST …/check`, ohne Modell), bevor er festgeschrieben wird:
 nach dem Update also jeder bisher geprüfte Entwurf einmal, und nach jedem Update, das den Graphen ändert.
+Migration 0037 legt die Geltungskontexte einer Spezifikation an (`applicability_context`, mit eigener Zeit
+und eigenem Niveau). Eine Replica des vorigen Images kopiert sie nicht: Die Entwurfskopie eines Dokuments,
+dessen Kontexte Zeit oder Niveau tragen, verweigert sie dann (`vocabulary_changed`), die eines Dokuments mit
+Kontexten ohne Werte kommt ohne sie. Darum alle Replicas aktualisieren, bevor Kontexte gesetzt werden.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).

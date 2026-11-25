@@ -1,6 +1,7 @@
 """A frozen document's draft copy (plan M1 9.6, Paket 9b H7): a new revision under the same IRI, with all its
 rows - nodes, statements and their addressees, anchors and their blocks, frame parts, specifications and
-their variants, its profile, the values at them (workloads, time spans, levels) - their IRIs, origins, review
+their variants, its profile, the values at them (workloads, time spans, levels, applicability contexts and
+theirs) - their IRIs, origins, review
 statuses and revisions, under ids of their own; no findings and no runs, so X5 owes it a check. Of the latest
 revision alone, and one draft at most."""
 
@@ -37,6 +38,7 @@ LEFT_OUT = {
     "frame_part": {"kind", "run_id"}, "node": {"kind", "run_id"}, "statement": {"kind", "run_id"},
     "statement_addressee": set(), "anchor_block": set(), "document_profile": set(),
     "workload": {"kind"}, "time_span": {"kind"}, "level_assignment": {"kind"},
+    "applicability_context": {"kind"},
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
 # units and findings; the gold standard's samples, drawn of the revision they name
@@ -106,17 +108,28 @@ SELECT 'workload', coalesce(n.iri, 'specification ' || sp.key),
 FROM workload w LEFT JOIN node n ON n.id = w.node_id LEFT JOIN specification sp ON sp.id = w.specification_id
 WHERE w.document_id = %(document)s
 UNION ALL
-SELECT 'time_span', coalesce(n.iri, 'specification ' || sp.key, 'workload ' || w.position),
+SELECT 'time_span', coalesce(n.iri, 'specification ' || sp.key, 'workload ' || w.position,
+        'context ' || c.position),
     to_jsonb(t) - 'id' - 'document_id' - 'node_id' - 'specification_id' - 'workload_id'
+        - 'applicability_context_id'
 FROM time_span t LEFT JOIN node n ON n.id = t.node_id LEFT JOIN specification sp ON sp.id = t.specification_id
-    LEFT JOIN workload w ON w.id = t.workload_id
+    LEFT JOIN workload w ON w.id = t.workload_id LEFT JOIN applicability_context c
+        ON c.id = t.applicability_context_id
 WHERE t.document_id = %(document)s
 UNION ALL
-SELECT 'level_assignment', coalesce(n.iri, s.iri, 'specification ' || sp.key, 'frame ' || f.part_kind),
+SELECT 'level_assignment', coalesce(n.iri, s.iri, 'specification ' || sp.key, 'frame ' || f.part_kind,
+        'context ' || c.position),
     to_jsonb(l) - 'id' - 'document_id' - 'node_id' - 'statement_id' - 'specification_id' - 'frame_part_id'
+        - 'applicability_context_id'
 FROM level_assignment l LEFT JOIN node n ON n.id = l.node_id LEFT JOIN statement s ON s.id = l.statement_id
     LEFT JOIN specification sp ON sp.id = l.specification_id LEFT JOIN frame_part f ON f.id = l.frame_part_id
+    LEFT JOIN applicability_context c ON c.id = l.applicability_context_id
 WHERE l.document_id = %(document)s
+UNION ALL
+SELECT 'applicability_context', 'specification ' || sp.key,
+    to_jsonb(c) - 'id' - 'document_id' - 'specification_id'
+FROM applicability_context c JOIN specification sp ON sp.id = c.specification_id
+WHERE c.document_id = %(document)s
 ORDER BY 1, 2, 3
 """
 
@@ -138,7 +151,8 @@ async def valued(
     connection: psycopg.AsyncConnection, document: Any, frame: UUID, specification: UUID
 ) -> None:
     """A value at each holder the document has: a workload with its period at the top node, one at the
-    specification, a time span there too, levels at a node, a statement, the specification and the frame."""
+    specification, a time span there too, levels at a node, a statement, the specification and the frame, an
+    applicability context of the specification with a time span and a level of its own."""
     top, statement = await one(
         connection,
         "SELECT (SELECT id FROM node WHERE document_id = %s AND parent_id IS NULL),"
@@ -162,6 +176,14 @@ async def valued(
     for holder, held in (("node_id", top), ("statement_id", statement), ("specification_id", specification),
                          ("frame_part_id", frame)):  # fmt: skip
         await value(connection, "level_assignment", document.id, level_iri=LVL + "EQF-4", **{holder: held})
+    context = await value(
+        connection, "applicability_context", document.id, specification_id=specification,
+        sector_scheme=CV + "EducationSectors", sector_iri=CV + "sec_school",
+        formality_scheme=CV + "Formalities", formality_iri=CV + "form_formal", institution_text="Gymnasium",
+    )  # fmt: skip
+    await value(connection, "time_span", document.id, applicability_context_id=context, span_to=10, **times)
+    await value(connection, "level_assignment", document.id, applicability_context_id=context,
+                level_iri=LVL + "EQF-5")  # fmt: skip
 
 
 async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
@@ -277,17 +299,18 @@ async def test_a_copy_brings_every_value_under_its_new_holder(
     copy = await copy_document(connection, document.id)
 
     assert (await content(connection, copy))["values"] == before
-    assert len(before) == 8
+    assert len(before) == 11
     # each at a row of the copy, none at the frozen revision's: their holders are named with the copy
     assert await one(
         connection,
         "SELECT (SELECT count(*) FROM workload WHERE document_id = %s)"
         " + (SELECT count(*) FROM time_span WHERE document_id = %s)"
-        " + (SELECT count(*) FROM level_assignment WHERE document_id = %s),"
+        " + (SELECT count(*) FROM level_assignment WHERE document_id = %s)"
+        " + (SELECT count(*) FROM applicability_context WHERE document_id = %s),"
         " (SELECT count(*) FROM time_span t JOIN workload w ON w.id = t.workload_id"
         " WHERE w.document_id = %s)",
-        copy, copy, copy, copy,
-    ) == (8, 1)  # fmt: skip
+        copy, copy, copy, copy, copy,
+    ) == (11, 1)  # fmt: skip
 
 
 async def test_a_copy_is_extracted_x5_owes_it_a_check_and_its_frozen_source_stays(

@@ -1,5 +1,6 @@
-"""What a document holds goes with it, and what a run made outlives the run (migrations l1_*, l2_values):
-the first layer's rows and the second's values are taken away with their document, never left behind."""
+"""What a document holds goes with it, and what a run made outlives the run (migrations l1_*, l2_values,
+applicability): the first layer's rows and the second's values are taken away with their document, never
+left behind."""
 
 import uuid
 from collections.abc import Iterator
@@ -39,6 +40,7 @@ TABLES = (
     "workload",
     "time_span",
     "level_assignment",
+    "applicability_context",
 )
 
 
@@ -97,6 +99,8 @@ def fill(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, uuid
     add_value(connection, "time_span", document, "workload_id", workload)
     add_value(connection, "time_span", document, "specification_id", specification)
     add_value(connection, "level_assignment", document, "statement_id", statement)
+    context = add_value(connection, "applicability_context", document, "specification_id", specification)
+    add_value(connection, "level_assignment", document, "applicability_context_id", context)
     return {"run": run, "node": node, "statement": statement}
 
 
