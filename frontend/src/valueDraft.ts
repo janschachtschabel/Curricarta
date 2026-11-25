@@ -37,8 +37,13 @@ export interface Entry {
 
 export type ValuesDraft = Record<ValueKind, Entry[]>;
 
-/** A field's place in a set and the words of its problem. */
-export type ValueFault = readonly [path: string, problem: string];
+/**
+ * A field and the words of its problem: by its path in a set (`workloads[1].unit`), or by its entry's key and its
+ * field (`value-7:unit`), where it stands however the entries move.
+ */
+export type ValueFault = readonly [field: string, problem: string];
+
+const PATH = /^(level_assignments|time_spans|workloads)\[(\d+)\]\.(\w+)$/;
 
 const MOST_DIGITS = 15; // the store's (backend app/api/values.py, Number)
 const MOST_WHOLE = 2 ** 31 - 1; // a whole number's, the store's integer
@@ -112,6 +117,19 @@ export function withEntry(form: Form, draft: ValuesDraft, kind: ValueKind): { dr
 /** Whether the draft holds as many entries of the kind `kind` as a holder takes. */
 export function isFull(draft: ValuesDraft, kind: ValueKind): boolean {
   return draft[kind].length >= MOST_VALUES;
+}
+
+/**
+ * The field the path `path` names in the set `set`, by its entry's key (`value-7:unit`); none where the set holds
+ * no such entry or its kind's form no such field.
+ */
+export function entryField(form: Form, set: ValuesDraft, path: string): string | null {
+  const at = PATH.exec(path);
+  if (!at) return null;
+  const kind = at[1] as ValueKind;
+  const entry = set[kind][Number(at[2])];
+  const shown = fieldsOf(form, kind).some((field) => field.key === at[3]);
+  return entry && shown ? `${entry.key}:${at[3]}` : null;
 }
 
 /** The draft without the entry `key` of the kind `kind`. */

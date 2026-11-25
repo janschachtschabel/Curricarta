@@ -50,7 +50,6 @@ const props = defineProps<{
 }>();
 const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boolean] }>();
 
-const PATH = /^(level_assignments|time_spans|workloads)\[(\d+)\]\.(\w+)$/;
 const TEXTS = ["levelText", "timeText"] as const;
 
 const sid = useId();
@@ -91,30 +90,23 @@ function storedOf(kind: ValueKind, id: string | null): ShownValue | undefined {
   return id === null ? undefined : shown.value.get(kind)?.find((one) => one.id === id);
 }
 
-function controlOf(path: string): string {
-  const at = PATH.exec(path);
-  const entry = at ? draft.value[at[1] as ValueKind][Number(at[2])] : undefined;
-  return at && entry ? `${sid}-${entry.key}-${at[3]}` : "";
-}
-
-function labelOf(path: string): string {
-  const at = PATH.exec(path);
-  return at ? word(messages.documents.tree.values.fields, at[3]) : path;
-}
-
+// a problem stands at its entry's field by the entry's key and the field's (`value-7:unit`)
 const { faults, faultsAt, clear } = useFieldFaults<string>({
-  control: controlOf,
+  control: (at) => `${sid}-${at.replace(":", "-")}`,
   submit: submitButton,
-  say: (path, words) => (status.value = sayAnew(status.value, t("forms.fieldProblem", { field: labelOf(path), problem: words }))),
+  say: (at, words) => {
+    const field = word(messages.documents.tree.values.fields, at.split(":")[1] ?? at);
+    status.value = sayAnew(status.value, t("forms.fieldProblem", { field, problem: words }));
+  },
 });
 
-/** The problems of the entry at `place` of `kind`, by the keys of its fields. */
-function errorsOf(kind: ValueKind, place: number): Partial<Record<string, string>> {
-  const prefix = `${kind}[${place}].`;
+/** The problems of the entry `entry`, by the keys of its fields. */
+function errorsOf(entry: Entry): Partial<Record<string, string>> {
+  const prefix = `${entry.key}:`;
   return Object.fromEntries(
     Object.entries(faults.value)
-      .filter(([path]) => path.startsWith(prefix))
-      .map(([path, words]) => [path.slice(prefix.length), words]),
+      .filter(([at]) => at.startsWith(prefix))
+      .map(([at, words]) => [at.slice(prefix.length), words]),
   );
 }
 
@@ -149,8 +141,6 @@ async function remove(kind: ValueKind, place: number): Promise<void> {
   if (!gone) return;
   const next = entries[place + 1];
   draft.value = withoutEntry(draft.value, kind, gone.key);
-  // a problem names its entry by its place, which the entries after it no longer hold
-  clear();
   await nextTick();
   if (next) toFirstField(next, kind);
   else document.getElementById(`${sid}-add-${kind}`)?.focus();
@@ -222,7 +212,7 @@ async function submit(): Promise<void> {
             :holder="holder"
             :holder-type="holderType"
             :prefix="`${sid}-${entry.key}`"
-            :errors="errorsOf(kind, place)"
+            :errors="errorsOf(entry)"
             @change="(fields) => change(kind, entry.key, fields)"
             @remove="remove(kind, place)"
           >

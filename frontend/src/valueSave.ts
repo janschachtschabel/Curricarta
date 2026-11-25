@@ -3,8 +3,10 @@
 // problem the draft holds is found before anything is asked (valueDraft.checkDraft). Where another stored a change
 // meanwhile (409 stale_revision, details.current: the holder) a kind only the other changed is taken in and a kind
 // both changed put before the user, in words, to keep or take (valueDraft.rebaseValues); where the tree closed the
-// reason is kept with the draft; a field's problem stands at the field of the entry it names (`workloads[1].unit`),
-// a problem of a part the form does not show above it, as any other failure. The same row read anew is taken where
+// reason is kept with the draft; a field's problem stands at the field of the entry it names (`workloads[1].unit`)
+// - the server's at the entry as the set was sent, by its key, however the entries moved since; above the form
+// where that entry was taken away meanwhile -, a problem of a part the form does not show above it, as any other
+// failure. The same row read anew is taken where
 // nothing was changed; changed, the draft stays - going on from the new revision where only that moved (a value
 // reviewed, the holder's fields changed). An entry keeps its key while its value is the same, so a control does not
 // lose the keyboard as the row is read again.
@@ -19,10 +21,12 @@ import {
   changedKinds,
   checkDraft,
   draftOfValues,
+  entryField,
   rebaseValues,
   requestOf,
   sameValues,
   valueOf,
+  VALUE_KINDS,
   type ValueFault,
   type ValuesDraft,
 } from "@/valueDraft";
@@ -48,8 +52,6 @@ interface Holder {
   values: HeldValues;
   revision: number;
 }
-
-const PATH = /^(level_assignments|time_spans|workloads)\[(\d+)\]\.(\w+)$/;
 
 function holderOf(row: Row): Holder {
   return row.kind === "node" ? row.node : row.statement;
@@ -107,7 +109,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     return "conflict";
   }
 
-  function refused(error: unknown): { outcome: ValueSaveOutcome; faults?: ValueFault[] } {
+  function refused(error: unknown, sent: ValuesDraft): { outcome: ValueSaveOutcome; faults?: ValueFault[] } {
     const code = error instanceof ApiError ? error.code : undefined;
     const details = error instanceof ApiError ? error.details : {};
     if (code === "stale_revision") {
@@ -117,9 +119,9 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     }
     if (code === "invalid_field") {
       const words = problemText(details.problem);
-      const at = typeof details.field === "string" ? PATH.exec(details.field) : null;
-      const shown = at && form.value.values[at[1] as ValueKind].fields.some((field) => field.key === at[3]);
-      if (at && shown && draft.value[at[1] as ValueKind][Number(at[2])]) return { outcome: "invalid", faults: [[at[0], words]] };
+      const at = typeof details.field === "string" ? entryField(form.value, sent, details.field) : null;
+      const kept = at !== null && VALUE_KINDS.some((kind) => draft.value[kind].some((entry) => at.startsWith(`${entry.key}:`)));
+      if (at !== null && kept) return { outcome: "invalid", faults: [[at, words]] };
       problem.value = { text: t("documents.tree.values.saveFailed"), explanation: words, failed: true };
       return { outcome: "invalid", faults: [] };
     }
@@ -139,8 +141,10 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
   async function save(): Promise<{ outcome: ValueSaveOutcome; faults?: ValueFault[] }> {
     if (conflict.value?.clashes.length) return { outcome: "undecided" };
     problem.value = null;
-    const faults = checkDraft(form.value, draft.value);
-    if (faults.length) return { outcome: "invalid", faults };
+    const found = checkDraft(form.value, draft.value);
+    if (found.length) {
+      return { outcome: "invalid", faults: found.map(([path, words]) => [entryField(form.value, draft.value, path) ?? path, words]) };
+    }
     if (!dirty.value) {
       conflict.value = null;
       return { outcome: "unchanged", faults: [] };
@@ -159,7 +163,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
       conflict.value = null;
       return { outcome: "saved", faults: [] };
     } catch (error) {
-      return row.value.key === current.key ? refused(error) : { outcome: "failed" };
+      return row.value.key === current.key ? refused(error, sent) : { outcome: "failed" };
     } finally {
       saving.value = false;
     }

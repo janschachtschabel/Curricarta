@@ -284,6 +284,39 @@ describe("a row's values in their form", () => {
     );
   });
 
+  it("says the server's problem at the entry it was sent as, though one before it was taken away meanwhile", async () => {
+    let refuse: (error: unknown) => void = () => undefined;
+    vi.spyOn(api, "setNodeValues").mockImplementation(() => new Promise((_, no) => (refuse = no)));
+    const wrapper = section(nodeRow({ ...noValues(), workloads: [workload("w1", 80), workload("w2", 20)] }));
+    await amount(wrapper).setValue("90");
+    await wrapper.get("form").trigger("submit");
+
+    await button(wrapper, "Umfang 1 entfernen").trigger("click"); // while it is saved
+    refuse(new ApiError("server", 422, "invalid_field", "Not offered.", { field: "workloads[1].unit", problem: "not_offered" }));
+    await flushPromises();
+
+    // the second as it was sent, the first now
+    const unit = entry(wrapper, "Umfang 1").get("select");
+    expect((entry(wrapper, "Umfang 1").get("input").element as HTMLInputElement).value).toBe("20");
+    expect(unit.attributes("aria-invalid")).toBe("true");
+    expect(wrapper.findAll(".field__error")).toHaveLength(1);
+  });
+
+  it("says the server's problem above the form where the entry it was sent as is taken away meanwhile", async () => {
+    let refuse: (error: unknown) => void = () => undefined;
+    vi.spyOn(api, "setNodeValues").mockImplementation(() => new Promise((_, no) => (refuse = no)));
+    const wrapper = section(nodeRow({ ...noValues(), workloads: [workload("w1", 80), workload("w2", 20)] }));
+    await amount(wrapper).setValue("90");
+    await wrapper.get("form").trigger("submit");
+
+    await button(wrapper, "Umfang 1 entfernen").trigger("click");
+    refuse(new ApiError("server", 422, "invalid_field", "Not offered.", { field: "workloads[0].unit", problem: "not_offered" }));
+    await flushPromises();
+
+    expect(wrapper.find("fieldset .field__error").exists()).toBe(false);
+    expect(wrapper.get(".value-section__problem[role=alert]").text()).toContain(t("documents.tree.problems.not_offered"));
+  });
+
   it("says a problem of a part the form does not show above it, the draft kept", async () => {
     vi.spyOn(api, "setNodeValues").mockRejectedValue(
       new ApiError("server", 422, "invalid_field", "Gone.", { field: "workloads[0].id", problem: "unknown_value" }),

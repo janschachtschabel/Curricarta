@@ -7,6 +7,7 @@ import type { HeldValues } from "@/api";
 import {
   checkDraft,
   draftOfValues,
+  entryField,
   kindsOf,
   MOST_VALUES,
   offeredFor,
@@ -151,6 +152,18 @@ describe("a holder's values as a draft", () => {
         },
       ],
     });
+  });
+});
+
+describe("a problem's field in a set", () => {
+  it("is named by its entry's key and its field, none where the set holds no such entry or field", () => {
+    const set = draftOfValues(FORM, held());
+    const key = set.workloads[0]?.key ?? "";
+
+    expect(entryField(FORM, set, "workloads[0].unit")).toBe(`${key}:unit`);
+    expect(entryField(FORM, set, "workloads[1].unit")).toBeNull();
+    expect(entryField(FORM, set, "workloads[0].periods[0].time_kind")).toBeNull();
+    expect(entryField(FORM, set, "workloads[0].id")).toBeNull();
   });
 });
 
