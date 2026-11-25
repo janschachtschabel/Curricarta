@@ -1814,6 +1814,8 @@ export const messages = {
         // who stated a value, and how far it is reviewed
         stated: "{origin} · {status}",
         reviewLabel: "Prüfstand von „{value}“",
+        // the most entries of a kind a row takes (valueDraft.MOST_VALUES)
+        most: "Mehr als {most} {most|Eintrag|Einträge} dieser Art nimmt eine Zeile nicht an.",
         save: "Werte speichern",
         saving: "Die Werte werden gespeichert …",
         saveFailed: "Die Werte wurden nicht gespeichert.",

@@ -22,6 +22,8 @@ import { LOCALE, t } from "@/i18n/de";
 import { rebase } from "@/rowConflict";
 
 export const VALUE_KINDS: readonly ValueKind[] = ["level_assignments", "time_spans", "workloads"];
+/** The most values of a kind at a holder, and periods of a workload, the server takes (backend MOST_VALUES). */
+export const MOST_VALUES = 20;
 
 export interface Entry {
   /** The entry's own in the form, through every change: its fields' ids and the keyboard's way to them. */
@@ -105,6 +107,11 @@ export function withEntry(form: Form, draft: ValuesDraft, kind: ValueKind): { dr
   const fields = Object.fromEntries(fieldsOf(form, kind).map((field) => [field.key, field.kind === "boolean" ? false : ""]));
   const entry: Entry = { key: nextKey(), id: null, fields, periods: [] };
   return { draft: { ...draft, [kind]: [...draft[kind], entry] }, entry };
+}
+
+/** Whether the draft holds as many entries of the kind `kind` as a holder takes. */
+export function isFull(draft: ValuesDraft, kind: ValueKind): boolean {
+  return draft[kind].length >= MOST_VALUES;
 }
 
 /** The draft without the entry `key` of the kind `kind`. */

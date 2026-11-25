@@ -29,7 +29,7 @@ import { sayAnew } from "@/liveRegion";
 import { refusalText } from "@/refusals";
 import type { ReviewOutcome } from "@/rowReview";
 import { word } from "@/registerWords";
-import { kindsOf, withEntry, withoutEntry, type Entry } from "@/valueDraft";
+import { isFull, kindsOf, MOST_VALUES, withEntry, withoutEntry, type Entry } from "@/valueDraft";
 import { useValueSave } from "@/valueSave";
 import { shownValues, type ShownValue } from "@/valueWords";
 
@@ -136,6 +136,7 @@ function toFirstField(entry: Entry, kind: ValueKind): void {
 }
 
 async function add(kind: ValueKind): Promise<void> {
+  if (isFull(draft.value, kind)) return;
   const added = withEntry(props.form, draft.value, kind);
   draft.value = added.draft;
   await nextTick();
@@ -237,9 +238,20 @@ async function submit(): Promise<void> {
               />
             </template>
           </ValueItemForm>
-          <button :id="`${sid}-add-${kind}`" type="button" class="btn btn-sm secondary value-section__add" @click="add(kind)">
+          <!-- aria-disabled, not disabled: the button keeps the keyboard and says why it adds no more -->
+          <button
+            :id="`${sid}-add-${kind}`"
+            type="button"
+            class="btn btn-sm secondary value-section__add"
+            :aria-disabled="isFull(draft, kind) || undefined"
+            :aria-describedby="isFull(draft, kind) ? `${sid}-most-${kind}` : undefined"
+            @click="add(kind)"
+          >
             {{ t(`documents.tree.values.add.${kind}`) }}
           </button>
+          <p v-if="isFull(draft, kind)" :id="`${sid}-most-${kind}`" class="value-section__most">
+            {{ t("documents.tree.values.most", { most: MOST_VALUES }) }}
+          </p>
         </div>
         <LoadingState v-if="saving" quiet :label="t('documents.tree.values.saving')" />
         <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
@@ -278,7 +290,8 @@ async function submit(): Promise<void> {
 }
 
 .value-section__stated,
-.value-section__none {
+.value-section__none,
+.value-section__most {
   color: var(--text-muted);
 }
 

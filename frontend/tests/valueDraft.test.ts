@@ -1,3 +1,6 @@
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 
 import type { HeldValues } from "@/api";
@@ -5,6 +8,7 @@ import {
   checkDraft,
   draftOfValues,
   kindsOf,
+  MOST_VALUES,
   offeredFor,
   rebaseValues,
   requestOf,
@@ -203,3 +207,12 @@ describe("a set laid beside the holder's values as another stored them meanwhile
     expect(laid.draft.time_spans[0]?.fields.span_to).toBe("9");
   });
 });
+
+describe("the most values of a kind", () => {
+  it("are as many as the server takes of a kind at a holder", () => {
+    const api = readFileSync(join(process.cwd(), "..", "backend", "app", "api", "values.py"), "utf8");
+
+    expect(Number(/^MOST_VALUES: Final = (\d+)/m.exec(api)?.[1])).toBe(MOST_VALUES);
+  });
+});
+

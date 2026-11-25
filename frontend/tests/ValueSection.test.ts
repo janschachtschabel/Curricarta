@@ -162,6 +162,24 @@ describe("a row's values as they read", () => {
 });
 
 describe("a row's values in their form", () => {
+  it("adds no entry of a kind past the most the row takes, and says why at the button", async () => {
+    const many = Array.from({ length: 19 }, (_, at) => workload(`w${at}`, at + 1));
+    const wrapper = section(nodeRow({ ...noValues(), workloads: many }));
+    const add = () => button(wrapper, "Umfang hinzufügen");
+    expect(add().attributes("aria-disabled")).toBeUndefined();
+
+    await add().trigger("click"); // the twentieth
+    await add().trigger("click"); // one more: refused
+
+    expect(wrapper.findAll("fieldset legend").filter((legend) => legend.text().startsWith("Umfang"))).toHaveLength(20);
+    expect(add().attributes("aria-disabled")).toBe("true");
+    const note = document.getElementById(add().attributes("aria-describedby") ?? "");
+    expect(note?.textContent?.trim()).toBe(t("documents.tree.values.most", { most: 20 }));
+    // the other kinds still take more
+    expect(button(wrapper, "Niveau hinzufügen").attributes("aria-disabled")).toBeUndefined();
+    expect(await violations(wrapper.html())).toEqual([]);
+  });
+
   it("adds an entry with the keyboard at its first field, and says a draft is open", async () => {
     const wrapper = section(nodeRow(held()));
     expect(wrapper.emitted("dirty")).toEqual([[false]]);
