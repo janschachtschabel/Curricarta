@@ -15,6 +15,7 @@ import DocumentView from "@/views/DocumentView.vue";
 import { violations } from "./axe";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
+import { SCOPE_FORM, specificationsOf } from "./scopeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -80,6 +81,8 @@ beforeEach(() => {
   vi.spyOn(api, "getFindings").mockResolvedValue(NO_FINDINGS);
   vi.spyOn(api, "getSource").mockResolvedValue(detail());
   vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+  vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
+  vi.spyOn(api, "getScopeForm").mockResolvedValue(SCOPE_FORM);
 });
 
 /** The extraction's job running at a step it reports. */
@@ -146,7 +149,7 @@ describe("a document's page", () => {
 
   // a fragment link is a move to the router: the tab lost the document's name (UI review 1, findings 4 and 9)
   it.each([
-    ["an editor's extracted document", {}, ["document-units", "document-freeze"], ["document-mem", "document-export"]],
+    ["an editor's extracted document", {}, ["document-units", "document-scope", "document-freeze"], ["document-mem", "document-export"]],
     [
       "an editor's MEM import",
       { mem: { plan_iri: "https://w3id.org/p/1", attribution: "MEM-Schule", licence: null } },
@@ -324,6 +327,7 @@ describe("a document's page", () => {
       "document-facts",
       "document-source",
       "document-edition",
+      "document-scope",
       "document-extraction",
       "document-units",
       "document-findings",

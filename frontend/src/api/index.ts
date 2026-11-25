@@ -11,5 +11,6 @@ export * from "./lexicon";
 export * from "./mem";
 export * from "./service";
 export * from "./sources";
+export * from "./specifications";
 export * from "./tree";
 export * from "./values";

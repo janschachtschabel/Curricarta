@@ -46,6 +46,8 @@ export const REFUSAL_CODES = [
   // statement_editing.py, edit_answers.py)
   "no_node",
   "no_statement",
+  // a specification's title, field, values and contexts (backend app/api/specifications.py)
+  "no_specification",
   "stale_revision",
   "invalid_field",
   "anchor_missing",

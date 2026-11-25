@@ -772,6 +772,8 @@ export const messages = {
     // an editor's change to a document's nodes and statements (backend app/api/edit_answers.py and its routes)
     no_node: "Diesen Knoten gibt es nicht mehr, oder dein Konto sieht ihn nicht.",
     no_statement: "Diese Aussage gibt es nicht mehr, oder dein Konto sieht sie nicht.",
+    // a specification's title, field, values and contexts (backend app/api/specifications.py)
+    no_specification: "Diese Spezifikation gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     stale_revision: "Jemand hat das inzwischen geändert. Sieh dir den neuen Stand an und entscheide dann.",
     invalid_field: "Ein Feld lässt sich so nicht setzen. Prüfe die markierte Eingabe.",
     anchor_missing: "Eine Aussage braucht mindestens eine Fundstelle: Blöcke der Quelle oder eine Seite.",
@@ -1408,6 +1410,62 @@ export const messages = {
           issuer: "der Herausgeber",
           edition: "die Fassung",
         },
+      },
+      // what the document's specifications are and where they apply (plan M3a H1; DocumentScope.vue,
+      // SpecificationForm.vue, scopeWords.ts)
+      scope: {
+        heading: "Geltung",
+        intro:
+          "Wofür das Dokument steht – Lehrplan, Kompetenzrahmen, Qualifikation oder Prüfung – und wo es gilt: " +
+          "Bildungsbereich, Formalität, Einrichtung, Zielgruppe, Zeit und Niveau.",
+        loading: "Die Spezifikationen werden geladen …",
+        loadFailed: "Die Spezifikationen wurden nicht geladen.",
+        noneTitle: "Noch keine Spezifikation",
+        noneBody: "Die Extraktion legt sie an, sobald sie das Dokumentprofil gelesen hat.",
+        closed: {
+          frozen: "Das Dokument ist festgeschrieben: Die Geltung ist nur zu lesen.",
+          job_open: "Zu diesem Dokument läuft gerade ein Auftrag: Die Geltung ist bis zu seinem Ende nur zu lesen.",
+          not_extracted: "Die Extraktion hat noch nicht jedes Arbeitspaket gelesen: Die Geltung ist bis dahin nur zu lesen.",
+        },
+        readOnly: "Die Geltung ändern die Eigentümerin oder der Eigentümer des Dokuments und die Redaktion.",
+        kinds: {
+          curriculum: "Lehrplan",
+          competencyFramework: "Kompetenzrahmen",
+          qualificationSpecification: "Qualifikation",
+          assessmentSpecification: "Prüfung",
+        },
+        kind: "Art",
+        field: "Fach",
+        variants: "Varianten",
+        values: "Niveau, Zeit und Umfang",
+        contexts: "Geltungskontexte",
+        none: "nicht angegeben",
+        noValues: "noch nichts erfasst",
+        noContexts:
+          "Noch kein Geltungskontext erfasst. Ohne ihn nennt der Export, was die Extraktion zur Geltung gelesen hat.",
+        institution: "Einrichtung: {text}",
+        targetGroup: "Zielgruppe: {text}",
+        range: "{from} bis {to}",
+        span: "{kind} {from}–{to}",
+        spanFrom: "{kind} ab {from}",
+        spanTo: "{kind} bis {to}",
+        amount: "{amount} {unit}",
+        amountRange: "{from}–{to} {unit}",
+        recommended: "{value}, Empfehlung",
+        whole: "{value} insgesamt",
+        // the title and field of one specification (SpecificationForm.vue)
+        formHeading: "Titel und Fach von „{title}“",
+        title: "Titel",
+        titleHint: "Wie das Dokument die Spezifikation nennt: Fach, Beruf, Studiengang oder Kurs.",
+        fieldText: "Fach",
+        fieldTextHint:
+          "Fach oder Feld im Wortlaut des Dokuments. Ein Lehrplan ohne Fach bekommt in der Prüfung einen Hinweis.",
+        save: "Titel und Fach speichern",
+        saved: "Gespeichert.",
+        unchanged: "Nichts geändert.",
+        saveFailed: "Titel und Fach wurden nicht gespeichert.",
+        changedMeanwhile: "Jemand hat die Spezifikation inzwischen geändert; der neue Stand ist geladen.",
+        fieldProblem: "{field}: {problem}",
       },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
       kernExport: {

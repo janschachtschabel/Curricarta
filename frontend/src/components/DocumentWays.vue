@@ -23,6 +23,7 @@ const sections = computed(() => {
     { id: "document-source", label: t("documents.page.source.heading") },
     ...(mem ? [{ id: "document-mem", label: t("mem.origin.heading") }] : []),
     { id: "document-edition", label: t("documents.page.edition.heading") },
+    { id: "document-scope", label: t("documents.page.scope.heading") },
     { id: "document-extraction", label: mem ? t("mem.job.heading") : t("documents.page.extraction") },
     ...(mem ? [] : [{ id: "document-units", label: t("documents.units.heading") }]),
     { id: "document-findings", label: t("documents.findings.heading") },
