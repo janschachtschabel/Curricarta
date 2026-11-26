@@ -1,10 +1,11 @@
 """The whole way of a curriculum through the service, as one test: an account uploads a PDF, asks for its
-conversion, makes a document of it and has it extracted, X5 checks it, an editor freezes it and downloads
-its Kern export - each step through the public API, each job run by the worker's own step with the real
-handlers, against the PostgreSQL and S3 test services. A model stands in (FunctionModel, as the pipeline's
-tests use it): it answers each unit with the wording of its longest block, word for word, so that X5 finds
-it where it stands. The PDF is one of the conversion tests' synthetic files
-(tools/make_conversion_fixtures.py)."""
+conversion, makes a document of it and has it extracted, an editor sets values, a rule, an assessment and
+a placement of the second layer (plan M3a), X5 checks it, the editor freezes it and downloads its Kern
+export, which holds each of them under its frozen IRI - each step through the public API, each job run by
+the worker's own step with the real handlers, against the PostgreSQL and S3 test services. A model stands
+in (FunctionModel, as the pipeline's tests use it): it answers each unit with the wording of its longest
+block, word for word, so that X5 finds it where it stands. The PDF is one of the conversion tests'
+synthetic files (tools/make_conversion_fixtures.py)."""
 
 import asyncio
 import re
@@ -42,6 +43,7 @@ PUBLIC = "http://testserver:8000"
 PDF = (Path(__file__).resolve().parent / "conversion" / "fixtures" / "prose.pdf").read_bytes()
 BASE = "https://example.org/kk/"
 WORK = {"title": "Lehrplan Technik", "region": "DE-NW", "short_title": "lp-technik"}
+CV, LVL = "https://w3id.org/wlo/curriculum/vocab#", "https://w3id.org/wlo/curriculum/level/"
 _BLOCK = re.compile(r"^\[(p\d+-b\d+)\] (.+)$", re.M)
 
 
@@ -178,7 +180,11 @@ def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Setting
         assert {run["stage"] for run in runs if run["state"] == "done"} >= {"X1", "X2", "X3", "X4", "X5"}
         assert model.asked == ["profile", "outline", "frame"] and model.quoted
 
-        # 4. its work, issuer and edition set, X5 checks it again: no violation, nothing owed
+        # 4. the second layer set by the editor (plan M3a): a workload at a node and a level at a statement,
+        # a rule on a block of the document, a graded exam of its specification, the node placed there
+        edited = second_layer(client, editor, document, block=_BLOCK.findall(model.document)[0][0])
+
+        # 5. its work, issuer and edition set, X5 checks it again: no violation, nothing owed
         assert (
             client.patch(f"/api/v1/documents/{document}/work", headers=editor, json=WORK).status_code == 200
         )
@@ -191,19 +197,19 @@ def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Setting
         findings = client.get(f"/api/v1/documents/{document}/findings", headers=editor).json()
         assert findings["counts"]["violation"] == 0, findings["findings"]
 
-        # 5. frozen
+        # 6. frozen
         frozen = client.post(f"/api/v1/documents/{document}/freeze", headers=editor)
         assert frozen.status_code == 200, frozen.text
         assert frozen.json()["frozen_at"] is not None and frozen.json()["iri"].startswith(BASE)
 
-        # 6. what it says, as the frozen document reads: the statements the model answered, with their IRIs
+        # 7. what it says, as the frozen document reads: the statements the model answered, with their IRIs
         tree = client.get(f"/api/v1/documents/{document}/tree", headers=editor).json()
         assert tree["closed"] == "frozen"
         said = statements_of(tree["nodes"])
         assert sorted(found["fields"]["verbatim"] for found in said) == sorted(model.quoted)
         assert all(found["iri"].startswith(frozen.json()["iri"]) for found in said)
 
-        # 7. exported: its Kern Turtle, every row under the IRI the document was frozen with, none by its id
+        # 8. exported: its Kern Turtle, every row under the IRI the document was frozen with, none by its id
         exported = client.get(f"/api/v1/documents/{document}/kern.ttl", headers=editor)
         assert exported.status_code == 200, exported.text
         graph = Graph().parse(data=exported.content, format="turtle")
@@ -212,3 +218,81 @@ def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Setting
         rows = {*graph.subjects(RDF.type, CUR.CurriculumNode), *graph.subjects(RDF.type, CUR.Statement)}
         assert rows and all(str(row).startswith(frozen.json()["iri"] + "/") for row in rows)
         assert {found["iri"] for found in said} <= {str(row) for row in rows}
+        holders = {found["id"]: found["iri"] for found in [*nodes_of(tree["nodes"]), *said]}
+        second_layer_exported(graph, frozen.json()["iri"], holders, edited)
+
+        # 9. MEM's own export is of an import from MEM-Schule alone: this document is none
+        mem = client.get(f"/api/v1/documents/{document}/export.ttl", headers=editor)
+        assert (mem.status_code, mem.json()["code"]) == (409, "not_mem_import")
+
+
+def nodes_of(nodes: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [found for node in nodes for found in [node, *nodes_of(node["children"])]]
+
+
+def values(revision: int, **kinds: list[dict[str, Any]]) -> dict[str, Any]:
+    return {"expected_revision": revision, "level_assignments": [], "time_spans": [], "workloads": []} | kinds
+
+
+def second_layer(client: TestClient, editor: dict[str, str], document: str, block: str) -> dict[str, str]:
+    """What an editor sets of the second layer, each through its route: a workload at a node with a
+    statement, a level at that statement, a completion rule anchored at ``block`` that applies to the node,
+    a graded exam of the document's specification and the node placed in that specification for a grade
+    level - the ids of the node and the statement."""
+
+    def ok(answer: Any, status: int = 200) -> dict[str, Any]:
+        assert answer.status_code == status, answer.text
+        return dict(answer.json())
+
+    tree = ok(client.get(f"/api/v1/documents/{document}/tree", headers=editor))
+    node = next(found for found in nodes_of(tree["nodes"]) if found["statements"])
+    said, [specification] = node["statements"][0], tree["specifications"]
+    node_path, said_path = f"/api/v1/nodes/{node['id']}", f"/api/v1/statements/{said['id']}"
+    at_node = ok(client.put(f"{node_path}/values", headers=editor, json=values(node["revision"], workloads=[
+        {"amount": 40, "unit": CV + "unit_lesson"}])))  # fmt: skip
+    ok(client.put(f"{said_path}/values", headers=editor, json=values(said["revision"], level_assignments=[
+        {"level": LVL + "cefr-B1"}])))  # fmt: skip
+    new_rule = {"kind": "completion", "verbatim": "Alle Bereiche.", "anchors": [{"blocks": [block]}]}
+    rule = ok(client.post(f"/api/v1/documents/{document}/rules", headers=editor, json=new_rule), 201)
+    ok(client.patch(f"/api/v1/rules/{rule['id']}", headers=editor, json={
+        "expected_revision": rule["revision"], "min_count": 2, "applies_to": [node["id"]]}))  # fmt: skip
+    exam = {"parent_id": specification["id"], "assessment_kind": CV + "ak_exam", "graded": True,
+            "duration_minutes": 90, "targets": [node["id"]]}  # fmt: skip
+    made = ok(client.post(f"/api/v1/documents/{document}/assessments", headers=editor, json=exam), 201)
+    ok(client.put(f"/api/v1/assessments/{made['id']}/values", headers=editor, json=values(made["revision"],
+        level_assignments=[{"level": LVL + "grade-2"}])))  # fmt: skip
+    there = {"specification_id": specification["id"], "obligation": CV + "obl_binding"}
+    placed = ok(client.put(f"{node_path}/placements", headers=editor, json={
+        "expected_revision": at_node["revision"], "placements": [there]}))  # fmt: skip
+    [placement] = placed["placements"]
+    grade = {"time_kind": CV + "time_gradeLevel", "span_from": 7}
+    ok(client.put(f"/api/v1/placements/{placement['id']}/values", headers=editor, json=values(
+        placement["revision"], time_spans=[grade])))  # fmt: skip
+    return {"node": node["id"], "statement": said["id"]}
+
+
+def second_layer_exported(graph: Graph, iri: str, holders: dict[str, str], edited: dict[str, str]) -> None:
+    """The Turtle holds what ``second_layer`` set, each row under the IRI it was frozen with and each value
+    at its holder."""
+    node, said = URIRef(holders[edited["node"]]), URIRef(holders[edited["statement"]])
+    rule, exam, placement = (URIRef(f"{iri}/{name}-1") for name in ("rule", "assessment", "placement"))
+
+    def one(subject: Any, predicate: URIRef) -> Any:
+        [found] = graph.objects(subject, predicate)
+        return found
+
+    workload = one(node, CUR.workload)
+    assert (one(workload, CUR.amount).toPython(), one(workload, CUR.unit)) == (40, URIRef(CV + "unit_lesson"))
+    assert one(one(said, CUR.levelAssignment), CUR.level) == URIRef(LVL + "cefr-B1")
+    assert (rule, RDF.type, CUR.CompletionRule) in graph
+    assert (one(rule, CUR.minCount).toPython(), one(rule, CUR.ruleAppliesTo)) == (2, node)
+    assert (exam, RDF.type, CUR.Assessment) in graph and one(exam, CUR.assesses) == node
+    assert one(one(exam, CUR.levelAssignment), CUR.level) == URIRef(LVL + "grade-2")
+    assert (one(placement, CUR.placedUnit), one(placement, CUR.obligation)) == (
+        node, URIRef(CV + "obl_binding"),
+    )  # fmt: skip
+    assert str(one(placement, CUR.inSpecification)).startswith(iri + "/")
+    span = one(placement, CUR.timeSpan)
+    assert (one(span, CUR.timeKind), one(span, CUR["from"]).toPython()) == (
+        URIRef(CV + "time_gradeLevel"), 7,
+    )  # fmt: skip
