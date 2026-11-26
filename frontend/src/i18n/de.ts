@@ -1479,6 +1479,8 @@ export const messages = {
         // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
         valuesSaveNamed: "Werte speichern: {title}",
         gone: "Diese Spezifikation gibt es nicht mehr; die Geltung wird neu geladen.",
+        // the values' form did not come: what the section shows stays, editing waits for it
+        formFailed: "Niveau, Zeit, Umfang und Geltung lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
       },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
       kernExport: {

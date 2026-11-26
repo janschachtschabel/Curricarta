@@ -50,6 +50,11 @@ const scope = computed(() => shown.value?.[0] ?? null);
 const specifications = computed(() =>
   (scope.value?.specifications ?? []).map((specification) => saved.value[specification.id] ?? specification),
 );
+// to who may edit them: their values' form did not come, so they cannot be edited now - said, with a retry
+const formMissing = computed(() => {
+  const editable = !!scope.value?.editable && specifications.value.length > 0;
+  return editable && form.value === null ? { text: t("documents.page.scope.formFailed") } : null;
+});
 const readOnly = computed(() => {
   const found = scope.value;
   if (!found || found.editable) return null;
@@ -191,6 +196,8 @@ watch(() => props.refresh, reload);
     </template>
     <!-- always in the page, so the first word is read out -->
     <p class="scope__status" role="status">{{ status }}</p>
+    <!-- in the page from the start, so its first word is heard -->
+    <PartialState :notice="formMissing" :retry="true" @retry="retry()" />
     <!-- in the page from the start, so a failure of a later reading is heard -->
     <PartialState :notice="scope !== null ? failure : null" :retry="!hidden" @retry="retry()" />
   </section>

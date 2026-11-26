@@ -9,12 +9,13 @@ import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
+import DocumentScope from "@/components/DocumentScope.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 import { specificationRow } from "@/valueHolder";
 
-import { SCOPE_FORM, specificationOf, valuedSpecification } from "./scopeFixtures";
+import { SCOPE_FORM, specificationOf, specificationsOf, valuedSpecification } from "./scopeFixtures";
 import { CV, form_, node_, noValues } from "./treeFixtures";
 
 describe("the loading state", () => {
@@ -104,6 +105,36 @@ describe("a specification's values and contexts", () => {
 
     expect(wrapper.find("form").exists()).toBe(false);
     expect(wrapper.find("[role=alert]").exists()).toBe(false);
+  });
+});
+
+describe("a specification's values whose form did not come", () => {
+  it("say that they cannot be edited now, beside what the section shows, with a retry that brings the form", async () => {
+    vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+    vi.spyOn(api, "getForm").mockRejectedValueOnce(new api.ApiError("network", 0)).mockResolvedValue(SCOPE_FORM);
+    const wrapper = mount(DocumentScope, { props: { documentId: "d1", sector: "school" }, attachTo: document.body });
+    await flushPromises();
+
+    const notice = wrapper.findAll("[role=status]").find((one) => one.text().includes(t("documents.page.scope.formFailed")));
+    expect(notice, "a notice beside the section").toBeDefined();
+    expect(wrapper.find(".value-section").exists()).toBe(false);
+    expect(wrapper.get("[data-test=scope-context]").text()).toContain("Gymnasium");
+
+    await notice?.get("button").trigger("click");
+    await flushPromises();
+    expect(wrapper.find(".value-section").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain(t("documents.page.scope.formFailed"));
+    wrapper.unmount();
+  });
+
+  it("say nothing of it to a reader who may not edit them", async () => {
+    vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()], editable: false }));
+    vi.spyOn(api, "getForm").mockRejectedValue(new api.ApiError("network", 0));
+    const wrapper = mount(DocumentScope, { props: { documentId: "d1", sector: "school" } });
+    await flushPromises();
+
+    expect(wrapper.text()).not.toContain(t("documents.page.scope.formFailed"));
+    wrapper.unmount();
   });
 });
 
