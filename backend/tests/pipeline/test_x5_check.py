@@ -2,14 +2,18 @@
 in place of those before - with no model asked, so no model job; a document X5 has not checked yet is
 left to its extraction."""
 
+from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
 import pytest
 
+from app.db.assessments import add_assessment
 from app.db.draft_copy import copy_document
 from app.db.runs import RunStart, finish_run, start_run, x5_owed
+from app.db.source_queries import Reader
+from app.domain.assessments import AssessmentDraft
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, account_lane, claim, enqueue
 from app.pipeline import x5_stage
@@ -169,3 +173,32 @@ async def test_a_draft_copy_is_checked_with_no_x5_of_its_own_and_x5_owes_it_noth
         connection, "SELECT count(*) FROM extraction_run WHERE document_id = %s AND outcome = 'done'", copy
     ) == [(1,)]
     assert not await x5_owed(connection, copy)
+
+
+async def test_a_check_finds_the_weights_of_an_assessment_s_parts_over_100_at_that_assessment(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    # plan M3a J: the SHACL result at the assessment's urn:uuid becomes a finding at its row
+    pool, connection = setup
+    document = await extracted(setup, tmp_path, database_url, invent=())
+    [(node,)] = await rows(
+        connection, "SELECT id FROM node WHERE document_id = %s ORDER BY id LIMIT 1", document.id
+    )
+    reader = Reader(document.owner_id, sees_all=False)
+    exam = await add_assessment(connection, reader, document.id, AssessmentDraft(node, CV + "ak_exam"))
+    assert exam is not None
+    for weight in (60, 50):
+        part = AssessmentDraft(exam, CV + "ak_examPart", weight_percent=Decimal(weight))
+        assert await add_assessment(connection, reader, document.id, part) is not None
+
+    await check_document(
+        context_of(pool, tmp_path, Quoting(), database_url), await a_check(connection, document)
+    )
+
+    found = await rows(
+        connection,
+        "SELECT focus_id, severity FROM validation_finding"
+        " WHERE document_id = %s AND rule = 'shacl.AssessmentShape'",
+        document.id,
+    )
+    assert found == [(exam, "violation")]

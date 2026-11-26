@@ -5,6 +5,7 @@ set as their values; named when the document is frozen, by a counter a draft cop
 tree's lock, as every edit."""
 
 import asyncio
+from dataclasses import replace
 from decimal import Decimal
 from typing import Any
 from uuid import UUID, uuid4
@@ -19,11 +20,12 @@ from app.db.draft_copy import copy_document
 from app.db.editing import DocumentFrozen, StaleRevision, drop_node
 from app.db.findings import findings_of
 from app.db.freezing import freeze
+from app.db.review import ReviewItem, StaleItems, set_review
 from app.db.runs import x5_owed
 from app.db.source_queries import Reader
 from app.db.values import replace_values, values_of
 from app.domain.assessments import AssessmentDraft
-from app.domain.l2 import Holder, LevelDraft, ValueDrafts
+from app.domain.l2 import HeldValues, Holder, Level, LevelDraft, Stated, ValueDrafts
 from app.vocab.form_values import FieldError
 from tests.db.test_editing import a_finding, document, edited_at, one
 from tests.db.test_freeze import BASE, DOC, checked, ready
@@ -308,3 +310,62 @@ async def test_two_editors_of_an_assessment_at_once_one_wins(
     assert lost.value.current == 2
     assert await one(connection, "SELECT label, revision FROM assessment WHERE id = %s", exam) == ("Erste", 2)
     assert await one(connection, "SELECT count(*) FROM level_assignment") == (0,)
+
+
+async def test_a_level_at_an_assessment_is_none_a_review_sets(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # reviewed with its assessment once assessments are: a review naming it finds no such row, changes nothing
+    specification = (await holders(connection, document))["specification"].id
+    exam = await an_exam(connection, document, specification)
+    await replace_values(
+        connection, owner(document), Holder("assessment", exam), 1, ValueDrafts(levels=(GRADE,))
+    )
+    [level] = (await values_of(connection, document.id))[Holder("assessment", exam)].levels
+    assert level.value.id is not None
+
+    with pytest.raises(StaleItems) as stale:
+        await set_review(
+            connection, document.id, CV + "rev_confirmed", [ReviewItem("level_assignment", level.value.id, 1)]
+        )
+
+    assert [(each.id, each.current) for each in stale.value.stale] == [(level.value.id, None)]
+    assert await one(connection, "SELECT review_status_iri, revision FROM level_assignment") == (PROPOSED, 1)
+    assert await one(connection, "SELECT revision FROM assessment WHERE id = %s", exam) == (2,)
+
+
+async def test_two_assessments_added_under_one_parent_at_once_take_positions_one_and_two(
+    url: str, connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # the second waits for the tree's lock, then counts past the first: its position is counted under the lock
+    specification = (await holders(connection, document))["specification"].id
+    async with (
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as other,
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as watcher,
+    ):
+        waiting: asyncio.Task[UUID | None] | None = None
+        try:
+            async with other.transaction():
+                first = await an_exam(other, document, specification)
+                waiting = asyncio.create_task(an_exam(connection, document, specification))
+                await waiting_for_a_lock(watcher, connection.info.backend_pid)
+        finally:
+            second = await waiting if waiting is not None else None
+
+    assert await one(connection, "SELECT position FROM assessment WHERE id = %s", first) == (1,)
+    assert await one(connection, "SELECT position FROM assessment WHERE id = %s", second) == (2,)
+
+
+async def test_the_assessments_take_the_values_a_reader_read_already(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # a graph build reads the document's values once (app/exports/kern_rows.py) and hands them in
+    specification = (await holders(connection, document))["specification"].id
+    exam = await an_exam(connection, document, specification)
+    handed = Level(replace(GRADE, id=uuid4()), Stated(HUMAN, PROPOSED, None, 1))
+
+    [row] = await assessments_of(
+        connection, document.id, values={Holder("assessment", exam): HeldValues((handed,))}
+    )
+
+    assert row.levels == (handed,)

@@ -203,3 +203,26 @@ def test_an_assessment_holds_levels_and_anchors_and_goes_with_its_parent(
         " (SELECT count(*) FROM level_assignment), (SELECT count(*) FROM anchor)"
     ).fetchone()
     assert left == (0, 0, 0, 0)
+
+
+def test_an_anchor_s_one_owner_check_names_the_assessment_and_its_page_checks_stay(
+    connection: psycopg.Connection,
+) -> None:
+    # migration assessment drops the unnamed one-owner check of l1_anchors, names one with the assessment
+    checks: dict[str, str] = dict(
+        connection.execute(
+            "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint"
+            " WHERE conrelid = 'anchor'::regclass AND contype = 'c'"
+        ).fetchall()
+    )
+
+    assert "anchor_check" not in checks
+    assert (
+        "num_nonnulls(node_id, statement_id, frame_part_id, specification_id, assessment_id) <= 1"
+        in checks["anchor_one_owner"]
+    )
+    assert [name for name, check in checks.items() if "num_nonnulls" in check] == ["anchor_one_owner"]
+    page_checks = [check for check in checks.values() if "page_start" in check or "page_end" in check]
+    assert (
+        len(page_checks) == 4
+    )  # a page or a printed one, an end after its start, an end of a range it begins, from 1
