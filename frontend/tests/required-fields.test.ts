@@ -53,6 +53,17 @@ describe("a required field", () => {
     }
   });
 
+  it("of an applicability context is none: every field of the context's form is free", () => {
+    for (const field of form_().context.fields) {
+      const wrapper = mount(FormFieldInput, {
+        props: { field, values: field.values ?? [], modelValue: "", labels: messages.documents.tree.values.fields },
+      });
+      expect(wrapper.get("input, select").attributes("aria-required"), field.key).toBeUndefined();
+      expect(wrapper.get("label").text(), field.key).not.toMatch(/\(|freiwillig/);
+      wrapper.unmount();
+    }
+  });
+
   it("of a value's form is said to be required, one the form leaves free is not, a yes or no never", () => {
     const fields = form_().values.workloads.fields;
     for (const [key, expected] of [

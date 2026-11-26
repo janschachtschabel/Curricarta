@@ -85,6 +85,12 @@ describe("an entry of a row's values on a narrow screen", () => {
     expect(stylesOf(source(file))).toMatch(/repeat\(auto-fill, minmax\(min\(12rem, 100%\), 1fr\)\)/);
   });
 
+  it("stacks an applicability context's fields so too, and caps its columns at its width", () => {
+    const file = "components/ContextItemForm.vue";
+    expect(narrowRule(file, ".context-item__fields")).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\)/);
+    expect(stylesOf(source(file))).toMatch(/repeat\(auto-fill, minmax\(min\(12rem, 100%\), 1fr\)\)/);
+  });
+
   it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
     expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
       /overflow-wrap:\s*anywhere/,

@@ -12,7 +12,9 @@ import PartialState from "@/components/PartialState.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
+import { specificationRow } from "@/valueHolder";
 
+import { SCOPE_FORM, specificationOf, valuedSpecification } from "./scopeFixtures";
 import { CV, form_, node_, noValues } from "./treeFixtures";
 
 describe("the loading state", () => {
@@ -84,6 +86,24 @@ describe("the partial state", () => {
 
     expect(wrapper.get("button").text()).toBe(t("states.retry"));
     expect(wrapper.emitted("retry")).toHaveLength(1);
+  });
+});
+
+describe("a specification's values and contexts", () => {
+  const props = { form: SCOPE_FORM, documentId: "d1", reviewable: false, closedBy: null, editable: true };
+
+  it("say where none is entered yet, no context either, beside the buttons that add them", () => {
+    const wrapper = mount(ValueSection, { props: { ...props, row: specificationRow(specificationOf()) } });
+
+    expect(wrapper.get(".value-section__none").text()).toBe(t("documents.tree.values.none"));
+    expect(wrapper.findAll(".value-section__add").at(-1)?.text()).toBe(t("documents.tree.values.add.contexts"));
+  });
+
+  it("only read, in the page's words, where a job keeps the document closed and no draft is open", () => {
+    const wrapper = mount(ValueSection, { props: { ...props, editable: false, closedBy: "job_open", row: specificationRow(valuedSpecification()) } });
+
+    expect(wrapper.find("form").exists()).toBe(false);
+    expect(wrapper.find("[role=alert]").exists()).toBe(false);
   });
 });
 

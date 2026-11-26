@@ -18,6 +18,7 @@ import { block, blockPage, conversion, table } from "./conversions";
 import { CV, LABELS, REGION, cueDecision, newTerm, nodeType, reviewCue, termDecision } from "./lexiconFixtures";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
+import { SCOPE_FORM, specificationsOf, valuedSpecification } from "./scopeFixtures";
 import { CV as TREE_CV, LVL, NO_VALUES_FORM, form_, node_, noValues, tree_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
@@ -391,6 +392,32 @@ describe("accessibility of the pages", () => {
     await wrapper.get(".value-section form").trigger("submit");
     await flushPromises();
     expect(wrapper.find(".value-section .field__error").exists()).toBe(true);
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
+  it("the document's page with a specification's values and contexts in their form and a problem at a context's field, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    vi.spyOn(api, "getUnits").mockResolvedValue([]);
+    vi.spyOn(api, "getFindings").mockResolvedValue({ counts: { violation: 0, warning: 0, info: 0 }, findings: [], truncated: false, repairable: [] });
+    vi.spyOn(api, "getSource").mockResolvedValue(detail());
+    vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+    vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+    vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
+    vi.spyOn(api, "setSpecificationValues").mockRejectedValue(
+      new api.ApiError("server", 422, "invalid_field", "No.", { field: "contexts[0].sector", problem: "not_offered" }),
+    );
+    const wrapper = await show("/dokumente/d1");
+    const add = wrapper.findAll(".value-section__add").find((button) => button.text() === "Geltungskontext hinzufügen");
+    await add?.trigger("click");
+    await wrapper.get(".value-section form").trigger("submit");
+    await flushPromises();
+    expect(wrapper.find(".context-item .field__error").exists()).toBe(true);
 
     const found = await pageViolations();
 
