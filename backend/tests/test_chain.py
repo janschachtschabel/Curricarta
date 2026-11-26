@@ -26,6 +26,7 @@ from app.core.storage import open_storage
 from app.core.storage_async import AsyncStorage
 from app.core.storage_s3 import s3_client
 from app.db.migrate import migrate
+from app.domain.iris import slug
 from app.exports.kern_rdf import CUR
 from app.jobs.context import JobContext
 from app.jobs.handlers import make_handlers
@@ -219,6 +220,10 @@ def test_a_pdf_goes_from_its_upload_to_a_frozen_document(chain_settings: Setting
         assert rows and all(str(row).startswith(frozen.json()["iri"] + "/") for row in rows)
         assert {found["iri"] for found in said} <= {str(row) for row in rows}
         holders = {found["id"]: found["iri"] for found in [*nodes_of(tree["nodes"]), *said]}
+        specs = client.get(f"/api/v1/documents/{document}/specifications", headers=editor).json()
+        holders |= {  # the frozen name of its key (app/domain/naming.py)
+            spec["id"]: f"{frozen.json()['iri']}/spec/{slug(spec['key'])}" for spec in specs["specifications"]
+        }
         second_layer_exported(graph, frozen.json()["iri"], holders, edited)
 
         # 9. MEM's own export is of an import from MEM-Schule alone: this document is none
@@ -238,7 +243,7 @@ def second_layer(client: TestClient, editor: dict[str, str], document: str, bloc
     """What an editor sets of the second layer, each through its route: a workload at a node with a
     statement, a level at that statement, a completion rule anchored at ``block`` that applies to the node,
     a graded exam of the document's specification and the node placed in that specification for a grade
-    level - the ids of the node and the statement."""
+    level - the ids of the node, the statement and the specification."""
 
     def ok(answer: Any, status: int = 200) -> dict[str, Any]:
         assert answer.status_code == status, answer.text
@@ -268,13 +273,12 @@ def second_layer(client: TestClient, editor: dict[str, str], document: str, bloc
     grade = {"time_kind": CV + "time_gradeLevel", "span_from": 7}
     ok(client.put(f"/api/v1/placements/{placement['id']}/values", headers=editor, json=values(
         placement["revision"], time_spans=[grade])))  # fmt: skip
-    return {"node": node["id"], "statement": said["id"]}
+    return {"node": node["id"], "statement": said["id"], "specification": specification["id"]}
 
 
 def second_layer_exported(graph: Graph, iri: str, holders: dict[str, str], edited: dict[str, str]) -> None:
-    """The Turtle holds what ``second_layer`` set, each row under the IRI it was frozen with and each value
-    at its holder."""
-    node, said = URIRef(holders[edited["node"]]), URIRef(holders[edited["statement"]])
+    """What ``second_layer`` set, in the Turtle: each row under its frozen IRI, each value at its holder."""
+    node, said, specification = (URIRef(holders[edited[k]]) for k in ("node", "statement", "specification"))
     rule, exam, placement = (URIRef(f"{iri}/{name}-1") for name in ("rule", "assessment", "placement"))
 
     def one(subject: Any, predicate: URIRef) -> Any:
@@ -287,12 +291,10 @@ def second_layer_exported(graph: Graph, iri: str, holders: dict[str, str], edite
     assert (rule, RDF.type, CUR.CompletionRule) in graph
     assert (one(rule, CUR.minCount).toPython(), one(rule, CUR.ruleAppliesTo)) == (2, node)
     assert (exam, RDF.type, CUR.Assessment) in graph and one(exam, CUR.assesses) == node
+    assert one(exam, CUR.partOf) == specification == one(placement, CUR.inSpecification)
     assert one(one(exam, CUR.levelAssignment), CUR.level) == URIRef(LVL + "grade-2")
-    assert (one(placement, CUR.placedUnit), one(placement, CUR.obligation)) == (
-        node, URIRef(CV + "obl_binding"),
-    )  # fmt: skip
-    assert str(one(placement, CUR.inSpecification)).startswith(iri + "/")
+    assert one(placement, CUR.placedUnit) == node
+    assert one(placement, CUR.obligation) == URIRef(CV + "obl_binding")
     span = one(placement, CUR.timeSpan)
-    assert (one(span, CUR.timeKind), one(span, CUR["from"]).toPython()) == (
-        URIRef(CV + "time_gradeLevel"), 7,
-    )  # fmt: skip
+    assert one(span, CUR.timeKind) == URIRef(CV + "time_gradeLevel")
+    assert one(span, CUR["from"]).toPython() == 7
