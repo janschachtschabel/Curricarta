@@ -15,6 +15,13 @@ const Page = defineComponent({
   },
 });
 const Elsewhere = defineComponent({ render: () => h("p", "elsewhere") });
+// a page whose guard sits in a part of it that may go while the page stays (DocumentEditors.vue)
+const held = ref(true);
+const Holder = defineComponent({
+  setup() {
+    return () => (held.value ? h(Page) : h("p", "gone"));
+  },
+});
 
 let shown: VueWrapper | null = null;
 
@@ -24,6 +31,7 @@ async function at(path: string): Promise<Router> {
     routes: [
       { path: "/page/:id", component: Page },
       { path: "/elsewhere", component: Elsewhere },
+      { path: "/holder", component: Holder },
     ],
   });
   await router.push(path);
@@ -43,6 +51,7 @@ afterEach(() => {
   shown = null;
   guard = null;
   dirty.value = false;
+  held.value = true;
 });
 
 describe("the guard of a draft", () => {
@@ -116,6 +125,19 @@ describe("the guard of a draft", () => {
     router.back();
     await flushPromises();
     expect(router.currentRoute.value.fullPath).toBe("/page/1");
+  });
+
+  it("lets the move it asks about go on where the part holding the draft goes before the answer", async () => {
+    const router = await at("/holder");
+    dirty.value = true;
+
+    void router.push("/elsewhere");
+    await flushPromises();
+    expect(guard?.leaving.value).toBe(true);
+    held.value = false; // the draft went with its part: nothing is left to keep
+    await flushPromises();
+
+    expect(router.currentRoute.value.path).toBe("/elsewhere");
   });
 
   it("lets the browser ask before the tab closes while a draft is open, and no more once the page is gone", async () => {

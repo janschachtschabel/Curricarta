@@ -80,7 +80,13 @@ export function useLeaveGuard(dirty: MaybeRefOrGetter<boolean>, options: LeaveGu
   }
 
   onMounted(() => window.addEventListener("beforeunload", warnBeforeUnload));
-  onBeforeUnmount(() => window.removeEventListener("beforeunload", warnBeforeUnload));
+  // Gone while it asks - a part of a page that holds the draft, taken away as the page reads anew: the draft
+  // went with it, so nothing is left to keep, and the move asked about goes on as the reader asked rather than
+  // hang unanswered with its question gone from the page.
+  onBeforeUnmount(() => {
+    window.removeEventListener("beforeunload", warnBeforeUnload);
+    answer(true);
+  });
 
   const leaving = computed(() => question.value !== null);
   return { leaving, answer };
