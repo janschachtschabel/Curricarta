@@ -28,10 +28,12 @@ from app.exports.kern_scope import add_scope
 from app.exports.kern_values import add_values
 from app.sources.mem.tree import storable_iri
 
-# The version of the graph this module writes of the rows app/exports/kern_rows.py reads: X5 records it with
-# each check (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when
-# a frozen document was checked under another. tests/exports/test_kern_versions.py pins it to the source.
-KERN_GRAPH_VERSION = 3
+# The version of the graph this module writes of the rows app/exports/kern_rows.py reads, and of how X5
+# checks it (app/pipeline/shacl_child.py, its shapes, model and pyshacl): X5 records it with each check
+# (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when a frozen
+# document was checked under another. tests/exports/test_kern_versions.py pins it to all of these: a change
+# of the check alone is a new version too, owing every draft a check and moving the kept exports' fingerprint.
+KERN_GRAPH_VERSION = 4
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 _SPECIFICATION_CLASSES = {

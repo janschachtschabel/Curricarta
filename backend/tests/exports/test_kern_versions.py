@@ -1,38 +1,55 @@
-"""The versions of what the Kern builders write (plan M3a): KERN_GRAPH_VERSION, which X5 records with each
-check (app/db/runs.py), and KERN_EXPORT, which names the kept exports (app/exports/kern_export.py). Each
-is pinned to a digest of the source that decides what it versions - its syntax tree, without docstrings,
-comments and the version's own line -, so a change of what is written without a new version turns a test
-here red.
+"""The versions of the Kern builders and of X5's check (plan M3a): KERN_GRAPH_VERSION, which X5 records
+with each check (app/db/runs.py) - the graph the builder writes and how X5 validates it -, and KERN_EXPORT,
+which names the kept exports (app/exports/kern_export.py). Each is pinned to a digest of what decides what
+it versions - the modules' syntax trees, without docstrings, comments and the version's own line; for the
+graph's version also the shape files and model files X5 validates by and the pinned pyshacl's version -,
+so a change of what is written or checked without a new version turns a test here red.
 
 A red test here: bump the version beside the builder, then pin the new digest under the new version.
-Never pin a version again: its checks (X5) and its kept files stand for the old source. The syntax tree is
-Python's own, so a new minor version of Python may change every digest at once without a change of the
-source: then pin the digests anew under the versions they stand for.
+Never pin a version again: its checks (X5) and its kept files stand for the old source. A change of the
+check alone - a shape, a vocabulary, pyshacl, any line of shacl_child.py, its logging too - is a new graph
+version as well: every draft is owed a check anew, and the kept exports' fingerprint (kern_export.py)
+moves, so a frozen file is built anew and says it was checked under the old version, built with the new,
+though its graph is the same. The syntax tree is Python's own, so a new minor version of Python may change
+every digest at once without a change of the source: then pin the digests anew under the versions they
+stand for.
 """
 
 import ast
 import hashlib
 import inspect
+import shutil
+import sys
+from importlib.metadata import version
+from pathlib import Path
 from types import ModuleType
+
+import pytest
 
 from app.db import value_rows
 from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_scope, kern_values
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.pipeline import shacl_child
+from app.pipeline.shacl_child import SHAPE_FILES, model_paths
+from app.vocab.loader import MODEL_DIRS
 
 # what the graph X5 checks is made of: the rows read, and the triples written of them - of the values too
 # (the rows read for the file's head count too: a column read for it alone is a new version as well)
 # value_rows: how the values are read; kern_scope: a specification's applicability (plan M3a H1)
 # shacl_child: how X5 validates the graph - the version X5 records says what was checked, and a check by
 # another validator is another check (a draft checked while every value's vocabulary went unchecked, audit
-# 2026-11-14, is owed one)
+# 2026-11-14, is owed one); beside it the files and the checker it validates by (check_digest). Not held:
+# rdflib and owlrl, on which pyshacl runs (the kept exports' fingerprint holds rdflib's version)
 GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child)
+ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
     2: "8f9b27919fa004d4e2fc31c6796476430409a883523bead68d836dbd9f0850ad",  # the values (plan M3a F1)
-    # applicability (plan M3a H1) and the validator beside it: 3 was never shipped, so pinned anew
-    3: "956df18409facc8e3e9bf6cdcfc929fe45cdbefc8ca574007302949f0453aef2",
+    3: "a6d616c76fe83efc1b11e899dff686ef4f3f85dec580ff830e010e538941945e",  # applicability (plan M3a H1)
+    # the check beside the graph: the validator, its shape and model files, pyshacl (check_digest); it
+    # checks a value's vocabulary and the blank nodes (audit 2026-11-14)
+    4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
@@ -47,6 +64,19 @@ _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 def source_digest(*modules: ModuleType) -> str:
     """The digest of the modules' syntax trees, without docstrings and without the versions' lines."""
     return tree_digest(*map(inspect.getsource, modules))
+
+
+def check_digest() -> str:
+    """The digest of the graph's modules, the files X5 validates by - the shape files and the model files it
+    loads, line ends as git keeps them - and the pinned pyshacl's version, as the MEM gate's fingerprint
+    holds its own (app/exports/mem_export.py)."""
+    digest = hashlib.sha256(source_digest(*GRAPH_MODULES).encode())
+    digest.update(b"\x00" + version("pyshacl").encode())
+    names = {path.relative_to(ONTOLOGY).as_posix() for path in model_paths(ONTOLOGY)} | set(SHAPE_FILES)
+    for name in sorted(names):  # by name, as on every system (a Windows path sorts without case)
+        digest.update(b"\x00" + name.encode() + b"\x00")
+        digest.update((ONTOLOGY / name).read_bytes().replace(b"\r\n", b"\n"))
+    return digest.hexdigest()
 
 
 def tree_digest(*sources: str) -> str:
@@ -69,9 +99,27 @@ def _versions(statement: ast.stmt) -> bool:
     return any(isinstance(target, ast.Name) and target.id in _VERSIONS for target in targets)
 
 
-def test_the_graph_s_version_names_the_builder_x5_checks_with() -> None:
+def test_the_graph_s_version_names_the_builder_and_the_check_x5_records() -> None:
     assert max(GRAPH_DIGESTS) == KERN_GRAPH_VERSION
-    assert source_digest(*GRAPH_MODULES) == GRAPH_DIGESTS[KERN_GRAPH_VERSION]
+    assert check_digest() == GRAPH_DIGESTS[KERN_GRAPH_VERSION]
+
+
+def test_another_pyshacl_or_another_shape_file_is_another_check(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    here = sys.modules[__name__]
+    pinned = check_digest()
+    with monkeypatch.context() as patched:
+        patched.setattr(here, "version", lambda _: "0.0.0")
+        other_checker = check_digest()
+    for folder in MODEL_DIRS:
+        shutil.copytree(ONTOLOGY / folder, tmp_path / folder)
+    assert check_digest() == pinned  # the copy is no change
+    shapes = tmp_path / SHAPE_FILES[0]
+    shapes.write_bytes(shapes.read_bytes() + b"\n# changed\n")
+    monkeypatch.setattr(here, "ONTOLOGY", tmp_path)
+
+    assert pinned not in {other_checker, check_digest()}
 
 
 def test_the_export_s_version_names_what_the_kept_file_adds_to_the_graph() -> None:
