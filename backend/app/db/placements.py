@@ -6,7 +6,8 @@ whose fields change becomes one, on its next revision; one only moved keeps its 
 something counts the node's revision one up and notes the document edited, which owes X5 a check; one that
 changes nothing leaves all as it was. The time spans and workloads at a placement are its values, set as a
 whole on its revision (app/db/values.py, a holder "placement"). Read by document, and named when the document
-is frozen, in app/db/placement_rows.py.
+is frozen, in app/db/placement_rows.py; where a node may be placed - the specifications with their variants,
+the tree's answer - here (``places_of``).
 
 A set holds the tree's lock and refuses what every edit of the tree refuses (app/db/editing.py ``guard``);
 StaleRevision where the node stands at another revision. Each placement is in a specification or a variant of
@@ -23,6 +24,7 @@ from uuid import UUID
 
 import psycopg
 from psycopg import sql
+from psycopg.rows import dict_row
 
 from app.db.anchors import new_entity
 from app.db.documents import DOCUMENT_VISIBLE
@@ -39,7 +41,7 @@ from app.db.editing import (
     target_of,
 )
 from app.db.source_queries import Reader
-from app.domain.placements import PlacementDraft
+from app.domain.placements import Place, PlacementDraft
 from app.vocab.form_values import FieldError
 
 OBLIGATIONS: Final = CV + "Obligations"
@@ -69,6 +71,13 @@ SELECT id FROM time_span WHERE placement_id = ANY(%(gone)s)
 UNION ALL SELECT id FROM workload WHERE placement_id = ANY(%(gone)s)
 UNION ALL SELECT t.id FROM time_span t JOIN workload w ON w.id = t.workload_id
     WHERE w.placement_id = ANY(%(gone)s)
+"""
+# the document's specifications with their variants, where a node may be placed (the tree's answer)
+_PLACES = """
+SELECT s.id, s.title, coalesce(json_agg(json_build_object('id', v.id, 'label', v.label) ORDER BY v.key)
+    FILTER (WHERE v.id IS NOT NULL), '[]') AS variants
+FROM specification s LEFT JOIN variant v ON v.specification_id = s.id
+WHERE s.document_id = %s GROUP BY s.id, s.key, s.title ORDER BY s.key
 """
 _PROPOSAL: Final = sql.SQL(
     "origin_iri = %s, rule_id = NULL, review_status_iri = %s, revision = revision + 1, updated_at = now()"
@@ -247,3 +256,15 @@ async def _update(
     await connection.execute(
         sql.SQL("UPDATE placement SET {} WHERE id = %s").format(sql.SQL(", ").join(assigned)), params
     )
+
+
+async def places_of(connection: psycopg.AsyncConnection, document_id: UUID) -> list[Place]:
+    """The document's specifications by key, each with its variants: where its nodes may be placed -
+    within the caller's transaction, as it reads."""
+    async with connection.cursor(row_factory=dict_row) as rows:
+        await rows.execute(_PLACES, (document_id,))
+        found = await rows.fetchall()
+    return [
+        Place(row["id"], row["title"], tuple((UUID(each["id"]), each["label"]) for each in row["variants"]))
+        for row in found
+    ]

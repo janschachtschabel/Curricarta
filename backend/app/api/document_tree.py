@@ -27,7 +27,7 @@ from app.api.source_content import EDITORS
 from app.api.value_answers import ValuesOut, values_out
 from app.core.auth import Principal
 from app.db.editing import DOCUMENT_OF_NODE, extracted, target_of
-from app.db.placement_rows import places_of
+from app.db.placements import places_of
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.tree import TreeAnchor, TreeNode, TreeStatement, read_tree, review_counts, walk
 from app.domain.l1 import WORDING_FIELDS
