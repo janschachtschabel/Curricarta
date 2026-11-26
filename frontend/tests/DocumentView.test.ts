@@ -1383,25 +1383,52 @@ describe("a document's page with a draft of its applicability", () => {
   });
 });
 
-describe("a document's page with a draft of an assessment", () => {
+/** The page as the app shows it, at its address, its first specification holding values. */
+async function routedPage(): Promise<VueWrapper> {
+  api.setToken("curricarta_token");
+  vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+  vi.spyOn(api, "getRuns").mockResolvedValue([]);
+  vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+  await router.push("/dokumente/d1");
+  shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
+  await flushPromises();
+  return shown;
+}
+
+const button = (wrapper: VueWrapper, label: string) => wrapper.findAll("button").find((one) => one.text() === label);
+
+// a draft opened in each editor section of the page: a specification's values, a new rule, a new assessment
+const DRAFTS: Record<"scope" | "rules" | "assessments", (wrapper: VueWrapper) => Promise<void>> = {
+  scope: async (wrapper) => {
+    await wrapper.get(".value-section input[type=text]").setValue("Noch nicht gespeichert");
+  },
+  rules: async (wrapper) => {
+    await button(wrapper, t("documents.page.rules.add"))?.trigger("click");
+    await wrapper.get("form.rule-new input[inputmode=numeric]").setValue("3");
+  },
+  assessments: async (wrapper) => {
+    await button(wrapper, t("documents.page.assessments.add"))?.trigger("click");
+    await wrapper.get(".assessment-form input[type=text]").setValue("Noch nicht gespeichert");
+  },
+};
+
+describe("a document's page with a draft in one of its editor sections", () => {
   afterEach(() => api.clearToken());
 
-  it("asks before the draft goes with the page, in the assessments' words", async () => {
-    api.setToken("curricarta_token");
-    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
-    vi.spyOn(api, "getRuns").mockResolvedValue([]);
-    await router.push("/dokumente/d1");
-    shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
-    await flushPromises();
-    const add = shown.findAll("button").find((one) => one.text() === t("documents.page.assessments.add"));
-    await add?.trigger("click");
-    await shown.get(".assessment-form input[type=text]").setValue("Noch nicht gespeichert");
+  it.each([
+    ["scope", "documents.page.scope.leave.message"],
+    ["rules", "documents.page.rules.leave"],
+    ["assessments", "documents.page.assessments.leave"],
+  ] as const)("asks once before a draft of its %s goes with the page, in that section's words", async (section, words) => {
+    const wrapper = await routedPage();
+    await DRAFTS[section](wrapper);
 
     void router.push("/quellen");
     await flushPromises();
 
-    expect(shown.get("[role=dialog]").text()).toContain(t("documents.page.assessments.leave"));
-    await shown.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.cancel"))?.trigger("click");
+    expect(wrapper.findAll("[role=dialog]")).toHaveLength(1);
+    expect(wrapper.get("[role=dialog]").text()).toContain(t(words));
+    await wrapper.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.cancel"))?.trigger("click");
     await flushPromises();
     expect(router.currentRoute.value.name).toBe("document");
   });
@@ -1410,19 +1437,12 @@ describe("a document's page with a draft of an assessment", () => {
 describe("a document's page with drafts in several of its sections", () => {
   afterEach(() => api.clearToken());
 
-  /** The page at its address with a draft of a specification's values and of a new assessment. */
+  /** The page with a draft of a specification's values and of a new rule. */
   async function twoDrafts(): Promise<VueWrapper> {
-    api.setToken("curricarta_token");
-    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
-    vi.spyOn(api, "getRuns").mockResolvedValue([]);
-    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
-    await router.push("/dokumente/d1");
-    shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
-    await flushPromises();
-    await shown.get(".value-section input[type=text]").setValue("Noch nicht gespeichert");
-    await shown.findAll("button").find((one) => one.text() === t("documents.page.assessments.add"))?.trigger("click");
-    await shown.get(".assessment-form input[type=text]").setValue("Auch nicht gespeichert");
-    return shown;
+    const wrapper = await routedPage();
+    await DRAFTS.scope(wrapper);
+    await DRAFTS.rules(wrapper);
+    return wrapper;
   }
 
   it("asks once, in words of the page's changes rather than one section's", async () => {
@@ -1435,7 +1455,7 @@ describe("a document's page with drafts in several of its sections", () => {
     const asked = wrapper.get("[role=dialog]").text();
     expect(asked).toContain(t("documents.page.leaveSeveral"));
     expect(asked).not.toContain(t("documents.page.scope.leave.message"));
-    expect(asked).not.toContain(t("documents.page.assessments.leave"));
+    expect(asked).not.toContain(t("documents.page.rules.leave"));
     await wrapper.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.confirm"))?.trigger("click");
     await flushPromises();
     expect(router.currentRoute.value.name).toBe("sources");
@@ -1443,7 +1463,7 @@ describe("a document's page with drafts in several of its sections", () => {
 
   it("asks in the words of the section still holding a draft once the other's is given up", async () => {
     const wrapper = await twoDrafts();
-    await wrapper.get(".assessment-form").findAll("button").find((one) => one.text() === t("documents.page.assessments.cancel"))?.trigger("click");
+    await wrapper.get("form.rule-new").findAll("button").find((one) => one.text() === t("documents.page.rules.cancel"))?.trigger("click");
     await flushPromises();
 
     void router.push("/quellen");
