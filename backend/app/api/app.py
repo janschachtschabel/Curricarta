@@ -28,6 +28,7 @@ from app.api import (
     lexicon_terms,
     mem,
     node_editing,
+    placements,
     profiles,
     review,
     rules,
@@ -166,6 +167,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
     app.include_router(lexicon_review.router)
     app.include_router(lexicon_terms.router)
     app.include_router(rules.router)
+    app.include_router(placements.router)
     app.add_middleware(internal.InternalOnly, port=settings.internal_port)
     # an upload takes a file and the form around it; every other body is JSON
     upload_limit = (settings.max_upload_mb + 1) * MIB

@@ -11,8 +11,15 @@ from psycopg.rows import dict_row
 from app.db.counted_names import name_by_counter
 from app.db.value_rows import values_of
 from app.domain.l2 import HeldValues, Holder, Stated, Values
-from app.domain.placements import PlacementRow
+from app.domain.placements import Place, PlacementRow
 
+# the document's specifications with their variants, where a node may be placed (the tree's answer)
+_PLACES = """
+SELECT s.id, s.title, coalesce(json_agg(json_build_object('id', v.id, 'label', v.label) ORDER BY v.key)
+    FILTER (WHERE v.id IS NOT NULL), '[]') AS variants
+FROM specification s LEFT JOIN variant v ON v.specification_id = s.id
+WHERE s.document_id = %s GROUP BY s.id, s.key, s.title ORDER BY s.key
+"""
 _PLACEMENTS = """
 SELECT id, node_id, position, specification_id, variant_id, in_node_id, obligation_iri, grade_weight, iri,
     origin_iri, review_status_iri, rule_id, revision
@@ -32,6 +39,18 @@ async def placements_of(
     async with connection.transaction():
         await connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
         return await _read(connection, document_id, values)
+
+
+async def places_of(connection: psycopg.AsyncConnection, document_id: UUID) -> list[Place]:
+    """The document's specifications by key, each with its variants: where its nodes may be placed -
+    within the caller's transaction, as it reads."""
+    async with connection.cursor(row_factory=dict_row) as rows:
+        await rows.execute(_PLACES, (document_id,))
+        found = await rows.fetchall()
+    return [
+        Place(row["id"], row["title"], tuple((UUID(each["id"]), each["label"]) for each in row["variants"]))
+        for row in found
+    ]
 
 
 async def name_placements(connection: psycopg.AsyncConnection, document_id: UUID, iri: str) -> int:

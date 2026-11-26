@@ -145,6 +145,10 @@ Migration 0039 legt die Prüfungen eines Dokuments an (`assessment`, `assessment
 `assessment_id` an `level_assignment` und `anchor`). Eine Replica des vorigen Images kopiert sie nicht: Die
 Entwurfskopie eines Dokuments mit Prüfungen kommt dann ohne sie, und ein Niveau an einer Prüfung verweigert
 die Kopie (`vocabulary_changed`). Darum alle Replicas aktualisieren, bevor Prüfungen angelegt werden.
+Migration 0040 legt die Verwendungen der Knoten an (`placement`, dazu die Spalte `placement_id` an
+`time_span` und `workload`). Eine Replica des vorigen Images kopiert sie nicht: Die Entwurfskopie eines
+Dokuments mit Verwendungen kommt dann ohne sie, und Zeit oder Umfang an einer Verwendung verweigert die Kopie
+(`vocabulary_changed`). Darum alle Replicas aktualisieren, bevor Verwendungen gesetzt werden.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
@@ -505,6 +509,30 @@ ungültig.
   Prüfstand der Redaktion (`review`). In der Oberfläche stehen sie auf der Dokumentseite unter „Prüfungen“,
   jeder Teil unter seiner Prüfung; Eigentümer und Redaktion legen dort an, bearbeiten, legen Teile an,
   entfernen (nach Rückfrage) und setzen die Niveaus einer Prüfung, solange das Dokument offen ist.
+- Verwendungen: Der Baum (`GET /api/v1/documents/{id}/tree`) nennt an jedem Knoten seine Verwendungen
+  (`placements`, in ihrer Reihenfolge) – Spezifikation (`specification_id`) und/oder Variante (`variant_id`)
+  des Dokuments, Stelle (`in_node_id`, ein Knoten des Dokuments), Verbindlichkeit (`obligation`,
+  `cv:Obligations`), Notengewicht (`grade_weight`), IRI (beim Festschreiben: `<dokument>/placement-<n>`,
+  gezählt über die Revisionen), Herkunft, Prüfstand, Revision und Zeit und Umfang (`values`) –, dazu die
+  Spezifikationen des Dokuments mit ihren Varianten (`specifications`). `PUT
+  /api/v1/nodes/{id}/placements` (`expected_revision` des Knotens, `placements`: die ganze Liste, höchstens
+  50; ein Eintrag mit `id` behält die Verwendung, eine weggelassene geht mit ihren Werten und Befunden)
+  setzt sie, nur durch Eigentümer und Redaktion; eine neue oder geänderte ist ein Vorschlag der Redaktion.
+  Antwort: der Knoten wie im Baum; 409 `stale_revision` mit dem Knoten, wie er steht. `PUT
+  /api/v1/placements/{id}/values` setzt Zeiträume (etwa das Fachsemester) und Umfänge (etwa ECTS) einer
+  Verwendung auf ihrer Revision wie an einem Knoten; Niveaus trägt sie nicht (`not_held`), ihr Prüfstand
+  geht wie der eines Werts (`review`) und zählt die Revision der Verwendung hoch. Abgewiesen wie beim
+  Bearbeiten, 404 `no_node` bzw. `no_placement`, 422 `invalid_field` am Pfad (`placements[1].variant_id`):
+  `required` (weder Spezifikation noch Variante), `not_offered` (eine Zeile, die nicht zum Dokument gehört,
+  eine Variante einer anderen Spezifikation, der Knoten selbst als Stelle, eine Verbindlichkeit, die die
+  Liste nicht aktiv führt), `unknown_value` (eine `id`, die keine Verwendung des Knotens ist). Audit
+  `node.placements` und `placement.values` mit Anzahlen, ohne Inhalte. Der Kern-Graph nennt jede als
+  `cur:Placement` mit `cur:placedUnit`, `cur:inSpecification`, `cur:forVariant`, `cur:inNode`,
+  `cur:obligation`, `cur:gradeWeight`, `cur:timeSpan` und `cur:workload`; X5 warnt, wo die verbindlichen
+  Verwendungen eines Fachsemesters zusammen über 40 ECTS-Leistungspunkte tragen (`HsSemesterLoadShape`).
+  `cur:appliesTo` am Knoten bleibt daneben bestehen. Eine Verwendung über Dokumente hinweg gibt es noch
+  nicht. In der Oberfläche stehen sie im Baum am gewählten Knoten unter „Verwendungen“, die Zeit und der
+  Umfang jeder Verwendung darunter.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
   `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis

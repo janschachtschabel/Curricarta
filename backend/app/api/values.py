@@ -5,8 +5,8 @@ document's owner and the editors; answered with the holder as the tree has it (G
 ``values``), refused as app/api/edit_answers.py says - a value the form does not take as ``invalid_field``
 with its path in the set (app/vocab/value_checks.py), a stale revision with the holder as it stands.
 Audited by counts, never by what the values say. A specification's values and applicability contexts are
-set so too (app/api/specifications.py, ``set_values``), and the levels at an assessment
-(app/api/assessments.py).
+set so too (app/api/specifications.py, ``set_values``), the levels at an assessment
+(app/api/assessments.py) and the time spans and workloads of a placement (app/api/placements.py).
 """
 
 from collections.abc import Awaitable, Callable
@@ -26,6 +26,7 @@ from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.core.auth import Principal
 from app.db.assessments import DOCUMENT_OF_ASSESSMENT
 from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, target_of
+from app.db.placements import DOCUMENT_OF_PLACEMENT
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values, values_of
 from app.domain.l2 import Holder, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
@@ -37,7 +38,7 @@ router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSE
 Account = Annotated[Principal, Depends(require_account)]
 _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "node": DOCUMENT_OF_NODE, "statement": DOCUMENT_OF_STATEMENT, "specification": DOCUMENT_OF_SPECIFICATION,
-    "assessment": DOCUMENT_OF_ASSESSMENT,
+    "assessment": DOCUMENT_OF_ASSESSMENT, "placement": DOCUMENT_OF_PLACEMENT,
 }  # fmt: skip
 # an assessment's type by its class, passed as a specification's is: no level rule reads it yet (none names it
 # in ``unless``); it is there for one that will

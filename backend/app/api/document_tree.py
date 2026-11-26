@@ -22,13 +22,16 @@ from app.api.deps import require_account
 from app.api.document_access import readable_content, reader, visible_document
 from app.api.document_findings import SeverityCounts
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
+from app.api.placement_answers import PlacementOut, placement_out
 from app.api.source_content import EDITORS
 from app.api.value_answers import ValuesOut, values_out
 from app.core.auth import Principal
 from app.db.editing import DOCUMENT_OF_NODE, extracted, target_of
+from app.db.placement_rows import places_of
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.tree import TreeAnchor, TreeNode, TreeStatement, read_tree, review_counts, walk
 from app.domain.l1 import WORDING_FIELDS
+from app.domain.placements import Place
 from app.jobs.queue import open_job
 from app.pipeline.extraction import unique_key
 from app.vocab.form_values import FieldValue
@@ -76,6 +79,7 @@ class NodeRowOut(BaseModel):
     findings: SeverityCounts  # on the node and its anchors, its statements and theirs - not its children's
     anchors: list[AnchorOut]
     values: ValuesOut  # its levels, time spans and workloads; set by PUT /nodes/{id}/values
+    placements: list[PlacementOut]  # where it is placed, in their order; set by PUT /nodes/{id}/placements
 
 
 class NodeOut(NodeRowOut):
@@ -91,12 +95,26 @@ class ReviewCountsOut(BaseModel):
 Closed = Literal["frozen", "job_open", "not_extracted"]
 
 
+class VariantPlaceOut(BaseModel):
+    id: UUID
+    label: str
+
+
+class SpecificationPlaceOut(BaseModel):
+    """A specification of the document a node may be placed in (plan M3a K), with its variants."""
+
+    id: UUID
+    title: str
+    variants: list[VariantPlaceOut]
+
+
 class TreeOut(BaseModel):
     editable: bool  # the caller may edit the nodes and statements now
     reviewable: bool  # the caller may set their review status now
     closed: Closed | None  # why nobody may now, whoever reads (closed_of)
     counts: ReviewCountsOut
     nodes: list[NodeOut]  # from the top, in their order
+    specifications: list[SpecificationPlaceOut]  # by key: where a node may be placed (plan M3a K)
 
 
 @router.get(
@@ -116,6 +134,7 @@ async def read_document_tree(document_id: UUID, request: Request, who: Account) 
         document = await visible_document(connection, who, document_id)
         await readable_content(connection, who, request.app.state.settings, document)
         tree = await read_tree(connection, reader(who), document_id)
+        places = await places_of(connection, document_id)
         job = await open_job(connection, unique_key(document_id))
         all_there = await extracted(connection, document_id)
     if tree is None:  # seen in the same snapshot as the document: never so
@@ -129,7 +148,13 @@ async def read_document_tree(document_id: UUID, request: Request, who: Account) 
         closed=closed,
         counts=ReviewCountsOut(nodes=nodes, statements=statements),
         nodes=[_node(node) for node in tree],
+        specifications=[_place(place) for place in places],
     )
+
+
+def _place(place: Place) -> SpecificationPlaceOut:
+    variants = [VariantPlaceOut(id=variant, label=label) for variant, label in place.variants]
+    return SpecificationPlaceOut(id=place.id, title=place.title, variants=variants)
 
 
 def closed_of(*, frozen: bool, job_open: bool, extracted: bool) -> Closed | None:
@@ -200,6 +225,7 @@ def _node_parts(node: TreeNode) -> dict[str, Any]:
         "findings": SeverityCounts(**node.findings),
         "anchors": [_anchor(anchor) for anchor in node.anchors],
         "values": values_out(node.values),
+        "placements": [placement_out(placement) for placement in node.placements],
     }
 
 

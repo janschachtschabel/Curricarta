@@ -29,6 +29,16 @@ class PlacementDraft:
 
 
 @dataclass(frozen=True)
+class Place:
+    """A specification of the document a node may be placed in, with its variants (id, label), by their
+    keys."""
+
+    id: UUID
+    title: str
+    variants: tuple[tuple[UUID, str], ...]
+
+
+@dataclass(frozen=True)
 class PlacementRow:
     id: UUID
     node_id: UUID  # the node placed (cur:placedUnit)

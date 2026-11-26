@@ -179,3 +179,17 @@ def test_the_routes_of_assessments_name_the_refusals_they_give(spec: dict[str, A
     assert all("invalid_field" in answers["422"]["description"] for answers in edits)
     assert "422" not in taken or "invalid_field" not in taken["422"]["description"]
     assert "no_assessment" in taken["404"]["description"]
+
+
+def test_the_routes_of_placements_name_the_refusals_they_give(spec: dict[str, Any]) -> None:
+    # plan M3a K: a set of a node's placements and of a placement's values refused as a node's values are
+    paths = spec["paths"]
+    node = paths["/api/v1/nodes/{node_id}/placements"]["put"]["responses"]
+    values = paths["/api/v1/placements/{placement_id}/values"]["put"]["responses"]
+    for answers in (node, values):
+        assert "file_hidden" in answers["403"]["description"]
+        for refusal in ("stale_revision", "details.current", "job_open", "frozen", "not_extracted"):
+            assert refusal in answers["409"]["description"], refusal
+        assert "invalid_field" in answers["422"]["description"]
+    assert "no_node" in node["404"]["description"]
+    assert "no_placement" in values["404"]["description"]
