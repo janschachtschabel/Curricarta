@@ -129,6 +129,8 @@ def test_a_finding_moved_to_its_holder_names_the_property_it_holds_it_by() -> No
 
     assert finding.focus_id == rows.specifications[0]["id"]
     assert finding.details.get("held_by") == "cur:applicability"
+    # the property as the page reads it: from the specification down
+    assert finding.path == "cur:applicability/cur:educationSector"
 
 
 def test_a_finding_deep_in_blank_nodes_names_the_properties_from_its_holder_down() -> None:

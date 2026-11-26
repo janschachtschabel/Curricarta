@@ -83,14 +83,16 @@ def as_findings(
             details["focus"] = result.focus
         if result.value is not None:
             details["value"] = result.value
+        path = result.path
         if result.held_by is not None:  # the row has no such property: the blank node it holds has
             details["held_by"] = result.held_by
+            path = "/".join(filter(None, (result.held_by, result.path)))  # from the row down
         if result.lang is not None and result.message:  # the page quotes a message without as English
             details["lang"] = result.lang
         findings.append(
             Finding(
                 f"shacl.{result.shape}", cast(Severity, result.severity), row or document_id,
-                result.message or result.shape, path=result.path, details=details,
+                result.message or result.shape, path=path, details=details,
             )
         )  # fmt: skip
     return findings
