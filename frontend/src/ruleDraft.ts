@@ -93,23 +93,38 @@ function same(one: string | string[], other: string | string[]): boolean {
   return Array.isArray(one) && Array.isArray(other) ? one.join("\n") === other.join("\n") : one === other;
 }
 
-/** What the draft changes of the rule as read, and the problems of its entries the server would refuse. */
+/** Whether the draft holds an entry the user made: it differs from the rule's own draft. */
+export function isDirty(rule: Rule, draft: RuleDraft): boolean {
+  const own = draftOf(rule);
+  return (Object.keys(own) as RuleField[]).some((key) => !same(draft[key], own[key]));
+}
+
+/**
+ * What the draft changes of the rule as read, and the problems of its entries the server would refuse: a field the
+ * user changed - or one a new kind does not hold, emptied with the kind -, never the clean-up of a field left as it
+ * was read.
+ */
 export function changesOf(rule: Rule, draft: RuleDraft): { fields: RuleFields; faults: RuleFault[] } {
   const fields: RuleFields = {};
   const faults: RuleFault[] = [];
+  const own = draftOf(rule);
   const kind = draft.kind as RuleKind;
+  const changed = (key: RuleField): boolean => !same(draft[key], own[key]) || (kind !== rule.kind && !holds(kind, key));
   if (kind !== rule.kind) fields.kind = kind;
-  if (!draft.verbatim.trim()) faults.push(["verbatim", t("documents.tree.problems.required")]);
-  else if (draft.verbatim !== rule.verbatim) fields.verbatim = draft.verbatim;
+  if (changed("verbatim")) {
+    if (!draft.verbatim.trim()) faults.push(["verbatim", t("documents.tree.problems.required")]);
+    else fields.verbatim = draft.verbatim;
+  }
   for (const key of ["min_count", "max_count"] as const) {
+    if (!changed(key)) continue;
     const text = draft[key].trim();
     const count = text === "" ? null : COUNT.test(text) && Number(text) <= MOST_COUNT ? Number(text) : undefined;
     if (count === undefined) faults.push([key, t("documents.page.rules.problems.not_count")]);
     else if (count !== rule[key]) fields[key] = count;
   }
   for (const key of ["min_amount", "max_amount", "max_share"] as const) {
-    const held = holds(kind, key);
-    const text = held ? draft[key].trim() : "";
+    if (!changed(key)) continue;
+    const text = holds(kind, key) ? draft[key].trim() : "";
     const number = text === "" ? null : numberOf(text);
     if (number === null && text !== "") faults.push([key, t("documents.tree.values.problems.not_number")]);
     else if (text.replace(/[.,]/g, "").replace(/^0+(?=\d)/, "").length > MOST_DIGITS) {
@@ -120,14 +135,19 @@ export function changesOf(rule: Rule, draft: RuleDraft): { fields: RuleFields; f
   }
   for (const key of ["amount_unit", "requirement_kind"] as const) {
     const value = holds(kind, key) ? draft[key] || null : null;
-    if (value !== rule[key]) fields[key] = value;
+    if (changed(key) && value !== rule[key]) fields[key] = value;
   }
-  const texts = draft.option_texts.split("\n").map((text) => text.trim()).filter(Boolean);
-  if (texts.some((text) => text.length > MOST_OPTION)) faults.push(["option_texts", t("documents.tree.problems.too_long")]);
-  else if (!same(texts, rule.option_texts)) fields.option_texts = texts;
+  if (changed("option_texts")) {
+    const texts = draft.option_texts
+      .split("\n")
+      .map((text) => text.trim())
+      .filter(Boolean);
+    if (texts.some((text) => text.length > MOST_OPTION)) faults.push(["option_texts", t("documents.tree.problems.too_long")]);
+    else if (!same(texts, rule.option_texts)) fields.option_texts = texts;
+  }
   for (const key of ["applies_to", "options", "requires"] as const) {
     const ids = holds(kind, key) ? draft[key] : [];
-    if (!same(ids, rule[key].map((link) => link.id))) fields[key] = ids;
+    if (changed(key) && !same(ids, rule[key].map((link) => link.id))) fields[key] = ids;
   }
   return { fields, faults };
 }
