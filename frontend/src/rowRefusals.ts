@@ -13,7 +13,7 @@ import { sameValue } from "@/rowDraft";
 
 /** The refusals that close the tree to change - whoever asks, or the reader whose content it no longer is. */
 const CLOSING: ReadonlySet<string> = new Set(["job_open", "frozen", "not_extracted", "no_form", "file_hidden"]);
-const GONE: ReadonlySet<string> = new Set(["no_node", "no_statement"]);
+const GONE: ReadonlySet<string> = new Set(["no_node", "no_statement", "no_specification"]);
 
 export type Refusal =
   | { outcome: "gone" }

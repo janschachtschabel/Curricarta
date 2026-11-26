@@ -35,6 +35,7 @@ import type { CreateTarget } from "@/rowCreate";
 import { dropWords, type DropOutcome } from "@/rowDrop";
 import { panelHeading } from "@/rowHeading";
 import { reviewWords, type ReviewOutcome } from "@/rowReview";
+import type { HolderKey } from "@/valueHolder";
 
 const props = withDefaults(
   defineProps<{ row: Row | null; tree: Tree; form: Form; documentId: string; creating?: CreateTarget | null }>(),
@@ -151,7 +152,7 @@ function dropped(done: Exclude<DropOutcome, { outcome: "failed" }>, key: RowKey)
 
 // heard even where another row was chosen meanwhile (ReviewToggles' onReviewed): then the tree is only read again
 // - a value's told in its own words (ValueSection)
-function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, words?: string): void {
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string): void {
   const here = key === props.row?.key;
   if (here && done.outcome === "gone") return gone();
   if (here) status.value = sayAnew(status.value, words ?? reviewWords(done));

@@ -1474,6 +1474,11 @@ export const messages = {
         saveFailed: "Titel und Fach wurden nicht gespeichert.",
         changedMeanwhile: "Jemand hat die Spezifikation inzwischen geändert; der neue Stand ist geladen.",
         fieldProblem: "{field}: {problem}",
+        // a specification's values and contexts in their form (ValueSection.vue): named for it, under its title
+        valuesHeading: "Niveau, Zeit, Umfang und Geltung von „{title}“",
+        // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
+        valuesSaveNamed: "Werte speichern: {title}",
+        gone: "Diese Spezifikation gibt es nicht mehr; die Geltung wird neu geladen.",
       },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
       kernExport: {
@@ -1867,35 +1872,41 @@ export const messages = {
           is_recommendation: "Richtwert, nicht verbindlich",
           minutes_per_unit: "Minuten je Einheit",
           total: "Gesamtumfang der Zeile",
+          // a specification's applicability context's (ContextItemForm.vue)
+          sector: "Bildungsbereich",
+          formality: "Formalität",
+          institution_text: "Einrichtung",
+          target_group_text: "Zielgruppe",
         },
         heading: "Niveau, Zeit, Umfang",
         none: "Noch nichts erfasst.",
         // each kind, over its values and in a conflict (ValueSection.vue, ValueConflict.vue)
-        kinds: { level_assignments: "Niveau", time_spans: "Zeitraum", workloads: "Umfang" },
+        kinds: { level_assignments: "Niveau", time_spans: "Zeitraum", workloads: "Umfang", contexts: "Geltungskontext" },
         add: {
           level_assignments: "Niveau hinzufügen",
           time_spans: "Zeitraum hinzufügen",
           workloads: "Umfang hinzufügen",
+          contexts: "Geltungskontext hinzufügen",
         },
         // who stated a value, and how far it is reviewed
         stated: "{origin} · {status}",
         reviewLabel: "Prüfstand von „{value}“",
         // a value's review status set, told apart from the row's own (RowPanel.vue)
         reviewSet: "Prüfstand von „{value}“: {status}.",
-        reviewStale: "Der Wert „{value}“ wurde inzwischen geändert; der Baum wird neu geladen. Setze den Prüfstand erneut.",
-        // the most entries of a kind a row takes (valueDraft.MOST_VALUES)
-        most: "Mehr als {most} {most|Eintrag|Einträge} dieser Art nimmt eine Zeile nicht an.",
+        reviewStale: "Der Wert „{value}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
+        // the most entries of a kind a holder takes (valueDraft.MOST_VALUES)
+        most: "Mehr als {most} {most|Eintrag|Einträge} dieser Art werden nicht angenommen.",
         save: "Werte speichern",
         saving: "Die Werte werden gespeichert …",
         saveFailed: "Die Werte wurden nicht gespeichert.",
         // a set laid beside the values as another stored them (ValueConflict.vue)
         conflict: {
           intro:
-            "Jemand hat die Werte dieser Zeile geändert, während du sie bearbeitet hast. Entscheide bei jeder Art unten, welcher Stand gilt, und speichere dann erneut.",
+            "Jemand hat diese Werte geändert, während du sie bearbeitet hast. Entscheide bei jeder Art unten, welcher Stand gilt, und speichere dann erneut.",
           introNothing:
-            "Jemand hat die Werte dieser Zeile geändert, während du sie bearbeitet hast. Diese Änderungen sind übernommen; speichere erneut, um deine dazuzulegen.",
+            "Jemand hat diese Werte geändert, während du sie bearbeitet hast. Diese Änderungen sind übernommen; speichere erneut, um deine dazuzulegen.",
           introAgain:
-            "Jemand hat diese Zeile inzwischen gespeichert. Deine Werte sind noch nicht gespeichert; speichere erneut.",
+            "Jemand hat inzwischen gespeichert. Deine Werte sind noch nicht gespeichert; speichere erneut.",
           yours: "Dein Stand",
           empty: "keine",
         },
@@ -1904,7 +1915,10 @@ export const messages = {
           level_assignments: "Niveau {place}",
           time_spans: "Zeitraum {place}",
           workloads: "Umfang {place}",
+          contexts: "Geltungskontext {place}",
         },
+        // a problem the store found with a context as a whole, named by the context (ContextItemForm.vue)
+        contextProblem: "{entry}: {problem}",
         remove: "{entry} entfernen",
         periodsKept: "Zeiträume dieses Umfangs: {spans}. Sie bleiben beim Speichern, wie sie sind.",
         // a value in words (valueWords.ts)

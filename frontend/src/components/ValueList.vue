@@ -8,19 +8,19 @@ import { computed } from "vue";
 
 import type { ValueKind } from "@/api";
 import ReviewToggles from "@/components/ReviewToggles.vue";
-import type { Row, RowKey } from "@/documentTree";
 import { t } from "@/i18n/de";
 import type { ReviewOutcome } from "@/rowReview";
+import type { HolderKey, HolderRow } from "@/valueHolder";
 import type { ShownValue } from "@/valueWords";
 
 const props = defineProps<{
-  row: Row;
+  row: HolderRow;
   /** The values of each kind the holder is offered, in their order. */
   shown: Map<ValueKind, ShownValue[]>;
   reviewable: boolean;
   documentId: string;
   /** How a value's review went, with the row's key and the value's words. */
-  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, value: string) => void;
+  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, value: string) => void;
 }>();
 
 const kinds = computed(() => [...props.shown].filter(([, values]) => values.length));

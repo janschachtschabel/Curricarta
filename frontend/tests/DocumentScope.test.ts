@@ -117,7 +117,7 @@ describe("a document's applicability on its page", () => {
 });
 
 describe("the title and field of a specification", () => {
-  it("says the title is required, and names the specification its button saves", async () => {
+  it("says the title is required, and names the specification each of its buttons saves", async () => {
     vi.mocked(api.getSpecifications).mockResolvedValue(
       specificationsOf({ specifications: [specificationOf(), specificationOf({ id: "s2", key: "ch", title: "Chemie" })] }),
     );
@@ -128,9 +128,12 @@ describe("the title and field of a specification", () => {
     expect(wrapper.get(`#${input.attributes("id")}-hint`).text()).toMatch(/^Pflichtfeld./);
     expect(fieldText(wrapper).attributes("aria-required")).toBeUndefined();
     const names = wrapper.findAll("form button[type=submit]").map((button) => button.attributes("aria-label"));
+    // its title and field's, and its values'
     expect(names).toEqual([
       t("documents.page.scope.saveNamed", { title: "Physik" }),
+      t("documents.page.scope.valuesSaveNamed", { title: "Physik" }),
       t("documents.page.scope.saveNamed", { title: "Chemie" }),
+      t("documents.page.scope.valuesSaveNamed", { title: "Chemie" }),
     ]);
     expect(await violations(wrapper.element)).toEqual([]);
   });

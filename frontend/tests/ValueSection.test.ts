@@ -164,7 +164,7 @@ describe("a row's values as they read", () => {
     expect(reviewed).toHaveBeenCalledWith(
       { outcome: "stale" },
       "node:a",
-      "Der Wert „80 Unterrichtsstunden, Richtwert“ wurde inzwischen geändert; der Baum wird neu geladen. Setze den Prüfstand erneut.",
+      "Der Wert „80 Unterrichtsstunden, Richtwert“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
     );
   });
 });

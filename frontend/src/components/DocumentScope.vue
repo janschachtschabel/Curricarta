@@ -4,9 +4,12 @@
  * GET /documents/{id}/specifications): each specification with its kind, title and field, its variants (X1's, to
  * read), its own levels, time spans and workloads and its applicability contexts, each in words (scopeWords.ts) by
  * the labels of the values' form - a form that did not come leaves the last part of each IRI. The document's owner
- * and the editors set title and field while it is open (SpecificationForm); closed, or another's, the section says
- * why it is to read only. Read as sectionReading.ts reads: loading, a failure with a retry, content no longer the
- * reader's said apart; read again as the page's extraction moves on (`refresh`).
+ * and the editors set title and field while it is open (SpecificationForm), and its values and contexts as a whole
+ * in the values' form (ValueSection, plan M3a join of G and H) - the editors their review status there too, the
+ * holder's revision moving with it; saved or reviewed, the list is read again. A draft of its values the document
+ * closed under stays, in words, to copy. Closed, or another's, the section says why it is to read only. Read as
+ * sectionReading.ts reads: loading, a failure with a retry, content no longer the reader's said apart; read again
+ * as the page's extraction moves on (`refresh`).
  */
 import { computed, onMounted, ref, watch } from "vue";
 
@@ -16,10 +19,15 @@ import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import SpecificationForm from "@/components/SpecificationForm.vue";
+import ValueSection from "@/components/ValueSection.vue";
 import { t } from "@/i18n/de";
+import { sayAnew } from "@/liveRegion";
 import { REVIEW_TONES, statusOf, statusWord } from "@/reviewStatus";
+import { reviewWords, type ReviewOutcome } from "@/rowReview";
 import { contextWords, joined, labelsOf, levelWords, spanWords, stated, workloadWords } from "@/scopeWords";
 import { useSectionReading } from "@/sectionReading";
+import { isEditor } from "@/session";
+import { specificationRow } from "@/valueHolder";
 
 // `refresh`: bumped by the page as the extraction moves on, which may write the specifications (X1)
 const props = defineProps<{ documentId: string; sector: string; refresh?: number }>();
@@ -32,7 +40,12 @@ const { shown, failure, hidden, load, retry } = useSectionReading(read, t("docum
 // a specification as a save gave it back, shown until the section is read again
 const saved = ref<Record<string, Specification>>({});
 
-const labels = computed(() => labelsOf(shown.value?.[1] ?? null));
+// the specifications whose values' form holds a draft: it stays where the document closes under it
+const drafting = ref<ReadonlySet<string>>(new Set());
+const status = ref("");
+
+const form = computed(() => shown.value?.[1] ?? null);
+const labels = computed(() => labelsOf(form.value));
 const scope = computed(() => shown.value?.[0] ?? null);
 const specifications = computed(() =>
   (scope.value?.specifications ?? []).map((specification) => saved.value[specification.id] ?? specification),
@@ -65,6 +78,24 @@ function keep(specification: Specification): void {
 async function reload(): Promise<void> {
   await load();
   saved.value = {};
+}
+
+function draft(id: string, open: boolean): void {
+  const now = new Set(drafting.value);
+  if (open) now.add(id);
+  else now.delete(id);
+  drafting.value = now;
+}
+
+// a value's or context's review, in words naming it: set or changed meanwhile, the list is read again
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, _key: string, words?: string): void {
+  status.value = sayAnew(status.value, words ?? reviewWords(done));
+  if (done.outcome !== "refused") void reload();
+}
+
+function gone(): void {
+  status.value = sayAnew(status.value, t("documents.page.scope.gone"));
+  void reload();
 }
 
 onMounted(load);
@@ -133,8 +164,25 @@ watch(() => props.refresh, reload);
           @saved="keep"
           @changed="reload()"
         />
+        <ValueSection
+          v-if="form && (scope.editable || drafting.has(specification.id))"
+          :key="`values-${specification.id}`"
+          :row="specificationRow(specification)"
+          :form="form"
+          :document-id="documentId"
+          :editable="scope.editable"
+          :reviewable="scope.editable && isEditor()"
+          :closed-by="scope.editable ? null : scope.closed"
+          :on-saved="reload"
+          :on-reviewed="reviewed"
+          @closed="reload()"
+          @gone="gone"
+          @dirty="(open) => draft(specification.id, open)"
+        />
       </article>
     </template>
+    <!-- always in the page, so the first word is read out -->
+    <p class="scope__status" role="status">{{ status }}</p>
     <!-- in the page from the start, so a failure of a later reading is heard -->
     <PartialState :notice="scope !== null ? failure : null" :retry="!hidden" @retry="retry()" />
   </section>
@@ -150,8 +198,14 @@ watch(() => props.refresh, reload);
 .scope h2,
 .scope h3,
 .scope .facts,
-.scope__note {
+.scope__note,
+.scope__status {
   margin: 0;
+}
+
+/* Empty, it takes no room - as a cell of the grid its gap would stand twice - but stays in the page. */
+.scope__status:empty {
+  position: absolute;
 }
 
 .scope__note {

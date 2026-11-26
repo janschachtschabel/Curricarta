@@ -9,11 +9,11 @@
 // failure. The same row read anew is taken where
 // nothing was changed; changed, the draft stays - going on from the new revision where only that moved (a value
 // reviewed, the holder's fields changed). An entry keeps its key while its value is the same, so a control does not
-// lose the keyboard as the row is read again.
+// lose the keyboard as the row is read again. A specification is saved so (valueHolder.ts), its applicability
+// contexts with its values.
 import { computed, ref, shallowRef, watch, type Ref } from "vue";
 
-import { ApiError, setNodeValues, setStatementValues, type Form, type HeldValues } from "@/api";
-import type { Row } from "@/documentTree";
+import { ApiError, type Form } from "@/api";
 import { t } from "@/i18n/de";
 import type { Notice } from "@/notice";
 import { applyRefusal, problemText, refusalOf } from "@/rowRefusals";
@@ -22,15 +22,15 @@ import {
   checkDraft,
   draftOfValues,
   entryField,
+  holdsEntry,
   rebaseValues,
-  requestOf,
   sameValues,
   valueOf,
-  VALUE_KINDS,
   type DraftKind,
   type ValueFault,
   type ValuesDraft,
 } from "@/valueDraft";
+import { heldOf, holderOf, sendValues, type Holder, type HolderRow } from "@/valueHolder";
 import { valueWords, type LevelValue } from "@/valueWords";
 
 export type ValueSaveOutcome = "saved" | "unchanged" | "undecided" | "conflict" | "invalid" | "closed" | "gone" | "failed";
@@ -49,17 +49,8 @@ export interface ValueConflict {
   stored: ValuesDraft;
 }
 
-interface Holder {
-  values: HeldValues;
-  revision: number;
-}
-
-function holderOf(row: Row): Holder {
-  return row.kind === "node" ? row.node : row.statement;
-}
-
-export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
-  const before = shallowRef<ValuesDraft>(draftOfValues(form.value, holderOf(row.value).values));
+export function useValueSave(row: Ref<HolderRow>, form: Ref<Form>) {
+  const before = shallowRef<ValuesDraft>(draftOfValues(form.value, heldOf(holderOf(row.value))));
   const draft = shallowRef<ValuesDraft>(before.value);
   const revision = ref(holderOf(row.value).revision);
   const saving = ref(false);
@@ -69,7 +60,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
   const dirty = computed(() => !sameValues(before.value, draft.value));
 
   function stand(holder: Holder): void {
-    before.value = draftOfValues(form.value, holder.values, draft.value);
+    before.value = draftOfValues(form.value, heldOf(holder), draft.value);
     draft.value = before.value;
     revision.value = holder.revision;
   }
@@ -81,7 +72,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
       closed.value = null;
       stand(holderOf(now));
     } else if (!dirty.value) stand(holderOf(now));
-    else if (sameValues(before.value, draftOfValues(form.value, holderOf(now).values))) revision.value = holderOf(now).revision;
+    else if (sameValues(before.value, draftOfValues(form.value, heldOf(holderOf(now))))) revision.value = holderOf(now).revision;
   });
 
   /** The entries of `kind` in words. */
@@ -90,7 +81,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
   }
 
   function met(current: Holder): ValueSaveOutcome {
-    const stored = draftOfValues(form.value, current.values, draft.value);
+    const stored = draftOfValues(form.value, heldOf(current), draft.value);
     const laid = rebaseValues(before.value, draft.value, stored);
     // the other stored what the user asked: saved, by whoever
     if (sameValues(stored, laid.draft)) {
@@ -121,7 +112,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     if (code === "invalid_field") {
       const words = problemText(details.problem);
       const at = typeof details.field === "string" ? entryField(form.value, sent, details.field) : null;
-      const kept = at !== null && VALUE_KINDS.some((kind) => draft.value[kind].some((entry) => at.startsWith(`${entry.key}:`)));
+      const kept = at !== null && holdsEntry(draft.value, at.slice(0, at.indexOf(":")));
       if (at !== null && kept) return { outcome: "invalid", faults: [[at, words]] };
       problem.value = { text: t("documents.tree.values.saveFailed"), explanation: words, failed: true };
       return { outcome: "invalid", faults: [] };
@@ -129,13 +120,6 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     const errors = ref<Record<string, string>>({});
     const refusal = refusalOf(error, [], t("documents.tree.values.saveFailed"));
     return { outcome: applyRefusal(refusal, { closed, errors, problem }) };
-  }
-
-  function send(current: Row): Promise<Holder> {
-    const set = requestOf(form.value, draft.value);
-    return current.kind === "node"
-      ? setNodeValues(current.node.id, revision.value, set)
-      : setStatementValues(current.statement.id, revision.value, set);
   }
 
   /** Save the draft; how it went, and the problems found where it is invalid. */
@@ -154,7 +138,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     const sent = draft.value;
     saving.value = true;
     try {
-      const answer = await send(current);
+      const answer = await sendValues(current, revision.value, form.value, draft.value);
       // another row chosen meanwhile: the tree read anew shows what was saved
       if (row.value.key !== current.key) return { outcome: "saved" };
       const typed = draft.value;
