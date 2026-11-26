@@ -214,3 +214,21 @@ def test_a_frozen_document_s_rules_are_read_only(client: TestClient, url: str) -
 
     assert (listed["editable"], listed["closed"]) == (False, "frozen")
     assert (edit.status_code, edit.json()["code"]) == (409, "frozen")
+
+
+@pytest.mark.parametrize("field", ["applies_to", "options", "requires", "option_texts"])
+def test_a_null_link_field_or_option_texts_empties_it(client: TestClient, url: str, field: str) -> None:
+    document, owner = a_document(client, url)
+    made = a_rule(url, document)
+    named = targets(url, document)
+    path = f"/api/v1/rules/{made}"
+    kind = "prerequisite" if field == "requires" else "selection"
+    filled = {"kind": kind, field: ["Modul A"] if field == "option_texts" else [named["node"]]}
+    first = client.patch(path, headers=owner, json={"expected_revision": 1} | filled)
+    assert first.status_code == 200, first.text
+    assert first.json()[field] != []
+
+    emptied = client.patch(path, headers=owner, json={"expected_revision": 2, field: None})
+
+    assert emptied.status_code == 200, emptied.text
+    assert (emptied.json()[field], emptied.json()["revision"]) == ([], 3)

@@ -224,8 +224,8 @@ async def _stored(connection: psycopg.AsyncConnection, key: str, value: Any) -> 
         return _kind(value)
     if key == "verbatim":
         return _text(key, value, MOST_VERBATIM)
-    if key == "option_texts":
-        return [_text(key, text, MOST_TEXT) for text in value]
+    if key == "option_texts":  # None empties them
+        return [_text(key, text, MOST_TEXT) for text in value or ()]
     if key in _SCHEMES:
         if value is None:
             return None
@@ -240,11 +240,11 @@ async def _stored(connection: psycopg.AsyncConnection, key: str, value: Any) -> 
 
 
 async def _targets(
-    connection: psycopg.AsyncConnection, document_id: UUID, field: str, given: Sequence[UUID]
+    connection: psycopg.AsyncConnection, document_id: UUID, field: str, given: Sequence[UUID] | None
 ) -> tuple[Link, ...]:
     """The targets ``given`` of a link field, each once in their order; FieldError ``unknown_value`` where one
-    is no row of the document a rule may name."""
-    ids = list(dict.fromkeys(given))
+    is no row of the document a rule may name. None names none."""
+    ids = list(dict.fromkeys(given or ()))
     cursor = await connection.execute(_TARGETS, {"document": document_id, "ids": ids, "rejected": REJECTED})
     found: dict[UUID, tuple[TargetKind, UUID | None]] = {
         row_id: (kind, of) for row_id, kind, of in await cursor.fetchall()
