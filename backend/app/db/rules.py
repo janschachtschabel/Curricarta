@@ -206,7 +206,7 @@ async def drop_or_reject_rule(
             await connection.execute("DELETE FROM frame_part WHERE id = %s", (rule_id,))
             taken = Taken("deleted", None)
         elif rejected:
-            return Taken("rejected", current)
+            return Taken("rejected", current, changed=False)
         else:
             cursor = await connection.execute(
                 "UPDATE frame_part SET review_status_iri = %s, revision = revision + 1, updated_at = now()"

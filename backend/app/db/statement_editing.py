@@ -14,7 +14,7 @@ the findings on it and its anchors.
 """
 
 from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any, Literal, LiteralString
 from uuid import UUID
 
@@ -97,6 +97,7 @@ class Taken:
 
     outcome: Literal["deleted", "rejected"]
     revision: int | None
+    changed: bool = field(default=True, compare=False)  # False: rejected already, nothing done
 
 
 @dataclass(frozen=True)

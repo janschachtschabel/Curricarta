@@ -75,6 +75,8 @@ async def test_a_run_s_rule_is_rejected_and_an_editor_s_deleted_with_the_finding
     deleted = await drop_or_reject_rule(connection, owner(document), by_hand, 1)
 
     assert (rejected, again, deleted) == (Taken("rejected", 2), Taken("rejected", 2), Taken("deleted", None))
+    # a second rejection changes nothing, and says so
+    assert (rejected is not None and rejected.changed, again is not None and again.changed) == (True, False)
     [rule] = await rules_of(connection, document.id)
     assert (rule.id, rule.review_status) == (run_s, REJECTED)
     assert await one(

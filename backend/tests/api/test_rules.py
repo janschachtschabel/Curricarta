@@ -165,9 +165,14 @@ def test_a_run_s_rule_taken_away_is_rejected_and_stays(client: TestClient, url: 
 
     taken = client.delete(f"/api/v1/rules/{made}?expected_revision=1", headers=owner)
     stale = client.delete(f"/api/v1/rules/{made}?expected_revision=1", headers=owner)
+    again = client.delete(f"/api/v1/rules/{made}?expected_revision=2", headers=owner)
 
     assert (taken.status_code, taken.json()) == (200, {"outcome": "rejected", "revision": 2})
     assert (stale.status_code, stale.json()["code"]) == (409, "stale_revision")
+    assert (again.status_code, again.json()) == (200, {"outcome": "rejected", "revision": 2})
+    # the second rejection changed nothing: no second entry
+    audited = "SELECT action, subject, details FROM audit_log WHERE action LIKE 'rule.%%'"
+    assert rows(url, audited) == [("rule.reject", f"rule:{made}", {"document": document})]
     [rule] = client.get(f"/api/v1/documents/{document}/rules", headers=owner).json()["rules"]
     assert rule["review_status"] == CV + "rev_rejected"
 
@@ -211,9 +216,14 @@ def test_a_frozen_document_s_rules_are_read_only(client: TestClient, url: str) -
 
     listed = client.get(f"/api/v1/documents/{document}/rules", headers=owner).json()
     edit = client.patch(f"/api/v1/rules/{made}", headers=owner, json={"expected_revision": 1, "max_count": 3})
+    new = {"kind": "completion", "verbatim": "Alles.", "anchors": [{"page": 1}]}
+    added = client.post(f"/api/v1/documents/{document}/rules", headers=owner, json=new)
+    taken = client.delete(f"/api/v1/rules/{made}?expected_revision=1", headers=owner)
 
     assert (listed["editable"], listed["closed"]) == (False, "frozen")
-    assert (edit.status_code, edit.json()["code"]) == (409, "frozen")
+    assert [(answer.status_code, answer.json()["code"]) for answer in (edit, added, taken)] == [
+        (409, "frozen")
+    ] * 3
 
 
 @pytest.mark.parametrize("field", ["applies_to", "options", "requires", "option_texts"])

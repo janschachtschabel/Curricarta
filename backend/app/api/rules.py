@@ -155,7 +155,8 @@ async def take_a_rule(rule_id: UUID, expected_revision: Revision, request: Reque
                 if taken is None:
                     raise _gone()
                 action = "rule.delete" if taken.outcome == "deleted" else "rule.reject"
-                await audit(connection, who, action, f"rule:{rule_id}", {"document": str(document_id)})
+                if taken.changed:  # a rule rejected already is none to note again
+                    await audit(connection, who, action, f"rule:{rule_id}", {"document": str(document_id)})
         except StaleRevision as error:
             raise stale("rule", await rule_as_read(connection, who, rule_id)) from error
         except REFUSED as error:
