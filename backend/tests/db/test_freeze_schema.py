@@ -1,9 +1,9 @@
 """A frozen document stays as it was written (migration freeze; plan M1 9.6, Paket 9b H1): the database
 refuses every change to its nodes, statements and their addressees, anchors and their blocks, frame
-parts, specifications and their variants, its profile and its values (workloads, time spans, levels,
-applicability contexts), and to the document's own row but its rights status; a document not frozen changes
-as before. One draft at most is open under an IRI, and what a statement's origin and run said of a
-hand-written one before is kept as its own mark."""
+parts and the links of rules, specifications and their variants, its profile and its values (workloads, time
+spans, levels, applicability contexts), and to the document's own row but its rights status; a document not
+frozen changes as before. One draft at most is open under an IRI, and what a statement's origin and run said
+of a hand-written one before is kept as its own mark."""
 
 import shutil
 import uuid
@@ -79,6 +79,11 @@ def filled(connection: psycopg.Connection) -> dict[str, Any]:
     made["applicability_context"] = add_value(
         connection, "applicability_context", document, "specification_id", made["specification"]
     )
+    connection.execute(
+        "INSERT INTO rule_link (frame_part_id, document_id, role, position, node_id)"
+        " VALUES (%s, %s, 'option', 1, %s)",
+        (made["frame_part"], document, made["node"]),
+    )
     return made
 
 
@@ -121,6 +126,15 @@ CHANGES = {
     ),
     "variant taken away": "DELETE FROM variant WHERE id = %(variant)s",
     "profile changed": "UPDATE document_profile SET new_terms = '[1]' WHERE document_id = %(document)s",
+    "frame part named and changed": (
+        "UPDATE frame_part SET iri = 'https://example.org/d/rule-1', by_hand = true WHERE id = %(frame_part)s"
+    ),
+    "rule link added": (
+        "INSERT INTO rule_link (frame_part_id, document_id, role, position, statement_id)"
+        " VALUES (%(frame_part)s, %(document)s, 'option', 2, %(statement)s)"
+    ),
+    "rule link changed": "UPDATE rule_link SET position = 3 WHERE frame_part_id = %(frame_part)s",
+    "rule link taken away": "DELETE FROM rule_link WHERE frame_part_id = %(frame_part)s",
     **{
         f"{table} {name}": query.format(table=table)
         for table in ("workload", "time_span", "level_assignment", "applicability_context")
@@ -183,6 +197,19 @@ def test_a_frozen_document_s_rights_status_changes_still(connection: psycopg.Con
         "SELECT rights_status FROM document WHERE id = %s", (made["document"],)
     ).fetchone()
     assert found == ("amtlich",)
+
+
+def test_a_frozen_frame_part_takes_the_iri_it_lacks_and_keeps_it(connection: psycopg.Connection) -> None:
+    # a rule frozen before migration 0038: python -m app.db.name_frozen names it once
+    made = filled(connection)
+    connection.execute(FROZEN, (IRI, made["document"]))
+
+    connection.execute("UPDATE frame_part SET iri = %s WHERE id = %s", (IRI + "/rule-1", made["frame_part"]))
+
+    with pytest.raises(errors.ObjectNotInPrerequisiteState):
+        connection.execute(
+            "UPDATE frame_part SET iri = %s WHERE id = %s", (IRI + "/rule-2", made["frame_part"])
+        )
 
 
 def test_another_document_s_rows_change_beside_a_frozen_one(connection: psycopg.Connection) -> None:
