@@ -59,7 +59,7 @@ const props = defineProps<{
   onSaved?: (answer: NodeRow) => void;
   /** A placement's values saved: the tree is read again. */
   onValuesSaved?: (answer: Holder) => void;
-  /** How a value's review went (ValueSection). */
+  /** How a review of a placement or of a value at one went, with words that name it. */
   onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string) => void;
 }>();
 const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boolean] }>();
