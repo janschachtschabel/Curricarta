@@ -7,8 +7,11 @@ import type { FormField, NodeRow, TreeStatement } from "./tree";
 /** A kind of the second layer's values, by its key in a set of them (backend ValueKind). */
 export type ValueKind = "level_assignments" | "time_spans" | "workloads";
 
-/** What may hold a kind of value (backend HolderKind): an assessment holds levels alone (plan M3a J). */
-export type HolderKind = "node" | "statement" | "specification" | "assessment";
+/**
+ * What may hold a kind of value (backend HolderKind): an assessment holds levels alone (plan M3a J), a placement time
+ * spans and workloads alone (plan M3a K).
+ */
+export type HolderKind = "node" | "statement" | "specification" | "assessment" | "placement";
 
 /** What a level rule is of: a holder of a set, or an applicability context within a specification's (backend RuleHolder). */
 export type RuleHolder = HolderKind | "applicability_context";

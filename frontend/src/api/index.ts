@@ -10,6 +10,7 @@ export * from "./http";
 export * from "./jobs";
 export * from "./lexicon";
 export * from "./mem";
+export * from "./placements";
 export * from "./service";
 export * from "./sources";
 export * from "./specifications";

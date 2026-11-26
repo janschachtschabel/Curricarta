@@ -777,6 +777,7 @@ export const messages = {
     // a rule's change (backend app/api/rules.py)
     no_rule: "Diese Regel gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     no_assessment: "Diese Prüfung gibt es nicht mehr, oder dein Konto sieht sie nicht.",
+    no_placement: "Diese Verwendung gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     stale_revision: "Jemand hat das inzwischen geändert. Sieh dir den neuen Stand an und entscheide dann.",
     invalid_field: "Ein Feld lässt sich so nicht setzen. Prüfe die markierte Eingabe.",
     anchor_missing: "Eine Aussage braucht mindestens eine Fundstelle: Blöcke der Quelle oder eine Seite.",
@@ -2207,6 +2208,55 @@ export const messages = {
           not_whole: "Hier gehört eine ganze Zahl von 1 bis 2.147.483.647 hin.",
           too_many_digits: "Diese Zahl hat mehr als 15 Ziffern.",
         },
+      },
+      // a node's placements, under its values in the row's panel (NodePlacements.vue, PlacementItemForm.vue,
+      // placementDraft.ts; plan M3a K)
+      placements: {
+        heading: "Verwendungen",
+        intro: "Wo dieser Abschnitt eingebunden ist: in welcher Spezifikation oder Variante, an welcher Stelle und wie verbindlich.",
+        none: "Dieser Abschnitt ist noch nirgends eingebunden.",
+        noPlaces: "Das Dokument nennt keine Spezifikation, in die du den Abschnitt einbinden kannst.",
+        // an entry's fields by their keys (backend app/api/placements.py, PlacementIn)
+        fields: {
+          specification_id: "Spezifikation",
+          variant_id: "Variante",
+          in_node_id: "An Stelle",
+          obligation: "Verbindlichkeit (Pflichtfeld)",
+          grade_weight: "Notengewicht",
+        },
+        hints: {
+          specification_id: "Wähle eine Spezifikation, eine Variante oder beides.",
+          variant_id: "Eine Variante der Spezifikation, etwa ein Schwerpunkt.",
+          in_node_id: "Wo im Plan der Abschnitt steht, etwa in einem Pflichtbereich. Lass das Feld leer, wenn das Dokument keine Stelle nennt.",
+          obligation: "Wie verbindlich der Abschnitt dort ist.",
+          grade_weight: "Sein Gewicht in der Gesamtnote, etwa 1,5. Lass das Feld leer, wenn das Dokument keines nennt.",
+        },
+        choose: "Bitte wählen",
+        noChoice: "keine",
+        entry: "Verwendung {place}",
+        add: "Verwendung hinzufügen",
+        remove: "Verwendung {place} entfernen",
+        added: "Verwendung {place} hinzugefügt.",
+        removed: "Verwendung {place} entfernt.",
+        save: "Verwendungen speichern",
+        saveNamed: "Verwendungen speichern: {title}",
+        saving: "Die Verwendungen werden gespeichert …",
+        saveFailed: "Die Verwendungen wurden nicht gespeichert.",
+        changedMeanwhile:
+          "Jemand hat diesen Abschnitt inzwischen geändert. Deine Einträge sind noch da; prüfe sie und speichere erneut.",
+        // the most a node takes (placementDraft.MOST_PLACEMENTS)
+        most: "Mehr als {most} {most|Verwendung|Verwendungen} nimmt ein Abschnitt nicht an.",
+        problems: { nowhere: "Wähle eine Spezifikation oder eine Variante." },
+        // a placement in words (placementDraft.ts)
+        variantOf: "{specification} – {variant}",
+        at: "an {node}",
+        weight: "Notengewicht {weight}",
+        retired: "{value} (wird nicht mehr angeboten)",
+        unknownPlace: "eine Stelle, die es nicht mehr gibt",
+        untitled: "ohne Titel",
+        // a placement's time spans and workloads, under it (ValueSection.vue): its visible words first
+        valuesHeading: "Zeit und Umfang: {title}",
+        valuesSaveNamed: "Werte speichern: {title}",
       },
       // cv:ReviewStatuses by notation without its "rev_" (reviewStatus.ts)
       statuses: { proposed: "Vorgeschlagen", confirmed: "Bestätigt", rejected: "Verworfen" },

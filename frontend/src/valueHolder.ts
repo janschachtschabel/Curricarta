@@ -1,16 +1,19 @@
 // What holds a set of values (plan M3a G and H): a row of a document's tree - a node, a statement - or one of the
 // document's specifications, as a row of its own on the page's applicability section, or one of its assessments, on
-// the page's section of them (plan M3a J: its levels). Each is read at its revision, holds its values - a specification
+// the page's section of them (plan M3a J: its levels), or a node's placement, under the node's (plan M3a K: its time
+// spans and workloads). Each is read at its revision, holds its values - a specification
 // its applicability contexts too - and has them set as a whole on its own route, which answers it as it then stands.
 import {
   setAssessmentValues,
   setNodeValues,
+  setPlacementValues,
   setSpecificationValues,
   setStatementValues,
   type ApplicabilityContext,
   type Assessment,
   type Form,
   type HeldValues,
+  type Placement,
   type Specification,
 } from "@/api";
 import type { Row } from "@/documentTree";
@@ -30,7 +33,16 @@ export interface AssessmentHolderRow {
   assessment: Assessment;
 }
 
-export type HolderRow = Row | SpecificationRow | AssessmentHolderRow;
+/** A node's placement as a holder of values: its time spans and workloads in that place. */
+export interface PlacementHolderRow {
+  kind: "placement";
+  key: `placement:${string}`;
+  placement: Placement;
+  /** Where it is, in words: what its values' section is named by. */
+  title: string;
+}
+
+export type HolderRow = Row | SpecificationRow | AssessmentHolderRow | PlacementHolderRow;
 export type HolderKey = HolderRow["key"];
 
 /** A holder as stored - as a set's answer gives it, and a stale set's `details.current`. */
@@ -43,6 +55,7 @@ export interface Holder {
 // one row for each specification or assessment read: a render of the section is no reading anew
 const ROWS = new WeakMap<Specification, SpecificationRow>();
 const ASSESSMENT_ROWS = new WeakMap<Assessment, AssessmentHolderRow>();
+const PLACEMENT_ROWS = new WeakMap<Placement, PlacementHolderRow>();
 // an assessment's class in the core, passed as a specification's type is: no level rule reads it yet (none names it in
 // `unless`); it is there for one that will (backend app/api/values.py)
 const CUR = "https://w3id.org/wlo/curriculum/core#";
@@ -68,9 +81,20 @@ export function assessmentRow(assessment: Assessment): AssessmentHolderRow {
   return row;
 }
 
+/** The placement `placement` as a holder's row, named `title`. */
+export function placementRow(placement: Placement, title: string): PlacementHolderRow {
+  let row = PLACEMENT_ROWS.get(placement);
+  if (!row || row.title !== title) {
+    row = { kind: "placement", key: `placement:${placement.id}`, placement, title };
+    PLACEMENT_ROWS.set(placement, row);
+  }
+  return row;
+}
+
 export function holderOf(row: HolderRow): Holder {
   if (row.kind === "node") return row.node;
   if (row.kind === "assessment") return row.assessment;
+  if (row.kind === "placement") return row.placement;
   return row.kind === "statement" ? row.statement : row.specification;
 }
 
@@ -83,6 +107,7 @@ export function heldOf(holder: Holder): HeldSet {
 export function holderTypeOf(row: HolderRow): string | null {
   if (row.kind === "specification") return row.specification.type;
   if (row.kind === "assessment") return ASSESSMENT_TYPE;
+  if (row.kind === "placement") return null;
   const kind = row.kind === "statement" ? row.statement.fields.statement_kind : null;
   return typeof kind === "string" ? kind : null;
 }
@@ -93,5 +118,6 @@ export function sendValues(row: HolderRow, revision: number, form: Form, draft: 
   if (row.kind === "node") return setNodeValues(row.node.id, revision, set);
   if (row.kind === "statement") return setStatementValues(row.statement.id, revision, set);
   if (row.kind === "assessment") return setAssessmentValues(row.assessment.id, revision, set);
+  if (row.kind === "placement") return setPlacementValues(row.placement.id, revision, set);
   return setSpecificationValues(row.specification.id, revision, { ...set, contexts: contextsOf(form, draft) });
 }

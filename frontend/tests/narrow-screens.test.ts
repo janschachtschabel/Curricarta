@@ -105,6 +105,15 @@ describe("an entry of a row's values on a narrow screen", () => {
     expect(form.find(({ selectors }) => selectors.includes(".assessment-form select"))?.body).toMatch(/max-inline-size:\s*100%/);
   });
 
+  it("stacks a placement's fields, keeps its lists to the page's width and lets its words break anywhere", () => {
+    const file = "components/PlacementItemForm.vue";
+    expect(narrowRule(file, ".placement-item__fields")).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\)/);
+    const item = cssRules(stylesOf(source(file)));
+    expect(item.find(({ selectors }) => selectors.includes(".placement-item select"))?.body).toMatch(/max-inline-size:\s*100%/);
+    const section = cssRules(stylesOf(source("components/NodePlacements.vue")));
+    expect(section.find(({ selectors }) => selectors.includes(".node-placements__list li"))?.body).toMatch(/overflow-wrap:\s*anywhere/);
+  });
+
   it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
     expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
       /overflow-wrap:\s*anywhere/,

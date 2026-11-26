@@ -482,6 +482,36 @@ describe("accessibility of the pages", () => {
     expect(found, describeViolations(found)).toEqual([]);
   });
 
+  it("the tree's page with a node's placements in their form, one with its values, a new one's problem at its field, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
+    const stated = { origin: TREE_CV + "orig_human", review_status: TREE_CV + "rev_proposed", revision: 1 };
+    const placement: api.Placement = {
+      id: "p1", node_id: "a", position: 1, specification_id: "ba", variant_id: null, in_node_id: "b", obligation: TREE_CV + "obl_binding",
+      grade_weight: 1.5, iri: null, ...stated,
+      values: { ...noValues(), time_spans: [{ id: "t1", ...stated, time_kind: TREE_CV + "time_semester", span_from: 3, span_to: null, time_relation: null }] },
+    };
+    const form = form_();
+    form.node.push({ key: "obligation", kind: "concept", required: false, many: false, most: null,
+      values: [{ iri: TREE_CV + "obl_binding", notation: null, label: "verbindlich", alt_labels: [], definition: null, note: null,
+                 delimitation: null, examples: [], broader: [], group: null, dimension: null }] });
+    const specifications = [{ id: "ba", title: "Bachelor Mathematik", variants: [{ id: "v1", label: "Schwerpunkt Statistik" }] }];
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getTree").mockResolvedValue(tree_([node_("a", { placements: [placement] }), node_("b", { position: 2 })], { specifications }));
+    vi.spyOn(api, "getForm").mockResolvedValue(form);
+    vi.spyOn(api, "getDocumentBlocks").mockRejectedValue(new api.ApiError("server", 404, "no_such_page"));
+    const wrapper = await show("/dokumente/d1/baum?zeile=node:a");
+    const add = wrapper.findAll(".node-placements__add").find((button) => button.text() === "Verwendung hinzufügen");
+    await add?.trigger("click");
+    await wrapper.get(".node-placements form").trigger("submit");
+    await flushPromises();
+    expect(wrapper.find(".node-placements .field__error").exists()).toBe(true);
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
   it("the tree's page of a frozen document, a node's values read in words, has none", async () => {
     api.setToken("curricarta_token");
     setSession({ id: "0190-a", name: "Lehrkraft", roles: ["nutzer"] });

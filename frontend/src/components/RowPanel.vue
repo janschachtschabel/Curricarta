@@ -16,7 +16,8 @@
  * row no more, as a row found gone; refused to the caller's role, only said. A node's or a statement's levels, time
  * spans and workloads stand under its form (ValueSection, plan M3a G), set as a whole: saved, or a value's review
  * status set - the holder's revision moved with it -, the tree is read again; a draft of them is a draft as the
- * form's is, to the leave guard and where the tree closes under it.
+ * form's is, to the leave guard and where the tree closes under it. A node's placements stand under its values
+ * (NodePlacements, plan M3a K), with the time spans and workloads of each, and are so too.
  */
 import { computed, nextTick, ref, useId, watch } from "vue";
 
@@ -25,6 +26,7 @@ import RowActions from "@/components/RowActions.vue";
 import RowCreator from "@/components/RowCreator.vue";
 import RowDetail from "@/components/RowDetail.vue";
 import RowEditor from "@/components/RowEditor.vue";
+import NodePlacements from "@/components/NodePlacements.vue";
 import ReviewToggles from "@/components/ReviewToggles.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import type { Row, RowKey } from "@/documentTree";
@@ -58,10 +60,11 @@ const creator = ref<InstanceType<typeof RowCreator> | null>(null);
 // the row whose change the closing tree refused: its editor stays, the draft shown to copy
 const refused = ref<RowKey | null>(null);
 const status = ref("");
-// a draft open in the editor, of the row's fields and of its values
+// a draft open in the editor, of the row's fields, of its values and of a node's placements
 const fieldsOpen = ref(false);
 const valuesOpen = ref(false);
-const draftOpen = computed(() => fieldsOpen.value || valuesOpen.value);
+const placementsOpen = ref(false);
+const draftOpen = computed(() => fieldsOpen.value || valuesOpen.value || placementsOpen.value);
 
 const editing = computed(() => !!props.row && (props.tree.editable || refused.value === props.row.key));
 const reason = computed(() => {
@@ -123,8 +126,8 @@ function cancel(): void {
   emit("cancel");
 }
 
-function dirty(open: boolean, of: "fields" | "values" = "fields"): void {
-  (of === "fields" ? fieldsOpen : valuesOpen).value = open;
+function dirty(open: boolean, of: "fields" | "values" | "placements" = "fields"): void {
+  ({ fields: fieldsOpen, values: valuesOpen, placements: placementsOpen })[of].value = open;
   emit("dirty", draftOpen.value);
 }
 
@@ -224,6 +227,23 @@ defineExpose({ addAnchor, focus: toHeading });
         @closed="closed"
         @gone="gone"
         @dirty="(open) => dirty(open, 'values')"
+      />
+      <NodePlacements
+        v-if="row.kind === 'node'"
+        :key="row.key"
+        :row="row"
+        :tree="tree"
+        :form="form"
+        :document-id="documentId"
+        :editable="editing"
+        :reviewable="tree.reviewable"
+        :closed-by="tree.editable ? null : tree.closed"
+        :on-saved="() => emit('changed')"
+        :on-values-saved="() => emit('changed')"
+        :on-reviewed="reviewed"
+        @closed="closed"
+        @gone="gone"
+        @dirty="(open) => dirty(open, 'placements')"
       />
       <RowDetail :row="row" :form="form" :fields="!editing" @show="(page) => emit('show', page)" />
     </template>

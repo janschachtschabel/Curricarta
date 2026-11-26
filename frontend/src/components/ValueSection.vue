@@ -80,6 +80,10 @@ const named = computed(() => {
     const title = props.row.specification.title;
     return { heading: t("documents.page.scope.valuesHeading", { title }), save: t("documents.page.scope.valuesSaveNamed", { title }) };
   }
+  if (props.row.kind === "placement") {
+    const title = props.row.title;
+    return { heading: t("documents.tree.placements.valuesHeading", { title }), save: t("documents.tree.placements.valuesSaveNamed", { title }) };
+  }
   if (props.row.kind !== "assessment") return null;
   const title = props.row.assessment.label ?? t("documents.page.assessments.unnamed");
   return { heading: t("documents.page.assessments.levelsHeading", { title }), save: t("documents.page.assessments.levelsSaveNamed", { title }) };

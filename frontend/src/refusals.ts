@@ -52,6 +52,8 @@ export const REFUSAL_CODES = [
   "no_rule",
   // a document's assessments (backend app/api/assessments.py)
   "no_assessment",
+  // a node's placements (backend app/api/placements.py)
+  "no_placement",
   "stale_revision",
   "invalid_field",
   "anchor_missing",

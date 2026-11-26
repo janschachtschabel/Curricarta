@@ -5,6 +5,7 @@
 import type { BlockPage } from "./conversions";
 import type { FindingSeverity } from "./documents";
 import { apiFetch } from "./http";
+import type { Placement } from "./placements";
 import type { ContextForm, HeldValues, ValueKind, ValueKindForm, ValueTable } from "./values";
 
 /** A field's value: a text, a value's IRI, the IRIs of a field of many; none where it is unset. */
@@ -63,6 +64,8 @@ export interface NodeRow {
   anchors: TreeAnchor[];
   /** Its levels, time spans and workloads; set by `setNodeValues`. */
   values: HeldValues;
+  /** Where it is placed, in their order; set by `setNodePlacements` (plan M3a K). */
+  placements: Placement[];
 }
 
 export interface TreeNode extends NodeRow {
@@ -72,6 +75,13 @@ export interface TreeNode extends NodeRow {
 
 /** Why nobody may change the tree now, whoever reads it: the reason that lasts longest. */
 export type TreeClosed = "frozen" | "job_open" | "not_extracted";
+
+/** A specification of the document with its variants: where a node may be placed (plan M3a K). */
+export interface TreeSpecification {
+  id: string;
+  title: string;
+  variants: { id: string; label: string }[];
+}
 
 export interface Tree {
   /** The caller may edit the nodes and statements now. */
@@ -84,6 +94,8 @@ export interface Tree {
   counts: { nodes: Record<string, number>; statements: Record<string, number> };
   /** From the top, in their order. */
   nodes: TreeNode[];
+  /** The document's specifications by key, each with its variants: where a node may be placed. */
+  specifications: TreeSpecification[];
 }
 
 /** A value of a list field: a concept of the core vocabulary or the sector's profile (backend ValueOut). */

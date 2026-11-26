@@ -2,6 +2,7 @@ import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
 import AssessmentForm from "@/components/AssessmentForm.vue";
+import PlacementItemForm from "@/components/PlacementItemForm.vue";
 import ExtractionStart from "@/components/ExtractionStart.vue";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 import ImportForm from "@/components/ImportForm.vue";
@@ -123,6 +124,28 @@ describe("a required field", () => {
     const box = mount(FormFieldInput, { props: { field: flag, values: [], modelValue: false, labels: messages.documents.tree.values.fields } });
     expect(box.get("input[type=checkbox]").attributes("aria-required")).toBeUndefined();
     box.unmount();
+  });
+
+  it("of a node's placement is its obligation; where it is, at which node and its weight are free", () => {
+    const entry = { key: "placement-1", id: null, specification_id: "", variant_id: "", in_node_id: "", obligation: "", grade_weight: "" };
+    const wrapper = mount(PlacementItemForm, {
+      props: { entry, place: 0, sid: "s", specifications: [], variants: [], places: [], obligations: [], faults: {} },
+    });
+    const words = messages.documents.tree.placements.fields;
+    const control = (label: string) => {
+      const found = wrapper.findAll("label").find((one) => one.text() === label);
+      if (!found) throw new Error(label);
+      return wrapper.get(`#${found.attributes("for")}`);
+    };
+
+    expect(control(words.obligation).attributes("aria-required")).toBe("true");
+    expect(words.obligation).toMatch(/\(Pflichtfeld\)$/);
+    // one of the two places at least: neither alone is required, as the server says at the first
+    for (const key of ["specification_id", "variant_id", "in_node_id", "grade_weight"] as const) {
+      expect(control(words[key]).attributes("aria-required"), key).toBeUndefined();
+      expect(words[key]).not.toMatch(/\(|freiwillig/);
+    }
+    wrapper.unmount();
   });
 });
 

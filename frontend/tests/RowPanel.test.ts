@@ -2,12 +2,13 @@ import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
+import type { TreeNode } from "@/api";
 
 import RowPanel from "@/components/RowPanel.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 
-import { CV, form_, node_, noValues, tree_ } from "./treeFixtures";
+import { CV, field, form_, node_, noValues, statement_, tree_, value_ } from "./treeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -106,3 +107,41 @@ describe("the values of the row chosen", () => {
   });
 });
 
+
+describe("the placements of the node chosen", () => {
+  const SPECIFICATIONS = [{ id: "ba", title: "Bachelor", variants: [] }];
+
+  function panel(row: Row, tree = tree_(NODES, { specifications: SPECIFICATIONS })): VueWrapper {
+    const form = form_();
+    form.node.push(field("obligation", "concept", [value_(CV + "obl_binding", "verbindlich")]));
+    shown = mount(RowPanel, { props: { row, tree, form, documentId: "d1" }, attachTo: document.body });
+    return shown;
+  }
+
+  it("stand under a node's values, a draft of them open to the leave guard; a statement has none", async () => {
+    const wrapper = panel(ROW);
+
+    expect(wrapper.get(".node-placements h3").text()).toBe("Verwendungen");
+    await wrapper.get(".node-placements__add").trigger("click");
+    expect(wrapper.emitted("dirty")?.at(-1)).toEqual([true]);
+
+    const said = rowsOf([node_("s", { statements: [statement_("s1")] })]).get("statement:s1") as Row;
+    shown?.unmount();
+    expect(panel(said).find(".node-placements").exists()).toBe(false);
+  });
+
+  it("have the tree read again once saved", async () => {
+    const { statements, children, ...row } = NODES[0] as TreeNode;
+    void [statements, children];
+    vi.spyOn(api, "setNodePlacements").mockResolvedValue({ ...row, revision: 2 });
+    const wrapper = panel(ROW);
+    await wrapper.get(".node-placements__add").trigger("click");
+    const obligation = wrapper.findAll(".node-placements select").at(-1);
+    expect(obligation).toBeDefined();
+    await obligation?.setValue(CV + "obl_binding");
+    await wrapper.get(".node-placements form").trigger("submit");
+    await flushPromises();
+
+    expect(wrapper.emitted("changed")).toHaveLength(1);
+  });
+});

@@ -42,6 +42,7 @@ export function node_(id: string, changes: Partial<TreeNode> = {}): TreeNode {
     findings: { violation: 0, warning: 0, info: 0 },
     anchors: [],
     values: noValues(),
+    placements: [],
     statements: [],
     children: [],
     ...changes,
@@ -49,7 +50,7 @@ export function node_(id: string, changes: Partial<TreeNode> = {}): TreeNode {
 }
 
 export function tree_(nodes: TreeNode[], changes: Partial<Tree> = {}): Tree {
-  return { editable: true, reviewable: true, closed: null, counts: { nodes: {}, statements: {} }, nodes, ...changes };
+  return { editable: true, reviewable: true, closed: null, counts: { nodes: {}, statements: {} }, nodes, specifications: [], ...changes };
 }
 
 export function value_(iri: string, label: string, changes: Partial<FormValue> = {}): FormValue {
@@ -95,14 +96,14 @@ export function valuesForm_(): Pick<Form, "values" | "context" | "groups"> {
         ],
         { rules: [{ holder: "statement", dimensions: [CV + "dim_qualification"], unless: null }] },
       ),
-      time_spans: kind(["node", "specification"], [
+      time_spans: kind(["node", "specification", "placement"], [
         field("time_kind", "concept", [value_(CV + "time_gradeLevel", "Jahrgangsstufe"), value_(CV + "time_semester", "Fachsemester")], true),
         field("span_from", "number"),
         field("span_to", "number"),
         field("time_relation", "concept", [value_(CV + "trel_during", "während")]),
       ]),
       workloads: kind(
-        ["node", "specification"],
+        ["node", "specification", "placement"],
         [
           field("amount", "number", null, true),
           field("amount_to", "number"),
