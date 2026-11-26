@@ -1,7 +1,6 @@
 // A holder's levels, time spans and workloads as their form edits them (plan M3a G; backend app/api/values.py): each
 // value an entry of its kind - kept by its `id`, a new one without -, its fields by the keys of its kind's form, a
-// list's value as an IRI or "", a number as written (the German way: "7,5", "12.000" - the comma its only decimal
-// sign, a dot only where it groups thousands, as the panel's own words write them), a yes or no as such. A set is sent
+// list's value as an IRI or "", a number as written (valueNumbers.ts), a yes or no as such. A set is sent
 // whole: what it leaves out goes. A workload's periods are kept as they are stored; this form does not edit them.
 // Compared as the server stores them, a number by its value, so that nothing changed is nothing to save; each kind
 // is one field where a set meets another stored meanwhile (rowConflict.rebase): a kind only the other changed is
@@ -21,8 +20,8 @@ import type {
   ValueKind,
   ValuesIn,
 } from "@/api";
-import { LOCALE, t } from "@/i18n/de";
 import { rebase } from "@/rowConflict";
+import { numberOf, problemOf, written } from "@/valueNumbers";
 
 export const VALUE_KINDS: readonly ValueKind[] = ["level_assignments", "time_spans", "workloads"];
 /** A kind of a draft: a kind of value, or a specification's applicability contexts. */
@@ -58,14 +57,6 @@ const PATH = /^(level_assignments|time_spans|workloads|contexts)\[(\d+)\]\.(\w+)
 // a context's path: the context alone, one of its fields or kinds, or a path within that kind
 const CONTEXT_PATH = /^contexts\[(\d+)\](?:\.(\w+)(.*))?$/;
 
-const MOST_DIGITS = 15; // the store's (backend app/api/values.py, Number)
-const MOST_WHOLE = 2 ** 31 - 1; // a whole number's, the store's integer
-// a whole number, as the document says it: minutes per unit
-const WHOLE: ReadonlySet<string> = new Set(["minutes_per_unit"]);
-// digits, or thousands grouped by dots - the first group no zero, as "0.500" is no grouped number -, then the
-// decimals after a comma
-const NUMBER = /^(?:\d+|[1-9]\d{0,2}(?:\.\d{3})+)(?:,\d+)?$/;
-
 let made = 0;
 function nextKey(): string {
   made += 1;
@@ -83,13 +74,6 @@ function emptyDraft(): ValuesDraft {
 /** The kinds the form offers a holder of the kind `holder`, in their order. */
 export function kindsOf(form: Form, holder: HolderKind): ValueKind[] {
   return VALUE_KINDS.filter((kind) => form.values[kind].holders.includes(holder));
-}
-
-const WRITTEN = new Intl.NumberFormat(LOCALE, { maximumFractionDigits: 20, useGrouping: false });
-
-/** A number as an entry writes it: the German way, ungrouped. */
-function written(value: number | null): string {
-  return value === null ? "" : WRITTEN.format(value);
 }
 
 type Stored = Record<string, unknown> & { id: string };
@@ -175,12 +159,6 @@ export function withoutEntry(draft: ValuesDraft, kind: DraftKind, key: string): 
   return { ...draft, [kind]: draft[kind].filter((entry) => entry.key !== key) };
 }
 
-/** A number as written, as a number; none where it is empty or no number. */
-function numberOf(text: string): number | null {
-  const trimmed = text.trim();
-  return NUMBER.test(trimmed) ? Number(trimmed.replaceAll(".", "").replace(",", ".")) : null;
-}
-
 // an entry as the server stores it: a number by its value, nothing as none
 function stored(entry: Entry): unknown {
   const fields = Object.fromEntries(
@@ -222,23 +200,6 @@ export function checkDraft(form: Form, draft: ValuesDraft, within = ""): ValueFa
     });
   }
   return faults;
-}
-
-function problemOf(field: FormField, value: string | boolean | undefined): string | null {
-  if (typeof value === "boolean") return null;
-  const text = (value ?? "").trim();
-  if (text === "") return field.required ? t("documents.tree.problems.required") : null;
-  if (field.kind !== "number") return null;
-  const number = numberOf(text);
-  if (WHOLE.has(field.key)) {
-    return number !== null && Number.isInteger(number) && number >= 1 && number <= MOST_WHOLE && !text.includes(",")
-      ? null
-      : t("documents.tree.values.problems.not_whole");
-  }
-  if (number === null) return t("documents.tree.values.problems.not_number");
-  // leading zeros are no digits of the value; trailing ones after the comma are
-  const digits = text.replace(/[.,]/g, "").replace(/^0+(?=\d)/, "").length;
-  return digits > MOST_DIGITS ? t("documents.tree.values.problems.too_many_digits") : null;
 }
 
 /** An entry of the kind `kind` as a set names it: a number none where it is empty or no number. */
