@@ -1251,8 +1251,8 @@ export const messages = {
       at: "Angabe: {path}",
       pathStep: " › ",
       inverse: "{property} (umgekehrt)",
-      // each property a shape X5 loads names by sh:path, by its CURIE: the core's by its German label in
-      // cur-kern.ttl (tests/findingPath.test.ts holds the list to the shapes)
+      // each property a shape X5 loads names by sh:path, or the graph holds a blank node by, by its CURIE: the
+      // core's by its German label in cur-kern.ttl (tests/findingPath.test.ts holds the list to both)
       properties: {
           "cur:action": "Handlung (Lemma)",
           "cur:actionText": "Handlung im Wortlaut",
@@ -1358,6 +1358,7 @@ export const messages = {
           "cur:timeRelation": "Zeitbezug",
           "cur:timeSpan": "Zeitraum",
           "cur:to": "bis",
+          "cur:totalWorkload": "Gesamtumfang",
           "cur:typicalParent": "typischer Elternknotentyp",
           "cur:unit": "Einheit",
           "cur:validFrom": "gültig ab",

@@ -37,6 +37,23 @@ function shapedProperties(): string[] {
   return [...new Set(names)].sort();
 }
 
+/**
+ * The properties by which the Kern graph holds a blank node - a value, a context read off the text - (backend
+ * app/exports/kern_*.py): a finding at one leads its path with them (`details.held_by`), whether a shape names them
+ * or not.
+ */
+function holdingProperties(): string[] {
+  const folder = join(process.cwd(), "..", "backend", "app", "exports");
+  const source = ["kern_values.py", "kern_scope.py", "kern_assessments.py", "kern_placements.py"]
+    .map((name) => readFileSync(join(folder, name), "utf8"))
+    .join("\n");
+  const added = [...source.matchAll(/CUR\.(\w+), (?:\w+_value|_context)\(|CUR\.(\w+), read\b/g)].map(([, one, two]) => one ?? two);
+  const chosen = [...source.matchAll(/predicate = CUR\.(\w+) if .+ else CUR\.(\w+)/g)].flatMap(([, one, two]) => [one, two]);
+  const found = [...new Set([...added, ...chosen].map((name) => `cur:${name}`))].sort();
+  expect(found).toContain("cur:totalWorkload");
+  return found;
+}
+
 describe("a finding's place in its row", () => {
   it("is said in words from the row down, each property by the page's word for it", () => {
     expect(findingPath(finding())).toBe("Angabe: Geltungskontext › Bildungsbereich");
@@ -54,7 +71,9 @@ describe("a finding's place in its row", () => {
     expect(findingPath(finding({ rule: "x3.unknown_block", path: "statements[2].level" }))).toBeNull();
   });
 
-  it("has a word for every property a shape X5 loads names, and none for another", () => {
-    expect(Object.keys(messages.documents.findings.properties).sort()).toEqual(shapedProperties());
+  it("has a word for every property a shape X5 loads names or the graph holds a blank node by, and none for another", () => {
+    const named = [...new Set([...shapedProperties(), ...holdingProperties()])].sort();
+    expect(Object.keys(messages.documents.findings.properties).sort()).toEqual(named);
+    expect(findingPath(finding({ path: "cur:totalWorkload/cur:unit" }))).toBe("Angabe: Gesamtumfang › Einheit");
   });
 });
