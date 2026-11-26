@@ -81,7 +81,7 @@ const LEVEL = { group: LVL + "language", dimension: CV + "dim_proficiency" };
 const QUALIFICATION = { group: LVL + "qualification", dimension: CV + "dim_qualification" };
 
 /** The values' form, one for every sector, as far as the tests ask it (backend app/vocab/value_forms.py). */
-export function valuesForm_(): Pick<Form, "values" | "groups"> {
+export function valuesForm_(): Pick<Form, "values" | "context" | "groups"> {
   return {
     values: {
       level_assignments: kind(
@@ -115,13 +115,23 @@ export function valuesForm_(): Pick<Form, "values" | "groups"> {
         { periods: "time_spans" },
       ),
     },
+    context: {
+      fields: [
+        field("sector", "concept", [value_(CV + "sec_school", "Schulbildung"), value_(CV + "sec_vet", "Berufsbildung")]),
+        field("formality", "concept", [value_(CV + "form_formal", "formal")]),
+        field("institution_text", "text"),
+        field("target_group_text", "text"),
+      ],
+      values: ["level_assignments", "time_spans"],
+    },
     groups: { [LVL + "language"]: "Sprachniveaus", [LVL + "qualification"]: "Qualifikationsstufen", [LVL + "skills"]: "Fertigkeiten" },
   };
 }
 
 /** A form that offers no kind of value: for the pages that ask the node and statement fields alone. */
-export const NO_VALUES_FORM: Pick<Form, "values" | "groups"> = {
+export const NO_VALUES_FORM: Pick<Form, "values" | "context" | "groups"> = {
   values: { level_assignments: kind([], []), time_spans: kind([], []), workloads: kind([], [], { periods: "time_spans" }) },
+  context: { fields: [], values: [] },
   groups: {},
 };
 

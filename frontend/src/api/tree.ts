@@ -5,7 +5,7 @@
 import type { BlockPage } from "./conversions";
 import type { FindingSeverity } from "./documents";
 import { apiFetch } from "./http";
-import type { HeldValues, ValueKind, ValueKindForm, ValueTable } from "./values";
+import type { ContextForm, HeldValues, ValueKind, ValueKindForm, ValueTable } from "./values";
 
 /** A field's value: a text, a value's IRI, the IRIs of a field of many; none where it is unset. */
 export type FieldValue = string | string[] | null;
@@ -127,6 +127,8 @@ export interface Form {
   statement: FormField[];
   /** The second layer's values: one form for every sector. */
   values: Record<ValueKind, ValueKindForm>;
+  /** A specification's applicability context. */
+  context: ContextForm;
   /** The label of each group a value names. */
   groups: Record<string, string>;
 }

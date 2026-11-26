@@ -2,6 +2,7 @@
 // their variants, own values and applicability contexts - each context with its time spans and levels -; a
 // specification's title and field set on its revision; its values and contexts set as a whole on it.
 import { apiFetch } from "./http";
+import type { LevelIn, TimeSpanIn, ValuesIn } from "./values";
 
 /** Where a stored value or context came from, how far it is reviewed, and its revision (backend StatedOut). */
 export interface ScopeStated {
@@ -136,7 +137,31 @@ export function editSpecification(id: string, expectedRevision: number, fields: 
   });
 }
 
-/** The lists the values and contexts are named from: the values' form is every sector's. */
-export function getScopeForm(sector: string): Promise<ScopeForm> {
-  return apiFetch<ScopeForm>(`/api/v1/profiles/${encodeURIComponent(sector)}/form`);
+/** An applicability context as a set names it: by its `id` one the specification keeps, without a new one (backend ContextIn). */
+export interface ContextIn {
+  id: string | null;
+  sector: string | null;
+  formality: string | null;
+  institution_text: string | null;
+  target_group_text: string | null;
+  level_assignments: LevelIn[];
+  time_spans: TimeSpanIn[];
+}
+
+/** A specification's values and contexts, every kind named: what the set leaves out goes (backend SpecificationValuesIn). */
+export interface SpecificationValuesIn extends ValuesIn {
+  contexts: ContextIn[];
+}
+
+/**
+ * Set a specification's levels, time spans, workloads and applicability contexts as a whole, read at its revision
+ * `revision`; the specification as it then stands. Refused as a node's values (setNodeValues), 404
+ * `no_specification`; a context's problem at its path (`contexts[0].sector`), one the store refuses in a context at
+ * the context (`contexts[0]`) or its kind (`contexts[0].level_assignments`).
+ */
+export function setSpecificationValues(id: string, revision: number, values: SpecificationValuesIn): Promise<Specification> {
+  return apiFetch<Specification>(`${specificationPath(id)}/values`, {
+    method: "PUT",
+    body: JSON.stringify({ expected_revision: revision, ...values }),
+  });
 }

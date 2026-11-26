@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { editSpecification, getScopeForm, getSpecifications } from "@/api";
+import { editSpecification, getSpecifications, setSpecificationValues } from "@/api";
 
 function json(body: unknown): Response {
   return new Response(JSON.stringify(body), { status: 200, headers: { "Content-Type": "application/json" } });
@@ -29,9 +29,18 @@ describe("a document's specifications", () => {
     expect(JSON.parse(init?.body as string)).toEqual({ expected_revision: 3, field_text: null });
   });
 
-  it("are named by the lists of the sector's form", async () => {
-    await getScopeForm("school");
+  it("have their values and contexts set as a whole, on the revision they were read at", async () => {
+    const context = {
+      id: "c1", sector: "https://example.org/sec", formality: null, institution_text: "Gymnasium", target_group_text: null,
+      level_assignments: [], time_spans: [{ id: null, time_kind: "https://example.org/grade", span_from: 5, span_to: 6, time_relation: null }],
+    };
+    await setSpecificationValues("s/1", 4, { level_assignments: [], time_spans: [], workloads: [], contexts: [context] });
 
-    expect(vi.mocked(fetch).mock.calls[0][0]).toBe("/api/v1/profiles/school/form");
+    const [path, init] = vi.mocked(fetch).mock.calls[0];
+    expect(path).toBe("/api/v1/specifications/s%2F1/values");
+    expect(init?.method).toBe("PUT");
+    expect(JSON.parse(init?.body as string)).toEqual({
+      expected_revision: 4, level_assignments: [], time_spans: [], workloads: [], contexts: [context],
+    });
   });
 });

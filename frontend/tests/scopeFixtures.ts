@@ -1,22 +1,39 @@
 // Synthetic specifications and the lists that name their values (plan M3a H1), as the backend answers them.
-import type { ScopeForm, Specification, Specifications } from "@/api";
+import type { Form, Specification, Specifications } from "@/api";
+
+import { field, form_, value_ } from "./treeFixtures";
 
 const CV = "https://w3id.org/wlo/curriculum/vocab#";
 const CUR = "https://w3id.org/wlo/curriculum/core#";
 const LVL = "https://w3id.org/wlo/curriculum/level/";
 const STATED = { origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1 };
 
-export const SCOPE_FORM: ScopeForm = {
+/** The values' form, as far as the specifications' tests ask it: its labels name their values and contexts. */
+export const SCOPE_FORM: Form = {
+  ...form_(),
   values: {
-    level_assignments: { fields: [{ key: "level", values: [{ iri: LVL + "EQF-4", label: "EQR 4" }] }] },
-    time_spans: { fields: [{ key: "time_kind", values: [{ iri: CV + "time_gradeLevel", label: "Jahrgangsstufe" }] }] },
-    workloads: { fields: [{ key: "unit", values: [{ iri: CV + "unit_lesson", label: "Unterrichtsstunden" }] }] },
+    ...form_().values,
+    level_assignments: {
+      ...form_().values.level_assignments,
+      fields: [field("level", "concept", [value_(LVL + "EQF-4", "EQR 4", { group: LVL + "eqf", dimension: CV + "dim_qualification" })], true)],
+    },
+    time_spans: {
+      ...form_().values.time_spans,
+      fields: [field("time_kind", "concept", [value_(CV + "time_gradeLevel", "Jahrgangsstufe")], true), field("span_from", "number"), field("span_to", "number")],
+    },
+    workloads: {
+      ...form_().values.workloads,
+      fields: [field("amount", "number", null, true), field("unit", "concept", [value_(CV + "unit_lesson", "Unterrichtsstunden")], true)],
+    },
   },
   context: {
     fields: [
-      { key: "sector", values: [{ iri: CV + "sec_school", label: "Schulbildung" }] },
-      { key: "formality", values: [{ iri: CV + "form_formal", label: "formal" }] },
+      field("sector", "concept", [value_(CV + "sec_school", "Schulbildung")]),
+      field("formality", "concept", [value_(CV + "form_formal", "formal")]),
+      field("institution_text", "text"),
+      field("target_group_text", "text"),
     ],
+    values: ["level_assignments", "time_spans"],
   },
 };
 

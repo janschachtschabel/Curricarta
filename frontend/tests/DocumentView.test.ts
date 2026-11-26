@@ -82,7 +82,7 @@ beforeEach(() => {
   vi.spyOn(api, "getSource").mockResolvedValue(detail());
   vi.spyOn(api, "listDocuments").mockResolvedValue([]);
   vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
-  vi.spyOn(api, "getScopeForm").mockResolvedValue(SCOPE_FORM);
+  vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
 });
 
 /** The extraction's job running at a step it reports. */

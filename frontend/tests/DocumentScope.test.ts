@@ -28,7 +28,7 @@ const fieldText = (wrapper: VueWrapper) => field(wrapper, t("documents.page.scop
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
-  vi.spyOn(api, "getScopeForm").mockResolvedValue(SCOPE_FORM);
+  vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
 });
 
 afterEach(() => {
@@ -96,7 +96,7 @@ describe("a document's applicability on its page", () => {
   });
 
   it("names its values without their lists' labels where the form did not come", async () => {
-    vi.mocked(api.getScopeForm).mockRejectedValue(new ApiError("server", 500, "internal", "boom"));
+    vi.mocked(api.getForm).mockRejectedValue(new ApiError("server", 500, "internal", "boom"));
     vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
     const wrapper = await open();
 

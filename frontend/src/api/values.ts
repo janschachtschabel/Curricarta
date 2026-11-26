@@ -10,6 +10,9 @@ export type ValueKind = "level_assignments" | "time_spans" | "workloads";
 /** What may hold a kind of value (backend HolderKind); a specification's values follow with its editing. */
 export type HolderKind = "node" | "statement" | "specification";
 
+/** What a level rule is of: a holder of a set, or an applicability context within a specification's (backend RuleHolder). */
+export type RuleHolder = HolderKind | "applicability_context";
+
 /** A value as the tree answers it: who stated it, how far it is reviewed (backend StatedOut). */
 interface StatedValue {
   /** Names it in a set that keeps it and in a review. */
@@ -62,7 +65,7 @@ export interface HeldValues {
  * type (a statement's kind) is `unless` (backend LevelRuleOut).
  */
 export interface LevelRule {
-  holder: HolderKind;
+  holder: RuleHolder;
   dimensions: string[];
   unless: string | null;
 }
@@ -76,8 +79,17 @@ export interface ValueKindForm {
   rules: LevelRule[];
 }
 
-/** A value as a review names it: by its table (backend ReviewKind). */
-export type ValueTable = "level_assignment" | "time_span" | "workload";
+/** A value as a review names it: by its table - a specification's applicability context too (backend ReviewKind). */
+export type ValueTable = "level_assignment" | "time_span" | "workload" | "applicability_context";
+
+/**
+ * A specification's applicability context in the values' form (backend ContextFormOut): its own fields, and the
+ * kinds of value it holds, with those kinds' fields (`Form.values`).
+ */
+export interface ContextForm {
+  fields: FormField[];
+  values: ValueKind[];
+}
 
 /** A level as a set names it: by its `id` one the holder keeps, without a new one (backend LevelIn). */
 export interface LevelIn {

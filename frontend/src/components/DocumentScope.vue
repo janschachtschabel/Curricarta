@@ -10,7 +10,7 @@
  */
 import { computed, onMounted, ref, watch } from "vue";
 
-import { getScopeForm, getSpecifications, type ScopeForm, type Specification, type Specifications } from "@/api";
+import { getForm, getSpecifications, type Form, type Specification, type Specifications } from "@/api";
 import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
@@ -26,8 +26,8 @@ const props = defineProps<{ documentId: string; sector: string; refresh?: number
 
 const heading = ref<HTMLElement | null>(null);
 // the values' form names the concepts; without it the section still shows what the specifications say
-const read = async (): Promise<[Specifications, ScopeForm | null]> =>
-  Promise.all([getSpecifications(props.documentId), getScopeForm(props.sector).catch(() => null)]);
+const read = async (): Promise<[Specifications, Form | null]> =>
+  Promise.all([getSpecifications(props.documentId), getForm(props.sector).catch(() => null)]);
 const { shown, failure, hidden, load, retry } = useSectionReading(read, t("documents.page.scope.loadFailed"), heading);
 // a specification as a save gave it back, shown until the section is read again
 const saved = ref<Record<string, Specification>>({});
