@@ -2,7 +2,8 @@
 do (LevelAssignmentShape, its SPARQL constraints): a level the set takes passes the shape, one it refuses
 the shape rejects - a qualification level at a statement, a grading or conduct level at a node or at a
 statement other than a standard, a range's end of another level system than its start; a grading level at
-a specification but an assessment specification, or in an applicability context (plan M3a H1). The shapes
+a specification but an assessment specification, or in an applicability context (plan M3a H1); a grade at an
+assessment (plan M3a J), where a node's is refused. The shapes
 check each case's level as the Kern graph states it at its holder (app/exports/kern_values.py,
 kern_scope.py)."""
 
@@ -17,6 +18,7 @@ import pytest
 from rdflib import Namespace
 
 from app.db.migrate import migrate
+from app.domain.assessments import AssessmentRow
 from app.domain.l2 import (
     Context,
     ContextDraft,
@@ -43,6 +45,7 @@ LVL = Namespace("https://w3id.org/wlo/curriculum/level/")
 LEARNING, STANDARD = str(CV.kind_learningOutcome), str(CV.kind_standard)
 CURRICULUM, ASSESSMENT = (SPECIFICATION_TYPES[kind] for kind in ("curriculum", "assessmentSpecification"))
 CONTEXT = "context"  # the type of the holder of a level in a curriculum's applicability context
+EXAM = str(CUR.Assessment)  # an assessment's type, by its class (app/api/values.py)
 STATED = Stated(str(CV.orig_human), str(CV.rev_proposed), None, 1)
 
 
@@ -78,6 +81,9 @@ CASES = [
     Case("grade_at_curriculum", "specification", CURRICULUM, str(LVL["grade-2"]), refused_at="level"),
     Case("grade_at_assessment", "specification", ASSESSMENT, str(LVL["grade-2"])),
     Case("grade_in_context", "applicability_context", CONTEXT, str(LVL["grade-2"]), refused_at="level"),
+    # a grade or conduct level at an assessment: where it belongs (plan M3a J)
+    Case("grade_at_exam", "assessment", EXAM, str(LVL["grade-2"])),
+    Case("conduct_named_at_exam", "assessment", EXAM, str(LVL["cefr-B1"]), dimension=str(CV.dim_conduct)),
 ]  # fmt: skip
 
 
@@ -107,7 +113,7 @@ def refused(form: ValueForm, case: Case) -> str | None:
 def shape_rejected() -> set[str]:
     """The cases whose assignment LevelAssignmentShape rejects, all checked in one graph: a document's
     node, a learning outcome and a standard of it, its curriculum with an applicability context and an
-    assessment specification, each case's level at its holder."""
+    assessment specification, an assessment of the curriculum, each case's level at its holder."""
     rows = a_document([str(CV.addr_learner)])
     outcome = rows.statements[0] | {"statement_kind_iri": LEARNING}
     standard = outcome | {"id": uuid4(), "position": 2, "statement_kind_iri": STANDARD}
@@ -119,6 +125,7 @@ def shape_rejected() -> set[str]:
         STANDARD: Holder("statement", standard["id"]),
         CURRICULUM: Holder("specification", curriculum["id"]),
         ASSESSMENT: Holder("specification", assessment["id"]),
+        EXAM: Holder("assessment", uuid4()),
     }
     held: dict[Holder, list[Level]] = {holder: [] for holder in holders.values()}
     in_context: list[Level] = []  # a context is no holder of a set: its levels go with the curriculum's
@@ -130,9 +137,14 @@ def shape_rejected() -> set[str]:
     context = Context(ContextDraft(id=uuid4()), STATED, tuple(in_context))
     values = {holder: HeldValues(levels=tuple(levels)) for holder, levels in held.items()}
     values[holders[CURRICULUM]] = replace(values[holders[CURRICULUM]], contexts=(context,))
+    exam = AssessmentRow(
+        holders[EXAM].id, "specification", curriculum["id"], 1, str(CV.ak_exam), None, None, None, None, None,
+        STATED,
+    )  # fmt: skip
     valued = replace(
-        rows, statements=[outcome, standard], specifications=[curriculum, assessment], values=values
-    )
+        rows, statements=[outcome, standard], specifications=[curriculum, assessment], values=values,
+        assessments=[exam],
+    )  # fmt: skip
     results = validate_graph(ONTOLOGY, kern_graph(valued))
     return {
         named[found.focus]

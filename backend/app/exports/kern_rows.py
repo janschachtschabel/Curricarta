@@ -5,11 +5,11 @@ is a version of and the file it was read off (plan M3a A1), its specifications -
 their applicability (plan M3a H1) - and their variants, its nodes and statements, the anchors of nodes and
 statements with their blocks - rows as the tables hold them, each with the IRI it is named by once frozen
 (app/exports/kern_naming.py) - and the values of its
-holders (app/db/value_rows.py, plan M3a F1) and the specifications' applicability contexts, read in one
-snapshot; its rules with their anchors as the graph states them (plan M3a I, app/db/rule_rows.py). A
-rejected statement is not read, nor are its anchors and values; a rejected value is left out - a
-workload with its periods, a context with its values -, and a rejected node's values follow their own
-status.
+holders (app/db/value_rows.py, plan M3a F1), the specifications' applicability contexts and the
+document's assessments (app/db/assessment_rows.py, plan M3a J), read in one snapshot; its rules with their
+anchors as the graph states them (plan M3a I, app/db/rule_rows.py). A rejected statement is not read, nor
+are its anchors and values; a rejected value is left out - a workload with its periods, a context with its
+values -, and a rejected node's values follow their own status.
 
 No visibility check: the export serves the pipeline (X5's SHACL check) of a document it already holds;
 a route that exports for a reader checks what that reader sees first.
@@ -23,9 +23,11 @@ from uuid import UUID
 import psycopg
 from psycopg.rows import dict_row
 
+from app.db.assessment_rows import assessments_of
 from app.db.documents import DocumentError
 from app.db.rule_rows import Rule, rules_of
 from app.db.value_rows import values_of
+from app.domain.assessments import AssessmentRow
 from app.domain.l2 import Context, HeldValues, Level, TimeSpan, Values, Workload
 from app.vocab.lookup import REGIONS
 
@@ -119,6 +121,7 @@ class KernRows:
     file: Row  # the file it was read off
     values: Values = field(default_factory=dict)  # of its holders read, rejected ones left out
     rules: list[Rule] = field(default_factory=list)  # rejected ones left out (plan M3a I)
+    assessments: list[AssessmentRow] = field(default_factory=list)  # each part after its parent (plan M3a J)
 
 
 async def read_document(connection: psycopg.AsyncConnection, document_id: UUID) -> KernRows:
@@ -161,11 +164,14 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> KernR
         file = await rows.fetchone()
     values = await values_of(connection, document_id)  # within this snapshot
     rules = await rules_of(connection, document_id, stated=True)
+    assessments = await assessments_of(connection, document_id)  # within it too
     if file is None:  # a document is of a conversion, a conversion of a file: both columns NOT NULL
         raise DocumentError(f"no file of document {document_id}")
     specifications, variants, nodes, statements, anchors = read
     kept = _kept(values, {row["id"] for row in statements})
-    return KernRows(document, specifications, variants, nodes, statements, anchors, work, file, kept, rules)
+    return KernRows(
+        document, specifications, variants, nodes, statements, anchors, work, file, kept, rules, assessments
+    )
 
 
 def _kept(values: Values, statements: set[UUID]) -> Values:

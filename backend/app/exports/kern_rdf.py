@@ -4,8 +4,8 @@ and where it came from (C1), the edition it supersedes by that edition's IRI (B2
 their variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
 anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them, the values of the
 second layer at their holders (plan M3a F1, app/exports/kern_values.py) and each specification's
-applicability (plan M3a H1, app/exports/kern_scope.py), and its rules with their anchors (plan M3a I,
-app/exports/kern_rules.py).
+applicability (plan M3a H1, app/exports/kern_scope.py), its rules with their anchors (plan M3a I,
+app/exports/kern_rules.py) and the document's assessments (plan M3a J, app/exports/kern_assessments.py).
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
@@ -23,6 +23,7 @@ from uuid import UUID
 from rdflib import OWL, PROV, RDF, SKOS, XSD, BNode, Graph, Literal, Namespace, URIRef
 from rdflib.namespace import DCTERMS
 
+from app.exports.kern_assessments import add_assessments
 from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
 from app.exports.kern_rules import add_rules, rule_names
@@ -35,7 +36,7 @@ from app.sources.mem.tree import storable_iri
 # (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when a frozen
 # document was checked under another. tests/exports/test_kern_versions.py pins it to all of these: a change
 # of the check alone is a new version too, owing every draft a check and moving the kept exports' fingerprint.
-KERN_GRAPH_VERSION = 5
+KERN_GRAPH_VERSION = 6
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 _SPECIFICATION_CLASSES = {
@@ -84,6 +85,7 @@ def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
     add_values(graph, rows, naming)
     add_scope(graph, rows, naming)
     add_rules(graph, rows, names)
+    add_assessments(graph, rows, naming)
     return graph
 
 

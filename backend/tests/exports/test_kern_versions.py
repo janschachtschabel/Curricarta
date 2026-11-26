@@ -26,8 +26,17 @@ from types import ModuleType
 
 import pytest
 
-from app.db import rule_rows, value_rows
-from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_rules, kern_scope, kern_values
+from app.db import assessment_rows, rule_rows, value_rows
+from app.exports import (
+    kern_assessments,
+    kern_child,
+    kern_naming,
+    kern_rdf,
+    kern_rows,
+    kern_rules,
+    kern_scope,
+    kern_values,
+)
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
 from app.pipeline import shacl_child
@@ -42,7 +51,12 @@ from app.vocab.loader import MODEL_DIRS
 # another validator is another check (a draft checked while every value's vocabulary went unchecked, audit
 # 2026-11-14, is owed one); beside it the files and the checker it validates by (check_digest). Not held:
 # rdflib and owlrl, on which pyshacl runs (the kept exports' fingerprint holds rdflib's version)
-GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child, rule_rows, kern_rules)
+# rule_rows, kern_rules: the rules read and stated (plan M3a I); assessment_rows, kern_assessments: the
+# assessments read and stated (plan M3a J)
+GRAPH_MODULES = (
+    kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child, rule_rows, kern_rules,
+    assessment_rows, kern_assessments,
+)  # fmt: skip
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
@@ -52,6 +66,7 @@ GRAPH_DIGESTS = {
     # checks a value's vocabulary and the blank nodes (audit 2026-11-14)
     4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
     5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
+    6: "508974a782d6bcff5feef944081de0d8a31ebf135326fc4345982561831bd041",  # assessments (plan M3a J)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
@@ -60,6 +75,7 @@ EXPORT_DIGESTS = {
     "kern-ttl/3": "7b86aae1ff4c6ada4205560198ce783cb6d53302e7a4c70ce939927584ae423e",  # value kinds
     "kern-ttl/4": "89c8fb757df5f3c45dcd26bc6e095ba51904fe10152a00ec26e9c7e1a94332d1",  # contexts
     "kern-ttl/5": "6e4da7a2e72c3b406d16824ededcdf2079d9ab7c954a2558b35b17d419efee04",  # rules named by IRI
+    "kern-ttl/6": "b4f86ca5b266acd78b682f4ff63ff58cd5a34c90d6b72695878a6f38c6b7ab18",  # assessments by IRI
 }
 _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 
