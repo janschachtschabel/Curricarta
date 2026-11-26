@@ -18,8 +18,10 @@ from app.pipeline.shacl_child import ShaclResult
 NO_CLASS = "DocumentClass"
 # what the gate refuses by: raised with every change of it or of the check in its child (shacl_child.py),
 # so that an export or a refusal kept under another gate is made and checked anew (app/exports/mem_export.py,
-# fingerprint; the pinned pyshacl's version is part of it on its own)
-GATE_VERSION = "mem-gate/1"
+# fingerprint; the pinned pyshacl's version is part of it on its own). 2: the child validates without
+# pyshacl's focus list - nested shapes and blank nodes are checked, a blank node's result goes to its
+# holder (audit 2026-11-14) -, so an export or refusal kept under 1 is checked anew
+GATE_VERSION = "mem-gate/2"
 
 
 @dataclass(frozen=True)
