@@ -74,11 +74,19 @@ SELECT DISTINCT ON (s.key, v.key) s.key, v.key, v.iri FROM variant v
 JOIN specification s ON s.id = v.specification_id JOIN document d ON d.id = s.document_id
 WHERE d.iri = %s AND v.iri IS NOT NULL ORDER BY s.key, v.key, d.revision DESC
 """
-# a document's rules in their order (plan M3a I), and the highest rule number given: by the document's counter
-# and by the IRIs its revisions hold - a revision frozen before migration 0038 named its rules later
+# a document's rules in their order (plan M3a I), each with the IRI of the rule it corresponds to in the
+# revision it copies or in a copy of it - the same place, content and time it was made, as a copy keeps them:
+# a rule made anew in the copy corresponds to none -; and the highest rule number given: by the document's
+# counter and by the IRIs its revisions hold - a revision frozen before migration 0038 named its rules later
 _RULES = """
-SELECT id, iri, review_status_iri = %s FROM frame_part WHERE document_id = %s AND part_kind = 'rules'
-ORDER BY position
+SELECT f.id, f.iri, f.review_status_iri = %(rejected)s,
+    (SELECT c.iri FROM frame_part c JOIN document cd ON cd.id = c.document_id
+     WHERE (cd.id = d.copy_of OR cd.copy_of = d.id) AND c.part_kind = 'rules' AND c.iri IS NOT NULL
+         AND c.position = f.position AND c.content = f.content AND c.created_at = f.created_at
+     ORDER BY cd.revision LIMIT 1)
+FROM frame_part f JOIN document d ON d.id = f.document_id
+WHERE f.document_id = %(document)s AND f.part_kind = 'rules'
+ORDER BY f.position
 """
 _RULE_SERIAL = """
 SELECT greatest(
@@ -204,7 +212,7 @@ async def name_document(connection: psycopg.AsyncConnection, document_id: UUID, 
     given_specifications: dict[str, str] = dict(await cursor.fetchall())
     cursor = await connection.execute(_GIVEN_VARIANTS, (iri,))
     given_variants = {(specification, key): given for specification, key, given in await cursor.fetchall()}
-    cursor = await connection.execute(_RULES, (CV + "rev_rejected", document_id))
+    cursor = await connection.execute(_RULES, {"rejected": CV + "rev_rejected", "document": document_id})
     rules = [RuleRow(*found) for found in await cursor.fetchall()]
     cursor = await connection.execute(_RULE_SERIAL, {"document": document_id, "iri": iri})
     rule_serial = int((await cursor.fetchone() or (0,))[0])

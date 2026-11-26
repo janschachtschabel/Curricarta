@@ -7,7 +7,9 @@ Each frozen document whose specification or variant lacks its IRI is named as a 
 order, so a key names in a later revision what it named in an earlier one. Its nodes and statements have
 theirs; the database lets a frozen specification, variant or frame part take its IRI and nothing else
 (migrations 0034, 0038). A rule is numbered past every number the document's revisions gave; the frozen
-document's counter stays as it was, a later freeze reads the numbers its revisions hold.
+document's counter stays as it was, a later freeze reads the numbers its revisions hold. A rule a later
+revision copied takes the name of the rule it corresponds to (app/db/freezing.py), and so does a rule of a
+draft copy open meanwhile, named here too: its freeze keeps what it holds.
 All in one transaction under the advisory lock every freeze shares (``NAMING_LOCK``): a second run waits for
 the first, then finds nothing left, and a freeze waits for it meanwhile and then reads what it named.
 Idempotent: a run with nothing to name changes nothing.
@@ -40,6 +42,16 @@ WHERE d.frozen_at IS NOT NULL AND (
 )
 ORDER BY d.iri, d.revision
 """
+# the rules of open draft copies, each by the rule it corresponds to in the revision it copies, where that one
+# is named and no rule of the copy holds the name yet
+_OPEN_COPIES = """
+UPDATE frame_part f SET iri = c.iri
+FROM document d, frame_part c
+WHERE f.document_id = d.id AND d.frozen_at IS NULL AND d.copy_of IS NOT NULL AND f.part_kind = 'rules'
+    AND f.iri IS NULL AND c.document_id = d.copy_of AND c.part_kind = 'rules' AND c.iri IS NOT NULL
+    AND c.position = f.position AND c.content = f.content AND c.created_at = f.created_at
+    AND NOT EXISTS (SELECT FROM frame_part o WHERE o.document_id = d.id AND o.iri = c.iri)
+"""
 
 
 @dataclass(frozen=True)
@@ -65,6 +77,8 @@ async def name_frozen(connection: psycopg.AsyncConnection) -> NamedFrozen:
             specifications += len(named.specifications)
             variants += len(named.variants)
             rules += len(named.rules)
+        cursor = await connection.execute(_OPEN_COPIES)
+        rules += max(cursor.rowcount, 0)
     return NamedFrozen(documents, specifications, variants, rules)
 
 

@@ -355,13 +355,7 @@ async def test_rules_of_documents_frozen_before_are_named_by_the_command_once(
     await ready(connection, document)
     await framed(connection, document.id)
     await freeze(connection, document.id, BASE, accept_violations=False)
-    # as a freeze before migration 0038 left it: no rule named, none counted - for this test's database alone
-    for table in ("frame_part", "document"):
-        await connection.execute(f"ALTER TABLE {table} DISABLE TRIGGER {table}_stays_frozen")
-    await connection.execute("UPDATE frame_part SET iri = NULL WHERE document_id = %s", (document.id,))
-    await connection.execute("UPDATE document SET serials = '{}' WHERE id = %s", (document.id,))
-    for table in ("frame_part", "document"):
-        await connection.execute(f"ALTER TABLE {table} ENABLE TRIGGER {table}_stays_frozen")
+    await rules_frozen_before(connection, document.id)
 
     first = await name_frozen(connection)
     again = await name_frozen(connection)
@@ -369,3 +363,90 @@ async def test_rules_of_documents_frozen_before_are_named_by_the_command_once(
     assert first == NamedFrozen(documents=1, specifications=0, variants=0, rules=1)
     assert again == NamedFrozen(documents=0, specifications=0, variants=0, rules=0)
     assert await rule_iris(connection, document.id) == [("rules", DOC + "/rule-1")]
+
+
+async def rules_frozen_before(connection: psycopg.AsyncConnection, *documents: UUID) -> None:
+    """The documents' rules unnamed and uncounted, as a freeze before migration 0038 left them - the triggers
+    held off for this test's database alone."""
+    for table in ("frame_part", "document"):
+        await connection.execute(f"ALTER TABLE {table} DISABLE TRIGGER {table}_stays_frozen")
+    await connection.execute(
+        "UPDATE frame_part SET iri = NULL WHERE document_id = ANY(%s)", (list(documents),)
+    )
+    await connection.execute("UPDATE document SET serials = '{}' WHERE id = ANY(%s)", (list(documents),))
+    for table in ("frame_part", "document"):
+        await connection.execute(f"ALTER TABLE {table} ENABLE TRIGGER {table}_stays_frozen")
+
+
+async def worded(connection: psycopg.AsyncConnection, document_id: UUID, *wordings: str) -> None:
+    """A rule of each wording after the document's frame parts, a run's."""
+    for wording in wordings:
+        part = await framed(connection, document_id)
+        await connection.execute(
+            "UPDATE frame_part SET content = jsonb_build_object('verbatim', %s::text, 'ruleKind',"
+            " 'completion') WHERE id = %s",
+            (wording, part),
+        )
+
+
+async def test_the_command_gives_a_rule_the_same_iri_in_each_revision_frozen_before(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # revision 2 copies revision 1's rules: named after the fact, each keeps one name over both
+    await ready(connection, document)
+    await worded(connection, document.id, "A", "B")
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    copy = await copy_document(connection, document.id)
+    await checked(connection, Copy(copy))
+    await freeze(connection, copy, BASE, accept_violations=False)
+    await rules_frozen_before(connection, document.id, copy)
+
+    named_now = await name_frozen(connection)
+
+    expected = [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-2")]
+    assert await rule_iris(connection, document.id) == expected
+    assert await rule_iris(connection, copy) == expected
+    assert named_now == NamedFrozen(documents=2, specifications=0, variants=0, rules=4)
+
+
+async def test_an_open_copy_takes_its_rules_names_from_the_command_and_its_freeze_keeps_them(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await ready(connection, document)
+    await worded(connection, document.id, "A", "B")
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    copy = await copy_document(connection, document.id)
+    await rules_frozen_before(connection, document.id, copy)
+
+    await name_frozen(connection)
+
+    assert await rule_iris(connection, copy) == [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-2")]
+    await worded(connection, copy, "C")
+    await checked(connection, Copy(copy))
+    await freeze(connection, copy, BASE, accept_violations=False)
+    assert await rule_iris(connection, copy) == [
+        ("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-2"), ("rules", DOC + "/rule-3"),
+    ]  # fmt: skip
+
+
+async def test_a_copy_frozen_before_the_command_takes_the_names_of_the_rules_it_copied(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # frozen by an image that knew no rule IRIs while the command had not run: its freeze now names what it
+    # copied as the copied revision's, and numbers on only past them
+    await ready(connection, document)
+    await worded(connection, document.id, "A", "B")
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    copy = await copy_document(connection, document.id)
+    await connection.execute("UPDATE frame_part SET iri = NULL WHERE document_id = %s", (copy,))
+    await connection.execute(
+        'UPDATE frame_part SET content = content || \'{"verbatim": "B neu"}\' WHERE document_id = %s'
+        " AND position = 2",
+        (copy,),
+    )
+    await checked(connection, Copy(copy))
+
+    await freeze(connection, copy, BASE, accept_violations=False)
+
+    # A corresponds by place and wording; B changed and is a rule of its own
+    assert await rule_iris(connection, copy) == [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-3")]

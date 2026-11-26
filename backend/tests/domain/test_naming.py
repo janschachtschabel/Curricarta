@@ -300,3 +300,16 @@ def test_no_rule_new_is_no_rule_named() -> None:
     named = name_rows(DOC, [], [], rules=[rule(f"{DOC}/rule-1")], rule_serial=1)
 
     assert (named.rules, named.document_serials) == ({}, {})
+
+
+def test_a_rule_takes_the_name_of_the_rule_it_corresponds_to_unless_one_of_its_document_holds_it() -> None:
+    # named after the fact, a copied rule is named as its original; a name a rule of the document holds: none
+    given, taken, holder = (
+        RuleRow(uuid4(), None, False, f"{DOC}/rule-2"),
+        RuleRow(uuid4(), None, False, f"{DOC}/rule-1"),
+        rule(f"{DOC}/rule-1"),
+    )
+
+    named = name_rows(DOC, [], [], rules=[given, taken, holder], rule_serial=2)
+
+    assert named.rules == {given.id: f"{DOC}/rule-2", taken.id: f"{DOC}/rule-3"}

@@ -13,7 +13,9 @@ named past every IRI the document's rows hold - its siblings', a node's moved aw
 specification's -: a segment one holds counts on ("lf-1-2"). A rejected statement is none of the curriculum's
 and gets no IRI; one it had stays. Rules (plan M3a I) are numbered under the document -
 ``<document>/rule-<n>``, in their order - past the highest number the document's revisions gave
-(``rule_serial``) and past a segment a node holds; a rejected one gets none, as a statement.
+(``rule_serial``) and past a segment a node holds; a rejected one gets none, as a statement. A rule unnamed
+in a revision whose copy or original names the rule it corresponds to takes that rule's IRI (``given``), so
+revisions named after the fact name it alike.
 """
 
 from collections import defaultdict
@@ -73,6 +75,7 @@ class RuleRow:
     id: UUID
     iri: str | None
     rejected: bool
+    given: str | None = None  # the IRI of the rule it corresponds to in its copy or original
 
 
 @dataclass(frozen=True)
@@ -157,6 +160,10 @@ class _Held:
             parent, _, segment = iri.rpartition("/")
             self._under[parent].add(segment)
 
+    def hold(self, iri: str) -> None:
+        parent, _, segment = iri.rpartition("/")
+        self._under[parent].add(segment)
+
     def holds(self, iri: str) -> bool:
         parent, _, segment = iri.rpartition("/")
         return segment in self._under[parent]
@@ -212,6 +219,10 @@ def _rules(document: str, rules: Sequence[RuleRow], serial: int, held: _Held, na
     given = serial
     for row in rules:
         if row.iri is not None or row.rejected:
+            continue
+        if row.given is not None and not held.holds(row.given):
+            named.rules[row.id] = row.given
+            held.hold(row.given)
             continue
         serial += 1
         while held.holds(rule_iri(document, serial)):  # a node's segment, or a rule's kept in the copy
