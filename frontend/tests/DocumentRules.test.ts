@@ -217,6 +217,14 @@ describe("a rule's form", () => {
     expect(api.getRules).toHaveBeenCalledTimes(2);
   });
 
+  it("offers no second rejection of a run's rule rejected already", async () => {
+    vi.mocked(api.getRules).mockResolvedValue(rulesOf({ rules: [ruleOf({ review_status: CV + "rev_rejected", revision: 2 })] }));
+    const wrapper = await open();
+
+    expect(wrapper.get("h3").text()).toBe("Auswahlregel Verworfen");
+    expect(wrapper.findAll("form button").map((button) => button.text())).not.toContain(t("documents.page.rules.reject"));
+  });
+
   it("offers to delete an editor's own rule", async () => {
     vi.mocked(api.getRules).mockResolvedValue(rulesOf({ rules: [ruleOf({ by_hand: true })] }));
     const wrapper = await open();

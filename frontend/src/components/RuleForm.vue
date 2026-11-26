@@ -6,7 +6,7 @@
  * stored to the section (`saved`); changed meanwhile, the rule as it stands is shown and said, the entry kept for a
  * second try; a document closed meanwhile, or the rule gone, has the section read again (`changed`). A kind shows the
  * fields it holds alone. The rule is taken away after a question - a run's rejected and kept, an editor's own deleted
- * (`taken`). It tells the section whether a change is open (`dirty`, the leave guard).
+ * (`taken`); a run's rejected already is not offered so again. It tells the section whether a change is open (`dirty`, the leave guard).
  */
 import { computed, onBeforeUnmount, ref, useId, watch } from "vue";
 
@@ -20,6 +20,7 @@ import { messages, t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
 import { refusalText } from "@/refusals";
+import { statusOf } from "@/reviewStatus";
 import { problemText } from "@/rowRefusals";
 import { MOST_VERBATIM, RULE_KINDS, changesOf, choice as value, draftOf, holds, rebased, type RuleField } from "@/ruleDraft";
 import { kindWord } from "@/ruleWords";
@@ -163,6 +164,8 @@ async function take(): Promise<void> {
 }
 
 const takeWord = computed(() => (base.value.by_hand ? "delete" : "reject"));
+// a run's rule rejected already stays so: no second rejection is offered
+const takeable = computed(() => base.value.by_hand || statusOf(base.value.review_status) !== "rejected");
 </script>
 
 <template>
@@ -194,6 +197,7 @@ const takeWord = computed(() => (base.value.by_hand ? "delete" : "reject"));
         {{ t("documents.page.rules.save") }}
       </button>
       <button
+        v-if="takeable"
         type="button"
         class="btn secondary"
         :aria-label="t(`documents.page.rules.${takeWord}Named`, { rule: base.verbatim })"
