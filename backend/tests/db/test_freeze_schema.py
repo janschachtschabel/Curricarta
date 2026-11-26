@@ -1,9 +1,9 @@
 """A frozen document stays as it was written (migration freeze; plan M1 9.6, Paket 9b H1): the database
 refuses every change to its nodes, statements and their addressees, anchors and their blocks, frame
 parts and the links of rules, specifications and their variants, its profile and its values (workloads, time
-spans, levels, applicability contexts), and to the document's own row but its rights status; a document not
-frozen changes as before. One draft at most is open under an IRI, and what a statement's origin and run said
-of a hand-written one before is kept as its own mark."""
+spans, levels, applicability contexts), its assessments and what they assess, and to the document's own row
+but its rights status; a document not frozen changes as before. One draft at most is open under an IRI, and
+what a statement's origin and run said of a hand-written one before is kept as its own mark."""
 
 import shutil
 import uuid
@@ -84,6 +84,14 @@ def filled(connection: psycopg.Connection) -> dict[str, Any]:
         " VALUES (%s, %s, 'option', 1, %s)",
         (made["frame_part"], document, made["node"]),
     )
+    made["assessment"] = add_value(
+        connection, "assessment", document, "specification_id", made["specification"]
+    )
+    connection.execute(
+        "INSERT INTO assessment_target (document_id, assessment_id, node_id, position)"
+        " VALUES (%s, %s, %s, 1)",
+        (document, made["assessment"], made["node"]),
+    )
     return made
 
 
@@ -150,6 +158,28 @@ CHANGES = {
             ("taken away", "DELETE FROM {table} WHERE id = %({table})s"),
         )
     },
+    # an assessment and what it assesses (plan M3a J)
+    **{
+        f"assessment {name}": query.format(table="assessment")
+        for name, query in (
+            (
+                "added",
+                "INSERT INTO {table} SELECT (jsonb_populate_record(NULL::{table}, to_jsonb(t)"
+                " || jsonb_build_object('id', %(entity_{table})s::uuid, 'position', 2))).*"
+                " FROM {table} t WHERE id = %({table})s",
+            ),
+            ("changed", "UPDATE {table} SET label = 'Neu' WHERE id = %({table})s"),
+            ("taken away", "DELETE FROM {table} WHERE id = %({table})s"),
+        )
+    },
+    "assessment target added": (
+        "INSERT INTO assessment_target (document_id, assessment_id, statement_id, position)"
+        " VALUES (%(document)s, %(assessment)s, %(statement)s, 2)"
+    ),
+    "assessment target changed": (
+        "UPDATE assessment_target SET position = 3 WHERE assessment_id = %(assessment)s"
+    ),
+    "assessment target taken away": "DELETE FROM assessment_target WHERE assessment_id = %(assessment)s",
     "document renamed": "UPDATE document SET title = 'Neu' WHERE id = %(document)s",
     "document's supersedes changed": "UPDATE document SET supersedes_id = %(other)s WHERE id = %(document)s",
     "document's serials changed": "UPDATE document SET serials = '{\"rule\": 1}' WHERE id = %(document)s",
@@ -161,7 +191,7 @@ CHANGES = {
 def change(connection: psycopg.Connection, made: dict[str, Any], name: str) -> None:
     passed = {"entity_node": add_entity(connection, "node"), "addressees": CV + "Addressees",
               "teacher": CV + "addr_teacher", "other": add_document(connection, made)}  # fmt: skip
-    for table in ("workload", "time_span", "level_assignment", "applicability_context"):
+    for table in ("workload", "time_span", "level_assignment", "applicability_context", "assessment"):
         passed[f"entity_{table}"] = add_entity(connection, table)
     connection.execute(CHANGES[name], made | passed)
 

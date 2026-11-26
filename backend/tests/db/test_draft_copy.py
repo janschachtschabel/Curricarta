@@ -8,6 +8,7 @@ revision alone, and one draft at most."""
 import asyncio
 import re
 from dataclasses import dataclass
+from decimal import Decimal
 from typing import Any
 from uuid import UUID
 
@@ -40,6 +41,7 @@ LEFT_OUT = {
     "statement_addressee": set(), "anchor_block": set(), "document_profile": set(),
     "workload": {"kind"}, "time_span": {"kind"}, "level_assignment": {"kind"},
     "applicability_context": {"kind"}, "rule_link": set(),
+    "assessment": {"kind"}, "assessment_target": set(),
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
 # units and findings; the gold standard's samples, drawn of the revision they name
@@ -108,6 +110,7 @@ async def content(connection: psycopg.AsyncConnection, document_id: Any) -> dict
             connection, "SELECT new_terms FROM document_profile WHERE document_id = %(document)s", document_id
         ),
         "values": await rows(connection, _VALUES, document_id),
+        "assessments": await rows(connection, _ASSESSMENTS, document_id),
     }  # fmt: skip
 
 
@@ -128,12 +131,13 @@ FROM time_span t LEFT JOIN node n ON n.id = t.node_id LEFT JOIN specification sp
 WHERE t.document_id = %(document)s
 UNION ALL
 SELECT 'level_assignment', coalesce(n.iri, s.iri, 'specification ' || sp.key, 'frame ' || f.part_kind,
-        'context ' || c.position),
+        'context ' || c.position, 'assessment ' || x.iri),
     to_jsonb(l) - 'id' - 'document_id' - 'node_id' - 'statement_id' - 'specification_id' - 'frame_part_id'
-        - 'applicability_context_id'
+        - 'applicability_context_id' - 'assessment_id'
 FROM level_assignment l LEFT JOIN node n ON n.id = l.node_id LEFT JOIN statement s ON s.id = l.statement_id
     LEFT JOIN specification sp ON sp.id = l.specification_id LEFT JOIN frame_part f ON f.id = l.frame_part_id
     LEFT JOIN applicability_context c ON c.id = l.applicability_context_id
+    LEFT JOIN assessment x ON x.id = l.assessment_id
 WHERE l.document_id = %(document)s
 UNION ALL
 SELECT 'applicability_context', 'specification ' || sp.key,
@@ -141,6 +145,21 @@ SELECT 'applicability_context', 'specification ' || sp.key,
 FROM applicability_context c JOIN specification sp ON sp.id = c.specification_id
 WHERE c.document_id = %(document)s
 ORDER BY 1, 2, 3
+"""
+
+
+# Each assessment by its IRI with its parent's, all its columns but its ids, what it assesses, the levels and
+# anchors at it (plan M3a J)
+_ASSESSMENTS = """
+SELECT a.iri, coalesce(p.iri, 'specification ' || sp.key, n.iri),
+    to_jsonb(a) - 'id' - 'document_id' - 'parent_assessment_id' - 'specification_id' - 'node_id',
+    array(SELECT coalesce(tn.iri, ts.iri) FROM assessment_target t LEFT JOIN node tn ON tn.id = t.node_id
+          LEFT JOIN statement ts ON ts.id = t.statement_id WHERE t.assessment_id = a.id ORDER BY t.position),
+    array(SELECT l.level_iri FROM level_assignment l WHERE l.assessment_id = a.id ORDER BY l.position),
+    array(SELECT x.page_start FROM anchor x WHERE x.assessment_id = a.id ORDER BY 1)
+FROM assessment a LEFT JOIN assessment p ON p.id = a.parent_assessment_id
+    LEFT JOIN specification sp ON sp.id = a.specification_id LEFT JOIN node n ON n.id = a.node_id
+WHERE a.document_id = %(document)s ORDER BY 1
 """
 
 
@@ -194,6 +213,25 @@ async def valued(
     await value(connection, "time_span", document.id, applicability_context_id=context, span_to=10, **times)
     await value(connection, "level_assignment", document.id, applicability_context_id=context,
                 level_iri=LVL + "EQF-5")  # fmt: skip
+    # an assessment of the specification with a part at it, what the part assesses, a level and an anchor
+    kind = {"assessment_kind_scheme": CV + "AssessmentKinds", "assessment_kind_iri": CV + "ak_exam"}
+    exam = await value(connection, "assessment", document.id, specification_id=specification, label="Prüfung",
+                       duration_minutes=90, **kind)  # fmt: skip
+    part = await value(connection, "assessment", document.id, parent_assessment_id=exam,
+                       weight_percent=Decimal("37.5"), graded=True, **kind)  # fmt: skip
+    await value(connection, "assessment", document.id, node_id=top, **kind)
+    await connection.execute(
+        "INSERT INTO assessment_target (document_id, assessment_id, node_id, statement_id, position)"
+        " VALUES (%s, %s, %s, NULL, 1), (%s, %s, NULL, %s, 2)",
+        (document.id, part, top, document.id, part, statement),
+    )
+    await value(connection, "level_assignment", document.id, assessment_id=exam, level_iri=LVL + "EQF-5")
+    anchor = await new_entity(connection, "anchor")
+    await connection.execute(
+        "INSERT INTO anchor (id, document_id, conversion_id, assessment_id, page_start)"
+        " VALUES (%s, %s, %s, %s, 3)",
+        (anchor, document.id, document.conversion_id, exam),
+    )
 
 
 async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
@@ -313,6 +351,11 @@ async def test_a_copy_is_the_next_revision_with_all_its_rows_iris_and_review_sta
     assert await content(connection, copy) == before
     assert before["nodes"] and before["statements"] and before["anchors"] and before["frame"]
     assert len(before["links"]) == 4
+    assert [len(row[3]) for row in before["assessments"]] == [
+        0,
+        2,
+        0,
+    ]  # named in order, the part assesses two
     assert await one(
         connection,
         "SELECT c.iri, c.revision, c.copy_of, c.frozen_at, c.draft_iri, c.edited_at IS NOT NULL,"
@@ -349,7 +392,7 @@ async def test_a_copy_brings_every_value_under_its_new_holder(
     copy = await copy_document(connection, document.id)
 
     assert (await content(connection, copy))["values"] == before
-    assert len(before) == 11
+    assert len(before) == 12  # the level at an assessment among them (plan M3a J)
     # each at a row of the copy, none at the frozen revision's: their holders are named with the copy
     assert await one(
         connection,
@@ -360,7 +403,7 @@ async def test_a_copy_brings_every_value_under_its_new_holder(
         " (SELECT count(*) FROM time_span t JOIN workload w ON w.id = t.workload_id"
         " WHERE w.document_id = %s)",
         copy, copy, copy, copy, copy,
-    ) == (11, 1)  # fmt: skip
+    ) == (12, 1)  # fmt: skip
 
 
 async def test_a_copy_is_extracted_x5_owes_it_a_check_and_its_frozen_source_stays(

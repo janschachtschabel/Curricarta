@@ -1,6 +1,6 @@
 """Rows the tests of the second layer's value tables share (migrations l2_values, applicability): the few
 concepts they point at, beside those of tests.db.l1, and a level, time span, workload or applicability
-context at a holder."""
+context at a holder - or an assessment at its parent (migration assessment)."""
 
 import uuid
 from typing import Any, Literal
@@ -11,7 +11,7 @@ from tests.db.l1 import CUR, CV, add_entity, seed_vocabulary
 
 LVL = "https://w3id.org/wlo/curriculum/level/"
 FKF = "https://w3id.org/wlo/curriculum/profile/vocational#"
-ValueTable = Literal["time_span", "workload", "level_assignment", "applicability_context"]
+ValueTable = Literal["time_span", "workload", "level_assignment", "applicability_context", "assessment"]
 # scheme -> its concepts: (IRI, types, broader), as tests.db.l1.CONCEPTS
 L2_CONCEPTS: dict[str, list[tuple[str, list[str], list[str]]]] = {
     CV + "TimeKinds": [(CV + "time_gradeLevel", [], []), (CV + "time_phase", [], [])],
@@ -23,6 +23,7 @@ L2_CONCEPTS: dict[str, list[tuple[str, list[str], list[str]]]] = {
     LVL + "EQF": [(LVL + "EQF-4", [CUR + "LevelConcept"], []), (LVL + "EQF-5", [CUR + "LevelConcept"], [])],
     FKF + "FKFModel": [(FKF + "fkf-kenntnisse", [CUR + "CompetenceDimension"], [])],
     CV + "Formalities": [(CV + "form_formal", [], []), (CV + "form_nonFormal", [], [])],
+    CV + "AssessmentKinds": [(CV + "ak_exam", [], []), (CV + "ak_examPart", [], [])],
 }
 # What each table asks of a row, beside its holder and its origin
 DEFAULTS: dict[ValueTable, dict[str, Any]] = {
@@ -40,6 +41,7 @@ DEFAULTS: dict[ValueTable, dict[str, Any]] = {
     },
     "level_assignment": {"level_iri": LVL + "EQF-4"},
     "applicability_context": {"sector_scheme": CV + "EducationSectors", "sector_iri": CV + "sec_school"},
+    "assessment": {"assessment_kind_scheme": CV + "AssessmentKinds", "assessment_kind_iri": CV + "ak_exam"},
 }
 
 

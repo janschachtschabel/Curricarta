@@ -10,7 +10,8 @@ checked (``check_owed``), violations among its findings the editors have not acc
 Then the work gets its IRI where it has none, the document its own - the work's country, issuer, the work's
 short title, edition (app/domain/iris.py) - where it has none, its specifications, variants, nodes and
 statements theirs, its rules theirs - numbered on past every number its revisions gave (``document.serials``,
-and what they hold) - (app/domain/naming.py); an IRI another work or document holds, committed before or while
+and what they hold) - (app/domain/naming.py), its assessments by the document's counter
+(app/db/assessment_rows.py); an IRI another work or document holds, committed before or while
 this one waited, refuses (``iri_taken``). The document is frozen last: after that, the triggers refuse every
 change. A freeze shares the lock python -m app.db.name_frozen holds alone (``NAMING_LOCK``): what one
 revision names by key, the other reads.
@@ -25,6 +26,7 @@ import psycopg
 from psycopg import errors
 
 from app.db.anchors import unchecked_anchors
+from app.db.assessment_rows import name_assessments
 from app.db.documents import DocumentError
 from app.db.editing import CV, DocumentFrozen, JobOpen, NotExtracted, extracted, frozen
 from app.db.nodes import lock_tree
@@ -171,6 +173,7 @@ async def freeze(
                 "UPDATE document SET serials = jsonb_set(serials, %s, to_jsonb(%s::integer)) WHERE id = %s",
                 ([name], serial, document_id),
             )
+        await name_assessments(connection, document_id, iri)  # <document>/assessment-<n> (plan M3a J)
         frozen_now = "UPDATE document SET iri = %s, frozen_at = now(), updated_at = now() WHERE id = %s"
         await _give(connection, frozen_now, iri, document_id)
         counts = (len(named.nodes), len(named.statements), len(named.specifications), len(named.variants))

@@ -35,8 +35,9 @@ _CURRENT = (
     "SELECT id, revision, review_status_iri FROM {table} WHERE document_id = %s AND id = ANY(%s){only}"
     " FOR UPDATE"
 )
-# a level at a rules frame part is the rules' (plan M3a I), which no reader shows yet: none reviews it
-_ONLY = {"level_assignment": " AND frame_part_id IS NULL"}
+# a level at a rules frame part is the rules' (plan M3a I), which no reader shows yet: none reviews it; nor
+# one at an assessment, which is reviewed with its assessment, once assessments are (plan M3a J)
+_ONLY = {"level_assignment": " AND frame_part_id IS NULL AND assessment_id IS NULL"}
 _SET = """
 UPDATE {table} SET review_status_iri = %s, revision = revision + 1, updated_at = now()
 WHERE id = ANY(%s) RETURNING id, revision

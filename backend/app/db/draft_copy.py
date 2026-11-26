@@ -7,8 +7,8 @@ its own draft IRI, ``copy_of`` the revision it copies - with every row the froze
 its own: specifications and their variants, frame parts, nodes (``applies_to`` and their parents
 followed), statements, addressees, anchors (their owner followed) and their blocks, the profile, the values
 - workloads, time spans, levels, applicability contexts - at their holders (followed as an anchor's owner),
-the links of rules (their rule and target followed).
-IRIs,
+the links of rules (their rule and target followed),
+the assessments with what they assess (plan M3a J). IRIs,
 origins, review statuses, revisions, positions and found anchors are taken along as they are; no run is
 (``run_id`` none: the runs and their findings are the frozen revision's), so X5 owes the copy a check.
 Of the latest revision of an IRI alone (``not_latest``), not of a draft (``not_frozen``), and one draft at
@@ -44,6 +44,7 @@ _ENTITIES: Final = {
     "time_span": "SELECT id FROM time_span WHERE document_id = %(old)s",
     "level_assignment": "SELECT id FROM level_assignment WHERE document_id = %(old)s",
     "applicability_context": "SELECT id FROM applicability_context WHERE document_id = %(old)s",
+    "assessment": "SELECT id FROM assessment WHERE document_id = %(old)s",
 }
 _DOCUMENT = """
 INSERT INTO document (id, source_id, conversion_id, owner_id, work_id, draft_iri, iri, edition, issuer,
@@ -115,16 +116,37 @@ _ROWS: Final = (
     SELECT sm.new, a.addressee_scheme, a.addressee_iri
     FROM statement_addressee a JOIN copied sm ON sm.old = a.statement_id
     """,
+    # an assessment's parts in the same statement: a part's foreign key is checked once all stand
+    """
+    INSERT INTO assessment (id, document_id, parent_assessment_id, specification_id, node_id, position,
+        assessment_kind_scheme, assessment_kind_iri, label, duration_minutes, weight_percent, graded, iri,
+        origin_scheme, origin_iri, review_status_scheme, review_status_iri, rule_id, revision, created_at,
+        updated_at)
+    SELECT m.new, %(new)s, am.new, sm.new, nm.new, a.position, a.assessment_kind_scheme,
+        a.assessment_kind_iri, a.label, a.duration_minutes, a.weight_percent, a.graded, a.iri,
+        a.origin_scheme, a.origin_iri, a.review_status_scheme, a.review_status_iri, a.rule_id, a.revision,
+        a.created_at, a.updated_at
+    FROM assessment a JOIN copied m ON m.old = a.id LEFT JOIN copied am ON am.old = a.parent_assessment_id
+        LEFT JOIN copied sm ON sm.old = a.specification_id LEFT JOIN copied nm ON nm.old = a.node_id
+    WHERE a.document_id = %(old)s
+    """,
+    """
+    INSERT INTO assessment_target (document_id, assessment_id, node_id, statement_id, position)
+    SELECT %(new)s, am.new, nm.new, sm.new, t.position
+    FROM assessment_target t JOIN copied am ON am.old = t.assessment_id
+        LEFT JOIN copied nm ON nm.old = t.node_id LEFT JOIN copied sm ON sm.old = t.statement_id
+    WHERE t.document_id = %(old)s
+    """,
     """
     INSERT INTO anchor (id, document_id, conversion_id, node_id, statement_id, frame_part_id,
         specification_id, page_start, page_end, printed_page, quote, match_kind_scheme, match_kind_iri,
-        match_score, char_start, char_end, table_cell, section_path, created_at)
+        match_score, char_start, char_end, table_cell, section_path, created_at, assessment_id)
     SELECT m.new, %(new)s, a.conversion_id, nm.new, sm.new, fm.new, pm.new, a.page_start, a.page_end,
         a.printed_page, a.quote, a.match_kind_scheme, a.match_kind_iri, a.match_score, a.char_start,
-        a.char_end, a.table_cell, a.section_path, a.created_at
+        a.char_end, a.table_cell, a.section_path, a.created_at, asm.new
     FROM anchor a JOIN copied m ON m.old = a.id LEFT JOIN copied nm ON nm.old = a.node_id
         LEFT JOIN copied sm ON sm.old = a.statement_id LEFT JOIN copied fm ON fm.old = a.frame_part_id
-        LEFT JOIN copied pm ON pm.old = a.specification_id
+        LEFT JOIN copied pm ON pm.old = a.specification_id LEFT JOIN copied asm ON asm.old = a.assessment_id
     WHERE a.document_id = %(old)s
     """,
     """
@@ -175,15 +197,16 @@ _ROWS: Final = (
     INSERT INTO level_assignment (id, document_id, node_id, statement_id, specification_id, frame_part_id,
         applicability_context_id, position, level_iri, level_to_iri, relation_scheme, relation_iri,
         dimension_scheme, dimension_iri, competence_dimension_iri, origin_scheme, origin_iri,
-        review_status_scheme, review_status_iri, rule_id, revision, created_at, updated_at)
+        review_status_scheme, review_status_iri, rule_id, revision, created_at, updated_at, assessment_id)
     SELECT m.new, %(new)s, nm.new, sm.new, pm.new, fm.new, cm.new, l.position, l.level_iri, l.level_to_iri,
         l.relation_scheme, l.relation_iri, l.dimension_scheme, l.dimension_iri, l.competence_dimension_iri,
         l.origin_scheme, l.origin_iri, l.review_status_scheme, l.review_status_iri, l.rule_id, l.revision,
-        l.created_at, l.updated_at
+        l.created_at, l.updated_at, asm.new
     FROM level_assignment l JOIN copied m ON m.old = l.id LEFT JOIN copied nm ON nm.old = l.node_id
         LEFT JOIN copied sm ON sm.old = l.statement_id LEFT JOIN copied pm ON pm.old = l.specification_id
         LEFT JOIN copied fm ON fm.old = l.frame_part_id
         LEFT JOIN copied cm ON cm.old = l.applicability_context_id
+        LEFT JOIN copied asm ON asm.old = l.assessment_id
     WHERE l.document_id = %(old)s
     """,
     """

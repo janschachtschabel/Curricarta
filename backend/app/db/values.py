@@ -25,6 +25,7 @@ import psycopg
 from psycopg import sql
 
 from app.db.anchors import new_entity
+from app.db.assessments import DOCUMENT_OF_ASSESSMENT
 from app.db.documents import DOCUMENT_VISIBLE
 from app.db.editing import (
     DOCUMENT_OF_NODE,
@@ -54,6 +55,7 @@ _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "node": DOCUMENT_OF_NODE,
     "statement": DOCUMENT_OF_STATEMENT,
     "specification": DOCUMENT_OF_SPECIFICATION,
+    "assessment": DOCUMENT_OF_ASSESSMENT,
 }
 _POSITIONS: Final = (
     "SET CONSTRAINTS level_assignment_position, time_span_position, workload_position,"

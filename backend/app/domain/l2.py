@@ -18,7 +18,7 @@ from decimal import Decimal
 from typing import Literal
 from uuid import UUID
 
-HolderKind = Literal["node", "statement", "specification"]
+HolderKind = Literal["node", "statement", "specification", "assessment"]  # an assessment holds levels alone
 
 
 class ValueRefused(Exception):
@@ -39,7 +39,8 @@ def _finite(check: str, number: Decimal | None) -> None:
 
 @dataclass(frozen=True)
 class Holder:
-    """The row a set of values is written at: a node, a statement or a specification of a document."""
+    """The row a set of values is written at: a node, a statement, a specification or an assessment (plan
+    M3a J) of a document."""
 
     kind: HolderKind
     id: UUID

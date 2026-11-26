@@ -128,6 +128,7 @@ VALUE_SHAPES: dict[ValueKind, tuple[str, str, str]] = {
 }
 HOLDER_SHAPES: dict[HolderKind, str] = {
     "node": "CurriculumNodeShape", "statement": "StatementShape", "specification": "SpecificationShape",
+    "assessment": "AssessmentShape",  # plan M3a J: its levels
 }  # fmt: skip
 
 
@@ -166,7 +167,7 @@ def test_a_holder_is_offered_only_what_the_shapes_let_it_hold() -> None:
             # and the store has a column for it: a statement's time span has none (plan M3a D1)
             assert COLUMN_OF[holder] in HOLDERS_OF[TABLE_OF[kind]], (kind, holder)
     assert VALUE_HOLDERS == {
-        "level_assignments": ("node", "statement", "specification"),
+        "level_assignments": ("node", "statement", "specification", "assessment"),
         "time_spans": ("node", "specification"),
         "workloads": ("node", "specification"),
     }

@@ -51,30 +51,42 @@ CROSS JOIN LATERAL (SELECT
         WHEN la.statement_id IS NOT NULL THEN 'statement'
         WHEN coalesce(la.specification_id, ts.specification_id, w.specification_id, ac.specification_id)
             IS NOT NULL THEN 'specification'
-        WHEN la.frame_part_id IS NOT NULL THEN 'frame_part' END AS kind,
+        WHEN la.frame_part_id IS NOT NULL THEN 'frame_part'
+        WHEN la.assessment_id IS NOT NULL THEN 'assessment' END AS kind,
     coalesce(la.node_id, ts.node_id, w.node_id, la.statement_id, la.specification_id, ts.specification_id,
-        w.specification_id, ac.specification_id, la.frame_part_id) AS id
+        w.specification_id, ac.specification_id, la.frame_part_id, la.assessment_id) AS id
 ) AS h
 LEFT JOIN statement s ON s.id = coalesce(h.id, f.focus_id)
 LEFT JOIN node n ON n.id = coalesce(h.id, f.focus_id)
 LEFT JOIN specification sp ON sp.id = coalesce(h.id, f.focus_id)
+LEFT JOIN assessment asm ON asm.id = coalesce(h.id, f.focus_id)  -- an assessment by its name (plan M3a J)
 LEFT JOIN document d ON d.id = f.focus_id
 LEFT JOIN frame_part fp ON fp.id = coalesce(h.id, f.focus_id) AND fp.part_kind = 'rules'  -- a rule's wording
-CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, d.title,
+CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, asm.label, d.title,
     fp.content ->> 'verbatim') AS label) AS l
 WHERE f.document_id = %(document)s
 ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule, f.created_at, f.id
 LIMIT %(most)s
 """
 _DROP_RULE = "DELETE FROM validation_finding WHERE document_id = %s AND rule = %s"
-# the findings on the values of nodes and statements about to go: a workload's periods' too
+# the findings on the values of nodes and statements about to go: a workload's periods' too, and the
+# assessments of the nodes with their parts, the levels and anchors at them (plan M3a J)
 _DROP_VALUES = """
+WITH RECURSIVE held (id) AS (
+    SELECT id FROM assessment WHERE document_id = %(document)s AND node_id = ANY(%(nodes)s)
+    UNION ALL SELECT a.id FROM assessment a JOIN held h
+        ON a.document_id = %(document)s AND a.parent_assessment_id = h.id
+)
 DELETE FROM validation_finding WHERE document_id = %(document)s AND focus_id IN (
     SELECT id FROM level_assignment WHERE document_id = %(document)s
         AND (node_id = ANY(%(nodes)s) OR statement_id = ANY(%(statements)s))
     UNION ALL SELECT id FROM workload WHERE document_id = %(document)s AND node_id = ANY(%(nodes)s)
     UNION ALL SELECT t.id FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id
         WHERE t.document_id = %(document)s AND (t.node_id = ANY(%(nodes)s) OR w.node_id = ANY(%(nodes)s))
+    UNION ALL SELECT id FROM held
+    UNION ALL SELECT l.id FROM level_assignment l JOIN held h
+        ON l.document_id = %(document)s AND l.assessment_id = h.id
+    UNION ALL SELECT a.id FROM anchor a JOIN held h ON a.document_id = %(document)s AND a.assessment_id = h.id
 )
 """
 # a finding of ``rule`` that names the package: among its details.units (X4's), or as details.unit
@@ -115,7 +127,8 @@ class FindingRow:
     the row it is about ("statement", "node", "document" …) and ``focus_label`` that row's wording or
     title, where it has one; ``message_lang`` the message's language where the stage knew it (SHACL's
     German, "de"), else none - English; ``unit`` the work package it names; ``holder_kind`` and ``holder_id``
-    the row a value it is about is held by - a node, a statement, a specification, a rule's frame part -,
+    the row a value it is about is held by - a node, a statement, a specification, a rule's frame part, an
+    assessment -,
     none for a finding about another row and for a value no longer there."""
 
     rule: str

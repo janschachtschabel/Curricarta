@@ -41,6 +41,8 @@ TABLES = (
     "time_span",
     "level_assignment",
     "applicability_context",
+    "assessment",
+    "assessment_target",
 )
 
 
@@ -101,6 +103,13 @@ def fill(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, uuid
     add_value(connection, "level_assignment", document, "statement_id", statement)
     context = add_value(connection, "applicability_context", document, "specification_id", specification)
     add_value(connection, "level_assignment", document, "applicability_context_id", context)
+    exam = add_value(connection, "assessment", document, "node_id", node)
+    add_value(connection, "level_assignment", document, "assessment_id", exam)
+    connection.execute(
+        "INSERT INTO assessment_target (document_id, assessment_id, statement_id, position)"
+        " VALUES (%s, %s, %s, 1)",
+        (document, exam, statement),
+    )
     return {"run": run, "node": node, "statement": statement}
 
 

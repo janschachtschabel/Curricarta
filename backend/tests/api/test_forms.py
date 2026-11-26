@@ -55,7 +55,7 @@ def test_the_form_names_each_kind_of_value_its_holders_and_fields(client: TestCl
 
     values = form["values"]
     assert {kind: entry["holders"] for kind, entry in values.items()} == {
-        "level_assignments": ["node", "statement", "specification"],
+        "level_assignments": ["node", "statement", "specification", "assessment"],
         "time_spans": ["node", "specification"],
         "workloads": ["node", "specification"],
     }

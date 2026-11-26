@@ -20,6 +20,7 @@ FieldProblem = Literal[
     # a value's (app/vocab/value_checks.py): a kind its holder holds not, a range's end before its start, an
     # id of no value of the holder's, a value the store refuses
     "not_held", "out_of_order", "unknown_value", "refused",
+    "cycle",  # an assessment's parent one of its own parts (app/db/assessments.py)
 ]  # fmt: skip
 # a profile's value and the core value it refines, by their fields' keys
 _UNDER = {"node_type": "function", "subkind": "statement_kind"}

@@ -32,6 +32,7 @@ COLUMN_OF: Final[dict[HolderKind, LiteralString]] = {
     "node": "node_id",
     "statement": "statement_id",
     "specification": "specification_id",
+    "assessment": "assessment_id",  # its levels (plan M3a J)
 }
 TABLES: Final[tuple[LiteralString, ...]] = (
     "level_assignment",
@@ -63,6 +64,7 @@ CONTENT: Final[dict[str, tuple[LiteralString, ...]]] = {
 HOLDERS_OF: Final[dict[str, tuple[LiteralString, ...]]] = {
     "level_assignment": (
         "node_id", "statement_id", "specification_id", "frame_part_id", "applicability_context_id",
+        "assessment_id",
     ),
     "time_span": ("node_id", "specification_id", "workload_id", "applicability_context_id"),
     "workload": ("node_id", "specification_id"),
