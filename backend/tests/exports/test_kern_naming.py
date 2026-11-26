@@ -65,6 +65,7 @@ def under_frozen_names(draft: Graph, rows: KernRows) -> Graph:
     }
     names |= {URIRef(f"urn:uuid:{row['id']}"): BNode() for row in [*rows.anchors, rows.file]}
     names |= {URIRef(f"urn:uuid:{row.id}"): URIRef(str(row.iri)) for row in rows.assessments}  # plan M3a J
+    names |= {URIRef(f"urn:uuid:{row.id}"): URIRef(str(row.iri)) for row in rows.placements}  # plan M3a K
     names |= {URIRef(f"urn:uuid:{value}"): BNode() for value in value_ids(rows)}
     renamed = Graph()
     for subject, predicate, value in draft:

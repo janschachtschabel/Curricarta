@@ -39,7 +39,7 @@ def add_values(graph: Graph, rows: KernRows, naming: Naming) -> None:
                 graph.add((subject, CUR.timeSpan, time_span_value(graph, span, naming)))
             for workload in held.workloads:
                 predicate = CUR.totalWorkload if workload.value.total else CUR.workload
-                graph.add((subject, predicate, _workload(graph, workload, naming)))
+                graph.add((subject, predicate, workload_value(graph, workload, naming)))
 
 
 def named(graph: Graph, kind: RowKind, value_id: UUID | None, type_: URIRef, naming: Naming) -> Name:
@@ -85,7 +85,8 @@ def time_span_value(graph: Graph, span: TimeSpan, naming: Naming) -> Name:
     return subject
 
 
-def _workload(graph: Graph, workload: Workload, naming: Naming) -> Name:
+def workload_value(graph: Graph, workload: Workload, naming: Naming) -> Name:
+    """The workload, named and typed, with what its row holds and its periods; its name."""
     value = workload.value
     subject = named(graph, "workload", value.id, CUR.Workload, naming)
     _add(graph, subject, CUR.amount, value.amount)

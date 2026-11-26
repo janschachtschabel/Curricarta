@@ -26,11 +26,12 @@ from types import ModuleType
 
 import pytest
 
-from app.db import assessment_rows, rule_rows, value_rows
+from app.db import assessment_rows, placement_rows, rule_rows, value_rows
 from app.exports import (
     kern_assessments,
     kern_child,
     kern_naming,
+    kern_placements,
     kern_rdf,
     kern_rows,
     kern_rules,
@@ -52,9 +53,10 @@ from app.vocab.loader import MODEL_DIRS
 # 2026-11-14, is owed one); beside it the files and the checker it validates by (check_digest). Not held:
 # rdflib and owlrl, on which pyshacl runs (the kept exports' fingerprint holds rdflib's version)
 # assessment_rows, kern_assessments: the assessments read and stated (plan M3a J)
+# placement_rows, kern_placements: the placements read and stated (plan M3a K)
 GRAPH_MODULES = (
     kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child, rule_rows, kern_rules,
-    assessment_rows, kern_assessments,
+    assessment_rows, kern_assessments, placement_rows, kern_placements,
 )  # fmt: skip
 ONTOLOGY = Path(__file__).resolve().parents[3] / "ontology"
 GRAPH_DIGESTS = {
@@ -66,7 +68,7 @@ GRAPH_DIGESTS = {
     4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
     5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
     6: "35cec87d049670dbbf7df1e650ed49256f9129a339f0919bcf72a1bee5306ec9",  # assessments (plan M3a J)
-    7: "d75fa1977cce5bbf618a1dd7bcde84e6c21f27fdbd084b48120123acf128a472",  # placements (plan M3a K)
+    7: "2749dd35ea5938f25354d829fe3dda5fd189e3e53cb4764d1470cca2423f5a1c",  # placements (plan M3a K)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {

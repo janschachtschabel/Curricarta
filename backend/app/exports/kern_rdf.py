@@ -5,7 +5,8 @@ their variants, its nodes (cur:partOf the parent node, a root at its one specifi
 anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them, the values of the
 second layer at their holders (plan M3a F1, app/exports/kern_values.py) and each specification's
 applicability (plan M3a H1, app/exports/kern_scope.py), its rules with their anchors (plan M3a I,
-app/exports/kern_rules.py) and the document's assessments (plan M3a J, app/exports/kern_assessments.py).
+app/exports/kern_rules.py), the document's assessments (plan M3a J, app/exports/kern_assessments.py) and the
+nodes' placements (plan M3a K, app/exports/kern_placements.py).
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
@@ -25,6 +26,7 @@ from rdflib.namespace import DCTERMS
 
 from app.exports.kern_assessments import add_assessments
 from app.exports.kern_naming import Naming, RowKind, draft_naming
+from app.exports.kern_placements import add_placements
 from app.exports.kern_rows import KernRows, Row
 from app.exports.kern_rules import add_rules, rule_names
 from app.exports.kern_scope import add_scope
@@ -86,6 +88,7 @@ def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
     add_scope(graph, rows, naming)
     add_rules(graph, rows, names)
     add_assessments(graph, rows, naming)
+    add_placements(graph, rows, naming)
     return graph
 
 

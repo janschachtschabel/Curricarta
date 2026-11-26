@@ -11,9 +11,13 @@ import pytest
 
 from app.db.assessments import add_assessment
 from app.db.draft_copy import copy_document
+from app.db.placements import replace_placements
 from app.db.runs import RunStart, finish_run, start_run, x5_owed
 from app.db.source_queries import Reader
+from app.db.values import replace_values
 from app.domain.assessments import AssessmentDraft
+from app.domain.l2 import Holder, TimeSpanDraft, ValueDrafts, WorkloadDraft
+from app.domain.placements import PlacementDraft
 from app.jobs.outcome import PermanentError
 from app.jobs.queue import Job, account_lane, claim, enqueue
 from app.pipeline import x5_stage
@@ -202,3 +206,41 @@ async def test_a_check_finds_the_weights_of_an_assessment_s_parts_over_100_at_th
         document.id,
     )
     assert found == [(exam, "violation")]
+
+
+async def test_a_check_finds_the_credits_of_one_semester_s_binding_placements_over_40_at_the_specification(
+    in_process_shacl: None, setup: Any, tmp_path: Path, database_url: str
+) -> None:
+    # plan M3a K: the higher-education profile's shape sums the binding placements of a semester
+    pool, connection = setup
+    document = await extracted(setup, tmp_path, database_url, invent=())
+    [(specification,)] = await rows(
+        connection,
+        "SELECT id FROM specification WHERE document_id = %s AND spec_kind = 'curriculum'",
+        document.id,
+    )
+    found = await rows(
+        connection, "SELECT id FROM node WHERE document_id = %s ORDER BY id LIMIT 2", document.id
+    )
+    reader = Reader(document.owner_id, sees_all=False)
+    semester = TimeSpanDraft(CV + "time_semester", span_from=Decimal(1))
+    for (node,), credits in zip(found, (25, 20), strict=True):
+        assert await replace_placements(
+            connection, reader, node, 1, [PlacementDraft(CV + "obl_binding", specification)]
+        )
+        [(placement,)] = await rows(connection, "SELECT id FROM placement WHERE node_id = %s", node)
+        workload = WorkloadDraft(Decimal(credits), CV + "unit_ectsCredit")
+        values = ValueDrafts(time_spans=(semester,), workloads=(workload,))
+        assert await replace_values(connection, reader, Holder("placement", placement), 1, values) == 2
+
+    await check_document(
+        context_of(pool, tmp_path, Quoting(), database_url), await a_check(connection, document)
+    )
+
+    found_at = await rows(
+        connection,
+        "SELECT focus_id, severity FROM validation_finding"
+        " WHERE document_id = %s AND rule = 'shacl.HsSemesterLoadShape'",
+        document.id,
+    )
+    assert found_at == [(specification, "warning")]
