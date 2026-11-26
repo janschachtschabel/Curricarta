@@ -9,11 +9,16 @@ from typing import Any
 
 import psycopg
 import pytest
+from psycopg import sql
 
 from app.db import value_rows
+from app.db.placement_rows import placements_of
+from app.db.placements import replace_placements
 from app.db.value_rows import held_values_of
 from app.db.values import replace_values, values_of
-from app.domain.l2 import HeldValues, HolderKind, LevelDraft, ValueDrafts, WorkloadDraft
+from app.domain.l2 import HeldValues, Holder, HolderKind, LevelDraft, ValueDrafts, WorkloadDraft
+from app.domain.placements import PlacementDraft
+from tests.db.test_assessments import an_exam
 from tests.db.test_editing import document
 from tests.db.test_nodes import CV, connection, owner, url
 from tests.db.test_specifications import CONTEXT
@@ -67,15 +72,24 @@ async def test_one_holder_s_values_are_read_as_the_document_s_read_gives_them_an
     connection: psycopg.AsyncConnection, document: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     held = await holders(connection, document)
+    exam = await an_exam(connection, document, held["specification"].id)
+    drafts = [PlacementDraft(obligation=CV + "obl_binding", specification_id=held["specification"].id)]
+    await replace_placements(connection, owner(document), held["node"].id, 1, drafts)
+    [placement] = await placements_of(connection, document.id)
+    held |= {"assessment": Holder("assessment", exam), "placement": Holder("placement", placement.id)}
     sets: dict[HolderKind, ValueDrafts] = {
         "node": ValueDrafts(
             levels=(EQF4,), time_spans=(GRADE,), workloads=(replace(LESSONS, periods=(GRADE,)),)
         ),
         "statement": ValueDrafts(levels=(LevelDraft(level=LVL + "cefr-B1"),)),
         "specification": ValueDrafts(workloads=(LESSONS,), contexts=(CONTEXT,)),
+        "assessment": ValueDrafts(levels=(LevelDraft(level=LVL + "grade-2"),)),
+        "placement": ValueDrafts(time_spans=(GRADE,), workloads=(replace(LESSONS, periods=(GRADE,)),)),
     }
-    for kind, drafts in sets.items():
-        await replace_values(connection, owner(document), held[kind], 1, drafts)
+    for kind, values in sets.items():
+        current = sql.SQL("SELECT revision FROM {} WHERE id = %s").format(sql.Identifier(kind))
+        [revision] = await (await connection.execute(current, (held[kind].id,))).fetchone() or ()
+        await replace_values(connection, owner(document), held[kind], revision, values)
     whole = await values_of(connection, document.id)
     read = value_rows.read_rows
     rows: list[dict[str, Any]] = []
