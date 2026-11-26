@@ -28,7 +28,8 @@ from app.db.assessments import DOCUMENT_OF_ASSESSMENT
 from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, target_of
 from app.db.placements import DOCUMENT_OF_PLACEMENT
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
-from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values, values_of
+from app.db.value_rows import held_values_of
+from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values
 from app.domain.l2 import Holder, HolderKind, LevelDraft, TimeSpanDraft, ValueDrafts, WorkloadDraft
 from app.vocab.form_values import FieldError
 from app.vocab.value_checks import check_values, path_of, refused_field
@@ -167,7 +168,7 @@ async def set_values(
                 document_id = target.document_id
                 await readable_document(connection, who, request.app.state.settings, document_id)
                 drafts = body.drafts()
-                held = (await values_of(connection, document_id)).get(holder)
+                held = await held_values_of(connection, holder)  # its own, not the document's
                 form, kind = await value_form_of(connection), await _type_of(connection, holder)
                 check_values(form, holder.kind, drafts, held, holder_type=kind)
                 revision = await replace_values(

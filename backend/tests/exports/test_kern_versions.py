@@ -70,8 +70,8 @@ GRAPH_DIGESTS = {
     6: "35cec87d049670dbbf7df1e650ed49256f9129a339f0919bcf72a1bee5306ec9",  # assessments (plan M3a J)
     7: "2749dd35ea5938f25354d829fe3dda5fd189e3e53cb4764d1470cca2423f5a1c",  # placements (plan M3a K)
     8: "d896b308f62427eca3656f722ca498dc66710846add3f76bfda7aeb005ca000e",  # rejected ones out (plan M3a L)
-    # the shapes' queries bind $this first: X5 no longer reads every row per focus (plan M3a L)
-    9: "a0cbe47695dff4898b494bb52ae252eb30bcc836351e27438a25a9fb060dffde",
+    # the shapes' queries bind $this first, a set reads its holder's values alone (plan M3a L)
+    9: "c505e36c4600aff060a91cd734b0be374290aaad282ecf9d1270ed117d50fedc",
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {

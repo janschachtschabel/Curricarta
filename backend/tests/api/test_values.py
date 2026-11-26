@@ -10,7 +10,9 @@ from typing import Any
 import psycopg
 import pytest
 from fastapi.testclient import TestClient
+from psycopg import sql
 
+from app.db import value_rows
 from tests.api.test_document_tree import a_document, tree
 from tests.api.test_documents import an_account, client, hidden_from_its_owner, rows, url
 from tests.api.test_node_editing import a_node
@@ -310,3 +312,26 @@ def test_the_audit_names_counts_and_no_content(client: TestClient, url: str) -> 
             "periods": 0,
         }),
     ]  # fmt: skip
+
+
+def test_a_set_checks_against_its_holder_s_values_alone_and_reads_the_document_s_once_for_its_answer(
+    client: TestClient, url: str, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # the check reads the one holder's rows; the answer (the node as the tree has it) the document's
+    document, owner = a_document(client, url)
+    made, other = a_node(url, document), a_node(url, document, position=2)
+    put = client.put(f"/api/v1/nodes/{other}/values", headers=owner, json=values(workloads=[LESSONS]))
+    assert put.status_code == 200, put.text
+    read = value_rows.read_rows
+    document_wide: list[str] = []
+
+    async def noting(connection: Any, table: str, where: sql.Composable, *args: Any, **kwargs: Any) -> Any:
+        if where.as_string(None) == "document_id = %s":
+            document_wide.append(table)
+        return await read(connection, table, where, *args, **kwargs)
+
+    monkeypatch.setattr(value_rows, "read_rows", noting)
+    answer = client.put(f"/api/v1/nodes/{made}/values", headers=owner, json=values(workloads=[LESSONS]))
+
+    assert answer.status_code == 200, answer.text
+    assert document_wide == list(value_rows.TABLES)  # once, for the answer

@@ -96,6 +96,28 @@ async def _values_of(connection: psycopg.AsyncConnection, document_id: UUID) -> 
         table: await read_rows(connection, table, sql.SQL("document_id = %s"), document_id)
         for table in TABLES
     }
+    return _by_holder(rows)
+
+
+async def held_values_of(connection: psycopg.AsyncConnection, holder: Holder) -> HeldValues | None:
+    """One holder's values as ``values_of`` gives them - its rows of each kind, its workloads' periods, its
+    contexts' values -, read by its column and theirs, not with its document's other rows: what a set of
+    them checks against (app/api/values.py). Within the caller's transaction; None where it holds none."""
+    column = COLUMN_OF[holder.kind]
+    rows: dict[str, list[dict[str, Any]]] = {table: [] for table in TABLES}
+    for table in (each for each in TABLES if column in HOLDERS_OF[each]):
+        where = sql.SQL("{} = %s").format(sql.Identifier(column))
+        rows[table] = await read_rows(connection, table, where, holder.id)
+    for table, (inner_column, inner_tables) in NESTED.items():  # as app/db/values.py reads them, unlocked
+        if outer := [row["id"] for row in rows[table]]:
+            where = sql.SQL("{} = ANY(%s)").format(sql.Identifier(inner_column))
+            for inner in inner_tables:
+                rows[inner] += await read_rows(connection, inner, where, outer)
+    return _by_holder(rows).get(holder)
+
+
+def _by_holder(rows: dict[str, list[dict[str, Any]]]) -> Values:
+    """The rows read of each table, by holder: a workload's periods at it, a context's values in it."""
     levels: defaultdict[Holder, list[Level]] = defaultdict(list)
     spans: defaultdict[Holder, list[TimeSpan]] = defaultdict(list)
     periods: defaultdict[UUID, list[TimeSpan]] = defaultdict(list)
