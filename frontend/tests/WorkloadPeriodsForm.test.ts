@@ -37,8 +37,8 @@ function held(): HeldValues {
   };
 }
 
-function nodeRow(): Row {
-  return rowsOf([node_("a", { revision: 3, values: held() })]).get("node:a") as Row;
+function nodeRow(values: HeldValues = held()): Row {
+  return rowsOf([node_("a", { revision: 3, values })]).get("node:a") as Row;
 }
 
 function answered(): NodeRow {
@@ -47,9 +47,9 @@ function answered(): NodeRow {
   return row;
 }
 
-function section(): VueWrapper {
+function section(values?: HeldValues): VueWrapper {
   shown = mount(ValueSection, {
-    props: { row: nodeRow(), form: form_(), documentId: "d1", editable: true, reviewable: false, closedBy: null },
+    props: { row: nodeRow(values), form: form_(), documentId: "d1", editable: true, reviewable: false, closedBy: null },
     attachTo: document.body,
   });
   return shown;
@@ -131,6 +131,26 @@ describe("a workload's periods in the values' form", () => {
       t("documents.tree.problems.not_offered"),
     );
     expect(wrapper.find(".value-section__problem").exists()).toBe(false);
+  });
+
+  it("take no period past the most a workload takes, and say why at its button", async () => {
+    const [workload] = held().workloads;
+    if (!workload) throw new Error("a workload");
+    const periods = Array.from({ length: 19 }, (_, at) => ({ ...workload.periods[0], id: `p${at}`, span_from: at + 1 }));
+    const wrapper = section({ ...noValues(), workloads: [{ ...workload, periods }] });
+    const group_ = () => group(group(wrapper, "Umfang 1"), "Zeiträume von Umfang 1");
+
+    await button(group_(), "Zeitraum hinzufügen").trigger("click"); // the twentieth
+    await button(group_(), "Zeitraum hinzufügen").trigger("click"); // one more: refused
+
+    expect(group_().findAll("fieldset > legend").filter((legend) => legend.text().startsWith("Zeitraum"))).toHaveLength(20);
+    const add = button(group_(), "Zeitraum hinzufügen");
+    expect(add.attributes("aria-disabled")).toBe("true");
+    expect(document.getElementById(add.attributes("aria-describedby") ?? "")?.textContent?.trim()).toBe(
+      t("documents.tree.values.most", { most: 20 }),
+    );
+    // the holder's workloads still take more
+    expect(button(wrapper.get("form"), "Umfang hinzufügen").attributes("aria-disabled")).toBeUndefined();
   });
 
   it("have a problem at one said with the workload it is of where the keyboard rests elsewhere", async () => {

@@ -114,6 +114,23 @@ describe("an entry of a row's values on a narrow screen", () => {
     expect(section.find(({ selectors }) => selectors.includes(".node-placements__list li"))?.body).toMatch(/overflow-wrap:\s*anywhere/);
   });
 
+  it("keeps a placement's place search and its paths to the page's width, a long path breaking anywhere", () => {
+    const rules = cssRules(stylesOf(source("components/PlacePicker.vue")));
+    const of = (selector: string) => rules.filter(({ selectors }) => selectors.includes(selector)).map(({ body }) => body).join(";");
+    expect(of(".place-picker")).toMatch(/min-inline-size:\s*0/);
+    expect(of(".place-picker__place")).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(of(".place-picker__place")).toMatch(/max-inline-size:\s*100%/);
+    expect(of(".place-picker__chosen bdi")).toMatch(/overflow-wrap:\s*anywhere/);
+  });
+
+  it("keeps a workload's periods within its width, their fields stacked as every entry's", () => {
+    const file = "components/ValueItemForm.vue";
+    const periods = cssRules(stylesOf(source(file))).find(({ selectors }) => selectors.includes(".value-item__periods"));
+    expect(periods?.body).toMatch(/min-inline-size:\s*0/);
+    // a period is an entry of the same form: its fields stack under the same rule
+    expect(narrowRule(file, ".value-item__fields")).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\)/);
+  });
+
   it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
     expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
       /overflow-wrap:\s*anywhere/,
