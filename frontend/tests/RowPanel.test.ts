@@ -165,4 +165,28 @@ describe("the placements of the node chosen", () => {
 
     expect(set).toHaveBeenCalledWith("a", 2, [expect.objectContaining({ obligation: CV + "obl_binding" })]);
   });
+
+  it("go on from the node's revision a review of its value moved, not from the value's own", async () => {
+    const workload = {
+      id: "w1", origin: CV + "orig_human", review_status: CV + "rev_proposed", revision: 1, amount: 80, amount_to: null,
+      unit: CV + "unit_lesson", workload_kind: null, is_recommendation: false, minutes_per_unit: null, total: false, periods: [],
+    };
+    const nodes = [node_("a", { revision: 4, fields: { original_title: "Optik", code: "LF 1" }, values: { ...noValues(), workloads: [workload] } })];
+    const [first] = nodes;
+    if (!first) throw new Error("no node");
+    const { statements, children, ...row } = first;
+    void [statements, children];
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 2 }], nodes: [{ id: "a", revision: 5 }] });
+    const set = vi.spyOn(api, "setNodePlacements").mockResolvedValue({ ...row, revision: 6 });
+    const wrapper = panel(rowsOf(nodes).get("node:a") as Row, tree_(nodes, { specifications: SPECIFICATIONS }));
+    await wrapper.get(".node-placements__add").trigger("click");
+    await wrapper.findAll(".node-placements select").at(-1)?.setValue(CV + "obl_binding");
+
+    await wrapper.get(".value-section [role=group]").findAll("button")[1]?.trigger("click");
+    await flushPromises();
+    await wrapper.get(".node-placements form").trigger("submit");
+    await flushPromises();
+
+    expect(set).toHaveBeenCalledWith("a", 5, [expect.objectContaining({ obligation: CV + "obl_binding" })]);
+  });
 });

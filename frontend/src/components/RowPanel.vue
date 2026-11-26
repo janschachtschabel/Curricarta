@@ -155,11 +155,14 @@ function dropped(done: Exclude<DropOutcome, { outcome: "failed" }>, key: RowKey)
 }
 
 // heard even where another row was chosen meanwhile (ReviewToggles' onReviewed): then the tree is only read again
-// - a value's told in its own words (ValueSection). The node's own review moved its revision: an open draft of its
-// placements goes on from it, where that is the next after the draft's (plan M3a L)
+// - a value's told in its own words (ValueSection). A review of the node's value moved the node's revision, which
+// the answer names: an open draft of its placements goes on from it, where that is the next after the draft's
+// (plan M3a L)
 function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string): void {
   const here = key === props.row?.key;
-  if (here && done.outcome === "set" && props.row?.kind === "node") placements.value?.moved(done.revision);
+  const node = props.row?.kind === "node" ? props.row.node.id : null;
+  const moved = here && done.outcome === "set" ? done.nodes.find((one) => one.id === node)?.revision : undefined;
+  if (moved !== undefined) placements.value?.moved(moved);
   if (here && done.outcome === "gone") return gone();
   if (here) status.value = sayAnew(status.value, words ?? reviewWords(done));
   if (here && done.outcome === "closed") toHeading();
@@ -169,6 +172,12 @@ function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: Hold
 /** An anchor chosen in the source, into the draft of the statement added or edited; how it went. */
 function addAnchor(code: string): AnchorTaking {
   return (creator.value ?? editor.value)?.addAnchor(code) ?? "refused";
+}
+
+// the node's own review moved its revision, which it answers as the row's: the placements so too
+function ownReviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey): void {
+  if (key === props.row?.key && done.outcome === "set" && props.row.kind === "node") placements.value?.moved(done.revision);
+  reviewed(done, key);
 }
 
 // the page's way to the panel from a row far above it
@@ -204,7 +213,7 @@ defineExpose({ addAnchor, focus: toHeading });
         @create="(kind) => emit('create', kind)"
         @dropped="dropped"
       />
-      <ReviewToggles v-if="tree.reviewable" :key="row.key" :row="row" :document-id="documentId" :on-reviewed="reviewed" />
+      <ReviewToggles v-if="tree.reviewable" :key="row.key" :row="row" :document-id="documentId" :on-reviewed="ownReviewed" />
       <RowEditor
         v-if="editing"
         ref="editor"
