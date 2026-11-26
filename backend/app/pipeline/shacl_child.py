@@ -53,6 +53,7 @@ MEM_MODEL = f"{MEM_DIR}/lp-klassen.ttl"
 _LEFT_OUT = ("-lexikon", "cur-alignments", "migration")  # no shape a document's row meets reads them
 _LIBRARIES = ("rdflib", "pyshacl", "owlrl")
 _SEVERITIES = {str(SH.Violation): "violation", str(SH.Warning): "warning", str(SH.Info): "info"}
+_SEE_DETAILS = "See details for more information."  # pyshacl's, where a nested shape's result says more
 _PREFIXES = (
     ("cur", "https://w3id.org/wlo/curriculum/core#"),
     ("dct", "http://purl.org/dc/terms/"),
@@ -70,6 +71,7 @@ class ShaclResult(NamedTuple):
     value: str | None
     component: str | None  # the constraint component's name
     lang: str | None = None  # the message's language where the shape gave one (sh:message "…"@de)
+    held_by: str | None = None  # a blank node's: the properties from the row it is moved to down to it
 
 
 def model_paths(ontology_dir: Path) -> list[Path]:
@@ -183,35 +185,54 @@ def _results(report: Graph, shapes: Graph, data: Graph) -> list[ShaclResult]:
         value = report.value(result, SH.value)
         component = report.value(result, SH.sourceConstraintComponent)
         message = report.value(result, SH.resultMessage)  # pyshacl's own, English, where the shape gave none
+        row, held_by = _holder(data, focus)
         found.append(
             ShaclResult(
-                _holder(data, focus), _name(shape), _SEVERITIES[str(report.value(result, SH.resultSeverity))],
+                row, _name(shape), _SEVERITIES[str(report.value(result, SH.resultSeverity))],
                 _path(report, path),
-                str(message or ""),
+                _message(report, result),
                 None if value is None else str(value), None if component is None else _name(component),
-                _language(message, report.value(result, SH.sourceConstraint), shapes),
+                _language(message, report.value(result, SH.sourceConstraint), shapes), held_by,
             )
         )  # fmt: skip
     return sorted(found, key=lambda result: [part or "" for part in result])
 
 
-def _holder(data: Graph, focus: Any) -> str:
-    """The focus as the row it is about: a named node itself; a blank node - X1's reading of an
-    applicability, a value or an anchor once frozen - the nearest named subject that holds it, followed
-    back through the blank nodes between (the first by name where several are as near); a blank node
-    nothing named holds, itself (``_:``), which the caller gives to the document."""
+def _holder(data: Graph, focus: Any) -> tuple[str, str | None]:
+    """The focus as the row it is about, and the properties it is held by there: a named node itself, by
+    none; a blank node - X1's reading of an applicability, a value or an anchor once frozen - the nearest
+    named subject that holds it, followed back through the blank nodes between (the first by name where
+    several are as near), by the properties from it down to the focus (``cur:applicability/cur:timeSpan``,
+    the first by name where there are several); a blank node nothing named holds, itself (``_:``), which
+    the caller gives to the document."""
     if not isinstance(focus, BNode):
-        return str(focus)
-    seen: set[Node] = {focus}
-    layer = seen.copy()
+        return str(focus), None
+    ways: dict[Node, str] = {focus: ""}  # a node's properties down to the focus
+    layer: set[Node] = {focus}
     while layer:
-        holders = {subject for node in layer for subject in data.subjects(None, node)} - seen
-        named = sorted(str(holder) for holder in holders if not isinstance(holder, BNode))
+        found: dict[Node, str] = {}
+        for node in layer:
+            for subject, predicate in data.subject_predicates(node):
+                if subject in ways:
+                    continue
+                way = "/".join(filter(None, (_curie(URIRef(str(predicate))), ways[node])))
+                found[subject] = min(way, found.get(subject, way))
+        named = sorted((str(holder), way) for holder, way in found.items() if not isinstance(holder, BNode))
         if named:
             return named[0]
-        seen |= holders
-        layer = holders
-    return f"_:{focus}"
+        ways |= found
+        layer = set(found)
+    return f"_:{focus}", None
+
+
+def _message(report: Graph, result: Any) -> str:
+    """The result's message; pyshacl's "See details" of a shape nested in it (sh:node) given as what the
+    nested shape's results say, for no finding keeps them (``_results``)."""
+    message = str(report.value(result, SH.resultMessage) or "")
+    if not message.endswith(_SEE_DETAILS):
+        return message
+    nested = sorted(_message(report, detail) for detail in report.objects(result, SH.detail))
+    return " ".join([message.removesuffix(_SEE_DETAILS).rstrip(), *nested])
 
 
 def _language(message: Any, constraint: Any, shapes: Graph) -> str | None:

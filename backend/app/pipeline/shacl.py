@@ -83,6 +83,8 @@ def as_findings(
             details["focus"] = result.focus
         if result.value is not None:
             details["value"] = result.value
+        if result.held_by is not None:  # the row has no such property: the blank node it holds has
+            details["held_by"] = result.held_by
         if result.lang is not None and result.message:  # the page quotes a message without as English
             details["lang"] = result.lang
         findings.append(
