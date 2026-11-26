@@ -279,7 +279,7 @@ describe("a specification's applicability contexts in its draft", () => {
     expect(added.entry).toMatchObject({ id: null, fields: { sector: "", formality: "", institution_text: "", target_group_text: "" } });
     expect(added.entry.inner).toEqual({ level_assignments: [], time_spans: [], workloads: [], contexts: [] });
     for (let more = 0; more < MOST_VALUES; more += 1) draft = withEntry(FORM, draft, "contexts").draft;
-    expect(isFull(draft, "contexts")).toBe(true);
+    expect(isFull(draft.contexts)).toBe(true);
   });
 
   it("sees a changed value of a context as a change of the contexts", () => {

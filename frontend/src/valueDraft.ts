@@ -112,17 +112,29 @@ export function draftOfValues(form: Form, values: HeldSet, previous?: ValuesDraf
   return draft;
 }
 
-/** The draft with an empty entry of the kind `kind` after the others, and that entry. */
-export function withEntry(form: Form, draft: ValuesDraft, kind: DraftKind): { draft: ValuesDraft; entry: Entry } {
+/** An empty entry of the kind `kind`. */
+export function newEntry(form: Form, kind: DraftKind): Entry {
   const fields = Object.fromEntries(fieldsOf(form, kind).map((field) => [field.key, field.kind === "boolean" ? false : ""]));
   const entry: Entry = { key: nextKey(), id: null, fields, periods: [] };
   if (kind === "contexts") entry.inner = emptyDraft();
+  return entry;
+}
+
+/** The draft with an empty entry of the kind `kind` after the others, and that entry. */
+export function withEntry(form: Form, draft: ValuesDraft, kind: DraftKind): { draft: ValuesDraft; entry: Entry } {
+  const entry = newEntry(form, kind);
   return { draft: { ...draft, [kind]: [...draft[kind], entry] }, entry };
 }
 
-/** Whether the draft holds as many entries of the kind `kind` as a holder takes. */
-export function isFull(draft: ValuesDraft, kind: DraftKind): boolean {
-  return draft[kind].length >= MOST_VALUES;
+/** Whether `entries` are as many of their kind as a holder takes. */
+export function isFull(entries: readonly Entry[]): boolean {
+  return entries.length >= MOST_VALUES;
+}
+
+/** The problems at the entry `key`'s fields, by the fields' keys, of the problems by entry and field (`value-7:unit`). */
+export function faultsOf(faults: Partial<Record<string, string>>, key: string): Partial<Record<string, string>> {
+  const prefix = `${key}:`;
+  return Object.fromEntries(Object.entries(faults).flatMap(([at, words]) => (at.startsWith(prefix) ? [[at.slice(prefix.length), words]] : [])));
 }
 
 /**

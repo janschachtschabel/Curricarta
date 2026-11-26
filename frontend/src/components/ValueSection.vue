@@ -2,9 +2,8 @@
 /**
  * A row's levels, time spans and workloads (plan M3a G; valueSave.ts): "Niveau, Zeit, Umfang" in the row's panel,
  * the kinds its form offers the holder - a node every kind, a statement its levels. Where the tree is open, a form
- * of entries (ValueItemForm) with a button to add each kind and one on each entry to take it away, the keyboard
- * going to the new entry's first field, or from one taken away to the next, else to the button that adds its kind;
- * the set is saved as a whole on the holder's revision. A field's problem stands at its field, the keyboard taken
+ * of entries, each kind's with a button to add one (ValueEntries); the set is saved as a whole on the holder's
+ * revision. A field's problem stands at its field, the keyboard taken
  * there (fieldFaults.ts); a set that met another is laid beside it (ValueConflict); a failure is said above the
  * form, the draft kept. Where the tree closed - on this save, or under an open draft as it was read anew
  * (`closedBy`) - it says why and keeps the draft, in words, to copy. Elsewhere its values read in words (ValueList).
@@ -21,7 +20,7 @@ import LoadingState from "@/components/LoadingState.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import ReviewToggles from "@/components/ReviewToggles.vue";
 import ValueConflict from "@/components/ValueConflict.vue";
-import ValueItemForm from "@/components/ValueItemForm.vue";
+import ValueEntries from "@/components/ValueEntries.vue";
 import ValueList from "@/components/ValueList.vue";
 import type { Row, RowKey } from "@/documentTree";
 import { useFieldFaults } from "@/fieldFaults";
@@ -30,7 +29,7 @@ import { sayAnew } from "@/liveRegion";
 import { refusalText } from "@/refusals";
 import type { ReviewOutcome } from "@/rowReview";
 import { word } from "@/registerWords";
-import { isFull, kindsOf, MOST_VALUES, withEntry, withoutEntry, type Entry } from "@/valueDraft";
+import { kindsOf, type Entry } from "@/valueDraft";
 import { useValueSave } from "@/valueSave";
 import { shownValues, valueReviewWords, type ShownValue } from "@/valueWords";
 
@@ -102,16 +101,6 @@ const { faults, faultsAt, clear } = useFieldFaults<string>({
   },
 });
 
-/** The problems of the entry `entry`, by the keys of its fields. */
-function errorsOf(entry: Entry): Partial<Record<string, string>> {
-  const prefix = `${entry.key}:`;
-  return Object.fromEntries(
-    Object.entries(faults.value)
-      .filter(([at]) => at.startsWith(prefix))
-      .map(([at, words]) => [at.slice(prefix.length), words]),
-  );
-}
-
 // A value reviewed that is gone or changed meanwhile is no row gone: the tree is read again, the row kept. Told in
 // words that name the value, apart from the row's own status set beside it
 function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: RowKey, value: string): void {
@@ -126,32 +115,8 @@ watch(
 );
 onBeforeUnmount(() => emit("dirty", false));
 
-function toFirstField(entry: Entry, kind: ValueKind): void {
-  const first = props.form.values[kind].fields[0];
-  if (first) document.getElementById(`${sid}-${entry.key}-${first.key}`)?.focus();
-}
-
-async function add(kind: ValueKind): Promise<void> {
-  if (isFull(draft.value, kind)) return;
-  const added = withEntry(props.form, draft.value, kind);
-  draft.value = added.draft;
-  await nextTick();
-  toFirstField(added.entry, kind);
-}
-
-async function remove(kind: ValueKind, place: number): Promise<void> {
-  const entries = draft.value[kind];
-  const gone = entries[place];
-  if (!gone) return;
-  const next = entries[place + 1];
-  draft.value = withoutEntry(draft.value, kind, gone.key);
-  await nextTick();
-  if (next) toFirstField(next, kind);
-  else document.getElementById(`${sid}-add-${kind}`)?.focus();
-}
-
-function change(kind: ValueKind, key: string, fields: Entry["fields"]): void {
-  draft.value = { ...draft.value, [kind]: draft.value[kind].map((entry) => (entry.key === key ? { ...entry, fields } : entry)) };
+function change(kind: ValueKind, entries: Entry[]): void {
+  draft.value = { ...draft.value, [kind]: entries };
 }
 
 async function submit(): Promise<void> {
@@ -205,21 +170,20 @@ async function submit(): Promise<void> {
       <ValueConflict v-if="conflict" ref="panel" :clashes="conflict.clashes" :taken="conflict.taken" @keep="editing.keep" @take="editing.take" />
       <p v-if="nothingDrafted" class="value-section__none">{{ t("documents.tree.values.none") }}</p>
       <form class="value-section__form" novalidate @submit.prevent="submit">
-        <div v-for="kind in kinds" :key="kind" class="value-section__kind">
-          <ValueItemForm
-            v-for="(entry, place) in draft[kind]"
-            :key="entry.key"
-            :kind="kind"
-            :entry="entry"
-            :place="place"
-            :form="form"
-            :holder="holder"
-            :holder-type="holderType"
-            :prefix="`${sid}-${entry.key}`"
-            :errors="errorsOf(entry)"
-            @change="(fields) => change(kind, entry.key, fields)"
-            @remove="remove(kind, place)"
-          >
+        <ValueEntries
+          v-for="kind in kinds"
+          :key="kind"
+          :kind="kind"
+          :entries="draft[kind]"
+          :form="form"
+          :holder="holder"
+          :holder-type="holderType"
+          :sid="sid"
+          :add-id="`${sid}-add-${kind}`"
+          :faults="faults"
+          @change="(entries) => change(kind, entries)"
+        >
+          <template #default="{ entry }">
             <template v-if="storedOf(kind, entry.id)">
               <p class="value-section__stated">{{ storedOf(kind, entry.id)?.stated }}</p>
               <ReviewToggles
@@ -231,22 +195,8 @@ async function submit(): Promise<void> {
                 :on-reviewed="(done, key) => reviewed(done, key, storedOf(kind, entry.id)?.words ?? '')"
               />
             </template>
-          </ValueItemForm>
-          <!-- aria-disabled, not disabled: the button keeps the keyboard and says why it adds no more -->
-          <button
-            :id="`${sid}-add-${kind}`"
-            type="button"
-            class="btn btn-sm secondary value-section__add"
-            :aria-disabled="isFull(draft, kind) || undefined"
-            :aria-describedby="isFull(draft, kind) ? `${sid}-most-${kind}` : undefined"
-            @click="add(kind)"
-          >
-            {{ t(`documents.tree.values.add.${kind}`) }}
-          </button>
-          <p v-if="isFull(draft, kind)" :id="`${sid}-most-${kind}`" class="value-section__most">
-            {{ t("documents.tree.values.most", { most: MOST_VALUES }) }}
-          </p>
-        </div>
+          </template>
+        </ValueEntries>
         <LoadingState v-if="saving" quiet :label="t('documents.tree.values.saving')" />
         <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
         <button ref="submitButton" type="submit" class="btn primary value-section__save" :aria-disabled="saving || undefined">
@@ -272,20 +222,17 @@ async function submit(): Promise<void> {
   margin: 0;
 }
 
-.value-section__form,
-.value-section__kind {
+.value-section__form {
   display: grid;
   gap: var(--space-2);
 }
 
-.value-section__add,
 .value-section__save {
   justify-self: start;
 }
 
 .value-section__stated,
-.value-section__none,
-.value-section__most {
+.value-section__none {
   color: var(--text-muted);
 }
 
