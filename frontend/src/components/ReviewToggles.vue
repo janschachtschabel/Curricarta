@@ -35,8 +35,10 @@ const busy = ref(false);
 const problem = ref<Notice | null>(null);
 // the status just set and the revision it left: the row the panel holds has them only once the tree is read again
 const pending = ref<{ status: ReviewStatus; revision: number } | null>(null);
-// the row whose own status these set: none of a specification's
-const own = computed(() => (props.value || props.row.kind === "specification" ? null : props.row));
+// the row whose own status these set: none of a specification's, nor of an assessment's (plan M3a J)
+const own = computed(() =>
+  props.value || props.row.kind === "specification" || props.row.kind === "assessment" ? null : props.row,
+);
 const current = computed(
   () => pending.value?.status ?? (props.value ? statusOf(props.value.review_status) : own.value && rowStatus(own.value)),
 );

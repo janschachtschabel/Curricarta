@@ -9,12 +9,14 @@ import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
+import DocumentAssessments from "@/components/DocumentAssessments.vue";
 import DocumentScope from "@/components/DocumentScope.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 import { specificationRow } from "@/valueHolder";
 
+import { ASSESSMENT_FORM, assessmentsOf, examWithPart } from "./assessmentFixtures";
 import { SCOPE_FORM, specificationOf, specificationsOf, valuedSpecification } from "./scopeFixtures";
 import { CV, form_, node_, noValues } from "./treeFixtures";
 
@@ -134,6 +136,45 @@ describe("a specification's values whose form did not come", () => {
     await flushPromises();
 
     expect(wrapper.text()).not.toContain(t("documents.page.scope.formFailed"));
+    wrapper.unmount();
+  });
+});
+
+describe("a document's assessments", () => {
+  const props = { documentId: "d1", sector: "vocational" };
+
+  it("say that their levels cannot be edited now where the form did not come, with a retry that brings it", async () => {
+    vi.spyOn(api, "getAssessments").mockResolvedValue(assessmentsOf({ assessments: examWithPart() }));
+    vi.spyOn(api, "getForm").mockRejectedValueOnce(new api.ApiError("network", 0)).mockResolvedValue(ASSESSMENT_FORM);
+    const wrapper = mount(DocumentAssessments, { props, attachTo: document.body });
+    await flushPromises();
+
+    const notice = wrapper.findAll("[role=status]").find((one) => one.text().includes(t("documents.page.assessments.formFailed")));
+    expect(notice, "a notice beside the section").toBeDefined();
+    expect(wrapper.find(".value-section").exists()).toBe(false);
+    expect(wrapper.text()).toContain("Teil 1");
+
+    await notice?.get("button").trigger("click");
+    await flushPromises();
+    expect(wrapper.find(".value-section").exists()).toBe(true);
+    expect(wrapper.text()).not.toContain(t("documents.page.assessments.formFailed"));
+    wrapper.unmount();
+  });
+
+  it("stay shown where a later reading fails, the failure said beside them with a retry", async () => {
+    vi.spyOn(api, "getAssessments")
+      .mockResolvedValueOnce(assessmentsOf({ assessments: examWithPart() }))
+      .mockRejectedValueOnce(new api.ApiError("server", 500, "internal", "boom"));
+    vi.spyOn(api, "getForm").mockResolvedValue(ASSESSMENT_FORM);
+    const wrapper = mount(DocumentAssessments, { props, attachTo: document.body });
+    await flushPromises();
+
+    await wrapper.setProps({ refresh: 1 });
+    await flushPromises();
+
+    expect(wrapper.findAll(".assessment")).toHaveLength(2);
+    const notice = wrapper.findAll("[role=status]").find((one) => one.text().includes(t("documents.page.assessments.loadFailed")));
+    expect(notice?.find("button").exists()).toBe(true);
     wrapper.unmount();
   });
 });

@@ -50,6 +50,8 @@ export const REFUSAL_CODES = [
   "no_specification",
   // a rule's change (backend app/api/rules.py)
   "no_rule",
+  // a document's assessments (backend app/api/assessments.py)
+  "no_assessment",
   "stale_revision",
   "invalid_field",
   "anchor_missing",

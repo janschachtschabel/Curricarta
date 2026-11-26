@@ -9,7 +9,8 @@
  * the top (RevisionNotice: frozen, with the draft copy for an editor; or a draft copy); where it comes from
  * (DocumentSource) and its work and edition (DocumentEdition) beside its facts, what its specifications are and
  * where they apply below (DocumentScope, plan M3a H1: a draft there asked about before the page goes, leaveGuard.ts),
- * and its rules (DocumentRules, plan M3a I, a draft asked about alike);
+ * its rules (DocumentRules, plan M3a I, a draft asked about alike) and its assessments (DocumentAssessments, plan M3a J:
+ * so too);
  * an editor freezes it below its findings (DocumentFreeze, plan M1 9.10, Paket 9d1).
  * A document newly frozen - by the freeze, or a reading that finds it so under a form - is said: the keyboard, where
  * nothing holds it, goes to the notice, which names itself; held elsewhere, it stays and a region says it.
@@ -18,6 +19,7 @@ import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import { ApiError, getDocument, getRuns, type CurriculumDocument, type Run } from "@/api";
+import DocumentAssessments from "@/components/DocumentAssessments.vue";
 import DocumentEdition from "@/components/DocumentEdition.vue";
 import DocumentExport from "@/components/DocumentExport.vue";
 import DocumentExtraction from "@/components/DocumentExtraction.vue";
@@ -48,7 +50,16 @@ import { word } from "@/registerWords";
 const props = defineProps<{ id: string }>();
 const scopeDraft = ref(false); // a draft open in the applicability section
 const rulesDraft = ref(false); // and in the rules (plan M3a I)
-const { leaving, answer } = useLeaveGuard(() => scopeDraft.value || rulesDraft.value);
+const assessmentsDraft = ref(false); // a draft open in the assessments' section
+const { leaving, answer } = useLeaveGuard(() => scopeDraft.value || rulesDraft.value || assessmentsDraft.value);
+// what is not saved, said for the section that holds it: the applicability's first, then the rules'
+const leaveMessage = computed(() =>
+  scopeDraft.value
+    ? t("documents.page.scope.leave.message")
+    : rulesDraft.value
+      ? t("documents.page.rules.leave")
+      : t("documents.page.assessments.leave"),
+);
 
 const document_ = ref<CurriculumDocument | null>(null);
 const runs = ref<Run[]>([]);
@@ -237,6 +248,8 @@ watch(
         :sector="document_.sector" :refresh="unitsRead" @dirty="scopeDraft = $event" />
       <DocumentRules :key="document_.id" class="document__section" :document-id="document_.id" :refresh="unitsRead"
         @dirty="rulesDraft = $event" />
+      <DocumentAssessments :key="document_.id" class="document__section" :document-id="document_.id"
+        :sector="document_.sector" :refresh="unitsRead" @dirty="assessmentsDraft = $event" />
       <!-- keyed: what a start of the document before gave back late stays with that one -->
       <DocumentExtraction
         :key="document_.id"
@@ -289,7 +302,7 @@ watch(
       />
       <DocumentRuns class="document__section" :runs="runs" />
     </template>
-    <ConfirmDialog v-if="leaving" :title="t('documents.page.scope.leave.title')" :message="rulesDraft && !scopeDraft ? t('documents.page.rules.leave') : t('documents.page.scope.leave.message')"
+    <ConfirmDialog v-if="leaving" :title="t('documents.page.scope.leave.title')" :message="leaveMessage"
       :confirm-label="t('documents.page.scope.leave.confirm')" :cancel-label="t('documents.page.scope.leave.cancel')"
       @confirm="answer(true)" @cancel="answer(false)" />
     <!-- always in the page, so a screen reader hears what it says of the document -->

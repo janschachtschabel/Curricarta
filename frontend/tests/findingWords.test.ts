@@ -118,6 +118,22 @@ describe("a finding in words", () => {
     expect(focusText(onValue("time_span", null))).toBe(t("documents.findings.valueGone"));
   });
 
+  it("names an assessment by its name, and a level at one with it (plan M3a J)", () => {
+    const kinds = messages.documents.findings.kinds;
+
+    expect(focusText(finding({ focus: at("assessment", "a1", "Abschlussprüfung") }))).toBe(
+      t("documents.findings.about", { kind: kinds.assessment, label: isolate("Abschlussprüfung") }),
+    );
+    expect(focusText(onValue("level_assignment", ["assessment", "a1", "Abschlussprüfung"]))).toBe(
+      t("documents.findings.valueAt", {
+        value: kinds.level_assignment,
+        holder: t("documents.findings.about", { kind: kinds.assessment, label: isolate("Abschlussprüfung") }),
+      }),
+    );
+    // no row of the tree to lead to
+    expect(findingRow(finding({ focus: at("assessment", "a1", "Abschlussprüfung") }))).toBeNull();
+  });
+
   it("says a statement no longer there is gone: why it alone has no row to lead to", () => {
     const gone = finding({ focus: at("statement", "s1", null), unit: "E3" });
 

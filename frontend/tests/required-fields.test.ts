@@ -1,6 +1,7 @@
 import { mount } from "@vue/test-utils";
 import { describe, expect, it } from "vitest";
 
+import AssessmentForm from "@/components/AssessmentForm.vue";
 import ExtractionStart from "@/components/ExtractionStart.vue";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 import ImportForm from "@/components/ImportForm.vue";
@@ -11,6 +12,7 @@ import { messages } from "@/i18n/de";
 import { router } from "@/router";
 import LoginView from "@/views/LoginView.vue";
 
+import { assessmentsOf } from "./assessmentFixtures";
 import { ruleOf, rulesOf } from "./ruleFixtures";
 import { form_ } from "./treeFixtures";
 
@@ -66,6 +68,26 @@ describe("a required field", () => {
       expect(required.length).toBe(wrapper.findComponent(RuleNew).exists() ? 3 : 2);
       wrapper.unmount();
     }
+  });
+
+  it("of an assessment is its parent and its kind; its name, duration, weight, grading and targets are free", () => {
+    const wrapper = mount(AssessmentForm, { props: { documentId: "d1", read: assessmentsOf() } });
+    const words = messages.documents.page.assessments.fields;
+    const control = (label: string) => {
+      const found = wrapper.findAll("label").find((one) => one.text() === label);
+      if (!found) throw new Error(label);
+      return wrapper.get(`#${found.attributes("for")}`);
+    };
+
+    for (const key of ["parent_id", "assessment_kind"] as const) {
+      expect(control(words[key]).attributes("aria-required"), key).toBe("true");
+      expect(words[key]).toMatch(/\(Pflichtfeld\)$/);
+    }
+    for (const key of ["label", "duration_minutes", "weight_percent", "graded"] as const) {
+      expect(control(words[key]).attributes("aria-required"), key).toBeUndefined();
+      expect(words[key]).not.toMatch(/\(|freiwillig/);
+    }
+    wrapper.unmount();
   });
 
   it("of an applicability context is none: every field of the context's form is free", () => {

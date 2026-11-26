@@ -776,6 +776,7 @@ export const messages = {
     no_specification: "Diese Spezifikation gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     // a rule's change (backend app/api/rules.py)
     no_rule: "Diese Regel gibt es nicht mehr, oder dein Konto sieht sie nicht.",
+    no_assessment: "Diese Prüfung gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     stale_revision: "Jemand hat das inzwischen geändert. Sieh dir den neuen Stand an und entscheide dann.",
     invalid_field: "Ein Feld lässt sich so nicht setzen. Prüfe die markierte Eingabe.",
     anchor_missing: "Eine Aussage braucht mindestens eine Fundstelle: Blöcke der Quelle oder eine Seite.",
@@ -1228,6 +1229,7 @@ export const messages = {
         specification: "Spezifikation",
         anchor: "Anker",
         variant: "Variante",
+        assessment: "Prüfung", // plan M3a J; a level at one named with it, as at any holder
         // the second layer's values, each named with the row that holds it (valueAt)
         level_assignment: "Niveauzuordnung",
         time_span: "Zeitraum",
@@ -1616,6 +1618,104 @@ export const messages = {
         // leaving the page with a draft of a rule (DocumentView.vue)
         leave: "Deine Änderungen an den Regeln sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
       },
+      // a document's assessments (plan M3a J; DocumentAssessments.vue, AssessmentItem.vue, AssessmentForm.vue)
+      assessments: {
+        heading: "Prüfungen",
+        intro:
+          "Prüfungen, ihre Teile und Bereiche, Modulprüfungen und Studienleistungen des Dokuments: woran sie hängen, " +
+          "wie lange sie dauern, wie sie gewichtet und benotet sind und was sie prüfen.",
+        loading: "Die Prüfungen werden geladen …",
+        loadFailed: "Die Prüfungen wurden nicht geladen.",
+        noneTitle: "Noch keine Prüfung",
+        noneBody: "Das Dokument nennt noch keine Prüfung.",
+        noneBodyEditable: "Lege eine Prüfung an, wenn das Dokument eine vorsieht.",
+        closed: {
+          frozen: "Das Dokument ist festgeschrieben: Die Prüfungen sind nur zu lesen.",
+          job_open: "Zu diesem Dokument läuft gerade ein Auftrag: Die Prüfungen sind bis zu seinem Ende nur zu lesen.",
+          not_extracted: "Die Extraktion hat noch nicht jedes Arbeitspaket gelesen: Die Prüfungen sind bis dahin nur zu lesen.",
+        },
+        readOnly: "Prüfungen ändern die Eigentümerin oder der Eigentümer des Dokuments und die Redaktion.",
+        unnamed: "Prüfung ohne Namen",
+        // what an assessment states, in words (assessmentWords.ts)
+        kind: "Art",
+        parent: "Teil von",
+        duration: "Dauer",
+        weight: "Gewicht",
+        graded: "Benotet",
+        targets: "Prüft",
+        levels: "Niveaus",
+        minutes: "{minutes} {minutes|Minute|Minuten}",
+        percent: "{weight} %",
+        yes: "ja",
+        no: "nein",
+        none: "nicht angegeben",
+        noTargets: "nichts verknüpft",
+        noLevels: "keine",
+        separator: ", ",
+        // the list of an assessment's parts, for a screen reader
+        parts: "Teile von „{title}“",
+        // the ways on from an assessment, their names for a screen reader with the visible words first (WCAG 2.5.3)
+        add: "Prüfung anlegen",
+        addPart: "Teil anlegen",
+        addPartNamed: "Teil anlegen: {title}",
+        edit: "Bearbeiten",
+        editNamed: "Bearbeiten: {title}",
+        drop: "Entfernen",
+        dropNamed: "Entfernen: {title}",
+        dropTitle: "Prüfung entfernen?",
+        dropMessage:
+          "„{title}“ geht mit {parts} {parts|Teil|Teilen}, ihren Niveaus und den Befunden daran verloren. " +
+          "Das lässt sich nicht rückgängig machen.",
+        dropConfirm: "Entfernen",
+        dropped: "„{title}“ ist entfernt.",
+        dropFailed: "Die Prüfung wurde nicht entfernt.",
+        gone: "Diese Prüfung gibt es nicht mehr; die Prüfungen werden neu geladen.",
+        // the form of one assessment, new or kept (AssessmentForm.vue)
+        addHeading: "Neue Prüfung",
+        addPartHeading: "Neuer Teil von „{title}“",
+        editHeading: "„{title}“ bearbeiten",
+        fields: {
+          parent_id: "Teil von (Pflichtfeld)",
+          assessment_kind: "Art (Pflichtfeld)",
+          label: "Name",
+          duration_minutes: "Dauer in Minuten",
+          weight_percent: "Gewicht in Prozent",
+          graded: "Benotet",
+          targets: "Prüft",
+        },
+        hints: {
+          parent_id: "Die Spezifikation, der Abschnitt der Gliederung oder die Prüfung, deren Teil sie ist.",
+          assessment_kind: "Prüfung, Prüfungsteil, Prüfungsbereich, Modulprüfung, Studienleistung …",
+          label: "Wie das Dokument sie nennt, etwa „Abschlussprüfung Teil 1“.",
+          duration_minutes: "Eine ganze Zahl, wie das Dokument sie nennt.",
+          weight_percent: "Der Anteil an der Prüfung, deren Teil sie ist: eine Zahl von 0 bis 100, etwa 37,5.",
+          graded: "Ob das Dokument eine Note für sie vorsieht.",
+          targets: "Die Abschnitte der Gliederung, die sie prüft.",
+        },
+        choose: "Bitte wählen",
+        groups: { specification: "Spezifikationen", node: "Gliederung", assessment: "Prüfungen" },
+        gradedUnknown: "nicht angegeben",
+        noChoices: "Die Gliederung hat noch keinen Abschnitt.",
+        problems: {
+          not_whole: "Hier gehört eine ganze Zahl ab 0 hin.",
+          not_weight: "Hier gehört eine Zahl von 0 bis 100 hin, etwa 37,5.",
+        },
+        save: "Speichern",
+        saveNamed: "Speichern: {title}",
+        cancel: "Abbrechen",
+        added: "Angelegt.",
+        saved: "Gespeichert.",
+        unchanged: "Nichts geändert.",
+        saveFailed: "Die Prüfung wurde nicht gespeichert.",
+        changedMeanwhile: "Jemand hat die Prüfung inzwischen geändert; der neue Stand ist geladen.",
+        fieldProblem: "{field}: {problem}",
+        // the levels at one assessment in their form (ValueSection.vue)
+        levelsHeading: "Niveaus von „{title}“",
+        levelsSaveNamed: "Niveaus speichern: {title}",
+        formFailed: "Die Niveaus lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
+        // leaving the page with a draft of an assessment or of its levels (DocumentView.vue)
+        leave: "Deine Änderungen an den Prüfungen sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
+      },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
       kernExport: {
         heading: "Export als Curriculum-Kern",
@@ -1864,6 +1964,8 @@ export const messages = {
         out_of_order: "Das Ende des Bereichs liegt vor seinem Anfang.",
         unknown_value: "Diesen Wert gibt es an dieser Zeile nicht mehr; lade die Zeile neu.",
         refused: "Die Datenbank hat diesen Wert abgewiesen; prüfe die Angaben.",
+        // an assessment's parent among its own parts (backend app/db/assessments.py)
+        cycle: "Eine Prüfung kann nicht Teil eines ihrer eigenen Teile sein.",
         other: "Dieser Wert lässt sich so nicht speichern.",
         elsewhere: "Ein Feld, das dieses Formular nicht zeigt, lässt sich so nicht setzen.",
       },

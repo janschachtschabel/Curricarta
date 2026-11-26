@@ -97,6 +97,14 @@ describe("an entry of a row's values on a narrow screen", () => {
     );
   });
 
+  it("lets an assessment's name, what it assesses and its form's lists keep to the page's width", () => {
+    const item = cssRules(stylesOf(source("components/AssessmentItem.vue")));
+    const form = cssRules(stylesOf(source("components/AssessmentForm.vue")));
+    expect(item.find(({ selectors }) => selectors.includes(".assessment__title bdi"))?.body).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(form.find(({ selectors }) => selectors.includes(".assessment-form__target"))?.body).toMatch(/overflow-wrap:\s*anywhere/);
+    expect(form.find(({ selectors }) => selectors.includes(".assessment-form select"))?.body).toMatch(/max-inline-size:\s*100%/);
+  });
+
   it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
     expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
       /overflow-wrap:\s*anywhere/,

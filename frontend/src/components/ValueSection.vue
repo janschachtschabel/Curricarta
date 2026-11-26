@@ -3,7 +3,7 @@
  * A row's levels, time spans and workloads (plan M3a G; valueSave.ts): "Niveau, Zeit, Umfang" in the row's panel,
  * the kinds its form offers the holder - a node every kind, a statement its levels; a specification's on the
  * document page (plan M3a H; valueHolder.ts), named for it under its title, its applicability contexts too
- * (ContextItemForm). Where the tree is open, a form of entries, each kind's with a button to add one (ValueEntries);
+ * (ContextItemForm); an assessment's levels under it on the page's section of them (plan M3a J). Where the tree is open, a form of entries, each kind's with a button to add one (ValueEntries);
  * the set is saved as a whole on the holder's revision. A field's problem stands at its field, the keyboard taken
  * there (fieldFaults.ts); a set that met another is laid beside it (ValueConflict); a failure is said above the
  * form, the draft kept. Where the tree closed - on this save, or under an open draft as it was read anew
@@ -73,8 +73,17 @@ const kinds = computed(() => kindsOf(props.form, holder.value));
 // a specification holds its applicability contexts beside its values (backend CONTEXT_HOLDERS)
 const drafted = computed<DraftKind[]>(() => (props.row.kind === "specification" ? [...kinds.value, "contexts"] : kinds.value));
 const held = computed(() => holderOf(props.row).values);
-// a specification's title: its section stands under it on the document page, named for it
-const named = computed(() => (props.row.kind === "specification" ? props.row.specification.title : null));
+// a specification's title: its section stands under it on the document page, named for it; so an assessment's levels
+// under it in the page's section of them (plan M3a J), by its name
+const named = computed(() => {
+  if (props.row.kind === "specification") {
+    const title = props.row.specification.title;
+    return { heading: t("documents.page.scope.valuesHeading", { title }), save: t("documents.page.scope.valuesSaveNamed", { title }) };
+  }
+  if (props.row.kind !== "assessment") return null;
+  const title = props.row.assessment.label ?? t("documents.page.assessments.unnamed");
+  return { heading: t("documents.page.assessments.levelsHeading", { title }), save: t("documents.page.assessments.levelsSaveNamed", { title }) };
+});
 const shut = computed(() => closed.value ?? props.closedBy);
 const mode = computed(() => {
   if (shut.value && dirty.value) return "closed";
@@ -165,7 +174,7 @@ async function submit(): Promise<void> {
 <template>
   <section v-if="kinds.length" class="value-section" :aria-labelledby="`${sid}-heading`">
     <h3 v-if="named === null" :id="`${sid}-heading`">{{ t("documents.tree.values.heading") }}</h3>
-    <h4 v-else :id="`${sid}-heading`">{{ t("documents.page.scope.valuesHeading", { title: named }) }}</h4>
+    <h4 v-else :id="`${sid}-heading`">{{ named.heading }}</h4>
     <dl v-if="texts.length" class="facts value-section__texts">
       <template v-for="text in texts" :key="text.key">
         <dt>{{ text.label }}</dt>
@@ -221,7 +230,7 @@ async function submit(): Promise<void> {
           ref="submitButton"
           type="submit"
           class="btn primary value-section__save"
-          :aria-label="named === null ? undefined : t('documents.page.scope.valuesSaveNamed', { title: named })"
+          :aria-label="named?.save"
           :aria-disabled="saving || undefined"
         >
           {{ t("documents.tree.values.save") }}

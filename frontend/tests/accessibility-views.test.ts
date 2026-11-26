@@ -13,6 +13,7 @@ import { t } from "@/i18n/de";
 import { router } from "@/router";
 import { clearSession, setSession } from "@/session";
 
+import { ASSESSMENT_FORM, assessmentsOf, examWithPart } from "./assessmentFixtures";
 import { describeViolations, pageViolations } from "./axe";
 import { block, blockPage, conversion, table } from "./conversions";
 import { CV, LABELS, REGION, cueDecision, newTerm, nodeType, reviewCue, termDecision } from "./lexiconFixtures";
@@ -409,6 +410,7 @@ describe("accessibility of the pages", () => {
     vi.spyOn(api, "getSource").mockResolvedValue(detail());
     vi.spyOn(api, "listDocuments").mockResolvedValue([]);
     vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+    vi.spyOn(api, "getAssessments").mockResolvedValue(assessmentsOf());
     vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
     vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [] }));
     vi.spyOn(api, "setSpecificationValues").mockRejectedValue(
@@ -436,6 +438,7 @@ describe("accessibility of the pages", () => {
     vi.spyOn(api, "getSource").mockResolvedValue(detail());
     vi.spyOn(api, "listDocuments").mockResolvedValue([]);
     vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [] }));
+    vi.spyOn(api, "getAssessments").mockResolvedValue(assessmentsOf());
     vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
     vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [ruleOf(), ruleOf({ id: "r2", kind: "prerequisite" })] }));
     const wrapper = await show("/dokumente/d1");
@@ -444,6 +447,35 @@ describe("accessibility of the pages", () => {
     await wrapper.get("form.rule-new").trigger("submit");
     await flushPromises();
     expect(wrapper.find("form.rule-new .field__error").exists()).toBe(true);
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
+  it("the document's page with its assessments, one's form open with a problem at its parent, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    vi.spyOn(api, "getUnits").mockResolvedValue([]);
+    vi.spyOn(api, "getFindings").mockResolvedValue({ counts: { violation: 0, warning: 0, info: 0 }, findings: [], truncated: false, repairable: [] });
+    vi.spyOn(api, "getSource").mockResolvedValue(detail());
+    vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+    vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
+    vi.spyOn(api, "getAssessments").mockResolvedValue(assessmentsOf({ assessments: examWithPart() }));
+    vi.spyOn(api, "getForm").mockResolvedValue(ASSESSMENT_FORM);
+    vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [] }));
+    vi.spyOn(api, "editAssessment").mockRejectedValue(
+      new api.ApiError("server", 422, "invalid_field", "No.", { field: "parent_id", problem: "cycle" }),
+    );
+    const wrapper = await show("/dokumente/d1");
+    const edit = wrapper.findAll("button").find((button) => button.attributes("aria-label") === "Bearbeiten: Teil 1");
+    await edit?.trigger("click");
+    await wrapper.get(".assessment-form input[type=text]").setValue("Teil 1a");
+    await wrapper.get(".assessment-form").trigger("submit");
+    await flushPromises();
+    expect(wrapper.find(".assessment-form .field__error").exists()).toBe(true);
 
     const found = await pageViolations();
 

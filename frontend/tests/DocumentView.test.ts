@@ -13,6 +13,7 @@ import DocumentEdition from "@/components/DocumentEdition.vue";
 import RevisionNotice from "@/components/RevisionNotice.vue";
 import DocumentView from "@/views/DocumentView.vue";
 
+import { assessmentsOf } from "./assessmentFixtures";
 import { violations } from "./axe";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
@@ -84,6 +85,7 @@ beforeEach(() => {
   vi.spyOn(api, "getSource").mockResolvedValue(detail());
   vi.spyOn(api, "listDocuments").mockResolvedValue([]);
   vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
+  vi.spyOn(api, "getAssessments").mockResolvedValue(assessmentsOf());
   vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
   vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [] }));
 });
@@ -152,7 +154,7 @@ describe("a document's page", () => {
 
   // a fragment link is a move to the router: the tab lost the document's name (UI review 1, findings 4 and 9)
   it.each([
-    ["an editor's extracted document", {}, ["document-units", "document-scope", "document-freeze"], ["document-mem", "document-export"]],
+    ["an editor's extracted document", {}, ["document-units", "document-scope", "document-assessments", "document-freeze"], ["document-mem", "document-export"]],
     [
       "an editor's MEM import",
       { mem: { plan_iri: "https://w3id.org/p/1", attribution: "MEM-Schule", licence: null } },
@@ -332,6 +334,7 @@ describe("a document's page", () => {
       "document-edition",
       "document-scope",
       "document-rules",
+      "document-assessments",
       "document-extraction",
       "document-units",
       "document-findings",
@@ -1377,5 +1380,29 @@ describe("a document's page with a draft of its applicability", () => {
 
     expect(wrapper.find("[role=dialog]").exists()).toBe(false);
     expect(router.currentRoute.value.name).toBe("sources");
+  });
+});
+
+describe("a document's page with a draft of an assessment", () => {
+  afterEach(() => api.clearToken());
+
+  it("asks before the draft goes with the page, in the assessments' words", async () => {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    await router.push("/dokumente/d1");
+    shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
+    await flushPromises();
+    const add = shown.findAll("button").find((one) => one.text() === t("documents.page.assessments.add"));
+    await add?.trigger("click");
+    await shown.get(".assessment-form input[type=text]").setValue("Noch nicht gespeichert");
+
+    void router.push("/quellen");
+    await flushPromises();
+
+    expect(shown.get("[role=dialog]").text()).toContain(t("documents.page.assessments.leave"));
+    await shown.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.cancel"))?.trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.name).toBe("document");
   });
 });
