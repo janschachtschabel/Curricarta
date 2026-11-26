@@ -118,7 +118,7 @@ afterEach(() => {
 describe("a node's placements as they read", () => {
   it("names each where it is, at which node, how binding and with what weight", async () => {
     const wrapper = section(
-      [placement("p1", { in_node_id: "b1", grade_weight: 1.5 }), placement("p2", { specification_id: null, variant_id: "v1", obligation: ELECTIVE })],
+      [placement("p1", { in_node_id: "b1", grade_weight: 1.5 }), placement("p2", { position: 2, specification_id: null, variant_id: "v1", obligation: ELECTIVE })],
       { editable: false },
     );
 
@@ -128,9 +128,10 @@ describe("a node's placements as they read", () => {
       "Bachelor Mathematik – Schwerpunkt Statistik · Wahl",
     ]);
     // each with its time and workload there, under its own heading; nothing to change where the tree only reads
+    // named by their place among the node's and where they are, as the form above names its entries
     expect(wrapper.findAll("h4").map((one) => one.text())).toEqual([
-      "Zeit und Umfang: Bachelor Mathematik",
-      "Zeit und Umfang: Bachelor Mathematik – Schwerpunkt Statistik",
+      "Zeit und Umfang: Verwendung 1: Bachelor Mathematik · an B Pflichtbereich",
+      "Zeit und Umfang: Verwendung 2: Bachelor Mathematik – Schwerpunkt Statistik",
     ]);
     expect(wrapper.find("form").exists()).toBe(false);
     expect(await violations(wrapper.html())).toEqual([]);
@@ -259,5 +260,98 @@ describe("a node's placements in their form", () => {
 
     const save_ = wrapper.get(".node-placements__save");
     expect(save_.attributes("aria-label")?.startsWith(save_.text())).toBe(true);
+  });
+
+  it("names each placement's values with its place and where it is, heading and button", () => {
+    const wrapper = section([placement("p1"), placement("p2", { position: 2, in_node_id: "b1" })]);
+
+    const sections = wrapper.findAll(".value-section");
+    expect(sections.map((one) => one.get("h4").text())).toEqual([
+      "Zeit und Umfang: Verwendung 1: Bachelor Mathematik",
+      "Zeit und Umfang: Verwendung 2: Bachelor Mathematik · an B Pflichtbereich",
+    ]);
+    expect(sections[1]?.get("button[type=submit]").attributes("aria-label")).toBe(
+      "Werte speichern: Verwendung 2: Bachelor Mathematik · an B Pflichtbereich",
+    );
+  });
+
+  it("lets go of the variant where the specification chosen does not hold it, and keeps one it holds", async () => {
+    const set = vi.spyOn(api, "setNodePlacements").mockResolvedValue(answered([], 5));
+    const wrapper = section([placement("p1", { variant_id: "v1" }), placement("p2", { position: 2, specification_id: null, variant_id: "v1" })]);
+
+    await select(wrapper, 1, "Spezifikation").setValue("ma");
+    await select(wrapper, 2, "Spezifikation").setValue("ba");
+    await save(wrapper);
+
+    expect(set).toHaveBeenCalledWith("m1", 4, [
+      expect.objectContaining({ id: "p1", specification_id: "ma", variant_id: null }),
+      expect.objectContaining({ id: "p2", specification_id: "ba", variant_id: "v1" }),
+    ]);
+  });
+
+  it("names each place by its path in the outline, an untitled node by its position", () => {
+    const nodes = [
+      node_("m1", { revision: 4, fields: { original_title: "Analysis", code: "M 1" } }),
+      node_("b1", { position: 2, fields: { original_title: "Pflichtbereich", code: "B" }, children: [
+        node_("c1", { fields: { original_title: null, code: null } }),
+        node_("c2", { position: 2, fields: { original_title: null, code: null } }),
+      ] }),
+    ];
+    const row = rowsOf(nodes).get("node:m1") as Row;
+    shown = mount(NodePlacements, {
+      props: { row, tree: tree_(nodes, { specifications: SPECIFICATIONS }), form: formWithObligations(), documentId: "d1",
+               editable: true, reviewable: false, closedBy: null },
+      attachTo: document.body,
+    });
+    const wrapper = shown;
+
+    return button(wrapper, "Verwendung hinzufügen").trigger("click").then(() => {
+      const labels = select(wrapper, 1, "An Stelle").findAll("option").map((one) => one.text());
+      expect(labels).toEqual(["keine", "B Pflichtbereich", "B Pflichtbereich › ohne Titel (Stelle 1)", "B Pflichtbereich › ohne Titel (Stelle 2)"]);
+    });
+  });
+
+  it("goes on from the node's revision a set of a placement's values counted, without a refusal", async () => {
+    const node = answered([placement("p1")], 5);
+    vi.spyOn(api, "setPlacementValues").mockResolvedValue({ ...placement("p1", { revision: 2 }), node_revision: 5 });
+    const set = vi.spyOn(api, "setNodePlacements").mockResolvedValue(node);
+    const wrapper = section([placement("p1")]);
+    await select(wrapper, 1, "Notengewicht").setValue("2");
+
+    const values = wrapper.get(".value-section");
+    await values.findAll("button").find((one) => one.text() === "Zeitraum hinzufügen")?.trigger("click");
+    await values.get("select").setValue(CV + "time_semester");
+    (values.get("button[type=submit]").element as HTMLElement).focus();
+    await values.get("form").trigger("submit");
+    await flushPromises();
+    await save(wrapper);
+
+    expect(set).toHaveBeenCalledWith("m1", 5, [expect.objectContaining({ id: "p1", grade_weight: 2 })]);
+  });
+
+  it("keeps the draft to copy where the tree closed on this save, the keyboard at the notice", async () => {
+    vi.spyOn(api, "setNodePlacements").mockRejectedValue(new ApiError("server", 409, "frozen", "Frozen."));
+    const wrapper = section([placement("p1")]);
+    await select(wrapper, 1, "Verbindlichkeit (Pflichtfeld)").setValue(ELECTIVE);
+
+    await save(wrapper);
+
+    expect(document.activeElement).toBe(wrapper.get(".node-placements__closed").element);
+    expect(wrapper.get(".node-placements__closed").text()).toContain("Bachelor Mathematik · Wahl");
+    expect(wrapper.emitted("closed")).toEqual([["frozen"]]);
+  });
+
+  it("tells the panel where the node is gone, and says any other failure above the form", async () => {
+    const set = vi.spyOn(api, "setNodePlacements").mockRejectedValueOnce(new ApiError("server", 404, "no_node", "Gone."));
+    const wrapper = section([placement("p1")]);
+    await select(wrapper, 1, "Notengewicht").setValue("2");
+
+    await save(wrapper);
+    expect(wrapper.emitted("gone")).toHaveLength(1);
+
+    set.mockRejectedValueOnce(new Error("network"));
+    await save(wrapper);
+    expect(wrapper.get(".node-placements__problem").text()).toContain(t("documents.tree.placements.saveFailed"));
+    expect(await violations(wrapper.html())).toEqual([]);
   });
 });

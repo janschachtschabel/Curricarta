@@ -1231,6 +1231,7 @@ export const messages = {
         anchor: "Anker",
         variant: "Variante",
         assessment: "Prüfung", // plan M3a J; a level at one named with it, as at any holder
+        placement: "Verwendung", // plan M3a K: named by the node it places, to which it leads
         // the second layer's values, each named with the row that holds it (valueAt)
         level_assignment: "Niveauzuordnung",
         time_span: "Zeitraum",
@@ -2225,7 +2226,8 @@ export const messages = {
           grade_weight: "Notengewicht",
         },
         hints: {
-          specification_id: "Wähle eine Spezifikation, eine Variante oder beides.",
+          specification_id:
+            "Wähle eine Spezifikation, eine Variante oder beides. Nenne bei einer Variante auch ihre Spezifikation: Nur dann zählt die Prüfung der Leistungspunkte je Semester die Verwendung mit.",
           variant_id: "Eine Variante der Spezifikation, etwa ein Schwerpunkt.",
           in_node_id: "Wo im Plan der Abschnitt steht, etwa in einem Pflichtbereich. Lass das Feld leer, wenn das Dokument keine Stelle nennt.",
           obligation: "Wie verbindlich der Abschnitt dort ist.",
@@ -2254,6 +2256,10 @@ export const messages = {
         retired: "{value} (wird nicht mehr angeboten)",
         unknownPlace: "eine Stelle, die es nicht mehr gibt",
         untitled: "ohne Titel",
+        // a node without code and title, told apart from its siblings by its position
+        untitledAt: "ohne Titel (Stelle {position})",
+        // a placement's values named by its place among the node's and where it is (ValueSection.vue)
+        named: "Verwendung {place}: {where}",
         // a placement's time spans and workloads, under it (ValueSection.vue): its visible words first
         valuesHeading: "Zeit und Umfang: {title}",
         valuesSaveNamed: "Werte speichern: {title}",

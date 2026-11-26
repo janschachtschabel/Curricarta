@@ -79,5 +79,13 @@ export function usePlacementSave(node: Ref<NodeRow | null>) {
     return { outcome: "failed" };
   }
 
-  return { entries, saving, failure, closed, dirty, save };
+  /**
+   * The node's revision `revision` that a set of one of its placements' values counted: where it is the next after
+   * the one the entries are on, they go on from it - nothing else changed meanwhile.
+   */
+  function moved(revision: number): void {
+    if (base.value && base.value.revision === revision - 1) base.value = { ...base.value, revision };
+  }
+
+  return { entries, saving, failure, closed, dirty, save, moved };
 }

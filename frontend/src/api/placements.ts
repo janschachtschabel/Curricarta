@@ -51,9 +51,17 @@ export function setNodePlacements(id: string, revision: number, placements: Plac
   });
 }
 
-/** Set a placement's time spans and workloads as a node's values (setNodeValues); the placement as it then stands. */
-export function setPlacementValues(id: string, revision: number, values: ValuesIn): Promise<Placement> {
-  return apiFetch<Placement>(`/api/v1/placements/${encodeURIComponent(id)}/values`, {
+/** A placement as a set of its values answers it: with its node's revision, which that set counted too. */
+export interface PlacedPlacement extends Placement {
+  node_revision: number;
+}
+
+/**
+ * Set a placement's time spans and workloads as a node's values (setNodeValues); the placement as it then stands, with
+ * its node's revision - the token of the node's next set of its placements.
+ */
+export function setPlacementValues(id: string, revision: number, values: ValuesIn): Promise<PlacedPlacement> {
+  return apiFetch<PlacedPlacement>(`/api/v1/placements/${encodeURIComponent(id)}/values`, {
     method: "PUT",
     body: JSON.stringify({ expected_revision: revision, ...values }),
   });

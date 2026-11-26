@@ -110,7 +110,7 @@ describe("an entry of a row's values on a narrow screen", () => {
     expect(narrowRule(file, ".placement-item__fields")).toMatch(/grid-template-columns:\s*minmax\(0, 1fr\)/);
     const item = cssRules(stylesOf(source(file)));
     expect(item.find(({ selectors }) => selectors.includes(".placement-item select"))?.body).toMatch(/max-inline-size:\s*100%/);
-    const section = cssRules(stylesOf(source("components/NodePlacements.vue")));
+    const section = cssRules(stylesOf(source("components/PlacementList.vue")));
     expect(section.find(({ selectors }) => selectors.includes(".node-placements__list li"))?.body).toMatch(/overflow-wrap:\s*anywhere/);
   });
 

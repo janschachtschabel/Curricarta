@@ -104,14 +104,33 @@ export function variantChoices(specifications: readonly TreeSpecification[], spe
 /** The nodes of the outline a placement may be at, in the tree's order: every one but the placed node. */
 export function placeChoices(nodes: readonly TreeNode[], placed: string): Choice[] {
   const found: Choice[] = [];
-  const walk = (level: readonly TreeNode[]): void => {
+  // each by its path in the outline: its depth seen, an untitled one told apart by its position
+  const walk = (level: readonly TreeNode[], above: readonly string[]): void => {
     for (const node of level) {
-      if (node.id !== placed) found.push({ id: node.id, label: nodeLabel(node) });
-      walk(node.children);
+      const path = [...above, nodeLabel(node)];
+      if (node.id !== placed) found.push({ id: node.id, label: path.join(" › ") });
+      walk(node.children, path);
     }
   };
-  walk(nodes);
+  walk(nodes, []);
   return found;
+}
+
+/** The entry with its specification `specificationId`: a variant that specification does not hold let go. */
+export function inSpecification(entry: PlacementEntry, specificationId: string, specifications: readonly TreeSpecification[]): PlacementEntry {
+  const held = variantChoices(specifications, specificationId).some((one) => one.id === entry.variant_id);
+  return { ...entry, specification_id: specificationId, variant_id: held ? entry.variant_id : "" };
+}
+
+/** What a placement's values are named by: its place among the node's and where it is, at which node. */
+export function placementName(
+  placement: PlacementPlace & { position: number },
+  specifications: readonly TreeSpecification[],
+  nodes: readonly TreeNode[],
+): string {
+  const at = placement.in_node_id ? findNode(nodes, placement.in_node_id) : undefined;
+  const where = [placementTitle(placement, specifications), ...(at ? [t("documents.tree.placements.at", { node: nodeLabel(at) })] : [])];
+  return t("documents.tree.placements.named", { place: placement.position, where: where.join(" · ") });
 }
 
 /** The obligations the node's form offers; one an entry keeps though the list offers it no more, said so. */
@@ -175,7 +194,7 @@ function nodeLabel(node: TreeNode): string {
   const code = node.fields.code;
   const title = node.fields.original_title;
   const words = [typeof code === "string" ? code : "", typeof title === "string" ? title : ""].filter(Boolean).join(" ");
-  return words || t("documents.tree.placements.untitled");
+  return words || t("documents.tree.placements.untitledAt", { position: node.position });
 }
 
 function localName(iri: string): string {

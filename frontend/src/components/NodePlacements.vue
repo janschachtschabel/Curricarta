@@ -16,6 +16,7 @@ import AppIcon from "@/components/AppIcon.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import PlacementItemForm from "@/components/PlacementItemForm.vue";
+import PlacementList from "@/components/PlacementList.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import type { Row } from "@/documentTree";
 import { useFieldFaults } from "@/fieldFaults";
@@ -24,11 +25,12 @@ import { sayAnew } from "@/liveRegion";
 import {
   MOST_PLACEMENTS,
   entryPlace,
+  inSpecification,
   newEntry,
   obligationChoices,
   placeChoices,
+  placementName,
   placementStated,
-  placementTitle,
   placementWords,
   specificationChoices,
   variantChoices,
@@ -63,7 +65,7 @@ const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boole
 
 const sid = useId();
 const node = computed(() => (props.row.kind === "node" ? props.row.node : null));
-const { entries, saving, failure, closed, dirty: entriesDirty, save } = usePlacementSave(toRef(node));
+const { entries, saving, failure, closed, dirty: entriesDirty, save, moved } = usePlacementSave(toRef(node));
 const status = ref("");
 const submitButton = ref<HTMLElement | null>(null);
 const addButton = ref<HTMLElement | null>(null);
@@ -111,7 +113,13 @@ function statedOfEntry(id: string | null): string | null {
 }
 
 function holderOf(placement: Placement) {
-  return placementRow(placement, placementTitle(placement, props.tree.specifications));
+  return placementRow(placement, placementName(placement, props.tree.specifications, props.tree.nodes));
+}
+
+// a set of a placement's values counted the node's revision too: the entries go on from it
+function valuesSaved(answer: Holder): void {
+  if ("node_revision" in answer && typeof answer.node_revision === "number") moved(answer.node_revision);
+  props.onValuesSaved?.(answer);
 }
 
 function valueDirty(id: string, open: boolean): void {
@@ -136,7 +144,8 @@ async function remove(place: number): Promise<void> {
 }
 
 function change(place: number, entry: PlacementEntry): void {
-  entries.value = entries.value.map((one, at) => (at === place ? entry : one));
+  const fitted = inSpecification(entry, entry.specification_id, props.tree.specifications);
+  entries.value = entries.value.map((one, at) => (at === place ? fitted : one));
 }
 
 async function submit(): Promise<void> {
@@ -216,17 +225,7 @@ async function submit(): Promise<void> {
       </form>
     </template>
 
-    <template v-else>
-      <p v-if="!stored.length" class="node-placements__none">
-        {{ specifications.length ? t("documents.tree.placements.none") : t("documents.tree.placements.noPlaces") }}
-      </p>
-      <ul v-else class="node-placements__list">
-        <li v-for="placement in stored" :key="placement.id">
-          <span class="node-placements__words"><bdi>{{ wordsOf(placement) }}</bdi></span>
-          <span class="node-placements__stated">{{ placementStated(placement) }}</span>
-        </li>
-      </ul>
-    </template>
+    <PlacementList v-else :placements="stored" :tree="tree" :form="form" />
 
     <ValueSection
       v-for="placement in stored"
@@ -237,7 +236,7 @@ async function submit(): Promise<void> {
       :editable="editable"
       :reviewable="reviewable"
       :closed-by="closedBy"
-      :on-saved="onValuesSaved"
+      :on-saved="valuesSaved"
       :on-reviewed="onReviewed"
       @closed="(code) => emit('closed', code)"
       @gone="emit('gone')"
@@ -275,20 +274,8 @@ async function submit(): Promise<void> {
   justify-self: start;
 }
 
-.node-placements__list {
-  display: grid;
-  gap: var(--space-1);
-  margin: 0;
-  padding-inline-start: var(--space-3);
-}
-
-.node-placements__list li,
 .node-placements__closed li {
   overflow-wrap: anywhere;
-}
-
-.node-placements__words {
-  display: block;
 }
 
 .node-placements__closed {

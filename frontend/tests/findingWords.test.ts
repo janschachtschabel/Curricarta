@@ -30,13 +30,13 @@ function backendRules(code: string): string[] {
 
 /** A finding's focus: a row of its own, no holder. */
 function at(kind: string, id: string, label: string | null): DocumentFinding["focus"] {
-  return { kind, id, label, holder_kind: null, holder_id: null };
+  return { kind, id, label, holder_kind: null, holder_id: null, placed_node_id: null };
 }
 
 /** A finding on a value, the value's holder named - none where the value is no longer there. */
 function onValue(kind: string, holder: [string, string, string | null] | null): DocumentFinding {
   const [holderKind, holderId, label] = holder ?? [null, null, null];
-  return finding({ focus: { kind, id: "v1", label, holder_kind: holderKind, holder_id: holderId } });
+  return finding({ focus: { kind, id: "v1", label, holder_kind: holderKind, holder_id: holderId, placed_node_id: null } });
 }
 
 function finding(changes: Partial<DocumentFinding> = {}): DocumentFinding {
@@ -44,7 +44,7 @@ function finding(changes: Partial<DocumentFinding> = {}): DocumentFinding {
     rule: "x5.wording_not_found",
     severity: "violation",
     stage: "X5",
-    focus: { kind: "statement", id: "s1", label: "Die Lernenden messen.", holder_kind: null, holder_id: null },
+    focus: { kind: "statement", id: "s1", label: "Die Lernenden messen.", holder_kind: null, holder_id: null, placed_node_id: null },
     path: null,
     message: "the wording is not in the blocks its anchor names",
     message_lang: null,
@@ -132,6 +132,24 @@ describe("a finding in words", () => {
     );
     // no row of the tree to lead to
     expect(findingRow(finding({ focus: at("assessment", "a1", "Abschlussprüfung") }))).toBeNull();
+  });
+
+  it("names a placement by the node it places, a value at one with it, and leads both to that node (plan M3a K)", () => {
+    const kinds = messages.documents.findings.kinds;
+    const placement = finding({ focus: { ...at("placement", "p1", "Analysis I"), placed_node_id: "m1" } });
+    const semester = finding({
+      focus: { kind: "time_span", id: "t1", label: "Analysis I", holder_kind: "placement", holder_id: "p1", placed_node_id: "m1" },
+    });
+
+    expect(focusText(placement)).toBe(t("documents.findings.about", { kind: kinds.placement, label: isolate("Analysis I") }));
+    expect(focusText(semester)).toBe(
+      t("documents.findings.valueAt", {
+        value: kinds.time_span,
+        holder: t("documents.findings.about", { kind: kinds.placement, label: isolate("Analysis I") }),
+      }),
+    );
+    expect(findingRow(placement)).toBe("node:m1");
+    expect(findingRow(semester)).toBe("node:m1");
   });
 
   it("says a statement no longer there is gone: why it alone has no row to lead to", () => {

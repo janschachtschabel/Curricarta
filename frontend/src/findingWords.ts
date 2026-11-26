@@ -63,8 +63,9 @@ export function focusText(finding: DocumentFinding): string {
 /** The tree's row a finding is about: a node's or a statement's - a value's holder's -; none for what has no
  * row (an anchor, the document, a specification's value, a value gone …). */
 export function findingRow(finding: DocumentFinding): RowKey | null {
-  const { kind, id, holder_kind: holderKind, holder_id: holderId } = finding.focus;
+  const { kind, id, holder_kind: holderKind, holder_id: holderId, placed_node_id: placed } = finding.focus;
   if (goneStatement(finding)) return null; // no row to lead to
+  if (placed) return `node:${placed}`; // a placement's, or a value's at one: its node's (plan M3a K)
   const [rowKind, rowId] = VALUE_KINDS.has(kind) ? [holderKind, holderId] : [kind, id];
   return (rowKind === "node" || rowKind === "statement") && rowId !== null ? `${rowKind}:${rowId}` : null;
 }
