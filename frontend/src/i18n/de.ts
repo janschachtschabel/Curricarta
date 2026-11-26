@@ -1685,7 +1685,7 @@ export const messages = {
         },
         hints: {
           parent_id: "Die Spezifikation, der Abschnitt der Gliederung oder die Prüfung, deren Teil sie ist.",
-          assessment_kind: "Prüfung, Prüfungsteil, Prüfungsbereich, Modulprüfung, Studienleistung …",
+          assessment_kind: "Die Art aus der Liste der Prüfungsarten.",
           label: "Wie das Dokument sie nennt, etwa „Abschlussprüfung Teil 1“.",
           duration_minutes: "Eine ganze Zahl, wie das Dokument sie nennt.",
           weight_percent: "Der Anteil an der Prüfung, deren Teil sie ist: eine Zahl von 0 bis 100, etwa 37,5.",
@@ -1699,7 +1699,10 @@ export const messages = {
         problems: {
           not_whole: "Hier gehört eine ganze Zahl ab 0 hin.",
           not_weight: "Hier gehört eine Zahl von 0 bis 100 hin, etwa 37,5.",
+          too_many_targets: "Wähle höchstens {most} {most|Abschnitt|Abschnitte}.",
         },
+        // a kind the assessment keeps though the list offers it no more
+        retiredKind: "{kind} (wird nicht mehr angeboten)",
         save: "Speichern",
         saveNamed: "Speichern: {title}",
         cancel: "Abbrechen",
@@ -1711,7 +1714,8 @@ export const messages = {
         fieldProblem: "{field}: {problem}",
         // the levels at one assessment in their form (ValueSection.vue)
         levelsHeading: "Niveaus von „{title}“",
-        levelsSaveNamed: "Niveaus speichern: {title}",
+        // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
+        levelsSaveNamed: "Werte speichern: {title}",
         formFailed: "Die Niveaus lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
         // leaving the page with a draft of an assessment or of its levels (DocumentView.vue)
         leave: "Deine Änderungen an den Prüfungen sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",

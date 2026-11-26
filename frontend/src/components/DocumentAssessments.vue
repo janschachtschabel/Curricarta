@@ -5,7 +5,7 @@
  * document's owner and the editors add one, edit one, add a part of one and take one away with its parts while the
  * document is open - one form at a time (AssessmentForm), a taking away asked first -, and set the levels at one as a
  * whole (ValueSection); saved, added, taken away, the list is read again, and the keyboard, where nothing holds it,
- * goes to the section's heading. A draft of levels the document closed under stays, in words, to copy; a draft open in
+ * goes to the section's heading; a form opened takes it, cancelled gives it back to the button that opened it. A draft of levels the document closed under stays, in words, to copy; a draft open in
  * a form the section tells the page (`dirty`, its leave guard). Closed, or another's, the section says why it is to
  * read only. Read as sectionReading.ts reads: loading, a failure with a retry, content no longer the reader's said
  * apart; read again as the page's extraction moves on (`refresh`).
@@ -89,9 +89,16 @@ async function reload(): Promise<void> {
   if (focusIsFree()) heading.value?.focus();
 }
 
-function close(): void {
+/** Close the open form; cancelled, the keyboard back to the button that opened it, else to the heading. */
+async function close(cancelled = false): Promise<void> {
+  const was = opened.value;
   opened.value = null;
   draft("form", false);
+  if (!cancelled || !was) return;
+  await nextTick();
+  const key = was.mode === "add" ? "add" : `${was.mode}:${was.id}`;
+  const opener = heading.value?.closest("section")?.querySelector<HTMLElement>(`[data-opener="${key}"]`);
+  (opener ?? heading.value)?.focus();
 }
 
 const actions: ItemActions = {
@@ -103,12 +110,12 @@ const actions: ItemActions = {
     dropping.value = assessment;
   },
   saved: (_assessment, added) => {
-    close();
+    void close();
     say(t(added ? "documents.page.assessments.added" : "documents.page.assessments.saved"));
     void reload();
   },
   changed: () => void load(),
-  cancel: () => close(),
+  cancel: () => void close(true),
   dirty: draft,
   valuesSaved: () => void load(),
   gone: () => {
@@ -164,9 +171,9 @@ watch(() => props.refresh, () => void load());
       </ul>
       <template v-if="editable">
         <AssessmentForm v-if="opened?.mode === 'add'" :document-id="documentId" :read="listed"
-          @saved="(saved) => actions.saved(saved, true)" @changed="actions.changed()" @cancel="close()"
+          @saved="(saved) => actions.saved(saved, true)" @changed="actions.changed()" @cancel="close(true)"
           @dirty="(open) => draft('form', open)" />
-        <button v-else-if="opened === null" type="button" class="btn secondary assessments__add" @click="opened = { mode: 'add', id: null }">
+        <button v-else-if="opened === null" type="button" class="btn secondary assessments__add" data-opener="add" @click="opened = { mode: 'add', id: null }">
           {{ t("documents.page.assessments.add") }}
         </button>
       </template>

@@ -6,15 +6,15 @@
  * name, duration in whole minutes and weight in percent written the German way, whether it is graded, and the nodes
  * it assesses (with what it assesses beside them, kept): as assessmentDraft.ts writes and checks them. A field's problem stands at its field,
  * the entry kept; changed meanwhile, the assessment as it stands is shown and said, the entry kept for a second try; a
- * document closed meanwhile has the section read again (`changed`). It tells the section whether a change is open
- * (`dirty`, the leave guard).
+ * document closed meanwhile has the section read again (`changed`). Opened, it takes the keyboard to its heading. It
+ * tells the section whether a change is open (`dirty`, the leave guard).
  */
-import { computed, onBeforeUnmount, ref, useId, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
 
 import { ApiError, addAssessment, editAssessment, type Assessment, type Assessments } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import NoticeText from "@/components/NoticeText.vue";
-import { FIELDS, changedFields, draftOf, fieldsOf, parentsOf, targetsOf, type Field } from "@/assessmentDraft";
+import { FIELDS, changedFields, draftOf, fieldsOf, kindsOf, parentsOf, targetsOf, type Field } from "@/assessmentDraft";
 import { assessmentTitle } from "@/assessmentWords";
 import { useFieldFaults } from "@/fieldFaults";
 import { messages, t } from "@/i18n/de";
@@ -45,6 +45,7 @@ const busy = ref(false);
 const status = ref("");
 const failure = ref<Notice | null>(null);
 const submit = ref<HTMLElement | null>(null);
+const headingRef = ref<HTMLElement | null>(null);
 // each field's label and hint, by its key
 const labels: Readonly<Record<Field, string>> = messages.documents.page.assessments.fields;
 const hints: Readonly<Record<Field, string>> = messages.documents.page.assessments.hints;
@@ -56,6 +57,7 @@ const heading = computed(() => {
 });
 const parents = computed(() => parentsOf(props.read, base.value));
 const targets = computed(() => targetsOf(props.read, base.value));
+const kinds = computed(() => kindsOf(props.read, base.value));
 
 watch(
   () => props.assessment,
@@ -78,6 +80,8 @@ function describedBy(field: Field): string {
 
 const dirty = computed(() => JSON.stringify(draft.value) !== JSON.stringify(start));
 watch(dirty, (open) => emit("dirty", open), { immediate: true });
+// the button that opened it goes while it is open: the keyboard comes here, its heading naming it
+onMounted(() => headingRef.value?.focus());
 onBeforeUnmount(() => emit("dirty", false));
 
 async function onSubmit(): Promise<void> {
@@ -127,7 +131,8 @@ async function refused(error: unknown): Promise<void> {
 
 <template>
   <form class="assessment-form" novalidate @submit.prevent="onSubmit">
-    <h4>{{ heading }}</h4>
+    <!-- tabindex -1: where the keyboard goes as the form opens -->
+    <h4 ref="headingRef" tabindex="-1">{{ heading }}</h4>
     <div class="field">
       <label :for="`${id}-parent_id`">{{ labels.parent_id }}</label>
       <select :id="`${id}-parent_id`" v-model="draft.parent_id" aria-required="true" :aria-invalid="faults.parent_id !== undefined || undefined"
@@ -145,7 +150,7 @@ async function refused(error: unknown): Promise<void> {
       <select :id="`${id}-assessment_kind`" v-model="draft.assessment_kind" aria-required="true"
         :aria-invalid="faults.assessment_kind !== undefined || undefined" :aria-describedby="describedBy('assessment_kind')">
         <option value="">{{ t("documents.page.assessments.choose") }}</option>
-        <option v-for="kind in read.kinds" :key="kind.iri" :value="kind.iri">{{ kind.label }}</option>
+        <option v-for="kind in kinds" :key="kind.id" :value="kind.id">{{ kind.label }}</option>
       </select>
       <p v-if="faults.assessment_kind !== undefined" :id="`${id}-assessment_kind-error`" class="field__error">
         <AppIcon name="warning" /> {{ faults.assessment_kind }}

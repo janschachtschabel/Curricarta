@@ -105,6 +105,8 @@ describe("an assessment the editors write", () => {
     const wrapper = await open();
     await button(wrapper, t("documents.page.assessments.add")).trigger("click");
 
+    // pressed at its button, which holds the keyboard: the keyboard goes to the first field with a problem
+    (wrapper.get("form.assessment-form button[type=submit]").element as HTMLElement).focus();
     await wrapper.get("form").trigger("submit");
     await flushPromises();
     expect(control(wrapper, fields).attributes("aria-invalid")).toBe("true");
@@ -225,5 +227,46 @@ describe("an assessment the editors write", () => {
     expect(set).toHaveBeenCalledWith("a1", 1, expect.objectContaining({
       level_assignments: [expect.objectContaining({ level: LVL + "grade-2" })], time_spans: [], workloads: [],
     }));
+  });
+});
+
+describe("the keyboard in the section", () => {
+  it("goes to a form as it opens, and back to the button that opened it as it is cancelled", async () => {
+    const wrapper = await open();
+    const cancel = () => wrapper.get("form.assessment-form").findAll("button").find((one) => one.text() === t("documents.page.assessments.cancel"));
+
+    for (const opener of [t("documents.page.assessments.add"), t("documents.page.assessments.editNamed", { title: "Teil 1" })]) {
+      button(wrapper, opener).element.focus();
+      await button(wrapper, opener).trigger("click");
+      await flushPromises();
+      expect(document.activeElement, opener).toBe(wrapper.get("form.assessment-form h4").element);
+
+      await cancel()?.trigger("click");
+      await flushPromises();
+      expect(wrapper.find("form.assessment-form").exists()).toBe(false);
+      expect(document.activeElement, opener).toBe(button(wrapper, opener).element);
+    }
+  });
+
+  it("names the levels' save button by its visible words first (WCAG 2.5.3)", async () => {
+    const wrapper = await open();
+
+    const save = wrapper.get(".value-section form button[type=submit]");
+    expect(save.attributes("aria-label")?.startsWith(save.text())).toBe(true);
+    expect(save.attributes("aria-label")).toContain("Abschlussprüfung");
+  });
+});
+
+describe("a kind retired since", () => {
+  it("stays offered at the assessment that keeps it, said to be offered no more", async () => {
+    const kept = assessmentOf({ assessment_kind: CV + "ak_retired" });
+    vi.mocked(api.getAssessments).mockResolvedValue(assessmentsOf({ assessments: [kept] }));
+    const wrapper = await open();
+    await button(wrapper, t("documents.page.assessments.editNamed", { title: "Abschlussprüfung" })).trigger("click");
+
+    const kind = control(wrapper, t("documents.page.assessments.fields.assessment_kind"));
+    expect(kind.element.value).toBe(CV + "ak_retired");
+    const option = kind.findAll("option").find((one) => one.attributes("value") === CV + "ak_retired");
+    expect(option?.text()).toBe(t("documents.page.assessments.retiredKind", { kind: "ak_retired" }));
   });
 });

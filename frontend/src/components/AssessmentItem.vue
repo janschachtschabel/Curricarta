@@ -61,11 +61,11 @@ const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.ope
       </dl>
       <div v-if="editable && opened === null" class="assessment__actions">
         <button type="button" class="btn btn-sm secondary" :aria-label="t('documents.page.assessments.editNamed', { title })"
-          @click="actions.open('edit', assessment.id)">
+          :data-opener="`edit:${assessment.id}`" @click="actions.open('edit', assessment.id)">
           {{ t("documents.page.assessments.edit") }}
         </button>
         <button type="button" class="btn btn-sm secondary" :aria-label="t('documents.page.assessments.addPartNamed', { title })"
-          @click="actions.open('part', assessment.id)">
+          :data-opener="`part:${assessment.id}`" @click="actions.open('part', assessment.id)">
           {{ t("documents.page.assessments.addPart") }}
         </button>
         <button type="button" class="btn btn-sm secondary danger" :aria-label="t('documents.page.assessments.dropNamed', { title })"

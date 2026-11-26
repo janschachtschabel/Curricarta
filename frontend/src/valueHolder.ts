@@ -43,7 +43,8 @@ export interface Holder {
 // one row for each specification or assessment read: a render of the section is no reading anew
 const ROWS = new WeakMap<Specification, SpecificationRow>();
 const ASSESSMENT_ROWS = new WeakMap<Assessment, AssessmentHolderRow>();
-// an assessment's class in the core, as a level rule's `unless` would name it (backend app/api/values.py)
+// an assessment's class in the core, passed as a specification's type is: no level rule reads it yet (none names it in
+// `unless`); it is there for one that will (backend app/api/values.py)
 const CUR = "https://w3id.org/wlo/curriculum/core#";
 const ASSESSMENT_TYPE = CUR + "Assessment";
 

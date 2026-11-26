@@ -3,14 +3,16 @@
 // them with the problems it would refuse, what an edit changed against where it began, and what it may be a part of
 // or assess: the specifications, the outline's nodes, the assessments but itself and its own parts.
 import type { Assessment, AssessmentFields, Assessments } from "@/api";
-import { assessmentTitle, partsOf, subtreeOf } from "@/assessmentWords";
+import { assessmentTitle, kindLabels, partsOf, subtreeOf } from "@/assessmentWords";
 import { t } from "@/i18n/de";
+import { conceptLabel } from "@/scopeWords";
 import { numberOf, written } from "@/valueNumbers";
 
 export type Field = keyof AssessmentFields;
 export const FIELDS: readonly Field[] = ["parent_id", "assessment_kind", "label", "duration_minutes", "weight_percent", "graded", "targets"];
 const WHOLE = /^\d{1,10}$/;
 const MOST_WHOLE = 2 ** 31 - 1; // the store's integer
+const MOST_TARGETS = 200; // of one assessment, as the server takes them (backend app/domain/assessments.py)
 
 export interface Draft {
   parent_id: string;
@@ -53,6 +55,9 @@ export function fieldsOf(value: Draft): [AssessmentFields, [Field, string][]] {
   if (value.weight_percent.trim() && (weight === null || weight > 100)) {
     problems.push(["weight_percent", t("documents.page.assessments.problems.not_weight")]);
   }
+  if (value.targets.length > MOST_TARGETS) {
+    problems.push(["targets", t("documents.page.assessments.problems.too_many_targets", { most: MOST_TARGETS })]);
+  }
   const fields: AssessmentFields = {
     parent_id: value.parent_id,
     assessment_kind: value.assessment_kind,
@@ -85,6 +90,14 @@ export function parentsOf(read: Assessments, kept: Assessment | undefined): { gr
     { group: "node", options: chosen("node") },
     { group: "assessment", options: assessments },
   ].filter((one) => one.options.length);
+}
+
+/** The kinds the list offers; a kind the assessment `kept` keeps though the list offers it no more, said so. */
+export function kindsOf(read: Assessments, kept: Assessment | undefined): Option[] {
+  const offered = read.kinds.map((kind) => ({ id: kind.iri, label: kind.label }));
+  if (!kept || offered.some((kind) => kind.id === kept.assessment_kind)) return offered;
+  const kind = conceptLabel(kept.assessment_kind, kindLabels(read));
+  return [...offered, { id: kept.assessment_kind, label: t("documents.page.assessments.retiredKind", { kind }) }];
 }
 
 /** What the assessment may assess: the outline's nodes, and a statement it assesses already, kept. */
