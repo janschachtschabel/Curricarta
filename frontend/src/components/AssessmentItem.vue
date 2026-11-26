@@ -4,8 +4,9 @@
  * each an item of its own: its name, its review status, what it states in words (assessmentWords.ts). Where the
  * section lets it be edited, the ways on from it - edit it, add a part of it, take it away -, the form the section
  * has open at it (AssessmentForm), and the levels at it in the values' form (ValueSection). To the editors, the
- * toggles of its review status, in a group named for it, and of each level's (plan M3a L). What it does the section
- * does (`actions`): one form is open in the section at a time.
+ * toggles of its review status, in a group named for it, and of each level's (plan M3a L); a rejected one says it
+ * leaves the export with its parts, each part that it goes with it. What it does the section does (`actions`): one
+ * form is open in the section at a time.
  */
 import { computed } from "vue";
 
@@ -33,6 +34,8 @@ const props = defineProps<{
   editable: boolean;
   /** The caller may set the review status of it and its levels now. */
   reviewable: boolean;
+  /** An assessment it is a part of is rejected: it leaves the export with that one (backend kern_assessments.py). */
+  underRejected?: boolean;
   /** The form the section has open: of which kind, at which assessment; none open. */
   opened: { mode: "add" | "edit" | "part"; id: string | null } | null;
   /** The values' forms holding a draft, by `values:<id>`: one stays where the document closes under it. */
@@ -50,6 +53,12 @@ const tone = computed(() => {
 });
 const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.opened.id === props.assessment.id;
 const row = computed(() => assessmentRow(props.assessment));
+const rejected = computed(() => statusOf(props.assessment.review_status) === "rejected");
+// why it is not in the export, beside its badge: as part of a rejected one, or rejected with parts that go with it
+const leftOut = computed(() => {
+  if (props.underRejected) return t("documents.page.assessments.partOfRejected");
+  return rejected.value && children.value.length ? t("documents.page.assessments.rejectedWithParts") : null;
+});
 </script>
 
 <template>
@@ -64,6 +73,7 @@ const row = computed(() => assessmentRow(props.assessment));
           <dd><bdi>{{ fact.words }}</bdi></dd>
         </template>
       </dl>
+      <p v-if="leftOut" class="assessment__export">{{ leftOut }}</p>
       <ReviewToggles
         v-if="reviewable"
         :row="row"
@@ -120,6 +130,7 @@ const row = computed(() => assessmentRow(props.assessment));
         :document-id="documentId"
         :editable="editable"
         :reviewable="reviewable"
+        :under-rejected="underRejected || rejected"
         :opened="opened"
         :drafting="drafting"
         :closed-by="closedBy"
@@ -141,8 +152,13 @@ const row = computed(() => assessmentRow(props.assessment));
 }
 
 .assessment__title,
-.assessment .facts {
+.assessment .facts,
+.assessment__export {
   margin: 0;
+}
+
+.assessment__export {
+  color: var(--text-muted);
 }
 
 .assessment__title bdi {

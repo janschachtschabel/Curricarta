@@ -1807,6 +1807,9 @@ export const messages = {
         // an assessment's own review status, set by the editors (AssessmentItem.vue)
         reviewLabel: "Prüfstand von „{title}“",
         reviewStale: "Die Prüfung „{title}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
+        // a rejected one, and a part of it, are left out of the Kern export with all their parts (kern_assessments.py)
+        rejectedWithParts: "Verworfen: Diese Prüfung geht mit ihren Teilen und deren Niveaus nicht in den Export.",
+        partOfRejected: "Nicht im Export: Die Prüfung, zu der dieser Teil gehört, ist verworfen.",
         // the form of one assessment, new or kept (AssessmentForm.vue)
         addHeading: "Neue Prüfung",
         addPartHeading: "Neuer Teil von „{title}“",

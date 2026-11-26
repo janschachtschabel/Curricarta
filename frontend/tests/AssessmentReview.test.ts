@@ -7,7 +7,7 @@ import DocumentAssessments from "@/components/DocumentAssessments.vue";
 import { t } from "@/i18n/de";
 import { clearSession, setSession } from "@/session";
 
-import { ASSESSMENT_FORM, assessmentsOf, examWithPart } from "./assessmentFixtures";
+import { ASSESSMENT_FORM, CV, assessmentsOf, examWithPart } from "./assessmentFixtures";
 import { violations } from "./axe";
 
 // The editors' review of an assessment and of the levels at it, on the document's section of them (plan M3a L): the
@@ -84,6 +84,24 @@ describe("an assessment's review on the page", () => {
     await flushPromises();
 
     expect(wrapper.get(".assessments__status").text()).toBe(t("documents.page.assessments.reviewStale", { title: "Abschlussprüfung" }));
+  });
+
+  it("says at a rejected one that it leaves the export with its parts, and at each part that it goes with it", async () => {
+    const [exam, part] = examWithPart();
+    if (!exam || !part) throw new Error("an exam with a part");
+    const rejected = { ...exam, review_status: CV + "rev_rejected" };
+    vi.mocked(api.getAssessments).mockResolvedValue(
+      assessmentsOf({ assessments: [rejected, { ...part, review_status: CV + "rev_confirmed" }] }),
+    );
+    const wrapper = await open();
+
+    const [top] = wrapper.findAll(".assessments__list > .assessment");
+    expect(top?.get(".assessment__body > .assessment__export").text()).toBe(t("documents.page.assessments.rejectedWithParts"));
+    expect(top?.get(".assessment__parts .assessment__export").text()).toBe(t("documents.page.assessments.partOfRejected"));
+    // where none is rejected, nothing is said
+    vi.mocked(api.getAssessments).mockResolvedValue(assessmentsOf({ assessments: examWithPart() }));
+    shown?.unmount();
+    expect((await open()).find(".assessment__export").exists()).toBe(false);
   });
 
   it("offers no review to one who is no editor", async () => {
