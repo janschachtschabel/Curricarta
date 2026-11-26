@@ -37,7 +37,9 @@ WORDS = (
 MIB = 1024 * 1024
 _ACCEPTED = {"origin_iri": CV + "orig_model", "review_status_iri": CV + "rev_accepted"}
 _UNSET = dict.fromkeys(("scope_share_iri", "extraction_depth_iri", "lead_in", "subkind_iri"))
-_PLACE = dict.fromkeys(("page_end", "printed_page", "match_score", "char_start", "char_end", "table_cell"))
+_PLACE = dict.fromkeys(
+    ("page_end", "printed_page", "match_score", "char_start", "char_end", "table_cell", "frame_part_id")
+)
 
 
 def _words(seed: int, count: int) -> str:

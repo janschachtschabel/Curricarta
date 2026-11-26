@@ -59,6 +59,7 @@ def under_frozen_names(draft: Graph, rows: KernRows) -> Graph:
     """The draft graph, each row's urn:uuid replaced by its stored IRI - an anchor's, the file's and a
     value's by a blank node of its own."""
     named = [rows.document, *rows.specifications, *rows.variants, *rows.nodes, *rows.statements]
+    named += [{"id": rule.id, "iri": rule.iri} for rule in rows.rules]
     names: dict[Node, Node] = {
         URIRef(f"urn:uuid:{row['id']}"): URIRef(row["iri"]) for row in [*named, *filter(None, [rows.work])]
     }

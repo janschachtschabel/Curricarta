@@ -145,7 +145,7 @@ def a_document(addressees: list[str]) -> KernRows:
         [{"id": uuid.uuid4(), "node_id": None, "statement_id": statement, "page_start": 1, "page_end": None,
           "printed_page": None, "quote": None, "match_kind_iri": None, "match_score": None,
           "char_start": None, "char_end": None, "table_cell": None, "section_path": None,
-          "blocks": ["p1-b2"]}],
+          "frame_part_id": None, "blocks": ["p1-b2"]}],
         work=None, file={"id": uuid.uuid4(), "sha256": "ab" * 32},
     )  # fmt: skip
 

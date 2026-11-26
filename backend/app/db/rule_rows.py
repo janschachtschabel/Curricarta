@@ -60,6 +60,40 @@ WHERE a.document_id = %(document)s AND f.part_kind = 'rules'
 ORDER BY a.id
 """
 
+# what a rule may name, by kind, each with what the editors know it by: the specifications by key, a
+# variant under its specification, the nodes from the top in their order; and the statements its rules link,
+# by their wording (a document's statements are too many to offer)
+_TARGETS = """
+WITH RECURSIVE tree (id, label, path) AS (
+    SELECT id, concat_ws(' ', code, original_title), ARRAY[position] FROM node
+    WHERE document_id = %(document)s AND parent_id IS NULL
+    UNION ALL
+    SELECT n.id, concat_ws(' ', n.code, n.original_title), t.path || n.position FROM node n
+    JOIN tree t ON n.document_id = %(document)s AND n.parent_id = t.id
+)
+SELECT id, kind, label FROM (
+    SELECT s.id, 'specification' AS kind, s.title AS label, 1 AS rank, ARRAY[0] AS path, s.key AS key
+    FROM specification s WHERE s.document_id = %(document)s
+    UNION ALL
+    SELECT v.id, 'variant', s.title || ': ' || v.label, 2, ARRAY[0], s.key || ' ' || v.key
+    FROM variant v JOIN specification s ON s.id = v.specification_id WHERE s.document_id = %(document)s
+    UNION ALL
+    SELECT id, 'node', label, 3, path, '' FROM tree
+) AS found
+ORDER BY rank, path, key COLLATE "C"
+"""
+_LINKED_STATEMENTS = """
+SELECT DISTINCT s.id, s.verbatim FROM rule_link l JOIN statement s ON s.id = l.statement_id
+WHERE l.document_id = %(document)s
+"""
+
+
+@dataclass(frozen=True)
+class Target:
+    id: UUID
+    kind: TargetKind
+    label: str
+
 
 @dataclass(frozen=True)
 class Link:
@@ -177,3 +211,16 @@ def _number(value: Any) -> Decimal | None:
     if isinstance(value, bool) or not isinstance(value, int | float) or not math.isfinite(value):
         return None
     return Decimal(str(value))
+
+
+async def targets_of(
+    connection: psycopg.AsyncConnection, document_id: UUID
+) -> tuple[list[Target], dict[UUID, str]]:
+    """What the document's rules may name - its specifications, their variants and its nodes, in that order -,
+    and the wording of each statement its rules link."""
+    async with connection.cursor() as cursor:
+        await cursor.execute(_TARGETS, {"document": document_id})
+        targets = [Target(*found) for found in await cursor.fetchall()]
+        await cursor.execute(_LINKED_STATEMENTS, {"document": document_id})
+        said: dict[UUID, str] = dict(await cursor.fetchall())
+    return targets, said

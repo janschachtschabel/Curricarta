@@ -4,14 +4,15 @@ and where it came from (C1), the edition it supersedes by that edition's IRI (B2
 their variants, its nodes (cur:partOf the parent node, a root at its one specification), statements and the
 anchors of nodes and statements, as the rows of app/exports/kern_rows.py hold them, the values of the
 second layer at their holders (plan M3a F1, app/exports/kern_values.py) and each specification's
-applicability (plan M3a H1, app/exports/kern_scope.py).
+applicability (plan M3a H1, app/exports/kern_scope.py), and its rules with their anchors (plan M3a I,
+app/exports/kern_rules.py).
 
 One graph under either naming (app/exports/kern_naming.py): a draft's, each row ``urn:uuid:<id>``, so a
 SHACL focus node of X5 is the id of the row it is about; or a frozen document's, by its stored IRIs, which
 alone states when the document was frozen (prov:generatedAtTime). A node lacks the docking points every
-unit of it checked absent (cur:checkedAbsent). Left out: the frame parts and their anchors (in the Kern
-they would be nodes of function fn_frame, plan M3a I), the profile's own terms, and the anchors of the
-document and of specifications.
+unit of it checked absent (cur:checkedAbsent). Left out: the frame parts but rules, and their anchors (in the
+Kern they would be nodes of function fn_frame), the profile's own terms, and the anchors of the document and
+of specifications.
 """
 
 from collections.abc import Mapping, Sequence
@@ -24,6 +25,7 @@ from rdflib.namespace import DCTERMS
 
 from app.exports.kern_naming import Naming, RowKind, draft_naming
 from app.exports.kern_rows import KernRows, Row
+from app.exports.kern_rules import add_rules, rule_names
 from app.exports.kern_scope import add_scope
 from app.exports.kern_values import add_values
 from app.sources.mem.tree import storable_iri
@@ -33,7 +35,7 @@ from app.sources.mem.tree import storable_iri
 # (app/db/runs.py), a draft checked under an older one is owed a check, and an export says when a frozen
 # document was checked under another. tests/exports/test_kern_versions.py pins it to all of these: a change
 # of the check alone is a new version too, owing every draft a check and moving the kept exports' fingerprint.
-KERN_GRAPH_VERSION = 4
+KERN_GRAPH_VERSION = 5
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")
 CV = Namespace("https://w3id.org/wlo/curriculum/vocab#")
 _SPECIFICATION_CLASSES = {
@@ -59,7 +61,7 @@ def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
         ("xsd", XSD),
     ):  # fmt: skip
         graph.bind(prefix, namespace)
-    names = _names(rows, naming)
+    names = _names(rows, naming) | rule_names(rows, naming)
     document = names[rows.document["id"]]
     specifications = [row["id"] for row in rows.specifications]
     _document(graph, rows.document, names, specifications)
@@ -81,6 +83,7 @@ def kern_graph(rows: KernRows, naming: Naming | None = None) -> Graph:
         _anchor(graph, anchor, names, document)
     add_values(graph, rows, naming)
     add_scope(graph, rows, naming)
+    add_rules(graph, rows, names)
     return graph
 
 
@@ -256,7 +259,7 @@ def _statement(graph: Graph, row: Row, names: Names, at_place: Mapping[tuple[UUI
 
 def _anchor(graph: Graph, row: Row, names: Names, document: Name) -> None:
     subject = names[row["id"]]
-    graph.add((names[row["statement_id"] or row["node_id"]], CUR.anchor, subject))
+    graph.add((names[row["statement_id"] or row["node_id"] or row["frame_part_id"]], CUR.anchor, subject))
     graph.add((subject, RDF.type, CUR.SourceAnchor))
     graph.add((subject, CUR.inDocument, document))
     for predicate, column in (

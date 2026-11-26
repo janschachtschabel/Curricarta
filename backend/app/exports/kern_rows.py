@@ -6,7 +6,8 @@ their applicability (plan M3a H1) - and their variants, its nodes and statements
 statements with their blocks - rows as the tables hold them, each with the IRI it is named by once frozen
 (app/exports/kern_naming.py) - and the values of its
 holders (app/db/value_rows.py, plan M3a F1) and the specifications' applicability contexts, read in one
-snapshot. A rejected statement is not read, nor are its anchors and values; a rejected value is left out - a
+snapshot; its rules with their anchors as the graph states them (plan M3a I, app/db/rule_rows.py). A
+rejected statement is not read, nor are its anchors and values; a rejected value is left out - a
 workload with its periods, a context with its values -, and a rejected node's values follow their own
 status.
 
@@ -23,6 +24,7 @@ import psycopg
 from psycopg.rows import dict_row
 
 from app.db.documents import DocumentError
+from app.db.rule_rows import Rule, rules_of
 from app.db.value_rows import values_of
 from app.domain.l2 import Context, HeldValues, Level, TimeSpan, Values, Workload
 from app.vocab.lookup import REGIONS
@@ -94,10 +96,12 @@ ORDER BY s.node_id, s.position
 """
 _ANCHORS = """
 SELECT a.id, a.node_id, a.statement_id, a.page_start, a.page_end, a.printed_page, a.quote, a.match_kind_iri,
-    a.match_score, a.char_start, a.char_end, a.table_cell, a.section_path,
+    a.match_score, a.frame_part_id, a.char_start, a.char_end, a.table_cell, a.section_path,
     ARRAY(SELECT ab.block_id FROM anchor_block ab WHERE ab.anchor_id = a.id) AS blocks
 FROM anchor a
-WHERE a.document_id = %(document)s AND (a.node_id IS NOT NULL OR a.statement_id IS NOT NULL)
+WHERE a.document_id = %(document)s AND (a.node_id IS NOT NULL OR a.statement_id IS NOT NULL
+        OR EXISTS (SELECT FROM frame_part f WHERE f.id = a.frame_part_id AND f.part_kind = 'rules'
+                   AND f.review_status_iri <> 'https://w3id.org/wlo/curriculum/vocab#rev_rejected'))
     AND NOT EXISTS (SELECT FROM statement s WHERE s.id = a.statement_id AND s.review_status_iri = 'https://w3id.org/wlo/curriculum/vocab#rev_rejected')
 ORDER BY a.id
 """
@@ -110,10 +114,11 @@ class KernRows:
     variants: list[Row]
     nodes: list[Row]
     statements: list[Row]
-    anchors: list[Row]  # of nodes and statements
+    anchors: list[Row]  # of nodes, statements and rules
     work: Row | None  # the work it is a version of, where the editors set one
     file: Row  # the file it was read off
     values: Values = field(default_factory=dict)  # of its holders read, rejected ones left out
+    rules: list[Rule] = field(default_factory=list)  # rejected ones left out (plan M3a I)
 
 
 async def read_document(connection: psycopg.AsyncConnection, document_id: UUID) -> KernRows:
@@ -155,11 +160,12 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> KernR
         await rows.execute(_FILE, params)
         file = await rows.fetchone()
     values = await values_of(connection, document_id)  # within this snapshot
+    rules = await rules_of(connection, document_id, stated=True)
     if file is None:  # a document is of a conversion, a conversion of a file: both columns NOT NULL
         raise DocumentError(f"no file of document {document_id}")
     specifications, variants, nodes, statements, anchors = read
     kept = _kept(values, {row["id"] for row in statements})
-    return KernRows(document, specifications, variants, nodes, statements, anchors, work, file, kept)
+    return KernRows(document, specifications, variants, nodes, statements, anchors, work, file, kept, rules)
 
 
 def _kept(values: Values, statements: set[UUID]) -> Values:

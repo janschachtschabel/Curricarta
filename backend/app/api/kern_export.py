@@ -9,7 +9,7 @@ from the store between its build and its reading. Exports of both kinds are coun
 and minute (429 ``too_many_exports``, EXPORTS_PER_MINUTE). The violations the editors accepted when they
 froze it are counted in a header (``Curricarta-Accepted-Violations``), as in the file's head (plan M3a E7);
 where X5 checked it under another graph than is built now, ``Curricarta-Graph-Version`` names both
-(``checked=unknown; built=4``), as the file's head does.
+(``checked=unknown; built=5``), as the file's head does.
 
 The database connections are let go before the build: it runs in a child process for seconds.
 """
