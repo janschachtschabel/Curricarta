@@ -2,7 +2,6 @@ import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
-import type { TreeNode } from "@/api";
 
 import RowPanel from "@/components/RowPanel.vue";
 import { rowsOf, type Row } from "@/documentTree";
@@ -131,7 +130,9 @@ describe("the placements of the node chosen", () => {
   });
 
   it("have the tree read again once saved", async () => {
-    const { statements, children, ...row } = NODES[0] as TreeNode;
+    const [first] = NODES;
+    if (!first) throw new Error("no node");
+    const { statements, children, ...row } = first;
     void [statements, children];
     vi.spyOn(api, "setNodePlacements").mockResolvedValue({ ...row, revision: 2 });
     const wrapper = panel(ROW);
