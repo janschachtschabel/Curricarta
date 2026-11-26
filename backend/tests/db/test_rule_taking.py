@@ -3,6 +3,7 @@ added after the document's frame parts on the blocks chosen, an editor's from th
 editor's deleted with the findings on it, a run's rejected and kept; never beside an open job, of a frozen
 document or of one the reader does not see."""
 
+import asyncio
 from typing import Any
 from uuid import UUID
 
@@ -15,7 +16,7 @@ from app.db.source_queries import Reader
 from app.db.statement_editing import HandAnchor, Taken
 from app.vocab.form_values import FieldError
 from tests.db.test_editing import a_finding, an_open_job, document, edited_at, one
-from tests.db.test_nodes import connection, owner, url
+from tests.db.test_nodes import connection, owner, url, waiting_for_a_lock
 from tests.db.test_rules import HUMAN, PROPOSED, REJECTED, a_run_s_rule
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
@@ -129,3 +130,78 @@ async def test_a_rule_is_none_to_who_sees_not_its_document(
     )
     [rule] = await rules_of(connection, document.id)
     assert rule.revision == 1
+
+
+async def _second_waits(url: str, connection: psycopg.AsyncConnection, first: Any, second: Any) -> Any:
+    """``first(other)`` in a transaction of another connection, ``second(connection)`` started meanwhile and
+    seen waiting for the tree's lock; the second's outcome - or what it raised - once the first committed."""
+    async with (
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as other,
+        await psycopg.AsyncConnection.connect(url, autocommit=True) as watcher,
+    ):
+        waiting: asyncio.Task[Any] | None = None
+        try:
+            async with other.transaction():
+                await first(other)
+                waiting = asyncio.create_task(second(connection))
+                await waiting_for_a_lock(watcher, connection.info.backend_pid)
+        finally:
+            assert waiting is not None
+            done, _ = await asyncio.wait([waiting])
+    return done.pop()
+
+
+async def test_two_editors_taking_a_rule_away_at_once_one_wins(
+    url: str, connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await a_run_s_rule(url, connection, document)
+
+    lost = await _second_waits(
+        url, connection,
+        lambda other: drop_or_reject_rule(other, owner(document), made, 1),
+        lambda mine: drop_or_reject_rule(mine, owner(document), made, 1),
+    )  # fmt: skip
+
+    assert isinstance(lost.exception(), StaleRevision)
+    assert lost.exception().current == 2
+    [rule] = await rules_of(connection, document.id)
+    assert (rule.review_status, rule.revision) == (REJECTED, 2)
+
+
+async def test_an_edit_behind_the_deletion_of_an_editor_s_rule_finds_none(
+    url: str, connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await add_rule(
+        connection, owner(document), document.id, "completion", "Alle.", [HandAnchor(page=1)]
+    )
+    assert made is not None
+
+    edited = await _second_waits(
+        url, connection,
+        lambda other: drop_or_reject_rule(other, owner(document), made, 1),
+        lambda mine: edit_rule(mine, owner(document), made, 1, {"max_count": 3}),
+    )  # fmt: skip
+
+    assert edited.result() is None
+    assert await rules_of(connection, document.id) == []
+
+
+async def test_two_rules_added_at_once_take_a_place_each(
+    url: str, connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    def adding(wording: str) -> Any:
+        return lambda on: add_rule(
+            on, owner(document), document.id, "completion", wording, [HandAnchor(page=1)]
+        )
+
+    second = await _second_waits(url, connection, adding("Erste."), adding("Zweite."))
+
+    assert second.result() is not None
+    positions = await one(
+        connection,
+        "SELECT array_agg(position ORDER BY position), count(DISTINCT position) FROM frame_part"
+        " WHERE document_id = %s",
+        document.id,
+    )
+    assert positions == ([1, 2], 2)
+    assert [rule.verbatim for rule in await rules_of(connection, document.id)] == ["Erste.", "Zweite."]
