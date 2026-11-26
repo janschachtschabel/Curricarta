@@ -33,7 +33,7 @@ _ADD = """
 _ROWS = """
 SELECT f.rule, f.severity, replace(r.stage_iri, %(stages)s, ''), e.kind, f.focus_id,
     CASE WHEN length(l.label) > %(label)s THEN left(l.label, %(label)s - 1) || '…' ELSE l.label END,
-    f.path, f.message, f.details ->> 'lang', f.details ->> 'unit', h.kind, h.id,
+    f.path, f.message, f.details ->> 'lang', f.details ->> 'unit', h.kind, h.id, pl.node_id,
     (SELECT json_object_agg(c.severity, c.n) FROM (
         SELECT severity, count(*) AS n FROM validation_finding
         WHERE document_id = %(document)s GROUP BY severity
@@ -157,6 +157,7 @@ class FindingRow:
     unit: str | None
     holder_kind: str | None = None
     holder_id: UUID | None = None
+    placed_node_id: UUID | None = None  # a placement's or a value's at one: the node it places (plan M3a K)
 
 
 @dataclass(frozen=True)

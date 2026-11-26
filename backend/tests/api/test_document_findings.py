@@ -55,23 +55,23 @@ def test_a_document_s_findings_are_read_gravest_first_with_the_rows_they_are_abo
         "findings": [
             {"rule": "shacl.StatementShape", "severity": "violation", "stage": "X5",
              "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen.",
-                       "holder_kind": None, "holder_id": None},
+                       "holder_kind": None, "holder_id": None, "placed_node_id": None},
              "path": None, "message": "Aussage ohne Adressat.", "message_lang": "de", "unit": None},
             {"rule": "x5.wording_not_found", "severity": "violation", "stage": "X5",
              "focus": {"kind": "statement", "id": str(statement), "label": "Die Lernenden messen.",
-                       "holder_kind": None, "holder_id": None},
+                       "holder_kind": None, "holder_id": None, "placed_node_id": None},
              "path": None, "message": "not in the blocks", "message_lang": None, "unit": None},
             {"rule": "x4.unknown_block", "severity": "warning", "stage": "X4",
              "focus": {"kind": "document", "id": document, "label": None, "holder_kind": None,
-                       "holder_id": None},
+                       "holder_id": None, "placed_node_id": None},
              "path": None, "message": "x4.unknown_block", "message_lang": None, "unit": "E1"},
             {"rule": "x5.retired_value", "severity": "warning", "stage": "X5",
              "focus": {"kind": "node", "id": str(node), "label": "Optik", "holder_kind": None,
-                       "holder_id": None},
+                       "holder_id": None, "placed_node_id": None},
              "path": "cur:nodeType", "message": "x5.retired_value", "message_lang": None, "unit": None},
             {"rule": "x5.unit_without_statements", "severity": "info", "stage": "X5",
              "focus": {"kind": "document", "id": document, "label": None, "holder_kind": None,
-                       "holder_id": None},
+                       "holder_id": None, "placed_node_id": None},
              "path": None, "message": "x5.unit_without_statements", "message_lang": None, "unit": "E3"},
         ],
         "truncated": False,
@@ -96,7 +96,7 @@ def test_a_finding_on_a_value_names_its_holder(client: TestClient, url: str) -> 
     [found] = answer.json()["findings"]
     assert found["focus"] == {
         "kind": "level_assignment", "id": str(level), "label": "Die Lernenden messen.",
-        "holder_kind": "statement", "holder_id": str(statement),
+        "holder_kind": "statement", "holder_id": str(statement), "placed_node_id": None,
     }  # fmt: skip
 
 

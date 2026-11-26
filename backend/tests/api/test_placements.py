@@ -107,6 +107,14 @@ def test_a_node_s_placements_are_set_read_with_the_tree_and_their_values_set(
         (second["id"], 1)
     ]
     assert nodes[held["area"]]["placements"] == []
+    with psycopg.connect(url, autocommit=True) as connection:
+        connection.execute(
+            "INSERT INTO validation_finding (id, document_id, rule, severity, focus_id, message)"
+            " VALUES (gen_random_uuid(), %s, 'x5.test', 'warning', %s, 'found')",
+            (document, second["id"]),
+        )
+    [finding] = client.get(f"/api/v1/documents/{document}/findings", headers=owner).json()["findings"]
+    assert (finding["focus"]["kind"], finding["focus"]["placed_node_id"]) == ("placement", held["module"])
     audited = "SELECT action, details FROM audit_log WHERE action LIKE '%%placement%%' ORDER BY id"
     assert rows(url, audited) == [
         ("node.placements", {"document": document, "revision": 2, "placements": 2}),

@@ -82,6 +82,8 @@ async def test_a_finding_on_a_placement_or_a_value_at_it_names_the_node_it_place
         ("placement", None, None, "Analysis I"),
         ("time_span", "placement", placement.id, "Analysis I"),
     }
+    # each leads to the node it places, where the tree counts it
+    assert {row.placed_node_id for row in rows} == {placement.node_id}
 
 
 async def test_a_value_at_a_placement_reviewed_counts_the_placement_s_revision_one_up(

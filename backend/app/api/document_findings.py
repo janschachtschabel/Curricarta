@@ -34,6 +34,8 @@ class FocusOut(BaseModel):
     # "specification", "frame_part"; a period its workload's -, none for another row and a value gone
     holder_kind: str | None
     holder_id: UUID | None
+    # a placement's, or a value's at one: the node it places, which the tree counts it at (plan M3a K)
+    placed_node_id: UUID | None
 
 
 class FindingOut(BaseModel):
@@ -94,6 +96,7 @@ async def read_findings(document_id: UUID, request: Request, who: Account) -> Fi
                     label=row.focus_label,
                     holder_kind=row.holder_kind,
                     holder_id=row.holder_id,
+                    placed_node_id=row.placed_node_id,
                 ),
                 path=row.path,
                 message=row.message,
