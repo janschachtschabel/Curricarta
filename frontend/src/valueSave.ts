@@ -35,6 +35,13 @@ import { valueWords, type LevelValue } from "@/valueWords";
 
 export type ValueSaveOutcome = "saved" | "unchanged" | "undecided" | "conflict" | "invalid" | "closed" | "gone" | "failed";
 
+/** How a save went; the problems found where it is invalid, the holder as stored where it is saved. */
+export interface ValueSaved {
+  outcome: ValueSaveOutcome;
+  faults?: ValueFault[];
+  answer?: Holder;
+}
+
 /** A kind both changed: the user's values and the stored, in words. */
 export interface ValueClash {
   kind: DraftKind;
@@ -101,13 +108,13 @@ export function useValueSave(row: Ref<HolderRow>, form: Ref<Form>) {
     return "conflict";
   }
 
-  function refused(error: unknown, sent: ValuesDraft): { outcome: ValueSaveOutcome; faults?: ValueFault[] } {
+  function refused(error: unknown, sent: ValuesDraft): ValueSaved {
     const code = error instanceof ApiError ? error.code : undefined;
     const details = error instanceof ApiError ? error.details : {};
     if (code === "stale_revision") {
       const current = details.current as Partial<Holder> | null;
       if (!current?.values || typeof current.revision !== "number") return { outcome: "gone" };
-      return { outcome: met(current as Holder) };
+      return { outcome: met(current as Holder), answer: current as Holder };
     }
     if (code === "invalid_field") {
       const at = typeof details.field === "string" ? entryField(form.value, sent, details.field) : null;
@@ -124,8 +131,8 @@ export function useValueSave(row: Ref<HolderRow>, form: Ref<Form>) {
     return { outcome: applyRefusal(refusal, { closed, errors, problem }) };
   }
 
-  /** Save the draft; how it went, and the problems found where it is invalid. */
-  async function save(): Promise<{ outcome: ValueSaveOutcome; faults?: ValueFault[] }> {
+  /** Save the draft; how it went. */
+  async function save(): Promise<ValueSaved> {
     if (conflict.value?.clashes.length) return { outcome: "undecided" };
     problem.value = null;
     const found = checkDraft(form.value, draft.value);
@@ -142,13 +149,13 @@ export function useValueSave(row: Ref<HolderRow>, form: Ref<Form>) {
     try {
       const answer = await sendValues(current, revision.value, form.value, draft.value);
       // another row chosen meanwhile: the tree read anew shows what was saved
-      if (row.value.key !== current.key) return { outcome: "saved" };
+      if (row.value.key !== current.key) return { outcome: "saved", answer };
       const typed = draft.value;
       stand(answer);
       // typed on while it was saved: that stays, laid on the holder as stored
       if (typed !== sent) draft.value = rebaseValues(sent, typed, before.value).draft;
       conflict.value = null;
-      return { outcome: "saved", faults: [] };
+      return { outcome: "saved", faults: [], answer };
     } catch (error) {
       return row.value.key === current.key ? refused(error, sent) : { outcome: "failed" };
     } finally {

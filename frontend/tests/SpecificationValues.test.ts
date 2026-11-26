@@ -161,6 +161,30 @@ describe("a specification's values beside its title and field", () => {
     expect(sent.mock.calls[0]?.[2].contexts[0]?.institution_text).toBe("Realschule");
   });
 
+  it("leave the revision their save answered to the title's form, before the list is read again", async () => {
+    let reread: (found: api.Specifications) => void = () => undefined;
+    vi.spyOn(api, "setSpecificationValues").mockResolvedValue({ ...valuedSpecification(), revision: 2 });
+    const edited = vi.spyOn(api, "editSpecification").mockResolvedValue({ ...valuedSpecification(), field_text: "Optik", revision: 3 });
+    const wrapper = await open();
+    vi.mocked(api.getSpecifications).mockImplementation(() => new Promise((done) => (reread = done)));
+    await control(values(wrapper), "Einrichtung").setValue("Realschule");
+    await save(values(wrapper));
+
+    const title = wrapper.get(".specification-form");
+    await control(title, "Fach").setValue("Optik");
+    await title.trigger("submit");
+    await flushPromises();
+    expect(edited.mock.calls[0]?.[1]).toBe(2);
+
+    // the reading begun before the title's save answers what it read then: the revision does not go back
+    reread(specificationsOf({ specifications: [{ ...valuedSpecification(), revision: 2 }] }));
+    await flushPromises();
+    await control(title, "Fach").setValue("Optik und Akustik");
+    await title.trigger("submit");
+    await flushPromises();
+    expect(edited.mock.calls[1]?.[1]).toBe(3);
+  });
+
   it("offer a context's levels by the rules of a context, the specification's own by its class's", async () => {
     const form = structuredClone(SCOPE_FORM);
     form.values.level_assignments.rules = [{ holder: "applicability_context", dimensions: [CV + "dim_qualification"], unless: null }];

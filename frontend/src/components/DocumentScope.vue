@@ -27,7 +27,7 @@ import { reviewWords, type ReviewOutcome } from "@/rowReview";
 import { contextWords, joined, labelsOf, levelWords, spanWords, stated, workloadWords } from "@/scopeWords";
 import { useSectionReading } from "@/sectionReading";
 import { isEditor } from "@/session";
-import { specificationRow } from "@/valueHolder";
+import { specificationRow, type Holder } from "@/valueHolder";
 
 // `refresh`: bumped by the page as the extraction moves on, which may write the specifications (X1)
 const props = defineProps<{ documentId: string; sector: string; refresh?: number }>();
@@ -37,7 +37,7 @@ const heading = ref<HTMLElement | null>(null);
 const read = async (): Promise<[Specifications, Form | null]> =>
   Promise.all([getSpecifications(props.documentId), getForm(props.sector).catch(() => null)]);
 const { shown, failure, hidden, load, retry } = useSectionReading(read, t("documents.page.scope.loadFailed"), heading);
-// a specification as a save gave it back, shown until the section is read again
+// a specification as a save gave it back, shown until a reading of the section catches up with it
 const saved = ref<Record<string, Specification>>({});
 
 // the specifications whose values' form holds a draft: it stays where the document closes under it
@@ -75,9 +75,17 @@ function keep(specification: Specification): void {
   saved.value = { ...saved.value, [specification.id]: specification };
 }
 
+// read again: a specification saved meanwhile at a later revision than the reading found stays as saved
 async function reload(): Promise<void> {
   await load();
-  saved.value = {};
+  const read = new Map((scope.value?.specifications ?? []).map((one) => [one.id, one.revision]));
+  saved.value = Object.fromEntries(Object.entries(saved.value).filter(([id, kept]) => (read.get(id) ?? Infinity) < kept.revision));
+}
+
+// a specification's set answers the specification as stored: the title's form goes on from its revision at once
+function valuesSaved(answer: Holder): void {
+  keep(answer as Specification);
+  void reload();
 }
 
 function draft(id: string, open: boolean): void {
@@ -173,7 +181,7 @@ watch(() => props.refresh, reload);
           :editable="scope.editable"
           :reviewable="scope.editable && isEditor()"
           :closed-by="scope.editable ? null : scope.closed"
-          :on-saved="reload"
+          :on-saved="valuesSaved"
           :on-reviewed="reviewed"
           @closed="reload()"
           @gone="gone"

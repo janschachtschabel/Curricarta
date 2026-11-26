@@ -31,7 +31,7 @@ import { refusalText } from "@/refusals";
 import type { ReviewOutcome } from "@/rowReview";
 import { word } from "@/registerWords";
 import { holdsEntry, kindsOf, type DraftKind, type Entry } from "@/valueDraft";
-import { holderOf, holderTypeOf, type HolderKey, type HolderRow } from "@/valueHolder";
+import { holderOf, holderTypeOf, type Holder, type HolderKey, type HolderRow } from "@/valueHolder";
 import { useValueSave } from "@/valueSave";
 import { shownContexts, shownValues, valueReviewWords, type ShownValue } from "@/valueWords";
 
@@ -45,8 +45,11 @@ const props = defineProps<{
   reviewable: boolean;
   /** Why the tree, read anew, closed; none while it is open. */
   closedBy: string | null;
-  /** A set saved: a prop, so that a save landing after another row was chosen still has the tree read anew. */
-  onSaved?: () => void;
+  /**
+   * A set saved, with the holder as stored: a prop, so that a save landing after another row was chosen still has
+   * the tree read anew.
+   */
+  onSaved?: (answer: Holder) => void;
   /** How a value's review went, with the row's key and, where it was set or met a change, words naming the value. */
   onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string) => void;
 }>();
@@ -138,7 +141,7 @@ function change(kind: DraftKind, entries: Entry[]): void {
 
 async function submit(): Promise<void> {
   if (saving.value) return;
-  const { outcome, faults: found } = await editing.save();
+  const { outcome, faults: found, answer } = await editing.save();
   await nextTick();
   const said: Partial<Record<typeof outcome, string>> = {
     saved: t("documents.tree.form.saved"),
@@ -148,7 +151,7 @@ async function submit(): Promise<void> {
   const words = said[outcome];
   status.value = words ? sayAnew(status.value, words) : "";
   if (outcome === "saved" || outcome === "unchanged") clear();
-  if (outcome === "saved") props.onSaved?.();
+  if (outcome === "saved" && answer) props.onSaved?.(answer);
   else if (outcome === "conflict" || outcome === "undecided") panel.value?.focus();
   else if (outcome === "invalid") await faultsAt(found ?? []);
   else if (outcome === "closed" && closed.value) {
