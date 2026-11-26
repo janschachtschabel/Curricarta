@@ -171,15 +171,18 @@ describe("a row's values as they read", () => {
 
 describe("a row's values in their form", () => {
   it("adds no entry of a kind past the most the row takes, and says why at the button", async () => {
-    const many = Array.from({ length: 19 }, (_, at) => workload(`w${at}`, at + 1));
-    const wrapper = section(nodeRow({ ...noValues(), workloads: many }));
-    const add = () => button(wrapper, "Umfang hinzufügen");
+    // time spans: a workload's periods would put twenty groups more on the page, which axe then reads under load
+    const many = Array.from({ length: 19 }, (_, at) => ({
+      id: `t${at}`, ...STATED, time_kind: CV + "time_gradeLevel", span_from: at + 1, span_to: null, time_relation: null,
+    }));
+    const wrapper = section(nodeRow({ ...noValues(), time_spans: many }));
+    const add = () => button(wrapper, "Zeitraum hinzufügen");
     expect(add().attributes("aria-disabled")).toBeUndefined();
 
     await add().trigger("click"); // the twentieth
     await add().trigger("click"); // one more: refused
 
-    expect(wrapper.findAll("fieldset legend").filter((legend) => legend.text().startsWith("Umfang"))).toHaveLength(20);
+    expect(wrapper.findAll("fieldset legend").filter((legend) => legend.text().startsWith("Zeitraum"))).toHaveLength(20);
     expect(add().attributes("aria-disabled")).toBe("true");
     const note = document.getElementById(add().attributes("aria-describedby") ?? "");
     expect(note?.textContent?.trim()).toBe(t("documents.tree.values.most", { most: 20 }));
