@@ -108,14 +108,14 @@ async def test_a_set_keeps_what_it_names_changes_moves_and_takes_away_the_rest(
     finding_at_span = await a_finding(connection, document, span[0])
     finding_at_gone = await a_finding(connection, document, gone)
 
-    revision = await replace_placements(
-        connection, owner(document), made["module"], 2,
+    revision = await replace_placements(  # on the node's revision 3: the values' set counted it
+        connection, owner(document), made["module"], 3,
         [PlacementDraft(BINDING, made["specification"], made["variant"], id=moved),
          PlacementDraft(ELECTIVE, specification_id=made["specification"], id=kept, grade_weight=Decimal(2))],
     )  # fmt: skip
 
     found = {row.id: row for row in await rows(connection, document)}
-    assert revision == 3
+    assert revision == 4
     assert set(found) == {kept, moved}
     assert (found[moved].position, found[moved].obligation, found[moved].stated.revision) == (1, BINDING, 2)
     assert (found[kept].position, found[kept].grade_weight, found[kept].stated.revision) == (2, Decimal(2), 2)

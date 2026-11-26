@@ -29,6 +29,7 @@ from psycopg.rows import dict_row
 from app.db.documents import DOCUMENT_VISIBLE, DocumentError
 from app.db.findings import drop_value_findings
 from app.db.nodes import lock_tree, write_subtree
+from app.db.placement_cascade import count_placed_at
 from app.db.runs import done_stages
 from app.db.source_queries import Reader
 from app.domain.l1 import NodeDraft
@@ -204,7 +205,8 @@ async def add_node(
 async def drop_node(
     connection: psycopg.AsyncConnection, reader: Reader, node_id: UUID, revision: int
 ) -> Dropped | None:
-    """Take the node away with its subtree - its children, statements and the anchors of all - and the
+    """Take the node away with its subtree - its children, statements and the anchors of all, the placements
+    of other nodes at them, whose nodes count their revisions one up (app/db/placement_cascade.py) - and the
     findings on them; what went. None where ``reader`` sees no such node. StaleRevision or a refusal of
     ``guard``, and then nothing goes."""
     async with connection.transaction():
@@ -222,6 +224,8 @@ async def drop_node(
         nodes, statements, anchors = found
         await drop_findings(connection, target.document_id, [*nodes, *statements, *anchors])
         await drop_value_findings(connection, target.document_id, nodes=nodes, statements=statements)
+        # the placements of other nodes at one of these go with them (plan M3a K): those nodes count on
+        await count_placed_at(connection, target.document_id, nodes)
         await connection.execute("DELETE FROM node WHERE id = %s", (node_id,))
         await mark_edited(connection, target.document_id)
         return Dropped(nodes=len(nodes), statements=len(statements))

@@ -10,7 +10,7 @@ import psycopg
 import pytest
 
 from app.db.draft_copy import copy_document
-from app.db.editing import DocumentFrozen, StaleRevision
+from app.db.editing import DocumentFrozen, StaleRevision, drop_node
 from app.db.freezing import freeze
 from app.db.placement_rows import placements_of
 from app.db.placements import replace_placements
@@ -150,3 +150,22 @@ async def test_a_set_of_a_placement_s_values_counts_its_node_s_revision_so_a_rem
     assert await one(connection, "SELECT count(*) FROM time_span WHERE placement_id = %s", placement.id) == (
         1,
     )
+
+
+async def test_a_node_taken_away_counts_the_revision_of_each_node_placed_at_it(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # the placements at it go with it: the panel of a node placed there sees its view stale, not a
+    # placement gone
+    made = await placed(connection, document)
+    draft = PlacementDraft(BINDING, specification_id=made["specification"], in_node_id=made["area"])
+    assert await replace_placements(connection, owner(document), made["module"], 1, [draft]) == 2
+    [placement] = await rows(connection, document)
+
+    await drop_node(connection, owner(document), made["area"], 1)
+
+    assert await one(connection, "SELECT revision FROM node WHERE id = %s", made["module"]) == (3,)
+    with pytest.raises(StaleRevision) as stale:
+        kept = PlacementDraft(BINDING, specification_id=made["specification"], id=placement.id)
+        await replace_placements(connection, owner(document), made["module"], 2, [kept])
+    assert stale.value.current == 3

@@ -412,7 +412,8 @@ ungültig.
   Konvertierung, wo kein Block sie hält),
   `POST /api/v1/documents/{id}/nodes` (`parent_id`, ans Ende der Geschwister) und
   `/nodes/{id}/statements` (ans Ende des Knotens, mindestens eine Fundstelle, sonst 422
-  `anchor_missing`), `DELETE /api/v1/nodes/{id}` (samt Unterbaum und den Befunden darauf und auf seinen Werten) und
+  `anchor_missing`), `DELETE /api/v1/nodes/{id}` (samt Unterbaum und den Befunden darauf und auf seinen Werten,
+  dazu den Verwendungen anderer Knoten an ihm; deren Knoten zählen ihre Revision hoch) und
   `/statements/{id}` (je `?expected_revision=`; die Aussage eines Laufs wird verworfen und bleibt,
   damit keine Reparatur sie neu vorschlägt, eine von Hand geschriebene gelöscht; die Antwort nennt
   `outcome` – `rejected` oder `deleted` – und die Revision danach, `null` nach dem Löschen) – durch
@@ -518,10 +519,12 @@ ungültig.
   /api/v1/nodes/{id}/placements` (`expected_revision` des Knotens, `placements`: die ganze Liste, höchstens
   50; ein Eintrag mit `id` behält die Verwendung, eine weggelassene geht mit ihren Werten und Befunden)
   setzt sie, nur durch Eigentümer und Redaktion; eine neue oder geänderte ist ein Vorschlag der Redaktion.
+  Eine Verwendung nur in einer Variante zählt `HsSemesterLoadShape` nicht mit: Nenne die Spezifikation dazu.
   Antwort: der Knoten wie im Baum; 409 `stale_revision` mit dem Knoten, wie er steht. `PUT
   /api/v1/placements/{id}/values` setzt Zeiträume (etwa das Fachsemester) und Umfänge (etwa ECTS) einer
   Verwendung auf ihrer Revision wie an einem Knoten; Niveaus trägt sie nicht (`not_held`), ihr Prüfstand
-  geht wie der eines Werts (`review`) und zählt die Revision der Verwendung hoch. Abgewiesen wie beim
+  geht wie der eines Werts (`review`). Beides zählt die Revision der Verwendung und die ihres Knotens hoch; die
+  Antwort nennt sie (`node_revision`), damit das nächste Setzen der Verwendungen nicht veraltet ist. Abgewiesen wie beim
   Bearbeiten, 404 `no_node` bzw. `no_placement`, 422 `invalid_field` am Pfad (`placements[1].variant_id`):
   `required` (weder Spezifikation noch Variante), `not_offered` (eine Zeile, die nicht zum Dokument gehört,
   eine Variante einer anderen Spezifikation, der Knoten selbst als Stelle, eine Verbindlichkeit, die die
