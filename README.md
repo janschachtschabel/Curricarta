@@ -264,7 +264,8 @@ ungültig.
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
   Kommentarzeile am Anfang der Datei. Die Version des Kern-Graphen (heute 8) steigt mit jeder Änderung
   dessen, was der Graph aus denselben Zeilen macht; jeder Lauf von X5 merkt sich die, unter der er prüfte.
-  Hat X5 das Dokument unter einer anderen Version des Kern-Graphen geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
+  Hat X5 das Dokument unter einer anderen Version des Kern-Graphen geprüft, als die API jetzt baut – oder
+  vor Migration 0036, dann `unknown` –, nennt der Kopf
   `Curricarta-Graph-Version` beide (`checked=unknown; built=8`), ebenso eine Kommentarzeile; festgeschrieben
   wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
