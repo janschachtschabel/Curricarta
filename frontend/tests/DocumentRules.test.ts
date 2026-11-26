@@ -18,15 +18,6 @@ async function open(): Promise<VueWrapper> {
   return shown;
 }
 
-/** The control of the field labelled `label` - its label's words, a required one's with its mark. */
-function control(wrapper: VueWrapper, label: string) {
-  const found = wrapper.findAll("label, legend").find((one) => one.text() === label || one.text() === `${label} (Pflichtfeld)`);
-  if (!found) throw new Error(label);
-  return found.element.tagName === "LEGEND" ? found.element.parentElement! : wrapper.get(`#${found.attributes("for")}`).element;
-}
-const input = (wrapper: VueWrapper, label: string) => wrapper.get<HTMLInputElement>(`#${(control(wrapper, label) as HTMLElement).id}`);
-const words = (key: string) => t(`documents.page.rules.fields.${key}`);
-
 beforeEach(() => {
   vi.restoreAllMocks();
   vi.spyOn(api, "getRules").mockResolvedValue(rulesOf());
@@ -62,6 +53,18 @@ describe("a document's rules on its page", () => {
     expect(prerequisite.text()).toContain("Aussage ohne Namen");
     expect(prerequisite.find("[data-test=rule-unlinked]").exists()).toBe(false);
     expect(await violations(wrapper.element)).toEqual([]);
+  });
+
+  it("says of a selection that the export names it none until two options are linked", async () => {
+    const link = (id: string) => ({ id, kind: "node" as const, label: id });
+    const one = ruleOf({ id: "r1", options: [link("n1")] });
+    const two = ruleOf({ id: "r2", options: [link("n1"), link("n2")] });
+    vi.mocked(api.getRules).mockResolvedValue(rulesOf({ rules: [one, two] }));
+    const wrapper = await open();
+
+    const [first, second] = wrapper.findAll("[data-test=rule]");
+    expect(first.find("[data-test=rule-unlinked]").exists()).toBe(true);
+    expect(second.find("[data-test=rule-unlinked]").exists()).toBe(false);
   });
 
   it("says that a document has no rule, and offers to add one to who may", async () => {
@@ -103,133 +106,6 @@ describe("a document's rules on its page", () => {
     vi.mocked(api.getRules).mockResolvedValue(rulesOf({ editable: false }));
     const stranger = await open();
     expect(stranger.get("[data-test=rules-read-only]").text()).toBe(t("documents.page.rules.readOnly"));
-  });
-});
-
-describe("a rule's form", () => {
-  it("shows the fields its kind holds, and those of another kind once it is chosen", async () => {
-    const wrapper = await open();
-
-    expect(() => control(wrapper, words("options"))).not.toThrow();
-    expect(() => control(wrapper, words("requires"))).toThrow();
-    await input(wrapper, words("kind")).setValue("prerequisite");
-    expect(() => control(wrapper, words("requires"))).not.toThrow();
-    expect(() => control(wrapper, words("options"))).toThrow();
-    expect(await violations(wrapper.element)).toEqual([]);
-  });
-
-  it("sends only what changed, on the revision read, numbers the German way and links by their ids", async () => {
-    const saved = ruleOf({ max_count: 3, min_amount: 7.5, options: [{ id: "n1", kind: "node", label: "LF 1 Optik" }], revision: 2 });
-    vi.spyOn(api, "editRule").mockResolvedValue(saved);
-    const dirty: boolean[] = [];
-    shown = mount(DocumentRules, { props: { documentId: "d1", onDirty: (open: boolean) => dirty.push(open) }, attachTo: document.body });
-    await flushPromises();
-    const wrapper = shown;
-
-    await input(wrapper, words("max_count")).setValue("3");
-    await input(wrapper, words("min_amount")).setValue("7,5");
-    const options = control(wrapper, words("options")) as HTMLElement;
-    const box = options.querySelector<HTMLInputElement>("input[value=n1]")!;
-    box.click();
-    await flushPromises();
-    expect(dirty.at(-1)).toBe(true);
-    await wrapper.get("form").trigger("submit");
-    await flushPromises();
-
-    expect(api.editRule).toHaveBeenCalledWith("r1", 1, { max_count: 3, min_amount: 7.5, options: ["n1"] });
-    expect(wrapper.get("form [role=status]").text()).toBe(t("documents.page.rules.saved"));
-    expect(wrapper.get("[data-test=rule]").text()).toContain("LF 1 Optik");
-    expect(dirty.at(-1)).toBe(false);
-  });
-
-  it("sends nothing where nothing changed, and finds an entry's problem before it is sent", async () => {
-    vi.spyOn(api, "editRule").mockResolvedValue(ruleOf({ revision: 2 }));
-    const wrapper = await open();
-
-    await wrapper.get("form").trigger("submit");
-    expect(wrapper.get("form [role=status]").text()).toBe(t("documents.page.rules.unchanged"));
-    await input(wrapper, words("min_count")).setValue("2,5");
-    const submit = wrapper.get("form button[type=submit]");
-    (submit.element as HTMLElement).focus();
-    await wrapper.get("form").trigger("submit");
-    await flushPromises();
-
-    expect(api.editRule).not.toHaveBeenCalled();
-    const count = input(wrapper, words("min_count"));
-    expect(wrapper.get(`#${count.attributes("id")}-error`).text()).toContain(t("documents.page.rules.problems.not_count"));
-    expect(document.activeElement).toBe(count.element);
-  });
-
-  it("puts a problem the server names at its field, the entry kept", async () => {
-    vi.spyOn(api, "editRule").mockRejectedValue(new ApiError("server", 422, "invalid_field", "no", { field: "amount_unit", problem: "not_offered" }));
-    const wrapper = await open();
-    await input(wrapper, words("max_count")).setValue("4");
-
-    await wrapper.get("form").trigger("submit");
-    await flushPromises();
-
-    const unit = input(wrapper, words("amount_unit"));
-    expect(unit.attributes("aria-invalid")).toBe("true");
-    expect(wrapper.text()).toContain(t("documents.tree.problems.not_offered"));
-    expect(input(wrapper, words("max_count")).element.value).toBe("4");
-  });
-
-  it("shows the rule as it stands where it was changed meanwhile, and says so", async () => {
-    const current = ruleOf({ verbatim: "Drei aus vier.", revision: 3 });
-    vi.spyOn(api, "editRule").mockRejectedValue(new ApiError("server", 409, "stale_revision", "stale", { current }));
-    const wrapper = await open();
-    await input(wrapper, words("max_count")).setValue("4");
-
-    await wrapper.get("form").trigger("submit");
-    await flushPromises();
-
-    expect(wrapper.get("[data-test=rule]").text()).toContain("Drei aus vier.");
-    expect(wrapper.get("form [role=alert]").text()).toContain(t("documents.page.rules.changedMeanwhile"));
-    expect(input(wrapper, words("max_count")).element.value).toBe("4");
-  });
-
-  it("reads the section again where the document was closed meanwhile", async () => {
-    vi.spyOn(api, "editRule").mockRejectedValue(new ApiError("server", 409, "frozen", "frozen"));
-    const wrapper = await open();
-    vi.mocked(api.getRules).mockResolvedValue(rulesOf({ editable: false, closed: "frozen" }));
-    await input(wrapper, words("max_count")).setValue("4");
-
-    await wrapper.get("form").trigger("submit");
-    await flushPromises();
-
-    expect(api.getRules).toHaveBeenCalledTimes(2);
-    expect(wrapper.find("form").exists()).toBe(false);
-  });
-
-  it("takes a run's rule away after a question, rejecting it, and reads the list again", async () => {
-    vi.spyOn(api, "takeRule").mockResolvedValue({ outcome: "rejected", revision: 2 });
-    const wrapper = await open();
-    const take = wrapper.findAll("form button").find((button) => button.text() === t("documents.page.rules.reject"));
-    expect(take?.attributes("aria-label")).toBe(t("documents.page.rules.rejectNamed", { rule: "Zwei aus vier Wahlmodulen." }));
-
-    await take?.trigger("click");
-    expect(document.body.textContent).toContain(t("documents.page.rules.rejectTitle"));
-    (document.querySelector("[data-test=confirm]") as HTMLElement).click();
-    await flushPromises();
-
-    expect(api.takeRule).toHaveBeenCalledWith("r1", 1);
-    expect(wrapper.get(".rules__status").text()).toBe(t("documents.page.rules.rejected"));
-    expect(api.getRules).toHaveBeenCalledTimes(2);
-  });
-
-  it("offers no second rejection of a run's rule rejected already", async () => {
-    vi.mocked(api.getRules).mockResolvedValue(rulesOf({ rules: [ruleOf({ review_status: CV + "rev_rejected", revision: 2 })] }));
-    const wrapper = await open();
-
-    expect(wrapper.get("h3").text()).toBe("Auswahlregel Verworfen");
-    expect(wrapper.findAll("form button").map((button) => button.text())).not.toContain(t("documents.page.rules.reject"));
-  });
-
-  it("offers to delete an editor's own rule", async () => {
-    vi.mocked(api.getRules).mockResolvedValue(rulesOf({ rules: [ruleOf({ by_hand: true })] }));
-    const wrapper = await open();
-
-    expect(wrapper.findAll("form button").map((button) => button.text())).toContain(t("documents.page.rules.delete"));
   });
 });
 

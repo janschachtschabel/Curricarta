@@ -2,10 +2,11 @@
 /**
  * A document's rules on its page (plan M3a I; backend GET /documents/{id}/rules): each rule in the document's order
  * with its kind, wording, values, option texts, what it applies to, its options, what it requires, where it stands
- * and its review status, in words (ruleWords.ts); a selection whose options are text alone says that the export
- * names it no selection until they are linked. The document's owner and the editors change a rule while the document
- * is open (RuleForm), take it away, and add one (RuleNew); saved, the rule stands as stored until the next reading
- * catches up, taken away or added, the list is read again. A draft open in a form the section tells the page
+ * and its review status, in words (ruleWords.ts); a selection of fewer than two linked options says that the export
+ * names it no selection until two are linked. The document's owner and the editors open a rule's form on its button
+ * while the document is open (RuleForm, the keyboard back at the button once it is closed), take it away - the
+ * keyboard then at the section's heading -, and add one (RuleNew); saved, the rule stands as stored until the next
+ * reading catches up, taken away or added, the list is read again. A draft open in a form the section tells the page
  * (`dirty`, its leave guard). Closed, or another's, the section says why it is to read only. Read as
  * sectionReading.ts reads: loading, a failure with a retry, content no longer the reader's said apart; read again as
  * the page's extraction moves on (`refresh`).
@@ -22,7 +23,7 @@ import RuleNew from "@/components/RuleNew.vue";
 import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { REVIEW_TONES, statusOf, statusWord } from "@/reviewStatus";
-import { anchorWords, kindWord, linkWords, valueWords } from "@/ruleWords";
+import { anchorWords, kindWord, linkWords, ruleName, valueWords } from "@/ruleWords";
 import { useSectionReading } from "@/sectionReading";
 
 const props = defineProps<{ documentId: string; refresh?: number }>();
@@ -30,6 +31,8 @@ const emit = defineEmits<{ dirty: [open: boolean] }>();
 
 const heading = ref<HTMLElement | null>(null);
 const addButton = ref<HTMLElement | null>(null);
+// the rules whose form is open, by id
+const editing = ref<ReadonlySet<string>>(new Set());
 const { shown, failure, hidden, load, retry } = useSectionReading(
   () => getRules(props.documentId),
   t("documents.page.rules.loadFailed"),
@@ -84,6 +87,28 @@ function keep(rule: Rule): void {
 function said(words: string): void {
   status.value = sayAnew(status.value, words);
   void reload();
+}
+
+function opened(rule: string, open: boolean): void {
+  const now = new Set(editing.value);
+  if (open) now.add(rule);
+  else now.delete(rule);
+  editing.value = now;
+}
+
+// a rule's form closed: the keyboard back to the button that opened it
+async function closedRule(rule: string): Promise<void> {
+  opened(rule, false);
+  await nextTick();
+  document.getElementById(`rule-edit-${rule}`)?.focus();
+}
+
+// a rule taken away: its form - or its article - went, the keyboard goes to the section's heading
+async function taken(rule: string, words: string): Promise<void> {
+  opened(rule, false);
+  said(words);
+  await nextTick();
+  heading.value?.focus();
 }
 
 // the form closed: the keyboard back to the button that opened it
@@ -154,19 +179,32 @@ watch(() => props.refresh, reload);
           <dt>{{ t("documents.page.rules.anchors") }}</dt>
           <dd>{{ anchorWords(rule) || t("documents.page.rules.none") }}</dd>
         </dl>
-        <p v-if="rule.kind === 'selection' && !rule.options.length" class="rules__note" data-test="rule-unlinked">
+        <p v-if="rule.kind === 'selection' && rule.options.length < 2" class="rules__note" data-test="rule-unlinked">
           {{ t("documents.page.rules.unlinked") }}
         </p>
-        <RuleForm
-          v-if="read.editable"
-          :key="`form-${rule.id}`"
-          :rule="rule"
-          :rules="read"
-          @saved="keep"
-          @changed="reload()"
-          @taken="said"
-          @dirty="(open) => draft(`rule:${rule.id}`, open)"
-        />
+        <template v-if="read.editable">
+          <RuleForm
+            v-if="editing.has(rule.id)"
+            :key="`form-${rule.id}`"
+            :rule="rule"
+            :rules="read"
+            @saved="keep"
+            @changed="reload()"
+            @taken="(words) => taken(rule.id, words)"
+            @close="closedRule(rule.id)"
+            @dirty="(open) => draft(`rule:${rule.id}`, open)"
+          />
+          <button
+            v-else
+            :id="`rule-edit-${rule.id}`"
+            type="button"
+            class="btn secondary rules__edit"
+            :aria-label="t('documents.page.rules.editNamed', { rule: ruleName(rule) })"
+            @click="opened(rule.id, true)"
+          >
+            {{ t("documents.page.rules.edit") }}
+          </button>
+        </template>
       </article>
       <template v-if="read.editable">
         <RuleNew
@@ -222,7 +260,8 @@ watch(() => props.refresh, reload);
   overflow-wrap: anywhere;
 }
 
-.rules__add {
+.rules__add,
+.rules__edit {
   justify-self: start;
 }
 </style>

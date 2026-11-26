@@ -8,6 +8,14 @@ import { written } from "@/valueNumbers";
 
 const lastPart = (iri: string): string => iri.slice(Math.max(iri.lastIndexOf("#"), iri.lastIndexOf("/")) + 1);
 
+const NAMED = 80; // signs of a rule's wording a button's name carries
+
+/** What a button names a rule by: its kind and the start of its wording. */
+export function ruleName(rule: Pick<Rule, "kind" | "verbatim">): string {
+  const wording = rule.verbatim.length > NAMED ? `${rule.verbatim.slice(0, NAMED - 1)}…` : rule.verbatim;
+  return t("documents.page.rules.named", { kind: kindWord(rule.kind), wording });
+}
+
 /** The rule's kind in words; a kind the page has no words for as the server names it. */
 export function kindWord(kind: string): string {
   const words: Record<string, string> = messages.documents.page.rules.kinds;

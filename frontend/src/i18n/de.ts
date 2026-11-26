@@ -1537,10 +1537,20 @@ export const messages = {
         unnamed: "{kind} ohne Namen",
         separator: " · ",
         listSeparator: ", ",
-        // a rule of a selection whose options are text alone: the export names no kind until one is linked
+        // a selection of fewer than two linked options: the export names no kind until two are linked
         unlinked:
-          "Diese Auswahlregel nennt ihre Optionen nur im Wortlaut. Verknüpfe mindestens zwei, damit der Export sie " +
-          "als Auswahlregel nennt.",
+          "Diese Auswahlregel hat weniger als zwei verknüpfte Optionen. Verknüpfe mindestens zwei, damit der Export " +
+          "sie als Auswahlregel nennt.",
+        // what a button names a rule by: its kind and the start of its wording
+        named: "{kind} „{wording}“",
+        edit: "Regel bearbeiten",
+        editNamed: "Regel bearbeiten: {rule}",
+        close: "Schließen",
+        // the rows a rule names in one role (RuleTargets.vue)
+        noneChosen: "Noch nichts gewählt.",
+        search: "Suchen",
+        moreMatch: "{count} {count|weiterer passt|weitere passen}; grenze die Suche ein.",
+        noMatch: "Nichts passt zur Suche.",
         // a rule's form (RuleForm.vue)
         formHeading: "{kind} bearbeiten",
         fields: {

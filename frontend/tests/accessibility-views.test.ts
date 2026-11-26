@@ -426,7 +426,7 @@ describe("accessibility of the pages", () => {
     expect(found, describeViolations(found)).toEqual([]);
   });
 
-  it("the document's page with its rules in their forms, a new one's problems at its fields, has none", async () => {
+  it("the document's page with a rule's form open, a new one's problems at its fields, has none", async () => {
     api.setToken("curricarta_token");
     setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
     vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
@@ -439,6 +439,7 @@ describe("accessibility of the pages", () => {
     vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
     vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [ruleOf(), ruleOf({ id: "r2", kind: "prerequisite" })] }));
     const wrapper = await show("/dokumente/d1");
+    await wrapper.findAll(".rules__edit")[1]?.trigger("click");
     await wrapper.get(".rules__add").trigger("click");
     await wrapper.get("form.rule-new").trigger("submit");
     await flushPromises();
