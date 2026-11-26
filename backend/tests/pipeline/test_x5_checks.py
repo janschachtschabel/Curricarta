@@ -169,6 +169,23 @@ async def test_a_rule_whose_bounds_contradict_is_a_warning(connection: psycopg.A
     )
 
 
+async def test_a_rejected_rule_is_none_x5_checks(connection: psycopg.AsyncConnection) -> None:
+    # taken away by an editor (app/db/rules.py), it is none of the document's rules
+    document = await a_document(connection)
+    run = await a_run(connection, document, "X3")
+    drafts = [
+        FramePartDraft(
+            "rules", RULE | {"minCount": 3, "maxCount": 2}, AT, origin=MODEL, review_status=PROPOSED
+        )
+    ]
+    [part] = await write_frame_parts(connection, document.id, document.conversion_id, drafts, run_id=run)
+    await connection.execute(
+        "UPDATE frame_part SET review_status_iri = %s WHERE id = %s", (CV + "rev_rejected", part)
+    )
+
+    assert await plausibility(connection, document.id) == []
+
+
 async def test_a_value_retired_since_it_was_written_is_a_warning(connection: psycopg.AsyncConnection) -> None:
     document = await a_document(connection)
     binding, outcome, expectation = (

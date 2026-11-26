@@ -80,7 +80,12 @@ _EMPTY_UNITS = """
 SELECT unit_key, node_id FROM extraction_unit
 WHERE document_id = %s AND statements = 0 AND cardinality(checked_absent) = 0 ORDER BY unit_key
 """
-_RULES = "SELECT id, content FROM frame_part WHERE document_id = %s AND part_kind = 'rules' ORDER BY position"
+# a rule an editor took away is rejected, and none of the document's (app/db/rules.py)
+_RULES = """
+SELECT id, content FROM frame_part
+WHERE document_id = %s AND part_kind = 'rules' AND review_status_iri <> 'https://w3id.org/wlo/curriculum/vocab#rev_rejected'
+ORDER BY position
+"""
 _RETIRED = """
 SELECT n.id, value.field, value.iri FROM node n
 CROSS JOIN LATERAL (VALUES ('nodeFunction', n.function_iri), ('nodeType', n.node_type_iri),
