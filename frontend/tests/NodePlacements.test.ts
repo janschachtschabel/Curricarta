@@ -99,6 +99,17 @@ const select = (wrapper: VueWrapper, place: number, label: string) => {
   return fieldset.get(`#${found.attributes("for")}`);
 };
 
+/** The places the search of an entry offers, by their paths. */
+const placesOffered = (wrapper: VueWrapper, place: number) =>
+  entry(wrapper, place).findAll("[data-test=places-offered] button").map((one) => one.text());
+
+/** Choose the place `label` of an entry by its search. */
+async function choosePlace(wrapper: VueWrapper, place: number, label: string): Promise<void> {
+  const found = entry(wrapper, place).findAll("[data-test=places-offered] button").find((one) => one.text() === label);
+  if (!found) throw new Error(label);
+  await found.trigger("click");
+}
+
 async function save(wrapper: VueWrapper): Promise<void> {
   (wrapper.get(".node-placements__save").element as HTMLElement).focus();
   await wrapper.get("form").trigger("submit");
@@ -172,7 +183,7 @@ describe("a node's placements in their form", () => {
 
     await button(wrapper, "Verwendung hinzufügen").trigger("click");
     await select(wrapper, 2, "Variante").setValue("v1");
-    await select(wrapper, 2, "An Stelle").setValue("b1");
+    await choosePlace(wrapper, 2, "B Pflichtbereich");
     await select(wrapper, 2, "Verbindlichkeit (Pflichtfeld)").setValue(ELECTIVE);
     await select(wrapper, 2, "Notengewicht").setValue("2,5");
     await save(wrapper);
@@ -183,8 +194,7 @@ describe("a node's placements in their form", () => {
     ]);
     expect(saved).toHaveBeenCalledWith(answered([placement("p1"), placement("p9", { position: 2 })], 5));
     // the node itself is no place it may be at
-    const places = select(wrapper, 2, "An Stelle").findAll("option").map((one) => one.text());
-    expect(places).not.toContain("M 1 Analysis");
+    expect(placesOffered(wrapper, 1)).not.toContain("M 1 Analysis");
   });
 
   it("takes an entry away, the keyboard to the button that adds one", async () => {
@@ -306,8 +316,7 @@ describe("a node's placements in their form", () => {
     const wrapper = shown;
 
     return button(wrapper, "Verwendung hinzufügen").trigger("click").then(() => {
-      const labels = select(wrapper, 1, "An Stelle").findAll("option").map((one) => one.text());
-      expect(labels).toEqual(["keine", "B Pflichtbereich", "B Pflichtbereich › ohne Titel (Stelle 1)", "B Pflichtbereich › ohne Titel (Stelle 2)"]);
+      expect(placesOffered(wrapper, 1)).toEqual(["B Pflichtbereich", "B Pflichtbereich › ohne Titel (Stelle 1)", "B Pflichtbereich › ohne Titel (Stelle 2)"]);
     });
   });
 

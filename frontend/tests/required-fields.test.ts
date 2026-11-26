@@ -141,10 +141,15 @@ describe("a required field", () => {
     expect(control(words.obligation).attributes("aria-required")).toBe("true");
     expect(words.obligation).toMatch(/\(Pflichtfeld\)$/);
     // one of the two places at least: neither alone is required, as the server says at the first
-    for (const key of ["specification_id", "variant_id", "in_node_id", "grade_weight"] as const) {
+    for (const key of ["specification_id", "variant_id", "grade_weight"] as const) {
       expect(control(words[key]).attributes("aria-required"), key).toBeUndefined();
       expect(words[key]).not.toMatch(/\(|freiwillig/);
     }
+    // where it is, chosen by a search in a group named for it
+    const place = wrapper.findAll("fieldset").find((one) => one.get("legend").text() === words.in_node_id);
+    if (!place) throw new Error(words.in_node_id);
+    expect(place.get("input[type=search]").attributes("aria-required")).toBeUndefined();
+    expect(words.in_node_id).not.toMatch(/\(|freiwillig/);
     wrapper.unmount();
   });
 });

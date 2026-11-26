@@ -1,14 +1,15 @@
 <script setup lang="ts">
 /**
  * One placement of a node in the form of its placements (plan M3a K; placementDraft.ts): a group named by its place,
- * the specification and the variant it is in - one at least -, the node it is at, its obligation from the node's
- * list and its grade weight written the German way, each with its hint; and a button that names the entry to take it
- * away. A problem stands at its field (`<entry key>:<field>`). What else it shows - who stated it, how far it is
+ * the specification and the variant it is in - one at least -, the node it is at, by a search over the outline
+ * (PlacePicker), its obligation from the node's list and its grade weight written the German way, each with its hint;
+ * and a button that names the entry to take it away. A problem stands at its field (`<entry key>:<field>`). What else it shows - who stated it, how far it is
  * reviewed - stands in the slot.
  */
 import { computed } from "vue";
 
 import AppIcon from "@/components/AppIcon.vue";
+import PlacePicker from "@/components/PlacePicker.vue";
 import { messages, t } from "@/i18n/de";
 import type { Choice, PlacementEntry, PlacementField } from "@/placementDraft";
 
@@ -64,24 +65,35 @@ function change(field: PlacementField, value: string): void {
     <legend>{{ legend }}</legend>
     <slot :entry="entry" />
     <div class="placement-item__fields">
-      <div v-for="field in SELECTS" :key="field" class="field">
-        <label :for="control(field)">{{ labels[field] }}</label>
-        <select
-          :id="control(field)"
-          :value="entry[field]"
-          :aria-required="field === REQUIRED || undefined"
-          :aria-invalid="fault(field) !== undefined || undefined"
-          :aria-describedby="describedBy(field)"
-          @change="change(field, ($event.target as HTMLSelectElement).value)"
-        >
-          <option value="">
-            {{ field === REQUIRED ? t("documents.tree.placements.choose") : t("documents.tree.placements.noChoice") }}
-          </option>
-          <option v-for="choice in choices[field]" :key="choice.id" :value="choice.id">{{ choice.label }}</option>
-        </select>
-        <p v-if="fault(field) !== undefined" :id="`${control(field)}-error`" class="field__error"><AppIcon name="warning" /> {{ fault(field) }}</p>
-        <p :id="`${control(field)}-hint`" class="field__hint">{{ hints[field] }}</p>
-      </div>
+      <template v-for="field in SELECTS" :key="field">
+        <PlacePicker
+          v-if="field === 'in_node_id'"
+          :model-value="entry.in_node_id"
+          :places="places"
+          :control-id="control(field)"
+          :hint="hints[field]"
+          :error="fault(field) ?? null"
+          @update:model-value="(value) => change(field, value)"
+        />
+        <div v-else class="field">
+          <label :for="control(field)">{{ labels[field] }}</label>
+          <select
+            :id="control(field)"
+            :value="entry[field]"
+            :aria-required="field === REQUIRED || undefined"
+            :aria-invalid="fault(field) !== undefined || undefined"
+            :aria-describedby="describedBy(field)"
+            @change="change(field, ($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">
+              {{ field === REQUIRED ? t("documents.tree.placements.choose") : t("documents.tree.placements.noChoice") }}
+            </option>
+            <option v-for="choice in choices[field]" :key="choice.id" :value="choice.id">{{ choice.label }}</option>
+          </select>
+          <p v-if="fault(field) !== undefined" :id="`${control(field)}-error`" class="field__error"><AppIcon name="warning" /> {{ fault(field) }}</p>
+          <p :id="`${control(field)}-hint`" class="field__hint">{{ hints[field] }}</p>
+        </div>
+      </template>
       <div class="field">
         <label :for="control(WEIGHT)">{{ labels.grade_weight }}</label>
         <input

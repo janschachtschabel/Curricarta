@@ -2363,7 +2363,8 @@ export const messages = {
           specification_id:
             "Wähle eine Spezifikation, eine Variante oder beides. Nenne bei einer Variante auch ihre Spezifikation: Nur dann zählt die Prüfung der Leistungspunkte je Semester die Verwendung mit.",
           variant_id: "Eine Variante der Spezifikation, etwa ein Schwerpunkt.",
-          in_node_id: "Wo im Plan der Abschnitt steht, etwa in einem Pflichtbereich. Lass das Feld leer, wenn das Dokument keine Stelle nennt.",
+          in_node_id:
+            "Wo im Plan der Abschnitt steht, etwa in einem Pflichtbereich. Such die Stelle und wähle sie; wähle keine, wenn das Dokument keine Stelle nennt.",
           obligation: "Wie verbindlich der Abschnitt dort ist.",
           grade_weight: "Sein Gewicht in der Gesamtnote, etwa 1,5. Lass das Feld leer, wenn das Dokument keines nennt.",
         },
@@ -2392,6 +2393,18 @@ export const messages = {
         weight: "Notengewicht {weight}",
         retired: "{value} (wird nicht mehr angeboten)",
         unknownPlace: "eine Stelle, die es nicht mehr gibt",
+        // where a placement is, chosen by a search over the outline (PlacePicker.vue): names of its buttons with
+        // their visible words first (WCAG 2.5.3)
+        placeSearch: "Stelle suchen",
+        placeChosen: "Gewählt: {place}",
+        placeNone: "Keine Stelle gewählt.",
+        placeRelease: "Stelle lösen",
+        placeReleaseNamed: "Stelle lösen: {place}",
+        placeChoose: "{place} wählen",
+        placeMore: "{count} {count|weitere Stelle passt|weitere Stellen passen}; grenze die Suche ein.",
+        placeNoMatch: "Keine Stelle passt zur Suche.",
+        placeChosenSaid: "Du hast „{place}“ gewählt.",
+        placeReleasedSaid: "Du hast die Stelle „{place}“ gelöst.",
         untitled: "ohne Titel",
         // a node without code and title, told apart from its siblings by its position
         untitledAt: "ohne Titel (Stelle {position})",
