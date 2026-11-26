@@ -2,7 +2,7 @@
 /**
  * Beside a stored value - or a specification's applicability context - in its form (plan M3a G, H): who stated it
  * and how far it is reviewed, and to the editors the toggles that set its review status (ReviewToggles), in a
- * group named for it. How a review went is told by a function with the holder's key and the value's words. Nothing
+ * group named for it. How a review went is told by a function with the holder's key and the value as shown. Nothing
  * for a value not yet stored.
  */
 import ReviewToggles from "@/components/ReviewToggles.vue";
@@ -16,7 +16,7 @@ defineProps<{
   value?: ShownValue;
   reviewable: boolean;
   documentId: string;
-  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, value: string) => void;
+  onReviewed?: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, value: ShownValue) => void;
 }>();
 </script>
 
@@ -29,7 +29,7 @@ defineProps<{
       :value="value.review"
       :label="t('documents.tree.values.reviewLabel', { value: value.words })"
       :document-id="documentId"
-      :on-reviewed="(done, key) => onReviewed?.(done, key, value?.words ?? '')"
+      :on-reviewed="(done, key) => value && onReviewed?.(done, key, value)"
     />
   </template>
 </template>

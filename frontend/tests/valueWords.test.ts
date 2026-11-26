@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import type { HeldLevel, HeldTimeSpan, HeldWorkload } from "@/api";
 import { messages, t } from "@/i18n/de";
-import { contextWords, levelInWay, levelWords, shownContexts, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
+import { contextWords, levelInWay, levelWords, shownContexts, timeSpanWords, valueReviewWords, valueWords, workloadWords } from "@/valueWords";
 
 import { CV, LVL, form_, noValues, value_ } from "./treeFixtures";
 
@@ -136,6 +136,15 @@ describe("an applicability context in words", () => {
     const nothing = { sector: null, formality: null, institution_text: null, target_group_text: null, level_assignments: [], time_spans: [] };
 
     expect(contextWords(nothing, FORM)).toBe(t("documents.page.scope.emptyContext"));
+  });
+
+  it("says a context changed meanwhile as a context, not as a value", () => {
+    expect(valueReviewWords({ outcome: "stale" }, "Schulbildung", "applicability_context")).toBe(
+      "Der Geltungskontext „Schulbildung“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
+    );
+    expect(valueReviewWords({ outcome: "stale" }, "GER B1", "level_assignment")).toBe(
+      "Der Wert „GER B1“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
+    );
   });
 
   it("shows each stored context and each of its values, with who stated it and a review by its table", () => {

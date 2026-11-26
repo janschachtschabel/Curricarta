@@ -116,9 +116,9 @@ const { faults, faultsAt, clear } = useFieldFaults<string>({
 
 // A value reviewed that is gone or changed meanwhile is no row gone: the tree is read again, the row kept. Told in
 // words that name the value, apart from the row's own status set beside it
-function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, value: string): void {
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, value: ShownValue): void {
   const told = done.outcome === "gone" ? ({ outcome: "stale" } as const) : done;
-  props.onReviewed?.(told, key, valueReviewWords(told, value));
+  props.onReviewed?.(told, key, valueReviewWords(told, value.words, value.review.table));
 }
 
 watch(dirty, (open) => emit("dirty", open), { immediate: true });

@@ -1871,7 +1871,7 @@ export const messages = {
           workload_kind: "Art des Umfangs",
           is_recommendation: "Richtwert, nicht verbindlich",
           minutes_per_unit: "Minuten je Einheit",
-          total: "Gesamtumfang der Zeile",
+          total: "Gesamtumfang",
           // a specification's applicability context's (ContextItemForm.vue)
           sector: "Bildungsbereich",
           formality: "Formalität",
@@ -1894,6 +1894,8 @@ export const messages = {
         // a value's review status set, told apart from the row's own (RowPanel.vue)
         reviewSet: "Prüfstand von „{value}“: {status}.",
         reviewStale: "Der Wert „{value}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
+        reviewStaleContext:
+          "Der Geltungskontext „{value}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
         // the most entries of a kind a holder takes (valueDraft.MOST_VALUES)
         most: "Mehr als {most} {most|Eintrag|Einträge} dieser Art werden nicht angenommen.",
         save: "Werte speichern",
@@ -1906,7 +1908,7 @@ export const messages = {
           introNothing:
             "Jemand hat diese Werte geändert, während du sie bearbeitet hast. Diese Änderungen sind übernommen; speichere erneut, um deine dazuzulegen.",
           introAgain:
-            "Jemand hat inzwischen gespeichert. Deine Werte sind noch nicht gespeichert; speichere erneut.",
+            "Jemand hat inzwischen etwas gespeichert. Deine Werte sind noch nicht gespeichert; speichere erneut.",
           yours: "Dein Stand",
           empty: "keine",
         },
@@ -1919,6 +1921,8 @@ export const messages = {
         },
         // a problem the store found with a context as a whole, named by the context (ContextItemForm.vue)
         contextProblem: "{entry}: {problem}",
+        // what the store refused at a context as a whole (backend `refused` at `contexts[0]`)
+        contextRefused: "Die Datenbank hat diesen Geltungskontext abgewiesen; prüfe seine Angaben.",
         remove: "{entry} entfernen",
         periodsKept: "Zeiträume dieses Umfangs: {spans}. Sie bleiben beim Speichern, wie sie sind.",
         // a value in words (valueWords.ts)

@@ -62,7 +62,7 @@ describe("an entry of a value's form", () => {
       "Art des Umfangs",
       "Richtwert, nicht verbindlich",
       "Minuten je Einheit",
-      "Gesamtumfang der Zeile",
+      "Gesamtumfang",
     ]);
     expect((wrapper.get("#v-amount").element as HTMLInputElement).value).toBe("80");
     expect(wrapper.get(".value-item__periods").text()).toBe(

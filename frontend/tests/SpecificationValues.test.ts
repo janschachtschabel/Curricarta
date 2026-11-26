@@ -236,7 +236,8 @@ describe("a refusal of a specification's set", () => {
     const section = await refused("contexts[0]", "refused");
 
     const problem = group(section, "Geltungskontext 1").get(".context-item__problem");
-    expect(problem.text()).toBe(`Geltungskontext 1: ${t("documents.tree.problems.refused")}`);
+    // the context refused, not a value
+    expect(problem.text()).toBe(`Geltungskontext 1: ${t("documents.tree.values.contextRefused")}`);
     expect(document.activeElement).toBe(problem.element);
   });
 

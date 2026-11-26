@@ -179,9 +179,18 @@ export function shownContexts(form: Form, contexts: readonly ApplicabilityContex
   ]);
 }
 
-/** How a value's review went, in words naming the value; none where the row's words say it (closed, refused). */
-export function valueReviewWords(done: Exclude<ReviewOutcome, { outcome: "failed" }>, value: string): string | undefined {
+/**
+ * How a value's review went, in words naming the value - of the table `table`: a context said as such -; none where
+ * the row's words say it (closed, refused).
+ */
+export function valueReviewWords(
+  done: Exclude<ReviewOutcome, { outcome: "failed" }>,
+  value: string,
+  table?: ValueTable,
+): string | undefined {
   if (done.outcome === "set") return t("documents.tree.values.reviewSet", { value, status: statusWord(statusIri(done.status)) });
-  if (done.outcome === "stale") return t("documents.tree.values.reviewStale", { value });
+  if (done.outcome === "stale") {
+    return t(table === "applicability_context" ? "documents.tree.values.reviewStaleContext" : "documents.tree.values.reviewStale", { value });
+  }
   return undefined;
 }

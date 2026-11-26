@@ -110,8 +110,10 @@ export function useValueSave(row: Ref<HolderRow>, form: Ref<Form>) {
       return { outcome: met(current as Holder) };
     }
     if (code === "invalid_field") {
-      const words = problemText(details.problem);
       const at = typeof details.field === "string" ? entryField(form.value, sent, details.field) : null;
+      // the store's refusal of a context as a whole: the context refused, no value of it
+      const words =
+        at?.endsWith(":context") && details.problem === "refused" ? t("documents.tree.values.contextRefused") : problemText(details.problem);
       const kept = at !== null && holdsEntry(draft.value, at.slice(0, at.indexOf(":")));
       if (at !== null && kept) return { outcome: "invalid", faults: [[at, words]] };
       problem.value = { text: t("documents.tree.values.saveFailed"), explanation: words, failed: true };
