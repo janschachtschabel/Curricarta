@@ -5,7 +5,15 @@ statement gets none."""
 
 from uuid import uuid4
 
-from app.domain.naming import GivenByKey, NodeRow, SpecificationRow, StatementRow, VariantRow, name_rows
+from app.domain.naming import (
+    GivenByKey,
+    NodeRow,
+    RuleRow,
+    SpecificationRow,
+    StatementRow,
+    VariantRow,
+    name_rows,
+)
 
 DOC = "https://example.org/kk/doc/de/kmk/rlp/2018"
 
@@ -243,3 +251,52 @@ def test_a_name_given_by_key_is_taken_once_and_a_variant_s_only_under_its_specif
 
     assert named.specifications == {first.id: f"{DOC}/spec/x", second.id: f"{DOC}/spec/b"}
     assert named.variants == {g8.id: f"{DOC}/spec/b/variant/g8"}
+
+
+def rule(iri: str | None = None, *, rejected: bool = False) -> RuleRow:
+    return RuleRow(uuid4(), iri, rejected)
+
+
+def test_a_document_s_rules_are_numbered_under_it_in_their_order() -> None:
+    first, second = rule(), rule()
+
+    named = name_rows(DOC, [], [], rules=[first, second])
+
+    assert named.rules == {first.id: f"{DOC}/rule-1", second.id: f"{DOC}/rule-2"}
+    assert named.document_serials == {"rule": 2}
+
+
+def test_a_rule_brought_along_keeps_its_iri_and_a_new_one_counts_on_past_every_number_given() -> None:
+    # revision 1 gave rule-1 to rule-3, of which the copy kept rule-2: a new rule takes no number given before
+    kept, new = rule(f"{DOC}/rule-2"), rule()
+
+    named = name_rows(DOC, [], [], rules=[kept, new], rule_serial=3)
+
+    assert named.rules == {new.id: f"{DOC}/rule-4"}
+    assert named.document_serials == {"rule": 4}
+
+
+def test_a_rejected_rule_gets_no_iri() -> None:
+    rejected, kept = rule(rejected=True), rule()
+
+    named = name_rows(DOC, [], [], rules=[rejected, kept])
+
+    assert named.rules == {kept.id: f"{DOC}/rule-1"}
+
+
+def test_a_rule_and_a_node_never_share_an_iri() -> None:
+    # a node coded "Rule 1" sits where the first rule would be named: the rule counts on past it
+    coded = node("Rule 1", 1)
+    first = rule()
+
+    named = name_rows(DOC, [coded], [], rules=[first])
+
+    assert named.nodes == {coded.id: f"{DOC}/rule-1"}
+    assert named.rules == {first.id: f"{DOC}/rule-2"}
+    assert named.document_serials == {"rule": 2}
+
+
+def test_no_rule_new_is_no_rule_named() -> None:
+    named = name_rows(DOC, [], [], rules=[rule(f"{DOC}/rule-1")], rule_serial=1)
+
+    assert (named.rules, named.document_serials) == ({}, {})

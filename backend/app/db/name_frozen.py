@@ -1,16 +1,19 @@
 """``python -m app.db.name_frozen``: the IRIs of the specifications and variants of documents frozen before
-they had any (migration 0034; plan M3a B1), once per instance after that migration.
+they had any (migration 0034; plan M3a B1), and of their rules (migration 0038; plan M3a I), once per instance
+after those migrations.
 
 Each frozen document whose specification or variant lacks its IRI is named as a freeze names it now
 (app/db/freezing.py, app/domain/naming.py): by the keys under the document's IRI, its revisions in their
 order, so a key names in a later revision what it named in an earlier one. Its nodes and statements have
-theirs; the database lets a frozen specification or variant take its IRI and nothing else (migration 0034).
+theirs; the database lets a frozen specification, variant or frame part take its IRI and nothing else
+(migrations 0034, 0038). A rule is numbered past every number the document's revisions gave; the frozen
+document's counter stays as it was, a later freeze reads the numbers its revisions hold.
 All in one transaction under the advisory lock every freeze shares (``NAMING_LOCK``): a second run waits for
 the first, then finds nothing left, and a freeze waits for it meanwhile and then reads what it named.
 Idempotent: a run with nothing to name changes nothing.
 
-Prints one line of JSON, counts alone - ``documents``, ``specifications``, ``variants`` named - and ends with
-exit code 0; a failure ends it with one log line and exit code 1, nothing named.
+Prints one line of JSON, counts alone - ``documents``, ``specifications``, ``variants``, ``rules`` named - and
+ends with exit code 0; a failure ends it with one log line and exit code 1, nothing named.
 """
 
 import asyncio
@@ -32,6 +35,8 @@ WHERE d.frozen_at IS NOT NULL AND (
     EXISTS (SELECT FROM specification s WHERE s.document_id = d.id AND s.iri IS NULL)
     OR EXISTS (SELECT FROM variant v JOIN specification s ON s.id = v.specification_id
                WHERE s.document_id = d.id AND v.iri IS NULL)
+    OR EXISTS (SELECT FROM frame_part f WHERE f.document_id = d.id AND f.part_kind = 'rules' AND f.iri IS NULL
+               AND f.review_status_iri <> 'https://w3id.org/wlo/curriculum/vocab#rev_rejected')
 )
 ORDER BY d.iri, d.revision
 """
@@ -42,11 +47,12 @@ class NamedFrozen:
     documents: int
     specifications: int
     variants: int
+    rules: int = 0
 
 
 async def name_frozen(connection: psycopg.AsyncConnection) -> NamedFrozen:
     """Name what the frozen documents lack, as above, in one transaction of its own; how many of each."""
-    documents = specifications = variants = 0
+    documents = specifications = variants = rules = 0
     async with connection.transaction():
         await connection.execute("SELECT pg_advisory_xact_lock(%s)", (NAMING_LOCK,))
         cursor = await connection.execute(_UNNAMED)
@@ -58,7 +64,8 @@ async def name_frozen(connection: psycopg.AsyncConnection) -> NamedFrozen:
             documents += 1
             specifications += len(named.specifications)
             variants += len(named.variants)
-    return NamedFrozen(documents, specifications, variants)
+            rules += len(named.rules)
+    return NamedFrozen(documents, specifications, variants, rules)
 
 
 async def _run(url: str) -> NamedFrozen:

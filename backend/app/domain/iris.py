@@ -76,6 +76,16 @@ def statement_iri(node: str, number: int) -> str:
     return f"{node}/s-{number}"
 
 
+def rule_iri(document: str, number: int) -> str:
+    """The rule's IRI: its frozen document's and its number among those the document's revisions have given
+    (plan M3a E4)."""
+    if not document.startswith(("https://", "http://")):
+        raise ValueError(f"a rule is named under its frozen document's http(s) IRI, not {document!r}")
+    if number < 1:
+        raise ValueError(f"a rule's number counts from 1, not {number}")
+    return f"{document}/rule-{number}"
+
+
 def specification_iri(document: str, segment: str) -> str:
     """The specification's IRI: its frozen document's, ``spec`` and the segment of its key (key_segment)."""
     return f"{_under(document, 'specification', segment)}/spec/{segment}"

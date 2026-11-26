@@ -123,7 +123,8 @@ eine JSON-Zeile mit Zählwerten, Exit-Code 3 heißt, dass schon ein Lauf die Spe
 (`docs/uebergabe/konfiguration.md`).
 `python -m app.db.name_frozen` gibt einmal je Instanz nach Migration 0034 den Spezifikationen und Varianten
 der Dokumente, die schon vorher festgeschrieben waren, ihre IRIs (`<dokument>/spec/<schlüssel>`,
-`…/variant/<schlüssel>`), wie das Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Er
+`…/variant/<schlüssel>`), nach Migration 0038 ebenso ihren Regeln (`<dokument>/rule-<n>`), wie das
+Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Er
 läuft, wenn keine Replica des vorigen Images mehr läuft; hat eine solche inzwischen festgeschrieben, ist ein
 weiterer Lauf nötig und gefahrlos. Im
 Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen`.
@@ -256,7 +257,7 @@ ungültig.
     Kern-Graphen, rdflib, Rechtestatus, Zahl der angenommenen Verstöße, Adresse des Eintrags, Lizenz oder
     Namensnennung des Imports oder die Länder ändern; zwei Bauten ergeben dieselben Bytes.
   - **Weigerungen:** 409 `export_not_frozen`; 409 `export_unnamed` für ein Dokument, das vor der Vergabe der
-    Spezifikations-IRIs festgeschrieben wurde, bis `python -m app.db.name_frozen` lief; 503
+    Spezifikations- oder Regel-IRIs festgeschrieben wurde, bis `python -m app.db.name_frozen` lief; 503
     `export_unavailable` mit `Retry-After`; 429 `too_many_exports` (`EXPORTS_PER_MINUTE` zählt beide Exporte
     zusammen, auch eine Anfrage, die danach mit `export_unnamed` endet). Zugriff hat, wer das Dokument und den Inhalt seines Eintrags lesen darf.
   - **Oberfläche:** Die Dokumentseite bietet ihn nach dem Festschreiben unter „Export als Curriculum-Kern“

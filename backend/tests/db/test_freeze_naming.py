@@ -231,7 +231,7 @@ def test_the_command_prints_counts_alone(database_url: str) -> None:
 
     assert done.returncode == 0, done.stderr
     assert [json.loads(line) for line in done.stdout.splitlines()] == [
-        {"documents": 0, "specifications": 0, "variants": 0}
+        {"documents": 0, "specifications": 0, "variants": 0, "rules": 0}
     ]
 
 
@@ -288,3 +288,84 @@ async def test_a_copy_recoded_and_given_its_old_key_anew_is_frozen_with_a_name_o
         ("lp-alt", DOC + "/spec/lp", [f"g8 {DOC}/spec/lp/variant/g8"]),
         ("sek", DOC + "/spec/sek", [f"g8 {DOC}/spec/sek/variant/g8-2", f"g8-alt {DOC}/spec/sek/variant/g8"]),
     ]
+
+
+async def framed(
+    connection: psycopg.AsyncConnection, document_id: UUID, kind: str = "rules", status: str = "rev_proposed"
+) -> UUID:
+    """A frame part of the kind after the document's others, a run's."""
+    part = await new_entity(connection, "frame_part")
+    await connection.execute(
+        "INSERT INTO frame_part (id, document_id, part_kind, content, origin_scheme, origin_iri,"
+        " review_status_scheme, review_status_iri, position)"
+        " SELECT %s, %s, %s, '{}', %s, %s, %s, %s, coalesce(max(position), 0) + 1 FROM frame_part"
+        " WHERE document_id = %s",
+        (part, document_id, kind, CV + "Origins", CV + "orig_model", CV + "ReviewStatuses", CV + status,
+         document_id),
+    )  # fmt: skip
+    return part
+
+
+async def rule_iris(connection: psycopg.AsyncConnection, document_id: UUID) -> list[tuple[Any, ...]]:
+    cursor = await connection.execute(
+        "SELECT part_kind, iri FROM frame_part WHERE document_id = %s ORDER BY position", (document_id,)
+    )
+    return list(await cursor.fetchall())
+
+
+async def test_a_frozen_document_s_rules_are_numbered_in_their_order(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await ready(connection, document)
+    await framed(connection, document.id)
+    await framed(connection, document.id, "operators")
+    await framed(connection, document.id, status="rev_rejected")
+    await framed(connection, document.id)
+
+    await freeze(connection, document.id, BASE, accept_violations=False)
+
+    assert await rule_iris(connection, document.id) == [
+        ("rules", DOC + "/rule-1"), ("operators", None), ("rules", None), ("rules", DOC + "/rule-2"),
+    ]  # fmt: skip
+    assert await one(connection, "SELECT serials FROM document WHERE id = %s", document.id) == ({"rule": 2},)
+
+
+async def test_a_copy_keeps_its_rules_names_and_a_new_rule_counts_on_past_every_number_given(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await ready(connection, document)
+    await framed(connection, document.id)
+    await framed(connection, document.id)
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    copy = await copy_document(connection, document.id)
+    assert await rule_iris(connection, copy) == await rule_iris(connection, document.id)
+
+    # the copy's last rule taken away: its number stays given
+    await connection.execute("DELETE FROM frame_part WHERE document_id = %s AND position = 2", (copy,))
+    await framed(connection, copy)
+    await checked(connection, Copy(copy))
+    await freeze(connection, copy, BASE, accept_violations=False)
+
+    assert await rule_iris(connection, copy) == [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-3")]
+
+
+async def test_rules_of_documents_frozen_before_are_named_by_the_command_once(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    await ready(connection, document)
+    await framed(connection, document.id)
+    await freeze(connection, document.id, BASE, accept_violations=False)
+    # as a freeze before migration 0038 left it: no rule named, none counted - for this test's database alone
+    for table in ("frame_part", "document"):
+        await connection.execute(f"ALTER TABLE {table} DISABLE TRIGGER {table}_stays_frozen")
+    await connection.execute("UPDATE frame_part SET iri = NULL WHERE document_id = %s", (document.id,))
+    await connection.execute("UPDATE document SET serials = '{}' WHERE id = %s", (document.id,))
+    for table in ("frame_part", "document"):
+        await connection.execute(f"ALTER TABLE {table} ENABLE TRIGGER {table}_stays_frozen")
+
+    first = await name_frozen(connection)
+    again = await name_frozen(connection)
+
+    assert first == NamedFrozen(documents=1, specifications=0, variants=0, rules=1)
+    assert again == NamedFrozen(documents=0, specifications=0, variants=0, rules=0)
+    assert await rule_iris(connection, document.id) == [("rules", DOC + "/rule-1")]

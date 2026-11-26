@@ -9,7 +9,8 @@ X5 not done on it (a draft copy runs none until its check job), owing it a check
 checked (``check_owed``), violations among its findings the editors have not accepted (``has_violations``).
 Then the work gets its IRI where it has none, the document its own - the work's country, issuer, the work's
 short title, edition (app/domain/iris.py) - where it has none, its specifications, variants, nodes and
-statements theirs (app/domain/naming.py); an IRI another work or document holds, committed before or while
+statements theirs, its rules theirs - numbered on past every number its revisions gave (``document.serials``,
+and what they hold) - (app/domain/naming.py); an IRI another work or document holds, committed before or while
 this one waited, refuses (``iri_taken``). The document is frozen last: after that, the triggers refuse every
 change. A freeze shares the lock python -m app.db.name_frozen holds alone (``NAMING_LOCK``): what one
 revision names by key, the other reads.
@@ -33,6 +34,7 @@ from app.domain.naming import (
     GivenByKey,
     Named,
     NodeRow,
+    RuleRow,
     SpecificationRow,
     StatementRow,
     VariantRow,
@@ -71,6 +73,19 @@ _GIVEN_VARIANTS = """
 SELECT DISTINCT ON (s.key, v.key) s.key, v.key, v.iri FROM variant v
 JOIN specification s ON s.id = v.specification_id JOIN document d ON d.id = s.document_id
 WHERE d.iri = %s AND v.iri IS NOT NULL ORDER BY s.key, v.key, d.revision DESC
+"""
+# a document's rules in their order (plan M3a I), and the highest rule number given: by the document's counter
+# and by the IRIs its revisions hold - a revision frozen before migration 0038 named its rules later
+_RULES = """
+SELECT id, iri, review_status_iri = %s FROM frame_part WHERE document_id = %s AND part_kind = 'rules'
+ORDER BY position
+"""
+_RULE_SERIAL = """
+SELECT greatest(
+    (SELECT (serials ->> 'rule')::integer FROM document WHERE id = %(document)s),
+    (SELECT max(substring(f.iri FROM '/rule-([0-9]+)$')::integer) FROM frame_part f
+     JOIN document d ON d.id = f.document_id WHERE d.iri = %(iri)s),
+    0)
 """
 _VIOLATIONS = "SELECT count(*) FROM validation_finding WHERE document_id = %s AND severity = 'violation'"
 
@@ -142,6 +157,11 @@ async def freeze(
             iri = document_iri(base, region, issuer, short_title, edition)
         named = await name_document(connection, document_id, iri)
         await write_names(connection, named)
+        for name, serial in named.document_serials.items():
+            await connection.execute(
+                "UPDATE document SET serials = jsonb_set(serials, %s, to_jsonb(%s::integer)) WHERE id = %s",
+                ([name], serial, document_id),
+            )
         frozen_now = "UPDATE document SET iri = %s, frozen_at = now(), updated_at = now() WHERE id = %s"
         await _give(connection, frozen_now, iri, document_id)
         counts = (len(named.nodes), len(named.statements), len(named.specifications), len(named.variants))
@@ -184,9 +204,13 @@ async def name_document(connection: psycopg.AsyncConnection, document_id: UUID, 
     given_specifications: dict[str, str] = dict(await cursor.fetchall())
     cursor = await connection.execute(_GIVEN_VARIANTS, (iri,))
     given_variants = {(specification, key): given for specification, key, given in await cursor.fetchall()}
+    cursor = await connection.execute(_RULES, (CV + "rev_rejected", document_id))
+    rules = [RuleRow(*found) for found in await cursor.fetchall()]
+    cursor = await connection.execute(_RULE_SERIAL, {"document": document_id, "iri": iri})
+    rule_serial = int((await cursor.fetchone() or (0,))[0])
     return name_rows(
         iri, nodes, statements, served, specifications=specifications, variants=variants,
-        given=GivenByKey(given_specifications, given_variants),
+        given=GivenByKey(given_specifications, given_variants), rules=rules, rule_serial=rule_serial,
     )  # fmt: skip
 
 
@@ -199,5 +223,6 @@ async def write_names(connection: psycopg.AsyncConnection, named: Named) -> None
             ("UPDATE node SET iri = %s WHERE id = %s", named.nodes),
             ("UPDATE node SET statement_serial = %s WHERE id = %s", named.serials),
             ("UPDATE statement SET iri = %s WHERE id = %s", named.statements),
+            ("UPDATE frame_part SET iri = %s WHERE id = %s", named.rules),
         ):
             await writing.executemany(query, [(value, row) for row, value in given.items()])

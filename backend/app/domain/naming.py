@@ -11,7 +11,9 @@ twice, though a draft copy took one away or dropped the node and made it anew at
 copy brought along keeps its IRI, whatever its code or key says now: an IRI once given stays. What is new is
 named past every IRI the document's rows hold - its siblings', a node's moved away from there, a
 specification's -: a segment one holds counts on ("lf-1-2"). A rejected statement is none of the curriculum's
-and gets no IRI; one it had stays.
+and gets no IRI; one it had stays. Rules (plan M3a I) are numbered under the document -
+``<document>/rule-<n>``, in their order - past the highest number the document's revisions gave
+(``rule_serial``) and past a segment a node holds; a rejected one gets none, as a statement.
 """
 
 from collections import defaultdict
@@ -24,6 +26,7 @@ from app.domain.iris import (
     key_segment,
     node_iri,
     node_segments,
+    rule_iri,
     specification_iri,
     statement_iri,
     variant_iri,
@@ -66,6 +69,13 @@ class VariantRow:
 
 
 @dataclass(frozen=True)
+class RuleRow:
+    id: UUID
+    iri: str | None
+    rejected: bool
+
+
+@dataclass(frozen=True)
 class GivenByKey:
     """What the revisions of the document named by key: a specification's IRI by its key, a variant's by its
     specification's key and its own."""
@@ -83,6 +93,9 @@ class Named:
     serials: dict[UUID, int] = field(default_factory=dict)
     specifications: dict[UUID, str] = field(default_factory=dict)
     variants: dict[UUID, str] = field(default_factory=dict)
+    rules: dict[UUID, str] = field(default_factory=dict)
+    # the document's counters that grew (document.serials): "rule", the highest rule number given now
+    document_serials: dict[str, int] = field(default_factory=dict)
 
 
 def name_rows(
@@ -94,18 +107,21 @@ def name_rows(
     specifications: Iterable[SpecificationRow] = (),
     variants: Iterable[VariantRow] = (),
     given: GivenByKey | None = None,
+    rules: Iterable[RuleRow] = (),
+    rule_serial: int = 0,
 ) -> Named:
     """The IRIs the rows of the document ``document`` (its frozen IRI) lack, given as above; ``served`` the
     highest statement number by node IRI the revisions of the document have given, ``given`` what they named
-    by key."""
-    nodes, statements = list(nodes), list(statements)
+    by key; ``rules`` in their order, ``rule_serial`` the highest rule number the revisions gave."""
+    nodes, statements, rules = list(nodes), list(statements), list(rules)
     specifications, variants = list(specifications), list(variants)
     given = given or GivenByKey()
-    rows: list[NodeRow | StatementRow | SpecificationRow | VariantRow] = [
+    rows: list[NodeRow | StatementRow | SpecificationRow | VariantRow | RuleRow] = [
         *nodes,
         *statements,
         *specifications,
         *variants,
+        *rules,
     ]
     held = _Held(
         [row.iri for row in rows if row.iri is not None]
@@ -127,6 +143,7 @@ def name_rows(
         ):
             _statements(row, iri, said[row.id], max(row.statement_serial, (served or {}).get(iri, 0)), named)
             pending.append((iri, children[row.id]))
+    _rules(document, rules, rule_serial, held, named)
     return named
 
 
@@ -139,6 +156,10 @@ class _Held:
         for iri in iris:
             parent, _, segment = iri.rpartition("/")
             self._under[parent].add(segment)
+
+    def holds(self, iri: str) -> bool:
+        parent, _, segment = iri.rpartition("/")
+        return segment in self._under[parent]
 
     def counter(self, parent: str) -> SegmentCounter:
         """A counter of the segments under ``parent``, past those held there; what it gives is held."""
@@ -185,6 +206,19 @@ def _free(name: str | None, under: str, taken: set[str]) -> str | None:
         return None
     taken.add(name)
     return name
+
+
+def _rules(document: str, rules: Sequence[RuleRow], serial: int, held: _Held, named: Named) -> None:
+    given = serial
+    for row in rules:
+        if row.iri is not None or row.rejected:
+            continue
+        serial += 1
+        while held.holds(rule_iri(document, serial)):  # a node's segment, or a rule's kept in the copy
+            serial += 1
+        named.rules[row.id] = rule_iri(document, serial)
+    if serial != given:
+        named.document_serials["rule"] = serial
 
 
 def _siblings(
