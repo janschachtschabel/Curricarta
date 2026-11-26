@@ -1360,4 +1360,19 @@ describe("a document's page with a draft of its applicability", () => {
     await choose(wrapper, t("documents.page.scope.leave.confirm"));
     expect(router.currentRoute.value.name).toBe("sources");
   });
+
+  it("lets the page go without asking once the draft is saved", async () => {
+    vi.spyOn(api, "setSpecificationValues").mockResolvedValue({ ...valuedSpecification(), revision: 2 });
+    const wrapper = await routed();
+    await wrapper.get(".context-item input[type=text]").setValue("Gespeichert");
+    await wrapper.get(".value-section form").trigger("submit");
+    await flushPromises();
+    expect(api.setSpecificationValues).toHaveBeenCalledTimes(1);
+
+    void router.push("/quellen");
+    await flushPromises();
+
+    expect(wrapper.find("[role=dialog]").exists()).toBe(false);
+    expect(router.currentRoute.value.name).toBe("sources");
+  });
 });
