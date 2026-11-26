@@ -2,16 +2,17 @@
 /**
  * One value of a row in the form of its values (plan M3a G; valueDraft.ts): a group named by its kind and place,
  * a field for each of its kind's form (FormFieldInput) - the lists offering what the holder may hold
- * (valueDraft.offeredFor), the levels grouped by system -, a problem at its field, and a button that names the
+ * (valueOffers.offeredFor), the levels grouped by system -, a problem at its field, and a button that names the
  * entry to take it away. Each change goes back as the entry's fields. A workload's periods are said as they stay:
  * this form does not edit them. What else an entry shows - who stated it and its review status - stands in the slot.
  */
 import { computed } from "vue";
 
-import type { Form, HolderKind, ValueKind } from "@/api";
+import type { Form, RuleHolder, ValueKind } from "@/api";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 import { messages, t } from "@/i18n/de";
-import { offeredFor, type Entry } from "@/valueDraft";
+import type { Entry } from "@/valueDraft";
+import { offeredFor } from "@/valueOffers";
 import { timeSpanWords } from "@/valueWords";
 
 const props = defineProps<{
@@ -20,7 +21,7 @@ const props = defineProps<{
   /** Its place among the entries of its kind, from 0. */
   place: number;
   form: Form;
-  holder: HolderKind;
+  holder: RuleHolder;
   /** A statement's kind, which some levels ask of it. */
   holderType: string | null;
   /** Its fields' controls are `<prefix>-<key>`. */

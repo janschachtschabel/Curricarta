@@ -10,7 +10,6 @@ import {
   entryField,
   kindsOf,
   MOST_VALUES,
-  offeredFor,
   rebaseValues,
   requestOf,
   sameValues,
@@ -19,6 +18,7 @@ import {
   type ValuesDraft,
 } from "@/valueDraft";
 import { t } from "@/i18n/de";
+import { offeredFor } from "@/valueOffers";
 
 import { CV, LVL, form_, noValues } from "./treeFixtures";
 
