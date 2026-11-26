@@ -4,8 +4,10 @@ assessment, specification or node it stands under, with its name (skos:prefLabel
 (cur:durationMinutes, xsd:integer), its weight in percent (cur:weightPercent, xsd:decimal), whether it is
 graded (cur:graded), where it came from and how far it is reviewed, what it assesses (cur:assesses) - the
 nodes and statements the graph states: a rejected statement is none of them - and the levels at it
-(cur:levelAssignment, as app/exports/kern_values.py states a value). Named as the naming names an assessment
-(app/exports/kern_naming.py): its urn:uuid in a draft, so X5 finds it at its row, its stored IRI once frozen.
+(cur:levelAssignment, as app/exports/kern_values.py states a value). A rejected one is left out with its
+parts and their levels, as a rejected value is (plan M3a L): a part of it would be a part of nothing stated.
+Named as the naming names an assessment (app/exports/kern_naming.py): its urn:uuid in a draft, so X5 finds it
+at its row, its stored IRI once frozen.
 Its anchors are not stated, as a specification's are not (app/exports/kern_rdf.py). The assessments are those
 app/exports/kern_rows.py reads, each part after its parent.
 """
@@ -19,6 +21,7 @@ from app.exports.kern_rows import KernRows, Row
 from app.exports.kern_values import level_value
 
 CUR = Namespace("https://w3id.org/wlo/curriculum/core#")  # as app/exports/kern_rdf.py, which calls here
+_REJECTED = "https://w3id.org/wlo/curriculum/vocab#rev_rejected"
 
 
 def add_assessments(graph: Graph, rows: KernRows, naming: Naming) -> None:
@@ -29,7 +32,11 @@ def add_assessments(graph: Graph, rows: KernRows, naming: Naming) -> None:
         "statement": {row["id"]: row for row in rows.statements},
         "assessment": {row.id: _row(row) for row in rows.assessments},
     }
-    for assessment in rows.assessments:
+    left_out: set[object] = set()
+    for assessment in rows.assessments:  # each part after its parent: a rejected one's parts follow it
+        if assessment.stated.review_status == _REJECTED or assessment.parent_id in left_out:
+            left_out.add(assessment.id)
+            continue
         subject = naming.of("assessment", held["assessment"][assessment.id])
         graph.add((subject, RDF.type, CUR.Assessment))
         graph.add((subject, CUR.assessmentKind, URIRef(assessment.assessment_kind)))

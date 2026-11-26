@@ -1,6 +1,6 @@
 """The editors' review of a document (plan M1 9.5; app/db/review.py): one review status - proposed,
-confirmed, rejected - for many of its nodes, statements and values (levels, time spans, workloads) at
-once, all or nothing, each on the revision it was read at. By the editors (Redaktion, Admin) alone,
+confirmed, rejected - for many of its nodes, statements, assessments, placements (plan M3a L) and values
+(levels, time spans, workloads) at once, all or nothing, each on the revision it was read at. By the editors (Redaktion, Admin) alone,
 audited; refused as app/api/edit_answers.py says, a stale row with each that stands otherwise and its
 revision now.
 """
@@ -27,7 +27,7 @@ MOST_REVIEWED = 2_000  # rows of one review: a long document's statements
 
 class ReviewItemIn(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    kind: ReviewKind  # a value's by its table: level_assignment, time_span, workload, applicability_context
+    kind: ReviewKind  # a row's or a value's by its table: level_assignment, time_span, workload, …
     id: UUID
     revision: int = Field(ge=1)  # the row's, as it was read
 
@@ -49,7 +49,7 @@ class ReviewOut(BaseModel):
 
 @router.post(
     "/documents/{document_id}/review",
-    summary="Set the review status of nodes, statements and values at once - the editors alone",
+    summary="Set the review status of rows and values at once - the editors alone",
     responses=answers("no_document: none the caller may read", REVIEW_RESPONSES)
     | {403: {"model": ErrorBody, "description": "not_editor: the editors alone review"}},
 )

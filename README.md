@@ -257,7 +257,7 @@ ungültig.
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
   Kommentarzeile am Anfang der Datei. Hat X5 das Dokument unter einer anderen Version des Kern-Graphen
   geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
-  `Curricarta-Graph-Version` beide (`checked=unknown; built=7`), ebenso eine Kommentarzeile; festgeschrieben
+  `Curricarta-Graph-Version` beide (`checked=unknown; built=8`), ebenso eine Kommentarzeile; festgeschrieben
   wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
     (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis
@@ -506,8 +506,8 @@ ungültig.
   `cycle` (ein Elternteil unter den eigenen Teilen), `too_long`. Audit `assessment.add`, `assessment.edit`
   (Feldnamen), `assessment.drop`, `assessment.values` mit Anzahlen, ohne Inhalte. Der Kern-Graph nennt jede
   als `cur:Assessment` mit `cur:partOf`, `cur:assessmentKind`, `cur:assesses` und ihren Niveaus; X5 meldet
-  Teile, deren Gewichte zusammen über 100 % liegen. Die Prüfungen und ihre Niveaus haben noch keinen
-  Prüfstand der Redaktion (`review`). In der Oberfläche stehen sie auf der Dokumentseite unter „Prüfungen“,
+  Teile, deren Gewichte zusammen über 100 % liegen. Den Prüfstand einer Prüfung und ihrer Niveaus setzt die
+  Redaktion (`review`); eine verworfene geht mit ihren Teilen und deren Niveaus nicht in den Graphen. In der Oberfläche stehen sie auf der Dokumentseite unter „Prüfungen“,
   jeder Teil unter seiner Prüfung; Eigentümer und Redaktion legen dort an, bearbeiten, legen Teile an,
   entfernen (nach Rückfrage) und setzen die Niveaus einer Prüfung, solange das Dokument offen ist.
 - Verwendungen: Der Baum (`GET /api/v1/documents/{id}/tree`) nennt an jedem Knoten seine Verwendungen
@@ -523,7 +523,7 @@ ungültig.
   Antwort: der Knoten wie im Baum; 409 `stale_revision` mit dem Knoten, wie er steht. `PUT
   /api/v1/placements/{id}/values` setzt Zeiträume (etwa das Fachsemester) und Umfänge (etwa ECTS) einer
   Verwendung auf ihrer Revision wie an einem Knoten; Niveaus trägt sie nicht (`not_held`), ihr Prüfstand
-  geht wie der eines Werts (`review`). Beides zählt die Revision der Verwendung und die ihres Knotens hoch; die
+  und der ihrer Werte geht wie der eines Werts (`review`); eine verworfene geht nicht in den Graphen. Beides zählt die Revision der Verwendung und die ihres Knotens hoch; die
   Antwort nennt sie (`node_revision`), damit das nächste Setzen der Verwendungen nicht veraltet ist. Abgewiesen wie beim
   Bearbeiten, 404 `no_node` bzw. `no_placement`, 422 `invalid_field` am Pfad (`placements[1].variant_id`):
   `required` (weder Spezifikation noch Variante), `not_offered` (eine Zeile, die nicht zum Dokument gehört,
@@ -537,15 +537,16 @@ ungültig.
   nicht. In der Oberfläche stehen sie im Baum am gewählten Knoten unter „Verwendungen“, die Zeit und der
   Umfang jeder Verwendung darunter.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
-  `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
-  `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis
+  `rejected`; `items`: je `kind` – `node`, `statement`, `assessment`, `placement` oder ein Wert:
+  `level_assignment`, `time_span`, `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis
   2.000) setzt den Prüfstand vieler Zeilen auf einmal, nur durch Redaktion/Admin (sonst 403
   `not_editor`): alles oder nichts – steht eine Zeile anders oder nicht mehr da, 409 `stale_revision`
   mit `details.stale` (je Zeile `current`, die Revision jetzt oder `null`). Die Herkunft bleibt, die
   Revision zählt eins hoch, eine Zeile mit diesem Prüfstand bleibt, wie sie ist; die Antwort nennt die
   Revisionen danach. Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
   (je Träger einmal, ein Zeitraum über seinen Umfang, ein Geltungskontext und seine Werte über ihre
-  Spezifikation): Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
+  Spezifikation, ein Niveau einer Prüfung über die Prüfung); die einer Verwendung und ihrer Werte auch die ihres
+  Knotens: Ein `PUT …/values` auf einer zuvor gelesenen Ansicht
   endet dann mit 409 `stale_revision`, statt die Entscheidung der Redaktion still zu überschreiben. Eine Aussage zu oder von „verworfen“ ändert, was der Lehrplan sagt (Export und X5
   lassen verworfene aus) und schuldet X5 eine Prüfung; ein Knoten verworfen bleibt in beiden. Ein verworfener
   Wert geht weder in den Graphen, den X5 prüft, noch in den Kern-Export – ein verworfener Umfang mit seinen

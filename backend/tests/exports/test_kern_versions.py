@@ -69,6 +69,7 @@ GRAPH_DIGESTS = {
     5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
     6: "35cec87d049670dbbf7df1e650ed49256f9129a339f0919bcf72a1bee5306ec9",  # assessments (plan M3a J)
     7: "2749dd35ea5938f25354d829fe3dda5fd189e3e53cb4764d1470cca2423f5a1c",  # placements (plan M3a K)
+    8: "d896b308f62427eca3656f722ca498dc66710846add3f76bfda7aeb005ca000e",  # rejected ones out (plan M3a L)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {

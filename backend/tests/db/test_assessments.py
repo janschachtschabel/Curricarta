@@ -20,7 +20,6 @@ from app.db.draft_copy import copy_document
 from app.db.editing import DocumentFrozen, StaleRevision, drop_node
 from app.db.findings import findings_of
 from app.db.freezing import freeze
-from app.db.review import ReviewItem, StaleItems, set_review
 from app.db.runs import x5_owed
 from app.db.source_queries import Reader
 from app.db.values import replace_values, values_of
@@ -310,28 +309,6 @@ async def test_two_editors_of_an_assessment_at_once_one_wins(
     assert lost.value.current == 2
     assert await one(connection, "SELECT label, revision FROM assessment WHERE id = %s", exam) == ("Erste", 2)
     assert await one(connection, "SELECT count(*) FROM level_assignment") == (0,)
-
-
-async def test_a_level_at_an_assessment_is_none_a_review_sets(
-    connection: psycopg.AsyncConnection, document: Any
-) -> None:
-    # reviewed with its assessment once assessments are: a review naming it finds no such row, changes nothing
-    specification = (await holders(connection, document))["specification"].id
-    exam = await an_exam(connection, document, specification)
-    await replace_values(
-        connection, owner(document), Holder("assessment", exam), 1, ValueDrafts(levels=(GRADE,))
-    )
-    [level] = (await values_of(connection, document.id))[Holder("assessment", exam)].levels
-    assert level.value.id is not None
-
-    with pytest.raises(StaleItems) as stale:
-        await set_review(
-            connection, document.id, CV + "rev_confirmed", [ReviewItem("level_assignment", level.value.id, 1)]
-        )
-
-    assert [(each.id, each.current) for each in stale.value.stale] == [(level.value.id, None)]
-    assert await one(connection, "SELECT review_status_iri, revision FROM level_assignment") == (PROPOSED, 1)
-    assert await one(connection, "SELECT revision FROM assessment WHERE id = %s", exam) == (2,)
 
 
 async def test_two_assessments_added_under_one_parent_at_once_take_positions_one_and_two(

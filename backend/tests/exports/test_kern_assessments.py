@@ -16,6 +16,7 @@ from rdflib.namespace import PROV
 
 from app.db.assessments import add_assessment
 from app.db.freezing import freeze
+from app.db.review import ReviewItem, set_review
 from app.db.values import replace_values
 from app.domain.assessments import AssessmentDraft, AssessmentRow, ParentKind, Target
 from app.domain.l2 import HeldValues, Holder, Level, LevelDraft, ValueDrafts
@@ -141,6 +142,37 @@ def test_what_an_assessment_assesses_is_stated_where_the_graph_states_it() -> No
     graph = kern_graph(with_assessments(rows, exam))
 
     assert list(graph.objects(uri(exam.id), CUR.assesses)) == []
+
+
+def test_a_rejected_assessment_is_not_stated_nor_its_parts_and_levels() -> None:
+    # as a rejected value is not (app/exports/kern_rows.py): a part of it would be a part of nothing stated
+    rows = a_document([CV + "addr_learner"])
+    rejected = replace(
+        an_assessment(("specification", held(rows)["specification"].id)),
+        stated=replace(STATED, review_status=CV + "rev_rejected"),
+    )
+    part = an_assessment(("assessment", rejected.id), PART, weight_percent=Decimal(60))
+    kept = an_assessment(("specification", held(rows)["specification"].id))
+
+    graph = kern_graph(with_assessments(rows, rejected, part, kept, graded_at=rejected.id))
+
+    assert list(graph.subjects(RDF.type, CUR.Assessment)) == [uri(kept.id)]
+    assert list(graph.subjects(CUR.level, URIRef(GRADE))) == []
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_an_assessment_the_editors_rejected_leaves_the_graph(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    top = await ready(connection, document)
+    made = await add_assessment(connection, owner(document), document.id, AssessmentDraft(top, EXAM))
+    assert made is not None
+    await set_review(connection, document.id, CV + "rev_rejected", [ReviewItem("assessment", made, 1)])
+
+    graph = kern_graph(await read_document(connection, document.id))
+
+    assert list(graph.subjects(RDF.type, CUR.Assessment)) == []
 
 
 @pytest.mark.pg

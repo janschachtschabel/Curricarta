@@ -16,6 +16,7 @@ from rdflib.namespace import PROV
 
 from app.db.freezing import freeze
 from app.db.placements import replace_placements
+from app.db.review import ReviewItem, set_review
 from app.db.values import replace_values
 from app.domain.l2 import HeldValues, Holder, ValueDrafts, WorkloadDraft
 from app.domain.placements import PlacementDraft, PlacementRow
@@ -171,6 +172,22 @@ def test_a_rejected_placement_is_not_stated() -> None:
     )
 
     graph = kern_graph(with_placements(rows, rejected))
+
+    assert list(graph.subjects(RDF.type, CUR.Placement)) == []
+
+
+@pytest.mark.pg
+@pytest.mark.anyio
+async def test_a_placement_the_editors_rejected_leaves_the_graph(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await placed(connection, document)
+    draft = PlacementDraft(BINDING, specification_id=made["specification"])
+    await replace_placements(connection, owner(document), made["module"], 1, [draft])
+    [placement] = (await read_document(connection, document.id)).placements
+    await set_review(connection, document.id, CV + "rev_rejected", [ReviewItem("placement", placement.id, 1)])
+
+    graph = kern_graph(await read_document(connection, document.id))
 
     assert list(graph.subjects(RDF.type, CUR.Placement)) == []
 

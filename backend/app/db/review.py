@@ -1,15 +1,17 @@
-"""The editors' review of a document's nodes and statements (plan M1 9.5; Paket 9 G8) and of its values -
-levels, time spans and workloads, a workload's periods among them (plan M3a E; app/db/values.py), a
-specification's applicability contexts (plan M3a H1) and the time spans and workloads of a placement (plan M3a
-K), each a row with its own origin and review status: one review status for many rows at once, all or nothing
-- each row on the revision it was read at, else none is set (StaleItems names those that stand otherwise, or
-no more). A row set counts its revision one up and keeps its origin: a review is no edit. A value set counts
-its holder's revision one up as well - a node's, a statement's, a specification's or a placement's, a period's
-through its workload, a context and its values through the context's specification; once a holder, and not
-where the holder's own review counted it -, as the holder's revision is the token a set of its values is made
-on (app/db/values.py): a set read before the review is stale. It holds the tree's lock and refuses beside an
-open job, before X4 is done and once the document is frozen, as every change does (app/db/editing.py,
-``guard``).
+"""The editors' review of a document's nodes and statements (plan M1 9.5; Paket 9 G8), of its assessments
+and placements (plan M3a L) and of its values - levels, time spans and workloads, a workload's periods among
+them (plan M3a E; app/db/values.py), a specification's applicability contexts (plan M3a H1), the levels at an
+assessment (plan M3a J) and the time spans and workloads of a placement (plan M3a K), each a row with its own
+origin and review status: one review status for many rows at once, all or nothing - each row on the revision
+it was read at, else none is set (StaleItems names those that stand otherwise, or no more). A row set counts
+its revision one up and keeps its origin: a review is no edit. A value set counts its holder's revision one up
+as well - a node's, a statement's, a specification's, an assessment's or a placement's, a period's through its
+workload, a context and its values through the context's specification; once a holder, and not where the
+holder's own review counted it -, as the holder's revision is the token a set of its values is made on
+(app/db/values.py): a set read before the review is stale. So a placement set counts its node's, the token of
+a set of the node's placements (app/db/placements.py), as a set of a placement's values does. It holds the
+tree's lock and refuses beside an open job, before X4 is done and once the document is frozen, as every
+change does (app/db/editing.py, ``guard``).
 
 A review changes not what the document says, but a statement rejected, or taken back from rejected, enters or
 leaves the curriculum (the Kern export and X5 leave rejected ones out): that edits the document
@@ -27,7 +29,14 @@ import psycopg
 from app.db.editing import CV, guard, mark_edited
 
 ReviewKind = Literal[
-    "node", "statement", "level_assignment", "time_span", "workload", "applicability_context"
+    "node",
+    "statement",
+    "level_assignment",
+    "time_span",
+    "workload",
+    "applicability_context",
+    "assessment",
+    "placement",
 ]  # by their tables
 REJECTED = CV + "rev_rejected"
 _KINDS: tuple[ReviewKind, ...] = get_args(ReviewKind)
@@ -35,37 +44,41 @@ _CURRENT = (
     "SELECT id, revision, review_status_iri FROM {table} WHERE document_id = %s AND id = ANY(%s){only}"
     " FOR UPDATE"
 )
-# a level at a rules frame part is the rules' (plan M3a I), which no reader shows yet: none reviews it; nor
-# one at an assessment, which is reviewed with its assessment, once assessments are (plan M3a J)
-_ONLY = {"level_assignment": " AND frame_part_id IS NULL AND assessment_id IS NULL"}
+# a level at a rules frame part is the rules' (plan M3a I), which no reader shows yet: none reviews it
+_ONLY = {"level_assignment": " AND frame_part_id IS NULL"}
 _SET = """
 UPDATE {table} SET review_status_iri = %s, revision = revision + 1, updated_at = now()
 WHERE id = ANY(%s) RETURNING id, revision
 """
 # a value's holder by its table: the row of its own holder's column - a period's, its workload's holder's; a
-# context's value's, its context's specification
+# context's value's, its context's specification; a level's at an assessment, the assessment (plan M3a J). A
+# placement's, its node: a set of the node's placements is made on the node's revision (plan M3a K)
 _HOLDER_OF: dict[str, LiteralString] = {
     "level_assignment": (
-        "SELECT l.id, l.node_id, l.statement_id, coalesce(l.specification_id, c.specification_id), NULL::uuid"
-        " FROM level_assignment l LEFT JOIN applicability_context c ON c.id = l.applicability_context_id"
-        " WHERE l.id = ANY(%s)"
+        "SELECT l.id, l.node_id, l.statement_id, coalesce(l.specification_id, c.specification_id),"
+        " NULL::uuid, l.assessment_id FROM level_assignment l"
+        " LEFT JOIN applicability_context c ON c.id = l.applicability_context_id WHERE l.id = ANY(%s)"
     ),
     "time_span": (
         "SELECT t.id, coalesce(t.node_id, w.node_id), NULL::uuid, coalesce(t.specification_id,"
-        " w.specification_id, c.specification_id), coalesce(t.placement_id, w.placement_id) FROM time_span t"
-        " LEFT JOIN workload w ON w.id = t.workload_id"
+        " w.specification_id, c.specification_id), coalesce(t.placement_id, w.placement_id), NULL::uuid"
+        " FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id"
         " LEFT JOIN applicability_context c ON c.id = t.applicability_context_id WHERE t.id = ANY(%s)"
     ),
     "workload": (
-        "SELECT id, node_id, NULL::uuid, specification_id, placement_id FROM workload WHERE id = ANY(%s)"
+        "SELECT id, node_id, NULL::uuid, specification_id, placement_id, NULL::uuid FROM workload"
+        " WHERE id = ANY(%s)"
     ),
     "applicability_context": (
-        "SELECT id, NULL::uuid, NULL::uuid, specification_id, NULL::uuid FROM applicability_context"
-        " WHERE id = ANY(%s)"
+        "SELECT id, NULL::uuid, NULL::uuid, specification_id, NULL::uuid, NULL::uuid"
+        " FROM applicability_context WHERE id = ANY(%s)"
+    ),
+    "placement": (
+        "SELECT id, node_id, NULL::uuid, NULL::uuid, NULL::uuid, NULL::uuid FROM placement WHERE id = ANY(%s)"
     ),
 }
 # in the order _HOLDER_OF names their columns
-_HOLDER_TABLES = ("node", "statement", "specification", "placement")
+_HOLDER_TABLES = ("node", "statement", "specification", "placement", "assessment")
 _LOCK = "SELECT FROM {table} WHERE document_id = %s AND id = ANY(%s) ORDER BY id FOR UPDATE"
 _RAISE = "UPDATE {table} SET revision = revision + 1 WHERE id = ANY(%s) RETURNING id, revision"
 
