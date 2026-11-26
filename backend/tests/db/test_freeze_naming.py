@@ -433,7 +433,7 @@ async def test_a_copy_frozen_before_the_command_takes_the_names_of_the_rules_it_
     connection: psycopg.AsyncConnection, document: Any
 ) -> None:
     # frozen by an image that knew no rule IRIs while the command had not run: its freeze now names what it
-    # copied as the copied revision's, and numbers on only past them
+    # copied as the copied revision's, an edit made in the copy meanwhile too
     await ready(connection, document)
     await worded(connection, document.id, "A", "B")
     await freeze(connection, document.id, BASE, accept_violations=False)
@@ -448,5 +448,5 @@ async def test_a_copy_frozen_before_the_command_takes_the_names_of_the_rules_it_
 
     await freeze(connection, copy, BASE, accept_violations=False)
 
-    # A corresponds by place and wording; B changed and is a rule of its own
-    assert await rule_iris(connection, copy) == [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-3")]
+    # each corresponds by its place and the time it was made, B though its values were changed in the copy
+    assert await rule_iris(connection, copy) == [("rules", DOC + "/rule-1"), ("rules", DOC + "/rule-2")]

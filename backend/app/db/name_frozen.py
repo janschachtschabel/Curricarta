@@ -49,7 +49,7 @@ UPDATE frame_part f SET iri = c.iri
 FROM document d, frame_part c
 WHERE f.document_id = d.id AND d.frozen_at IS NULL AND d.copy_of IS NOT NULL AND f.part_kind = 'rules'
     AND f.iri IS NULL AND c.document_id = d.copy_of AND c.part_kind = 'rules' AND c.iri IS NOT NULL
-    AND c.position = f.position AND c.content = f.content AND c.created_at = f.created_at
+    AND c.position = f.position AND c.created_at = f.created_at
     AND NOT EXISTS (SELECT FROM frame_part o WHERE o.document_id = d.id AND o.iri = c.iri)
 """
 

@@ -75,14 +75,15 @@ JOIN specification s ON s.id = v.specification_id JOIN document d ON d.id = s.do
 WHERE d.iri = %s AND v.iri IS NOT NULL ORDER BY s.key, v.key, d.revision DESC
 """
 # a document's rules in their order (plan M3a I), each with the IRI of the rule it corresponds to in the
-# revision it copies or in a copy of it - the same place, content and time it was made, as a copy keeps them:
-# a rule made anew in the copy corresponds to none -; and the highest rule number given: by the document's
-# counter and by the IRIs its revisions hold - a revision frozen before migration 0038 named its rules later
+# revision it copies or in a copy of it - the same place and time it was made, as a copy keeps them, whatever
+# an editor changed of its values there: a rule made anew in the copy corresponds to none -; and the highest
+# rule number given: by the document's counter and by the IRIs its revisions hold - a revision frozen before
+# migration 0038 named its rules later
 _RULES = """
 SELECT f.id, f.iri, f.review_status_iri = %(rejected)s,
     (SELECT c.iri FROM frame_part c JOIN document cd ON cd.id = c.document_id
      WHERE (cd.id = d.copy_of OR cd.copy_of = d.id) AND c.part_kind = 'rules' AND c.iri IS NOT NULL
-         AND c.position = f.position AND c.content = f.content AND c.created_at = f.created_at
+         AND c.position = f.position AND c.created_at = f.created_at
      ORDER BY cd.revision LIMIT 1)
 FROM frame_part f JOIN document d ON d.id = f.document_id
 WHERE f.document_id = %(document)s AND f.part_kind = 'rules'
