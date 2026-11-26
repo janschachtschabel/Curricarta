@@ -88,7 +88,7 @@ def test_a_document_without_context_rows_states_what_x1_read() -> None:
     graph = kern_graph(rows)
 
     [context] = graph.objects(specification, CUR.applicability)
-    assert isinstance(context, BNode)  # no row of its own: X5 finds nothing at it
+    assert isinstance(context, BNode)  # no row of its own: X5 gives what it finds at it to the specification
     assert set(graph.predicate_objects(context)) == {
         (RDF.type, CUR.ApplicabilityContext), (CUR.educationSector, SCHOOL), (CUR.formality, FORMAL),
         (CUR.timeText, Literal("Ende Jahrgangsstufe 6")), (CUR.levelText, Literal("Niveaustufe D")),

@@ -1,8 +1,9 @@
 """X5's SHACL gate (plan M1 8.4; konzept §14): the shapes of cur-shapes.ttl and profil-shapes.ttl, no
 inference, the model in the data graph - as ontology/pruefung/pruefe.py checks the examples - over a
 document's Kern graph, in a child process with a deadline. The model left without the lexicons,
-alignments and migration, the document's rows as focus nodes and rdflib's queries kept translated: a
-measured tenth of the time, the same results (plan M1, Nachtrag 8a)."""
+alignments and migration and rdflib's queries kept translated: a measured fraction of the time, the same
+results (plan M1, Nachtrag 8a); the results kept on the document's subjects (tests/pipeline/
+test_shacl_nested.py: what a shape nests, and blank nodes)."""
 
 import logging
 import multiprocessing

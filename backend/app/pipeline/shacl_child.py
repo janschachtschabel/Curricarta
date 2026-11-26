@@ -4,11 +4,18 @@ As ontology/pruefung/pruefe.py checks the examples: the shapes of cur-shapes.ttl
 no inference (konzept §14: RDFS inference would hide 22 class checks), the model in the data graph -
 ``sh:class`` reads ``rdfs:subClassOf`` from cur-kern, the In… shapes ``skos:inScheme``, the node type and
 subkind checks ``skos:broader``. Measured on the examples and on documents as the export writes them
-(plan M1, Nachtrag 8a): the model without the lexicons, alignments and migration, and the document's
-rows as the only focus nodes, find what the whole model finds; and rdflib parses and translates a
-SPARQL constraint's query anew for each focus node - two thirds of the time - so its translation is kept
-for the run (``queries_kept_translated``), the reuse rdflib's ``prepareQuery`` stands for. A document of
-2,400 rows took 43 s so, 192 s without.
+(plan M1, Nachtrag 8a): the model without the lexicons, alignments and migration finds what the whole
+model finds; and rdflib parses and translates a SPARQL constraint's query anew for each focus node - two
+thirds of the time - so its translation is kept for the run (``queries_kept_translated``), the reuse
+rdflib's ``prepareQuery`` stands for.
+
+Every node the shapes target is a focus, the model's too; the results are kept on the data's subjects
+(``_results``), a blank node's given to the row that holds it. pyshacl's ``focus_nodes`` is not used: it
+filters the nested shape a ``sh:node`` (``sh:or``, ``sh:not``, ...) evaluates on a value by the same list,
+so no value's vocabulary (``shs:In…``) was ever checked, leaves out every blank node, and tests each
+target against the list - a time growing with the square of the rows (audit 2026-11-14). Measured on a
+synthetic document (app/exports/measure_kern.py): 2,400 rows 7 s, 16.8 s with it; 11,000 rows 32-41 s,
+228 s with it; 200 rows 2.2 s, 1.5 s with it - the model's own nodes, a second at most.
 
 Two shape sets: ``kern``, the core's and the profiles' over the core's model, as above; and ``mem``, the
 MEM-Schule shapes (ontology/mem/shapes, plan M2) over the class chain of the FWU ontology
@@ -28,6 +35,7 @@ from pathlib import Path
 from typing import Any, NamedTuple
 
 from rdflib import RDF, BNode, Graph, Literal, Namespace, URIRef
+from rdflib.term import Node
 
 from app.core.child import ChildLog, log_peak, stand_alone, write
 from app.vocab.loader import MODEL_DIRS
@@ -70,7 +78,8 @@ def model_paths(ontology_dir: Path) -> list[Path]:
 
 
 def validate_graph(ontology_dir: Path, data: Graph, shapes: ShapeSet = "kern") -> list[ShaclResult]:
-    """The results of the set's shapes over ``data`` at its subjects: its model read, the queries kept."""
+    """The results of the set's shapes over ``data`` at its subjects - a blank node's at the row holding it
+    (``_holder``) -: its model read, the queries kept."""
     from pyshacl import validate
 
     if shapes == "mem":
@@ -81,13 +90,10 @@ def validate_graph(ontology_dir: Path, data: Graph, shapes: ShapeSet = "kern") -
         model = _parsed(model_paths(ontology_dir))
     else:
         raise ValueError(f"{shapes!r} is no shape set (kern, mem)")
-    focus: list[str | URIRef] = sorted(
-        {subject for subject in data.subjects() if isinstance(subject, URIRef)}
-    )
     with queries_kept_translated():
         _, report, _ = validate(
             model + data, shacl_graph=shape_graph, inference="none", advanced=True, allow_warnings=True,
-            meta_shacl=False, focus_nodes=focus,
+            meta_shacl=False,
         )  # fmt: skip
     return _results(report, shape_graph, data)
 
@@ -177,7 +183,7 @@ def _results(report: Graph, shapes: Graph, data: Graph) -> list[ShaclResult]:
         message = report.value(result, SH.resultMessage)  # pyshacl's own, English, where the shape gave none
         found.append(
             ShaclResult(
-                str(focus), _name(shape), _SEVERITIES[str(report.value(result, SH.resultSeverity))],
+                _holder(data, focus), _name(shape), _SEVERITIES[str(report.value(result, SH.resultSeverity))],
                 _path(report, path),
                 str(message or ""),
                 None if value is None else str(value), None if component is None else _name(component),
@@ -185,6 +191,25 @@ def _results(report: Graph, shapes: Graph, data: Graph) -> list[ShaclResult]:
             )
         )  # fmt: skip
     return sorted(found, key=lambda result: [part or "" for part in result])
+
+
+def _holder(data: Graph, focus: Any) -> str:
+    """The focus as the row it is about: a named node itself; a blank node - X1's reading of an
+    applicability, a value or an anchor once frozen - the nearest named subject that holds it, followed
+    back through the blank nodes between (the first by name where several are as near); a blank node
+    nothing named holds, itself (``_:``), which the caller gives to the document."""
+    if not isinstance(focus, BNode):
+        return str(focus)
+    seen: set[Node] = {focus}
+    layer = seen.copy()
+    while layer:
+        holders = {subject for node in layer for subject in data.subjects(None, node)} - seen
+        named = sorted(str(holder) for holder in holders if not isinstance(holder, BNode))
+        if named:
+            return named[0]
+        seen |= holders
+        layer = holders
+    return f"_:{focus}"
 
 
 def _language(message: Any, constraint: Any, shapes: Graph) -> str | None:

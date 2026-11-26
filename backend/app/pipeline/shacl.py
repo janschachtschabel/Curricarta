@@ -1,10 +1,11 @@
 """X5's SHACL gate (plan M1 8.4): a document's Kern graph (app/exports/kern_rdf.py) validated in a child
 process (app/pipeline/shacl_child.py, app/core/child.py) within a deadline, its results as findings.
 
-The child keeps the results on the data's subjects. A result is about the row whose ``urn:uuid`` its
-focus node is; one on a subject of another name - or on a ``urn:uuid`` the caller names as no row of
-the document, as the file the document is in (plan M3a A1) - goes to the document, its focus in the
-details. The rule is the shape's name (``shacl.StatementShape``), the severity SHACL's. A validation past
+The child keeps the results on the data's subjects, one at a blank node on the nearest named subject
+holding it (X1's reading of an applicability: its specification). A result is about the row whose
+``urn:uuid`` its focus node is; one on a subject of another name - a blank node nothing named holds, too -
+or on a ``urn:uuid`` the caller names as no row of the document, as the file the document is in (plan
+M3a A1) - goes to the document, its focus in the details. The rule is the shape's name (``shacl.StatementShape``), the severity SHACL's. A validation past
 its deadline is given up and its child killed (ShaclTimeout); one that breaks in its child, or whose
 child ends without an answer, comes back by its error's kind (ShaclCrashed).
 
