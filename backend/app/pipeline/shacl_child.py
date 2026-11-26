@@ -14,8 +14,9 @@ Every node the shapes target is a focus, the model's too; the results are kept o
 filters the nested shape a ``sh:node`` (``sh:or``, ``sh:not``, ...) evaluates on a value by the same list,
 so no value's vocabulary (``shs:In…``) was ever checked, leaves out every blank node, and tests each
 target against the list - a time growing with the square of the rows (audit 2026-11-14). Measured on a
-synthetic document (app/exports/measure_kern.py): 2,400 rows 7 s, 16.8 s with it; 11,000 rows 32-41 s,
-228 s with it; 200 rows 2.2 s, 1.5 s with it - the model's own nodes, a second at most.
+synthetic document (app/exports/measure_kern.py), on a machine under other load: 2,400 rows 7-11 s,
+17-19 s with it; 11,000 rows 30-41 s, 228 s with it; 200 rows 2.2-2.8 s, 1.5-2.0 s with it - the model's
+own nodes, a second at most.
 
 Two shape sets: ``kern``, the core's and the profiles' over the core's model, as above; and ``mem``, the
 MEM-Schule shapes (ontology/mem/shapes, plan M2) over the class chain of the FWU ontology
