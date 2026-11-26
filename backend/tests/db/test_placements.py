@@ -259,7 +259,7 @@ async def test_a_placement_keeps_an_obligation_retired_since_until_it_is_changed
     connection: psycopg.AsyncConnection, document: Any
 ) -> None:
     made = await placed(connection, document)
-    in_specification = {"specification_id": made["specification"]}
+    in_specification: dict[str, Any] = {"specification_id": made["specification"]}
     await replace_placements(
         connection, owner(document), made["module"], 1, [PlacementDraft(ELECTIVE, **in_specification)]
     )
