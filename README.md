@@ -282,6 +282,12 @@ ungültig.
     zusammen, auch eine Anfrage, die danach mit `export_unnamed` endet). Zugriff hat, wer das Dokument und den Inhalt seines Eintrags lesen darf.
   - **Oberfläche:** Die Dokumentseite bietet ihn nach dem Festschreiben unter „Export als Curriculum-Kern“
     an; ein Import hat beide Knöpfe.
+- Register: `GET /api/v1/sources` nennt die Einträge, die das Konto sieht, die neuesten zuerst;
+  `POST /api/v1/sources` lädt eine Datei hoch (`multipart/form-data`, bis `MAX_UPLOAD_MB`),
+  `POST /api/v1/sources/import` holt sie von ihrer Adresse; `GET /api/v1/sources/{id}/file` gibt die Datei
+  eines Eintrags als Download aus (wer sie bekommt: `docs/uebergabe/anforderungen.md`, „Datei-Download?“).
+  `GET /api/v1/info` nennt ohne Token Name und Version des Dienstes, was Besucher dürfen, und die
+  Uploadgrenze.
 - Konvertierung (X0): `POST /api/v1/sources/{id}/conversions` startet für die Datei eines
   Eintrags den Job `source.convert` (pdfplumber) oder `source.convert_docling` (Docling) (202) oder
   gibt die vorhandene Konvertierung zurück (200, eine gescheiterte startet neu). Welche Engines
@@ -788,7 +794,9 @@ ungültig.
   Lesen darf sie nur ein Admin: `GET /api/v1/accounts?limit=50&offset=0` (nach Namen, mit
   `total`), `GET /api/v1/accounts/{id}` mit Rollen und Sperre, `GET /api/v1/accounts/{id}/keys`
   mit Bezeichnung, Anlage, letzter Nutzung und Widerruf – nie Token oder Hash; ein unbekanntes
-  Konto ist 404 `no_account`.
+  Konto ist 404 `no_account`. `DELETE /api/v1/keys/{id}` widerruft ein Token (nur Admin, 204; 409, wenn
+  danach kein Admin sich mehr anmelden könnte). `GET /api/v1/me` nennt jedem Konto Name, Rollen und ID
+  des Kontos, dem sein Token gehört.
 - `PUBLIC_ACCESS` (`off` | `lookup` | `search`, Standard `off`): was Besucher ohne Token dürfen.
   Das Sprachmodell braucht immer ein Token.
 - `MAX_UPLOAD_MB` (Standard 50, höchstens 500): die größte Datei, die ein Upload oder ein
