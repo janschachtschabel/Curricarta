@@ -6,7 +6,8 @@ and the counters of its names, the revision one up,
 its own draft IRI, ``copy_of`` the revision it copies - with every row the frozen one holds under ids of
 its own: specifications and their variants, frame parts, nodes (``applies_to`` and their parents
 followed), statements, addressees, anchors (their owner followed) and their blocks, the profile, the values
-- workloads, time spans, levels, applicability contexts - at their holders (followed as an anchor's owner).
+- workloads, time spans, levels, applicability contexts - at their holders (followed as an anchor's owner),
+the links of rules (their rule and target followed).
 IRIs,
 origins, review statuses, revisions, positions and found anchors are taken along as they are; no run is
 (``run_id`` none: the runs and their findings are the frozen revision's), so X5 owes the copy a check.
@@ -73,10 +74,11 @@ _ROWS: Final = (
     """,
     """
     INSERT INTO frame_part (id, document_id, part_kind, content, origin_scheme, origin_iri,
-        review_status_scheme, review_status_iri, rule_id, revision, created_at, updated_at, position)
+        review_status_scheme, review_status_iri, rule_id, revision, created_at, updated_at, position, iri,
+        by_hand)
     SELECT m.new, %(new)s, f.part_kind, f.content, f.origin_scheme, f.origin_iri,
         f.review_status_scheme, f.review_status_iri, f.rule_id, f.revision, f.created_at, f.updated_at,
-        f.position
+        f.position, f.iri, f.by_hand
     FROM frame_part f JOIN copied m ON m.old = f.id WHERE f.document_id = %(old)s
     """,
     """
@@ -182,6 +184,16 @@ _ROWS: Final = (
         LEFT JOIN copied sm ON sm.old = l.statement_id LEFT JOIN copied pm ON pm.old = l.specification_id
         LEFT JOIN copied fm ON fm.old = l.frame_part_id
         LEFT JOIN copied cm ON cm.old = l.applicability_context_id
+    WHERE l.document_id = %(old)s
+    """,
+    """
+    INSERT INTO rule_link (frame_part_id, document_id, role, position, node_id, statement_id,
+        specification_id, variant_id, variant_specification_id)
+    SELECT fm.new, %(new)s, l.role, l.position, nm.new, sm.new, pm.new, vm.new, vsm.new
+    FROM rule_link l JOIN copied fm ON fm.old = l.frame_part_id LEFT JOIN copied nm ON nm.old = l.node_id
+        LEFT JOIN copied sm ON sm.old = l.statement_id LEFT JOIN copied pm ON pm.old = l.specification_id
+        LEFT JOIN copied vm ON vm.old = l.variant_id
+        LEFT JOIN copied vsm ON vsm.old = l.variant_specification_id
     WHERE l.document_id = %(old)s
     """,
 )

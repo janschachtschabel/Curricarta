@@ -13,6 +13,7 @@ from uuid import UUID
 
 import psycopg
 import pytest
+from psycopg import sql
 
 from app.db.anchors import new_entity
 from app.db.draft_copy import _DOCUMENT, _ROWS, CopyRefused, copy_document
@@ -38,7 +39,7 @@ LEFT_OUT = {
     "frame_part": {"kind", "run_id"}, "node": {"kind", "run_id"}, "statement": {"kind", "run_id"},
     "statement_addressee": set(), "anchor_block": set(), "document_profile": set(),
     "workload": {"kind"}, "time_span": {"kind"}, "level_assignment": {"kind"},
-    "applicability_context": {"kind"},
+    "applicability_context": {"kind"}, "rule_link": set(),
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
 # units and findings; the gold standard's samples, drawn of the revision they name
@@ -88,8 +89,17 @@ async def content(connection: psycopg.AsyncConnection, document_id: Any) -> dict
                 LEFT JOIN specification sp ON sp.id = a.specification_id
             WHERE a.document_id = %(document)s ORDER BY 1, 2""", document_id),
         "frame": await rows(connection, """
-            SELECT part_kind, position, content, review_status_iri, run_id IS NULL FROM frame_part
-            WHERE document_id = %(document)s""", document_id),
+            SELECT part_kind, position, content, review_status_iri, run_id IS NULL, iri, by_hand
+            FROM frame_part WHERE document_id = %(document)s ORDER BY position""", document_id),
+        "links": await rows(connection, """
+            SELECT f.position, l.role, l.position,
+                coalesce(n.iri, s.iri, 'specification ' || sp.key, 'variant ' || v.key || ' of ' || vs.key)
+            FROM rule_link l JOIN frame_part f ON f.id = l.frame_part_id LEFT JOIN node n ON n.id = l.node_id
+                LEFT JOIN statement s ON s.id = l.statement_id
+                LEFT JOIN specification sp ON sp.id = l.specification_id
+                LEFT JOIN variant v ON v.id = l.variant_id
+                LEFT JOIN specification vs ON vs.id = l.variant_specification_id
+            WHERE l.document_id = %(document)s ORDER BY 1, 2, 3""", document_id),
         "specifications": await rows(connection, """
             SELECT s.key, s.title, s.revision, array(SELECT v.key || ' ' || v.label FROM variant v
                                          WHERE v.specification_id = s.id ORDER BY 1)
@@ -250,7 +260,46 @@ async def filled(connection: psycopg.AsyncConnection, document: Any) -> None:
         "UPDATE document_profile SET new_terms = '[\"Neu\"]' WHERE document_id = %s", (document.id,)
     )
     await valued(connection, document, frame, specification)
+    await ruled(connection, document, specification, variant)
     await freeze(connection, document.id, BASE, accept_violations=False)
+
+
+async def ruled(
+    connection: psycopg.AsyncConnection, document: Any, specification: UUID, variant: UUID
+) -> None:
+    """An editor's rule after the frame's operators, with an anchor, applying to the specification, its
+    options the top node and the variant, requiring the confirmed statement."""
+    rule, anchor = await new_entity(connection, "frame_part"), await new_entity(connection, "anchor")
+    await connection.execute(
+        "INSERT INTO frame_part (id, document_id, part_kind, content, origin_scheme, origin_iri,"
+        " review_status_scheme, review_status_iri, position, by_hand)"
+        ' VALUES (%s, %s, \'rules\', \'{"verbatim": "Zwei aus drei.", "ruleKind": "selection"}\','
+        " %s, %s, %s, %s, 2, true)",
+        (rule, document.id, CV + "Origins", CV + "orig_human", CV + "ReviewStatuses", CV + "rev_proposed"),
+    )
+    await connection.execute(
+        "INSERT INTO anchor (id, document_id, conversion_id, frame_part_id, page_start)"
+        " VALUES (%s, %s, %s, %s, 1)",
+        (anchor, document.id, document.conversion_id, rule),
+    )
+    top, statement = await one(
+        connection,
+        "SELECT (SELECT id FROM node WHERE document_id = %s AND parent_id IS NULL),"
+        " (SELECT id FROM statement WHERE document_id = %s AND verbatim = 'Sie prüfen.')",
+        document.id,
+        document.id,
+    )
+    for role, position, column, target in (
+        ("applies_to", 1, "specification_id", specification), ("option", 1, "node_id", top),
+        ("option", 2, "variant_id", variant), ("requires", 1, "statement_id", statement),
+    ):  # fmt: skip
+        await connection.execute(
+            sql.SQL(
+                "INSERT INTO rule_link (frame_part_id, document_id, role, position, variant_specification_id,"
+                " {}) VALUES (%s, %s, %s, %s, %s, %s)"
+            ).format(sql.Identifier(column)),
+            (rule, document.id, role, position, specification if column == "variant_id" else None, target),
+        )
 
 
 async def test_a_copy_is_the_next_revision_with_all_its_rows_iris_and_review_statuses(
@@ -263,6 +312,7 @@ async def test_a_copy_is_the_next_revision_with_all_its_rows_iris_and_review_sta
 
     assert await content(connection, copy) == before
     assert before["nodes"] and before["statements"] and before["anchors"] and before["frame"]
+    assert len(before["links"]) == 4
     assert await one(
         connection,
         "SELECT c.iri, c.revision, c.copy_of, c.frozen_at, c.draft_iri, c.edited_at IS NOT NULL,"
