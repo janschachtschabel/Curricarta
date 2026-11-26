@@ -253,3 +253,26 @@ async def test_a_node_taken_away_takes_its_placements_and_those_at_it_with_the_f
     assert await one(connection, "SELECT count(*) FROM validation_finding WHERE id = ANY(%s)", findings) == (
         0,
     )
+
+
+async def test_a_placement_keeps_an_obligation_retired_since_until_it_is_changed(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    made = await placed(connection, document)
+    in_specification = {"specification_id": made["specification"]}
+    await replace_placements(
+        connection, owner(document), made["module"], 1, [PlacementDraft(ELECTIVE, **in_specification)]
+    )
+    [placement] = await rows(connection, document)
+    await connection.execute("UPDATE vocab_concept SET retired_in = 1 WHERE iri = %s", (ELECTIVE,))
+
+    kept = await replace_placements(
+        connection, owner(document), made["module"], 2,
+        [PlacementDraft(ELECTIVE, **in_specification, grade_weight=Decimal(1), id=placement.id)],
+    )  # fmt: skip
+    with pytest.raises(FieldError) as refused:
+        await replace_placements(connection, owner(document), made["module"], 3,
+                                 [PlacementDraft(ELECTIVE, **in_specification)])  # fmt: skip
+
+    assert kept == 3
+    assert (refused.value.key, refused.value.problem) == ("placements[0].obligation", "not_offered")
