@@ -1486,7 +1486,7 @@ export const messages = {
         // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
         valuesSaveNamed: "Werte speichern: {title}",
         gone: "Diese Spezifikation gibt es nicht mehr; die Geltung wird neu geladen.",
-        // leaving the page with a draft of a specification's title, field, values or contexts (DocumentView.vue)
+        // leaving the page with a draft of a specification's title, field, values or contexts (DocumentEditors.vue)
         leave: {
           title: "Änderungen verwerfen?",
           message: "Deine Änderungen an der Geltung sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
@@ -1617,7 +1617,7 @@ export const messages = {
           not_share: "Hier gehört eine Zahl von 0 bis 1 hin, etwa 0,5.",
           not_page: "Hier gehört eine Seite der Datei hin, ab 1.",
         },
-        // leaving the page with a draft of a rule (DocumentView.vue)
+        // leaving the page with a draft of a rule (DocumentEditors.vue)
         leave: "Deine Änderungen an den Regeln sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
       },
       // a document's assessments (plan M3a J; DocumentAssessments.vue, AssessmentItem.vue, AssessmentForm.vue)
@@ -1719,7 +1719,7 @@ export const messages = {
         // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
         levelsSaveNamed: "Werte speichern: {title}",
         formFailed: "Die Niveaus lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
-        // leaving the page with a draft of an assessment or of its levels (DocumentView.vue)
+        // leaving the page with a draft of an assessment or of its levels (DocumentEditors.vue)
         leave: "Deine Änderungen an den Prüfungen sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
       },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)

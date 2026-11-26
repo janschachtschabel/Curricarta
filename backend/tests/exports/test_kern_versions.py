@@ -51,8 +51,7 @@ from app.vocab.loader import MODEL_DIRS
 # another validator is another check (a draft checked while every value's vocabulary went unchecked, audit
 # 2026-11-14, is owed one); beside it the files and the checker it validates by (check_digest). Not held:
 # rdflib and owlrl, on which pyshacl runs (the kept exports' fingerprint holds rdflib's version)
-# rule_rows, kern_rules: the rules read and stated (plan M3a I); assessment_rows, kern_assessments: the
-# assessments read and stated (plan M3a J)
+# assessment_rows, kern_assessments: the assessments read and stated (plan M3a J)
 GRAPH_MODULES = (
     kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child, rule_rows, kern_rules,
     assessment_rows, kern_assessments,
