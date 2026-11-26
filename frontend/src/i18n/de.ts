@@ -774,6 +774,8 @@ export const messages = {
     no_statement: "Diese Aussage gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     // a specification's title, field, values and contexts (backend app/api/specifications.py)
     no_specification: "Diese Spezifikation gibt es nicht mehr, oder dein Konto sieht sie nicht.",
+    // a rule's change (backend app/api/rules.py)
+    no_rule: "Diese Regel gibt es nicht mehr, oder dein Konto sieht sie nicht.",
     stale_revision: "Jemand hat das inzwischen geändert. Sieh dir den neuen Stand an und entscheide dann.",
     invalid_field: "Ein Feld lässt sich so nicht setzen. Prüfe die markierte Eingabe.",
     anchor_missing: "Eine Aussage braucht mindestens eine Fundstelle: Blöcke der Quelle oder eine Seite.",
@@ -1489,6 +1491,113 @@ export const messages = {
         },
         // the values' form did not come: what the section shows stays, editing waits for it
         formFailed: "Niveau, Zeit, Umfang und Geltung lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
+      },
+      // a document's rules (DocumentRules.vue, RuleForm.vue, RuleNew.vue; backend app/api/rules.py)
+      rules: {
+        heading: "Regeln",
+        intro:
+          "Was das Dokument zur Auswahl, zu Voraussetzungen, zum Abschluss, zur Anrechnung und zum Verlauf vorgibt – " +
+          "im Wortlaut, mit den Werten daraus und dem, wofür die Regel gilt.",
+        loading: "Die Regeln werden geladen …",
+        loadFailed: "Die Regeln wurden nicht geladen.",
+        noneTitle: "Keine Regeln",
+        noneBody: "Die Extraktion hat in diesem Dokument keine Regel gelesen. Du kannst eine anlegen.",
+        noneBodyReadOnly: "Die Extraktion hat in diesem Dokument keine Regel gelesen.",
+        closed: {
+          frozen: "Das Dokument ist festgeschrieben: Die Regeln sind nur zu lesen.",
+          job_open: "Zu diesem Dokument läuft gerade ein Auftrag: Die Regeln sind bis zu seinem Ende nur zu lesen.",
+          not_extracted: "Die Extraktion hat noch nicht jedes Arbeitspaket gelesen: Die Regeln sind bis dahin nur zu lesen.",
+        },
+        readOnly: "Die Regeln ändern die Eigentümerin oder der Eigentümer des Dokuments und die Redaktion.",
+        // cur:Rule's kinds by X3's ruleKind
+        kinds: {
+          selection: "Auswahlregel",
+          prerequisite: "Voraussetzungsregel",
+          completion: "Abschlussregel",
+          recognition: "Anrechnungsregel",
+          progression: "Fortschrittsregel",
+        },
+        // the facts of a rule
+        verbatim: "Wortlaut",
+        values: "Werte",
+        optionTexts: "Optionen im Wortlaut",
+        appliesTo: "Gilt für",
+        options: "Optionen",
+        requires: "Verlangt",
+        anchors: "Fundstelle",
+        status: "Prüfstand",
+        none: "keine",
+        count: "Anzahl: {bounds}",
+        amount: "Umfang: {bounds} {unit}",
+        requirement: "Voraussetzung: {kind}",
+        share: "Höchstanteil: {share} %",
+        between: "{least} bis {most}",
+        atLeast: "mindestens {value}",
+        atMost: "höchstens {value}",
+        unnamed: "{kind} ohne Namen",
+        separator: " · ",
+        listSeparator: ", ",
+        // a rule of a selection whose options are text alone: the export names no kind until one is linked
+        unlinked:
+          "Diese Auswahlregel nennt ihre Optionen nur im Wortlaut. Verknüpfe mindestens zwei, damit der Export sie " +
+          "als Auswahlregel nennt.",
+        // a rule's form (RuleForm.vue)
+        formHeading: "{kind} bearbeiten",
+        fields: {
+          kind: "Art",
+          verbatim: "Wortlaut",
+          min_count: "Mindestanzahl",
+          max_count: "Höchstanzahl",
+          min_amount: "Mindestumfang",
+          max_amount: "Höchstumfang",
+          amount_unit: "Einheit des Umfangs",
+          requirement_kind: "Art der Voraussetzung",
+          max_share: "Höchstanteil (0 bis 1)",
+          option_texts: "Optionen im Wortlaut, eine je Zeile",
+          applies_to: "Gilt für",
+          options: "Optionen",
+          requires: "Verlangt",
+          page: "Seite der Fundstelle",
+        },
+        kindHint:
+          "Optionen trägt nur eine Auswahlregel, Verlangtes und die Art der Voraussetzung nur eine " +
+          "Voraussetzungsregel, einen Höchstanteil nur eine Anrechnungsregel; mit einer anderen Art gehen sie beim Speichern.",
+        save: "Regel speichern",
+        // the button's name for a screen reader, its visible words first (WCAG 2.5.3): which rule it saves
+        saveNamed: "Regel speichern: {rule}",
+        saved: "Gespeichert.",
+        unchanged: "Nichts geändert.",
+        saveFailed: "Die Regel wurde nicht gespeichert.",
+        changedMeanwhile: "Jemand hat die Regel inzwischen geändert; der neue Stand ist geladen.",
+        fieldProblem: "{field}: {problem}",
+        gone: "Diese Regel gibt es nicht mehr; die Regeln werden neu geladen.",
+        // taking a rule away: a run's is rejected and stays, an editor's own is deleted
+        reject: "Regel verwerfen",
+        rejectNamed: "Regel verwerfen: {rule}",
+        delete: "Regel löschen",
+        deleteNamed: "Regel löschen: {rule}",
+        rejectTitle: "Regel verwerfen?",
+        rejectMessage: "Die Regel bleibt als verworfen stehen und geht nicht mehr in den Export.",
+        deleteTitle: "Regel löschen?",
+        deleteMessage: "Die Regel hast du oder die Redaktion von Hand angelegt; sie wird mit ihren Befunden gelöscht.",
+        rejected: "Die Regel ist verworfen.",
+        deleted: "Die Regel ist gelöscht.",
+        takeFailed: "Die Regel wurde nicht weggenommen.",
+        // a new rule (RuleNew.vue)
+        add: "Regel anlegen",
+        newHeading: "Neue Regel",
+        pageHint: "Pflichtfeld. Die Seite der Datei, auf der die Regel steht.",
+        create: "Anlegen",
+        cancel: "Abbrechen",
+        created: "Die Regel ist angelegt.",
+        createFailed: "Die Regel wurde nicht angelegt.",
+        problems: {
+          not_count: "Hier gehört eine ganze Zahl ab 0 hin.",
+          not_share: "Hier gehört eine Zahl von 0 bis 1 hin, etwa 0,5.",
+          not_page: "Hier gehört eine Seite der Datei hin, ab 1.",
+        },
+        // leaving the page with a draft of a rule (DocumentView.vue)
+        leave: "Deine Änderungen an den Regeln sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
       },
       // the frozen document's export as Curriculum-Kern RDF (DocumentKernExport.vue)
       kernExport: {

@@ -91,6 +91,12 @@ describe("an entry of a row's values on a narrow screen", () => {
     expect(stylesOf(source(file))).toMatch(/repeat\(auto-fill, minmax\(min\(12rem, 100%\), 1fr\)\)/);
   });
 
+  it("lets a rule's wording, option texts and links break anywhere rather than widen the page", () => {
+    expect(cssRules(stylesOf(source("components/DocumentRules.vue"))).find(({ selectors }) => selectors.includes(".rules__text"))?.body).toMatch(
+      /overflow-wrap:\s*anywhere/,
+    );
+  });
+
   it("lets a value's words and a level's label break anywhere rather than widen the panel", () => {
     expect(cssRules(stylesOf(source("components/ValueList.vue"))).find(({ selectors }) => selectors.includes(".value-list__words"))?.body).toMatch(
       /overflow-wrap:\s*anywhere/,

@@ -48,6 +48,8 @@ export const REFUSAL_CODES = [
   "no_statement",
   // a specification's title, field, values and contexts (backend app/api/specifications.py)
   "no_specification",
+  // a rule's change (backend app/api/rules.py)
+  "no_rule",
   "stale_revision",
   "invalid_field",
   "anchor_missing",

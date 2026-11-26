@@ -18,6 +18,7 @@ import { block, blockPage, conversion, table } from "./conversions";
 import { CV, LABELS, REGION, cueDecision, newTerm, nodeType, reviewCue, termDecision } from "./lexiconFixtures";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
+import { ruleOf, rulesOf } from "./ruleFixtures";
 import { SCOPE_FORM, specificationsOf, valuedSpecification } from "./scopeFixtures";
 import { CV as TREE_CV, LVL, NO_VALUES_FORM, form_, node_, noValues, tree_ } from "./treeFixtures";
 
@@ -409,6 +410,7 @@ describe("accessibility of the pages", () => {
     vi.spyOn(api, "listDocuments").mockResolvedValue([]);
     vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
     vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
+    vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [] }));
     vi.spyOn(api, "setSpecificationValues").mockRejectedValue(
       new api.ApiError("server", 422, "invalid_field", "No.", { field: "contexts[0].sector", problem: "not_offered" }),
     );
@@ -418,6 +420,29 @@ describe("accessibility of the pages", () => {
     await wrapper.get(".value-section form").trigger("submit");
     await flushPromises();
     expect(wrapper.find(".context-item .field__error").exists()).toBe(true);
+
+    const found = await pageViolations();
+
+    expect(found, describeViolations(found)).toEqual([]);
+  });
+
+  it("the document's page with its rules in their forms, a new one's problems at its fields, has none", async () => {
+    api.setToken("curricarta_token");
+    setSession({ id: "0190-a", name: "Redaktion", roles: ["redaktion"] });
+    vi.spyOn(api, "getDocument").mockResolvedValue(documentOf());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    vi.spyOn(api, "getUnits").mockResolvedValue([]);
+    vi.spyOn(api, "getFindings").mockResolvedValue({ counts: { violation: 0, warning: 0, info: 0 }, findings: [], truncated: false, repairable: [] });
+    vi.spyOn(api, "getSource").mockResolvedValue(detail());
+    vi.spyOn(api, "listDocuments").mockResolvedValue([]);
+    vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf({ specifications: [] }));
+    vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
+    vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [ruleOf(), ruleOf({ id: "r2", kind: "prerequisite" })] }));
+    const wrapper = await show("/dokumente/d1");
+    await wrapper.get(".rules__add").trigger("click");
+    await wrapper.get("form.rule-new").trigger("submit");
+    await flushPromises();
+    expect(wrapper.find("form.rule-new .field__error").exists()).toBe(true);
 
     const found = await pageViolations();
 

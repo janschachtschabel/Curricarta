@@ -8,7 +8,8 @@
  * under the extraction, or one just started and not yet read with the document. Which revision it is stands at
  * the top (RevisionNotice: frozen, with the draft copy for an editor; or a draft copy); where it comes from
  * (DocumentSource) and its work and edition (DocumentEdition) beside its facts, what its specifications are and
- * where they apply below (DocumentScope, plan M3a H1: a draft there asked about before the page goes, leaveGuard.ts);
+ * where they apply below (DocumentScope, plan M3a H1: a draft there asked about before the page goes, leaveGuard.ts),
+ * and its rules (DocumentRules, plan M3a I, a draft asked about alike);
  * an editor freezes it below its findings (DocumentFreeze, plan M1 9.10, Paket 9d1).
  * A document newly frozen - by the freeze, or a reading that finds it so under a form - is said: the keyboard, where
  * nothing holds it, goes to the notice, which names itself; held elsewhere, it stays and a region says it.
@@ -23,6 +24,7 @@ import DocumentExtraction from "@/components/DocumentExtraction.vue";
 import DocumentFindings from "@/components/DocumentFindings.vue";
 import DocumentFreeze from "@/components/DocumentFreeze.vue";
 import DocumentKernExport from "@/components/DocumentKernExport.vue";
+import DocumentRules from "@/components/DocumentRules.vue";
 import DocumentRuns from "@/components/DocumentRuns.vue";
 import DocumentScope from "@/components/DocumentScope.vue";
 import DocumentSource from "@/components/DocumentSource.vue";
@@ -45,7 +47,8 @@ import { word } from "@/registerWords";
 
 const props = defineProps<{ id: string }>();
 const scopeDraft = ref(false); // a draft open in the applicability section
-const { leaving, answer } = useLeaveGuard(scopeDraft);
+const rulesDraft = ref(false); // and in the rules (plan M3a I)
+const { leaving, answer } = useLeaveGuard(() => scopeDraft.value || rulesDraft.value);
 
 const document_ = ref<CurriculumDocument | null>(null);
 const runs = ref<Run[]>([]);
@@ -232,6 +235,8 @@ watch(
       <DocumentEdition :key="document_.id" class="document__section" :document="document_" @changed="load()" />
       <DocumentScope :key="document_.id" class="document__section" :document-id="document_.id"
         :sector="document_.sector" :refresh="unitsRead" @dirty="scopeDraft = $event" />
+      <DocumentRules :key="document_.id" class="document__section" :document-id="document_.id" :refresh="unitsRead"
+        @dirty="rulesDraft = $event" />
       <!-- keyed: what a start of the document before gave back late stays with that one -->
       <DocumentExtraction
         :key="document_.id"
@@ -284,7 +289,7 @@ watch(
       />
       <DocumentRuns class="document__section" :runs="runs" />
     </template>
-    <ConfirmDialog v-if="leaving" :title="t('documents.page.scope.leave.title')" :message="t('documents.page.scope.leave.message')"
+    <ConfirmDialog v-if="leaving" :title="t('documents.page.scope.leave.title')" :message="rulesDraft && !scopeDraft ? t('documents.page.rules.leave') : t('documents.page.scope.leave.message')"
       :confirm-label="t('documents.page.scope.leave.confirm')" :cancel-label="t('documents.page.scope.leave.cancel')"
       @confirm="answer(true)" @cancel="answer(false)" />
     <!-- always in the page, so a screen reader hears what it says of the document -->

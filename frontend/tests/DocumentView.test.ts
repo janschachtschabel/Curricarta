@@ -16,6 +16,7 @@ import DocumentView from "@/views/DocumentView.vue";
 import { violations } from "./axe";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
+import { rulesOf } from "./ruleFixtures";
 import { SCOPE_FORM, specificationsOf, valuedSpecification } from "./scopeFixtures";
 
 let shown: VueWrapper | null = null;
@@ -84,6 +85,7 @@ beforeEach(() => {
   vi.spyOn(api, "listDocuments").mockResolvedValue([]);
   vi.spyOn(api, "getSpecifications").mockResolvedValue(specificationsOf());
   vi.spyOn(api, "getForm").mockResolvedValue(SCOPE_FORM);
+  vi.spyOn(api, "getRules").mockResolvedValue(rulesOf({ rules: [] }));
 });
 
 /** The extraction's job running at a step it reports. */
@@ -329,6 +331,7 @@ describe("a document's page", () => {
       "document-source",
       "document-edition",
       "document-scope",
+      "document-rules",
       "document-extraction",
       "document-units",
       "document-findings",

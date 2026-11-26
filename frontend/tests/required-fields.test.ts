@@ -4,11 +4,14 @@ import { describe, expect, it } from "vitest";
 import ExtractionStart from "@/components/ExtractionStart.vue";
 import FormFieldInput from "@/components/FormFieldInput.vue";
 import ImportForm from "@/components/ImportForm.vue";
+import RuleForm from "@/components/RuleForm.vue";
+import RuleNew from "@/components/RuleNew.vue";
 import UploadForm from "@/components/UploadForm.vue";
 import { messages } from "@/i18n/de";
 import { router } from "@/router";
 import LoginView from "@/views/LoginView.vue";
 
+import { ruleOf, rulesOf } from "./ruleFixtures";
 import { form_ } from "./treeFixtures";
 
 // No form said which of its fields it needs to assistive technology (UI review m6)
@@ -49,6 +52,18 @@ describe("a required field", () => {
       if (!field) continue;
       const wrapper = mount(FormFieldInput, { props: { field, values: field.values ?? [], modelValue: "" } });
       expect(wrapper.get("input, select, textarea").attributes("aria-required"), field.key).toBe(expected);
+      wrapper.unmount();
+    }
+  });
+
+  it("of a rule is its kind and wording, a new rule's its page too; its values and links are free", () => {
+    const rules = rulesOf();
+    for (const wrapper of [mount(RuleForm, { props: { rule: ruleOf(), rules } }), mount(RuleNew, { props: { documentId: "d1" } })]) {
+      const required = wrapper.findAll("[aria-required=true]").map((control) => wrapper.get(`label[for=${control.attributes("id")}]`).text());
+      const free = wrapper.findAll("input[type=text]:not([aria-required]), select:not([aria-required])");
+      expect(required.every((label) => /\(Pflichtfeld\)$/.test(label)), required.join()).toBe(true);
+      expect(free.every((control) => !/\(Pflichtfeld\)/.test(wrapper.get(`label[for=${control.attributes("id")}]`).text()))).toBe(true);
+      expect(required.length).toBe(wrapper.findComponent(RuleNew).exists() ? 3 : 2);
       wrapper.unmount();
     }
   });
