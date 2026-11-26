@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import type { ApplicabilityContext, HeldValues } from "@/api";
+import type { ApplicabilityContext, Form, HeldValues } from "@/api";
 import {
   checkDraft,
   contextsOf,
@@ -11,13 +11,14 @@ import {
   entryField,
   holdsEntry,
   isFull,
+  newEntry,
   kindsOf,
   MOST_VALUES,
   rebaseValues,
   requestOf,
   sameValues,
-  withEntry,
-  withoutEntry,
+  type DraftKind,
+  type Entry,
   type ValuesDraft,
 } from "@/valueDraft";
 import { t } from "@/i18n/de";
@@ -49,6 +50,12 @@ function held(): HeldValues {
       },
     ],
   };
+}
+
+/** The draft with a new entry of the kind `kind` after the others, as the form adds one (ValueEntries), and that entry. */
+function withEntry(form: Form, draft: ValuesDraft, kind: DraftKind): { draft: ValuesDraft; entry: Entry } {
+  const entry = newEntry(form, kind);
+  return { draft: { ...draft, [kind]: [...draft[kind], entry] }, entry };
 }
 
 function edited(draft: ValuesDraft, kind: keyof ValuesDraft, at: number, key: string, value: string | boolean): ValuesDraft {
@@ -98,17 +105,15 @@ describe("a holder's values as a draft", () => {
     }
   });
 
-  it("adds an empty entry of a kind after the others, and takes one away by its key", () => {
+  it("makes an empty entry of a kind, a change once added, none once taken away again", () => {
     const before = draftOfValues(FORM, held());
 
     const added = withEntry(FORM, before, "time_spans");
-    expect(added.draft.time_spans).toHaveLength(2);
     expect(added.entry).toMatchObject({ id: null, fields: { time_kind: "", span_from: "", span_to: "", time_relation: "" } });
     expect(sameValues(before, added.draft)).toBe(false);
 
-    const removed = withoutEntry(added.draft, "time_spans", added.entry.key);
+    const removed = { ...added.draft, time_spans: added.draft.time_spans.filter((entry) => entry.key !== added.entry.key) };
     expect(sameValues(before, removed)).toBe(true);
-    expect(withoutEntry(before, "level_assignments", before.level_assignments[0]?.key ?? "").level_assignments).toEqual([]);
   });
 
   it("finds each problem before anything is asked, by its path in the set", () => {

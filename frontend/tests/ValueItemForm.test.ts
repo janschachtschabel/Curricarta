@@ -3,7 +3,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import type { HeldValues } from "@/api";
 import ValueItemForm from "@/components/ValueItemForm.vue";
-import { draftOfValues, withEntry, type Entry } from "@/valueDraft";
+import { draftOfValues, newEntry, type Entry } from "@/valueDraft";
 
 import { violations } from "./axe";
 import { CV, LVL, form_, noValues } from "./treeFixtures";
@@ -86,7 +86,7 @@ describe("an entry of a value's form", () => {
   });
 
   it("offers a statement no level its rules keep from it, its levels grouped by system", () => {
-    const entry = withEntry(FORM, draftOfValues(FORM, noValues()), "level_assignments").entry;
+    const entry = newEntry(FORM, "level_assignments");
     const wrapper = item("level_assignments", entry, { holder: "statement" });
 
     expect(wrapper.findAll("#v-level optgroup").map((group) => group.attributes("label"))).toEqual(["Sprachniveaus"]);

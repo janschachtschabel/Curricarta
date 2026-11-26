@@ -120,12 +120,6 @@ export function newEntry(form: Form, kind: DraftKind): Entry {
   return entry;
 }
 
-/** The draft with an empty entry of the kind `kind` after the others, and that entry. */
-export function withEntry(form: Form, draft: ValuesDraft, kind: DraftKind): { draft: ValuesDraft; entry: Entry } {
-  const entry = newEntry(form, kind);
-  return { draft: { ...draft, [kind]: [...draft[kind], entry] }, entry };
-}
-
 /** Whether `entries` are as many of their kind as a holder takes. */
 export function isFull(entries: readonly Entry[]): boolean {
   return entries.length >= MOST_VALUES;
@@ -164,11 +158,6 @@ export function entryField(form: Form, set: ValuesDraft, path: string): string |
 /** Whether the draft holds the entry `key`, within a context too. */
 export function holdsEntry(draft: ValuesDraft, key: string): boolean {
   return DRAFT_KINDS.some((kind) => draft[kind].some((entry) => entry.key === key || (!!entry.inner && holdsEntry(entry.inner, key))));
-}
-
-/** The draft without the entry `key` of the kind `kind`. */
-export function withoutEntry(draft: ValuesDraft, kind: DraftKind, key: string): ValuesDraft {
-  return { ...draft, [kind]: draft[kind].filter((entry) => entry.key !== key) };
 }
 
 // an entry as the server stores it: a number by its value, nothing as none
