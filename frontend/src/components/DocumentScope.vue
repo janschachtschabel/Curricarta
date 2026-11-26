@@ -49,8 +49,12 @@ const status = ref("");
 const form = computed(() => shown.value?.[1] ?? null);
 const labels = computed(() => labelsOf(form.value));
 const scope = computed(() => shown.value?.[0] ?? null);
+// each as the later of its reading and its save: any reading newer than a save - a retry's too - takes its place
 const specifications = computed(() =>
-  (scope.value?.specifications ?? []).map((specification) => saved.value[specification.id] ?? specification),
+  (scope.value?.specifications ?? []).map((specification) => {
+    const kept = saved.value[specification.id];
+    return kept && kept.revision > specification.revision ? kept : specification;
+  }),
 );
 // to who may edit them: their values' form did not come, so they cannot be edited now - said, with a retry
 const formMissing = computed(() => {
@@ -82,7 +86,7 @@ function keep(specification: Specification): void {
   saved.value = { ...saved.value, [specification.id]: specification };
 }
 
-// read again: a specification saved meanwhile at a later revision than the reading found stays as saved
+// read again: a save the reading caught up with is let go
 async function reload(): Promise<void> {
   await load();
   const read = new Map((scope.value?.specifications ?? []).map((one) => [one.id, one.revision]));

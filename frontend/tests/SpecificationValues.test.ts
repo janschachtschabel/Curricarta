@@ -185,6 +185,27 @@ describe("a specification's values beside its title and field", () => {
     expect(edited.mock.calls[1]?.[1]).toBe(3);
   });
 
+  it.each([
+    ["the reading that follows the save", false],
+    ["a retry after that reading failed", true],
+  ])("give way to a newer reading of the specification: %s", async (_how, retried) => {
+    vi.spyOn(api, "setSpecificationValues").mockResolvedValue({ ...valuedSpecification(), revision: 2 });
+    const newer = { ...valuedSpecification(), title: "Chemie", revision: 3 };
+    const wrapper = await open();
+    if (retried) vi.mocked(api.getSpecifications).mockRejectedValueOnce(new ApiError("server", 500, "internal", "boom"));
+    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [newer] }));
+    await control(values(wrapper), "Einrichtung").setValue("Realschule");
+    await save(values(wrapper));
+
+    if (retried) {
+      expect(wrapper.get("h3").text()).toBe("Physik"); // the kept copy, the reading failed
+      await wrapper.findAll("[role=status] button").find((one) => one.text() === t("states.retry"))?.trigger("click");
+      await flushPromises();
+    }
+
+    expect(wrapper.get("h3").text()).toBe("Chemie");
+  });
+
   it("offer a context's levels by the rules of a context, the specification's own by its class's", async () => {
     const form = structuredClone(SCOPE_FORM);
     form.values.level_assignments.rules = [{ holder: "applicability_context", dimensions: [CV + "dim_qualification"], unless: null }];
