@@ -141,6 +141,10 @@ Migration 0037 legt die Geltungskontexte einer Spezifikation an (`applicability_
 und eigenem Niveau). Eine Replica des vorigen Images kopiert sie nicht: Die Entwurfskopie eines Dokuments,
 dessen Kontexte Zeit oder Niveau tragen, verweigert sie dann (`vocabulary_changed`), die eines Dokuments mit
 Kontexten ohne Werte kommt ohne sie. Darum alle Replicas aktualisieren, bevor Kontexte gesetzt werden.
+Migration 0039 legt die Prüfungen eines Dokuments an (`assessment`, `assessment_target`, dazu die Spalten
+`assessment_id` an `level_assignment` und `anchor`). Eine Replica des vorigen Images kopiert sie nicht: Die
+Entwurfskopie eines Dokuments mit Prüfungen kommt dann ohne sie, und ein Niveau an einer Prüfung verweigert
+die Kopie (`vocabulary_changed`). Darum alle Replicas aktualisieren, bevor Prüfungen angelegt werden.
 Läuft ein Worker neben der API auf demselben Rechner, braucht er ein eigenes `INTERNAL_PORT`
 (etwa `INTERNAL_PORT=9001`): Sonst startet der zweite Prozess nicht, oder beide teilen sich den
 Port still (Windows).
@@ -312,7 +316,8 @@ ungültig.
   Label, weiteren Namen, Definition, Anmerkung, Abgrenzung und Beispielen; kein aktives Profil: 404
   `unknown_sector`. Die Felder sind nicht laxer als die SHACL-Formen des Kerns (Test). `values` nennt je
   Art der Werte (`level_assignments`, `time_spans`, `workloads`) die Träger, an denen sie angeboten wird
-  (Niveau an Knoten, Aussage und Spezifikation; Zeit und Umfang an Knoten und Spezifikation), ihre Felder
+  (Niveau an Knoten, Aussage, Spezifikation und Prüfung; Zeit und Umfang an Knoten und Spezifikation), ihre
+  Felder
   (auch `number`, `boolean`) und bei `workloads` die Art der Zeiträume (`periods`); Niveaus und
   Kompetenzdimensionen tragen ihr Niveausystem bzw. Kompetenzmodell als `group`, dessen Label `groups` nennt;
   ein Niveau dazu die Dimension seines Systems (`dimension`), und `rules` nennt, welche Dimensionen ein Träger
@@ -476,6 +481,30 @@ ungültig.
   Verwerfen ändert nichts und steht nicht im Audit; `null` für ein Verweisfeld oder `option_texts` leert es.
   Festgeschrieben heißt eine Regel `<dokument>/rule-<n>`; eine kopierte Regel, die erst nachträglich benannt
   wird, heißt in jeder Revision gleich.
+- Prüfungen: `GET /api/v1/documents/{id}/assessments` nennt, wer den Inhalt des Dokuments lesen darf (sonst
+  404 `no_document`, 403 `file_hidden`), die Prüfungen des Dokuments – jeder Teil nach der Prüfung, deren Teil
+  er ist – mit Elternteil (`parent_kind`: `assessment`, `specification` oder `node`, und `parent_id`), Art
+  (`assessment_kind`, `cv:AssessmentKinds`), Name (`label`), Dauer in Minuten, Gewicht in Prozent, benotet
+  (`graded`), IRI (beim Festschreiben vergeben: `<dokument>/assessment-<n>`, gezählt über die Revisionen),
+  Herkunft, Prüfstand, Revision, was sie prüft (`targets`: Knoten und Aussagen des Dokuments) und den
+  Niveaus an ihr (`values`); dazu `choices` (Spezifikationen und Knoten, an denen eine Prüfung hängen oder
+  die sie prüfen kann) und `editable`, `closed` wie der Baum. `POST /api/v1/documents/{id}/assessments`
+  (`parent_id`, `assessment_kind`, optional `label`, `duration_minutes`, `weight_percent` 0–100, `graded`,
+  `targets`) legt eine Prüfung nach den Teilen ihres Elternteils an, als Vorschlag der Redaktion (201).
+  `PATCH /api/v1/assessments/{id}` (`expected_revision`, die zu setzenden Felder; `targets` ersetzt alle)
+  setzt sie auf ihrer Revision, ein neuer Elternteil nimmt sie ans Ende seiner Teile; `DELETE
+  /api/v1/assessments/{id}?expected_revision=` nimmt sie mit ihren Teilen, deren Niveaus und den Befunden
+  daran weg (Antwort: Zahl der Prüfungen). `PUT /api/v1/assessments/{id}/values` setzt die Niveaus an ihr
+  wie an einem Knoten – eine Note ist hier erlaubt, Zeit und Umfang trägt sie nicht (`not_held`). Abgewiesen
+  wie beim Bearbeiten, 404 `no_assessment`, 422 `invalid_field` am Feld: `not_offered` (eine Art, die die
+  Liste nicht aktiv führt; ein Elternteil oder Prüfziel, das kein Teil des Dokuments ist, oder ein doppeltes),
+  `cycle` (ein Elternteil unter den eigenen Teilen), `too_long`. Audit `assessment.add`, `assessment.edit`
+  (Feldnamen), `assessment.drop`, `assessment.values` mit Anzahlen, ohne Inhalte. Der Kern-Graph nennt jede
+  als `cur:Assessment` mit `cur:partOf`, `cur:assessmentKind`, `cur:assesses` und ihren Niveaus; X5 meldet
+  Teile, deren Gewichte zusammen über 100 % liegen. Die Prüfungen und ihre Niveaus haben noch keinen
+  Prüfstand der Redaktion (`review`). In der Oberfläche stehen sie auf der Dokumentseite unter „Prüfungen“,
+  jeder Teil unter seiner Prüfung; Eigentümer und Redaktion legen dort an, bearbeiten, legen Teile an,
+  entfernen (nach Rückfrage) und setzen die Niveaus einer Prüfung, solange das Dokument offen ist.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
   `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis

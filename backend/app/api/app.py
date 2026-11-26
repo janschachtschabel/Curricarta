@@ -10,6 +10,7 @@ from fastapi import FastAPI
 from app import __version__
 from app.api import (
     accounts,
+    assessments,
     conversions,
     deleting,
     document_blocks,
@@ -156,6 +157,7 @@ def create_app(settings: Settings, *, output_cap: int = DEFAULT_OUTPUT_CAP) -> F
     app.include_router(statement_editing.router)
     app.include_router(values.router)
     app.include_router(specifications.router)
+    app.include_router(assessments.router)
     app.include_router(review.router)
     app.include_router(document_meta.router)
     app.include_router(freeze.router)

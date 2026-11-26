@@ -5,7 +5,8 @@ document's owner and the editors; answered with the holder as the tree has it (G
 ``values``), refused as app/api/edit_answers.py says - a value the form does not take as ``invalid_field``
 with its path in the set (app/vocab/value_checks.py), a stale revision with the holder as it stands.
 Audited by counts, never by what the values say. A specification's values and applicability contexts are
-set so too (app/api/specifications.py, ``set_values``).
+set so too (app/api/specifications.py, ``set_values``), and the levels at an assessment
+(app/api/assessments.py).
 """
 
 from collections.abc import Awaitable, Callable
@@ -23,6 +24,7 @@ from app.api.document_tree import NodeRowOut, StatementOut, node_as_read, statem
 from app.api.edit_answers import HIDDEN, REFUSED, Responses, answers, audit, refusal_of, stale
 from app.api.errors import AUTH_RESPONSES, ErrorBody, Refusal
 from app.core.auth import Principal
+from app.db.assessments import DOCUMENT_OF_ASSESSMENT
 from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, target_of
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.values import DOCUMENT_OF_SPECIFICATION, UnknownValue, ValueRefused, replace_values, values_of
@@ -35,7 +37,9 @@ router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSE
 Account = Annotated[Principal, Depends(require_account)]
 _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "node": DOCUMENT_OF_NODE, "statement": DOCUMENT_OF_STATEMENT, "specification": DOCUMENT_OF_SPECIFICATION,
+    "assessment": DOCUMENT_OF_ASSESSMENT,
 }  # fmt: skip
+ASSESSMENT_TYPE: Final = "https://w3id.org/wlo/curriculum/core#Assessment"  # an assessment's, by its class
 MOST_VALUES: Final = 20  # of a kind at a holder, and periods of a workload
 # a concept's IRI; one no list offers is refused by the form, unechoed
 Iri = Annotated[str, StringConstraints(min_length=1, max_length=500)]
@@ -190,7 +194,9 @@ async def set_values(
 async def _type_of(connection: psycopg.AsyncConnection, holder: Holder) -> str | None:
     """A statement's kind, which some levels ask of it (LEVEL_RULES): read before the set, which a change of
     the kind meanwhile refuses as stale - it counts the statement's revision as the set does; a
-    specification's class, of its kind, which stays."""
+    specification's class, of its kind, which stays; an assessment's class (plan M3a J)."""
+    if holder.kind == "assessment":
+        return ASSESSMENT_TYPE
     if holder.kind == "specification":
         cursor = await connection.execute("SELECT spec_kind FROM specification WHERE id = %s", (holder.id,))
         found = await cursor.fetchone()

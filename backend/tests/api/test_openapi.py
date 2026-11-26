@@ -162,3 +162,20 @@ def test_no_documentation_page_loads_assets_from_third_parties(path: str) -> Non
     client = TestClient(create_app(make_settings()), base_url="http://testserver:8000")
 
     assert client.get(path).status_code == 404
+
+
+def test_the_routes_of_assessments_name_the_refusals_they_give(spec: dict[str, Any]) -> None:
+    # plan M3a J: an edit's and a set's refusals as a node's, a taking away's without a field
+    paths = spec["paths"]
+    edits = [paths["/api/v1/assessments/{assessment_id}"]["patch"]["responses"],
+             paths["/api/v1/documents/{document_id}/assessments"]["post"]["responses"],
+             paths["/api/v1/assessments/{assessment_id}/values"]["put"]["responses"]]  # fmt: skip
+    taken = paths["/api/v1/assessments/{assessment_id}"]["delete"]["responses"]
+    for answers in (*edits, taken):
+        assert "file_hidden" in answers["403"]["description"]
+        for refusal in ("details.current", "job_open", "frozen", "not_extracted"):
+            assert refusal in answers["409"]["description"], refusal
+        assert "no_form" not in answers["409"]["description"]  # an assessment's fields are no profile's
+    assert all("invalid_field" in answers["422"]["description"] for answers in edits)
+    assert "422" not in taken or "invalid_field" not in taken["422"]["description"]
+    assert "no_assessment" in taken["404"]["description"]
