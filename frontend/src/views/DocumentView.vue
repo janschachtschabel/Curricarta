@@ -7,10 +7,8 @@
  * and findings at each progress too. No repair is offered while a job of the document waits or runs: one followed
  * under the extraction, or one just started and not yet read with the document. Which revision it is stands at
  * the top (RevisionNotice: frozen, with the draft copy for an editor; or a draft copy); where it comes from
- * (DocumentSource) and its work and edition (DocumentEdition) beside its facts, what its specifications are and
- * where they apply below (DocumentScope, plan M3a H1: a draft there asked about before the page goes, leaveGuard.ts),
- * its rules (DocumentRules, plan M3a I, a draft asked about alike) and its assessments (DocumentAssessments, plan M3a J:
- * so too);
+ * (DocumentSource) and its work and edition (DocumentEdition) beside its facts, the sections that edit it below
+ * (DocumentEditors: its applicability, rules and assessments, a draft there asked about before the page goes);
  * an editor freezes it below its findings (DocumentFreeze, plan M1 9.10, Paket 9d1).
  * A document newly frozen - by the freeze, or a reading that finds it so under a form - is said: the keyboard, where
  * nothing holds it, goes to the notice, which names itself; held elsewhere, it stays and a region says it.
@@ -19,16 +17,14 @@ import { computed, nextTick, onMounted, ref, watch } from "vue";
 import { RouterLink } from "vue-router";
 
 import { ApiError, getDocument, getRuns, type CurriculumDocument, type Run } from "@/api";
-import DocumentAssessments from "@/components/DocumentAssessments.vue";
 import DocumentEdition from "@/components/DocumentEdition.vue";
+import DocumentEditors from "@/components/DocumentEditors.vue";
 import DocumentExport from "@/components/DocumentExport.vue";
 import DocumentExtraction from "@/components/DocumentExtraction.vue";
 import DocumentFindings from "@/components/DocumentFindings.vue";
 import DocumentFreeze from "@/components/DocumentFreeze.vue";
 import DocumentKernExport from "@/components/DocumentKernExport.vue";
-import DocumentRules from "@/components/DocumentRules.vue";
 import DocumentRuns from "@/components/DocumentRuns.vue";
-import DocumentScope from "@/components/DocumentScope.vue";
 import DocumentSource from "@/components/DocumentSource.vue";
 import DocumentMemOrigin from "@/components/DocumentMemOrigin.vue";
 import DocumentUnits from "@/components/DocumentUnits.vue";
@@ -37,29 +33,15 @@ import EmptyState from "@/components/EmptyState.vue";
 import ErrorState from "@/components/ErrorState.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
-import ConfirmDialog from "@/components/ConfirmDialog.vue";
 import RevisionNotice from "@/components/RevisionNotice.vue";
 import { focusIsFree } from "@/focusRescue";
 import { messages, momentFormat, t } from "@/i18n/de";
-import { useLeaveGuard } from "@/leaveGuard";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
 import { pageTitle } from "@/pageTitle";
 import { word } from "@/registerWords";
 
 const props = defineProps<{ id: string }>();
-const scopeDraft = ref(false); // a draft open in the applicability section
-const rulesDraft = ref(false); // and in the rules (plan M3a I)
-const assessmentsDraft = ref(false); // a draft open in the assessments' section
-const { leaving, answer } = useLeaveGuard(() => scopeDraft.value || rulesDraft.value || assessmentsDraft.value);
-// what is not saved, said for the section that holds it: the applicability's first, then the rules'
-const leaveMessage = computed(() =>
-  scopeDraft.value
-    ? t("documents.page.scope.leave.message")
-    : rulesDraft.value
-      ? t("documents.page.rules.leave")
-      : t("documents.page.assessments.leave"),
-);
 
 const document_ = ref<CurriculumDocument | null>(null);
 const runs = ref<Run[]>([]);
@@ -244,12 +226,7 @@ watch(
       <!-- an import: the plan it was made of, its attribution and licence -->
       <DocumentMemOrigin v-if="document_.mem" class="document__section" :origin="document_.mem" />
       <DocumentEdition :key="document_.id" class="document__section" :document="document_" @changed="load()" />
-      <DocumentScope :key="document_.id" class="document__section" :document-id="document_.id"
-        :sector="document_.sector" :refresh="unitsRead" @dirty="scopeDraft = $event" />
-      <DocumentRules :key="document_.id" class="document__section" :document-id="document_.id" :refresh="unitsRead"
-        @dirty="rulesDraft = $event" />
-      <DocumentAssessments :key="document_.id" class="document__section" :document-id="document_.id"
-        :sector="document_.sector" :refresh="unitsRead" @dirty="assessmentsDraft = $event" />
+      <DocumentEditors :key="document_.id" :document-id="document_.id" :sector="document_.sector" :refresh="unitsRead" />
       <!-- keyed: what a start of the document before gave back late stays with that one -->
       <DocumentExtraction
         :key="document_.id"
@@ -302,9 +279,6 @@ watch(
       />
       <DocumentRuns class="document__section" :runs="runs" />
     </template>
-    <ConfirmDialog v-if="leaving" :title="t('documents.page.scope.leave.title')" :message="leaveMessage"
-      :confirm-label="t('documents.page.scope.leave.confirm')" :cancel-label="t('documents.page.scope.leave.cancel')"
-      @confirm="answer(true)" @cancel="answer(false)" />
     <!-- always in the page, so a screen reader hears what it says of the document -->
     <p class="visually-hidden" role="status" data-test="document-status">{{ said }}</p>
   </div>

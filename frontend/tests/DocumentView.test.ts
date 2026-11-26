@@ -1406,3 +1406,52 @@ describe("a document's page with a draft of an assessment", () => {
     expect(router.currentRoute.value.name).toBe("document");
   });
 });
+
+describe("a document's page with drafts in several of its sections", () => {
+  afterEach(() => api.clearToken());
+
+  /** The page at its address with a draft of a specification's values and of a new assessment. */
+  async function twoDrafts(): Promise<VueWrapper> {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+    await router.push("/dokumente/d1");
+    shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
+    await flushPromises();
+    await shown.get(".value-section input[type=text]").setValue("Noch nicht gespeichert");
+    await shown.findAll("button").find((one) => one.text() === t("documents.page.assessments.add"))?.trigger("click");
+    await shown.get(".assessment-form input[type=text]").setValue("Auch nicht gespeichert");
+    return shown;
+  }
+
+  it("asks once, in words of the page's changes rather than one section's", async () => {
+    const wrapper = await twoDrafts();
+
+    void router.push("/quellen");
+    await flushPromises();
+
+    expect(wrapper.findAll("[role=dialog]")).toHaveLength(1);
+    const asked = wrapper.get("[role=dialog]").text();
+    expect(asked).toContain(t("documents.page.leaveSeveral"));
+    expect(asked).not.toContain(t("documents.page.scope.leave.message"));
+    expect(asked).not.toContain(t("documents.page.assessments.leave"));
+    await wrapper.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.confirm"))?.trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.name).toBe("sources");
+  });
+
+  it("asks in the words of the section still holding a draft once the other's is given up", async () => {
+    const wrapper = await twoDrafts();
+    await wrapper.get(".assessment-form").findAll("button").find((one) => one.text() === t("documents.page.assessments.cancel"))?.trigger("click");
+    await flushPromises();
+
+    void router.push("/quellen");
+    await flushPromises();
+
+    expect(wrapper.get("[role=dialog]").text()).toContain(t("documents.page.scope.leave.message"));
+    await wrapper.get("[role=dialog]").findAll("button").find((one) => one.text() === t("documents.page.scope.leave.cancel"))?.trigger("click");
+    await flushPromises();
+    expect(router.currentRoute.value.name).toBe("document");
+  });
+});

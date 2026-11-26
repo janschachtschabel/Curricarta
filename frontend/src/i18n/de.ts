@@ -1327,6 +1327,8 @@ export const messages = {
       back: "Zurück zum Eintrag",
       backToRegister: "Zurück zum Register",
       sections: "Abschnitte dieser Seite",
+      // leaving the page with drafts in several of its editor sections (DocumentEditors.vue)
+      leaveSeveral: "Deine Änderungen auf dieser Seite sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
       facts: {
         heading: "Angaben",
         sector: "Bildungsbereich",
