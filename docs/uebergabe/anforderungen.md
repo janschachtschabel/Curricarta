@@ -1,6 +1,6 @@
 # Antworten für das IT-Team
 
-Stand 19.11.2026 (Betrieb); was für einen Betrieb noch fehlt, steht am Ende. Diese Seite
+Stand 26.11.2026 (Werte und Kern-Export); was für einen Betrieb noch fehlt, steht am Ende. Diese Seite
 beantwortet die Betriebsvorgaben der Plattform (kurz „T6“) Frage für Frage, in der Variante **ohne B-API**: Der
 Dienst prüft eigene Zugangstokens und ruft das Sprachmodell mit einem eigenen Schlüssel. Was
 noch offen ist, steht am Ende; die Antworten wachsen mit jedem Meilenstein.
@@ -8,7 +8,11 @@ noch offen ist, steht am Ende; die Antworten wachsen mit jedem Meilenstein.
 Kurz: Curricarta erfasst Lehrpläne nach Curriculum-Kern 1.0, dockt sie an Kompetenz-,
 Niveau- und Normdatenschemata an und bildet daraus eine Wissenslandkarte. Ein Image läuft als
 API und als Worker, dazu ein Web-Image für die Oberfläche; Daten liegen in PostgreSQL und einem
-S3-Objektspeicher.
+S3-Objektspeicher. Seit M3a erfasst die Redaktion neben Knoten und Aussagen Niveaus, Zeiträume und Umfänge,
+die Geltung einer Spezifikation, Regeln, Prüfungen und Verwendungen von Modulen; X5 prüft sie mit, und jedes
+festgeschriebene Dokument geht als RDF nach dem Curriculum-Kern hinaus. Waren vor dem Update auf diesen Stand
+schon Dokumente festgeschrieben, läuft nach der Migration einmal `python -m app.db.name_frozen` (README,
+„Betrieb“).
 
 ## 1. API und Endpunkte
 
@@ -20,10 +24,10 @@ S3-Objektspeicher.
 | Proben in Kubernetes? | Liveness `GET /health`, Readiness `GET /ready` (prüft die Datenbank und den Stand der Migrationen, wartet je bis 2 s auf Verbindung und Abfrage, also `timeoutSeconds` ≥ 5), beide am Port 9000 ([Helm-Beispiel](../../deploy/helm-values.example.yaml)). `HEAD /health` antwortet 405; eine Probe muss GET senden |
 | Header vom Client? | `Authorization: Bearer curricarta_…` für alles außer `GET /api/v1/info` und dem öffentlichen Lesen, das `PUBLIC_ACCESS` freigibt. Optional `X-Request-ID`, `x-client-trace-id` und die B3-Header |
 | Header zurück? | `X-Request-ID` an jeder Antwort; `WWW-Authenticate` bei 401, `Retry-After` bei 429 und 503. Dazu an jeder Antwort `X-Content-Type-Options: nosniff`, `Content-Security-Policy: default-src 'none'; frame-ancestors 'none'`, `X-Frame-Options: DENY` und `Referrer-Policy: no-referrer`; HSTS setzt der Ingress, an dem TLS endet |
-| Content-Types? | `application/json`, jeder JSON-Body bis 1 MiB; `/metrics` im Textformat für Prometheus. Uploads als `multipart/form-data` (`POST /api/v1/sources`, bis `MAX_UPLOAD_MB` und 1 MiB für das Formular; ein Body über seiner Grenze wird mit 413 abgewiesen, bevor er gelesen wird). Dateien gehen als Download hinaus (`GET /api/v1/sources/{id}/file`, nächste Zeile): die Abweichung, die mit T6 abzustimmen ist. Seit M2 gibt `GET /api/v1/documents/{id}/export.ttl` ein festgeschriebenes Dokument aus MEM-Schule als Turtle aus, ebenfalls als Download; weitere Dateiausgaben (Kern-RDF als TTL) folgen mit ihren Paketen |
+| Content-Types? | `application/json`, jeder JSON-Body bis 1 MiB; `/metrics` im Textformat für Prometheus. Uploads als `multipart/form-data` (`POST /api/v1/sources`, bis `MAX_UPLOAD_MB` und 1 MiB für das Formular; ein Body über seiner Grenze wird mit 413 abgewiesen, bevor er gelesen wird). Dateien gehen als Download hinaus (`GET /api/v1/sources/{id}/file`, nächste Zeile): die Abweichung, die mit T6 abzustimmen ist. Seit M2 gibt `GET /api/v1/documents/{id}/export.ttl` ein festgeschriebenes Dokument aus MEM-Schule als Turtle aus, seit M3a `GET /api/v1/documents/{id}/kern.ttl` jedes festgeschriebene Dokument als RDF nach dem Curriculum-Kern (`text/turtle`), beide als Download |
 | Datei-Download? | `GET /api/v1/sources/{id}/file` gibt die Datei eines Registereintrags in Stücken von 1 MiB aus, nie zum Anzeigen im Browser: `Content-Type` ist ihr Typ (PDF, DOCX, RTF nach den ersten Bytes; Markdown, HTML, Text, Turtle nach dem Namen, mit dem sie kam), dazu `Content-Disposition: attachment` mit einem ASCII-Namen und dem ganzen Namen als `filename*` (UTF-8), `Content-Length`, `Cache-Control: private, no-store` und `X-Content-Type-Options: nosniff`. Die Datei bekommen ihr Eigentümerkonto, Redaktion und Admin. Die eines Eintrags ohne Eigentümer (Saat, Recherche) bekommen daneben, wen `THIRD_PARTY_MARKDOWN` nennt: `hidden` niemand (403 `file_hidden`), `accounts` jedes Konto, `public` auch Besucher ohne Token, diese aber nur bei `PUBLIC_ACCESS` ≠ `off`. Der Upload eines anderen Kontos ist 404 wie ein Eintrag, den es nicht gibt; ohne Datei 404 `no_file`, fehlt sie im Speicher 404 `file_gone` (im Log mit Schlüssel und Eintrag) |
 | Fehler? | Einheitlich `{"code", "message", "details"}`; Validierungsfehler nennen Feld und Art, nie die Eingabe; keine Stacktraces nach außen. Ausnahme ist die Grenze der Anfragen je Adresse am Rand (50 je Sekunde): Der Webserver in Compose antwortet 429, der Ingress im Helm-Beispiel 503 (429, wo der Controller `limit-req-status-code` setzt), beide mit eigenem Body statt JSON und ohne `Retry-After` |
-| Antwortzeiten? | Lesende Anfragen kurz; alles über 30 s läuft ab M1 als Job (`202` mit Job-ID, Stand über `GET /api/v1/jobs/{id}`): Konvertierung, Extraktion, Prüfung. Ausnahme: der Export eines MEM-Imports prüft in der Anfrage, Warten und Prüfung zusammen unter 60 s (gemessen 4 s für 2.400 Teile). Messung unter Last in M6 |
+| Antwortzeiten? | Lesende Anfragen kurz; alles über 30 s läuft ab M1 als Job (`202` mit Job-ID, Stand über `GET /api/v1/jobs/{id}`): Konvertierung, Extraktion, Prüfung. Ausnahme: der Export eines MEM-Imports prüft in der Anfrage, Warten und Prüfung zusammen unter 60 s (gemessen 4 s für 2.400 Teile), und der Kern-Export baut in der Anfrage, Warten und Bau ebenso unter 60 s (gemessen 5,4 s für ein synthetisches Dokument mit 5.000 Aussagen und je 1.000 Niveaus, Zeiträumen und Umfängen). Der Baum eines solchen Dokuments antwortet in 0,4 bis 0,7 s (6,4 MiB JSON). Messung unter Last in M6 |
 
 ## 2. Authentifizierung (ohne B-API)
 
@@ -58,7 +62,7 @@ S3-Objektspeicher.
 
 | Frage | Antwort |
 |---|---|
-| Zustandslos? | Ja: Jobs, Sperren, Zähler und Kontingente liegen in PostgreSQL, Dateien im Objektspeicher. API und Worker skalieren über Replicas. Ein Prozess hält nur Schutz seiner eigenen Mittel und Zwischenspeicher, keine Wahrheit: die Plätze für Uploads (`MAX_CONCURRENT_UPLOADS` je API-Prozess, sie schützen `/tmp` und Arbeitsspeicher dieser Replica) und für die SHACL-Prüfung eines Exports (zwei je Prozess), dazu beim Scrape der Zeitpunkt, zu dem er die Warteschlange zuletzt las, und deren letzte Werte (höchstens alle 15 s neu gelesen). Geht ein Prozess, ändert das keine Antwort eines anderen |
+| Zustandslos? | Ja: Jobs, Sperren, Zähler und Kontingente liegen in PostgreSQL, Dateien im Objektspeicher. API und Worker skalieren über Replicas. Ein Prozess hält nur Schutz seiner eigenen Mittel und Zwischenspeicher, keine Wahrheit: die Plätze für Uploads (`MAX_CONCURRENT_UPLOADS` je API-Prozess, sie schützen `/tmp` und Arbeitsspeicher dieser Replica) und für die SHACL-Prüfung eines MEM-Exports und den Bau eines Kern-Exports (je zwei je Prozess), dazu beim Scrape der Zeitpunkt, zu dem er die Warteschlange zuletzt las, und deren letzte Werte (höchstens alle 15 s neu gelesen). Geht ein Prozess, ändert das keine Antwort eines anderen |
 | Warteschlange? | Eine Tabelle in PostgreSQL: Worker holen Jobs mit `FOR UPDATE SKIP LOCKED`, halten eine Lease mit Lebenszeichen, geben sie bei SIGTERM nach `JOB_SHUTDOWN_GRACE_S` zurück; ein abgestürzter Worker verliert sie nach `JOB_LEASE_S`. Faire Bedienung je Konto. Kein eigener Broker |
 | Datenbank? | PostgreSQL 17 mit `vector`, `pg_trgm`, `unaccent` (anlegen durch die Migration oder vorab durch den DBA). Migrationen einmal je Release per `python -m app.db.migrate` (Helm-Hook), unter Advisory-Lock; API und Worker migrieren nie selbst, `/ready` meldet einen fehlenden Stand |
 | Objektspeicher? | S3-kompatibel (`STORAGE_BACKEND=s3`), Bucket von T6; API und Worker fragen ihn beim Start ab und starten ohne ihn nicht. Rechte: `s3:ListBucket` auf den Bucket (ohne sie meldet S3 ein fehlendes Objekt als 403), `s3:GetObject`, `s3:PutObject`, `s3:DeleteObject` auf seine Objekte. Ohne Schlüssel gilt die Standardkette von boto3 (`AWS_*`-Variablen, Web-Identity/IRSA, Rolle der Instanz) |
@@ -114,3 +118,7 @@ Scheitert in einem Versions-Lauf ein Job, wird er mit „Re-run failed jobs“ w
   `AWS_REQUEST_CHECKSUM_CALCULATION=when_required` und `AWS_RESPONSE_CHECKSUM_VALIDATION=when_required`
   sie auf „nur wo verlangt" um; der Dienst setzt keinen der beiden Werte selbst (getestet).
 - Gemessene Schwellen der Alarmregeln, Ressourcen-Baseline und Lasttest (M6).
+- Die Prüfung (X5) eines langen Dokuments wächst vor allem mit seinen Niveaus: 26 s für 5.000 Aussagen,
+  83 s mit 1.000 Niveaus, Zeiträumen und Umfängen dazu, davon rund 55 s für die Niveaus
+  ([konfiguration.md](konfiguration.md), „Prüfung (X5)“). Das liegt unter `SHACL_TIMEOUT_S` (300 s); wie
+  weit echte Lehrpläne davon entfernt sind, zeigt erst ein Lauf mit ihnen.

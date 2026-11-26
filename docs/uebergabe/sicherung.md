@@ -1,6 +1,6 @@
 # Sicherung, Wiederherstellung, Rollback
 
-[Antworten für das IT-Team](anforderungen.md) · Stand 19.11.2026
+[Antworten für das IT-Team](anforderungen.md) · Stand 26.11.2026
 
 Curricarta hält keinen Zustand im Prozess: Was zählt, liegt in PostgreSQL und im Objektspeicher,
 dazu in den Geheimnissen, mit denen der Dienst beides liest. Diese Seite sagt, was davon zu sichern
@@ -16,7 +16,7 @@ gelten für Compose (`deploy/docker-compose.yml`); im Cluster nimmt der Betrieb 
 | PostgreSQL, die ganze Datenbank | Konten, Tokens (als HMAC), Register, Dokumente, Läufe, Jobs, Kontingente, Audit-Log und der Stand der Migrationen (`schema_migration`). Ein Abzug mit `pg_dump -Fc` reicht; Rollen gehören nicht dazu, sie legt der Betrieb an |
 | Objektspeicher, Präfix `sources/` | die hochgeladenen und abgerufenen Dateien, je Inhalt einmal (`sources/<SHA-256>`) |
 | Objektspeicher, Präfix `runs/` | die Rohantworten des Sprachmodells und des MEM-Endpunkts je Lauf und Stufe |
-| Objektspeicher, Präfix `exports/` | die Turtle-Ausgaben festgeschriebener Dokumente |
+| Objektspeicher, Präfix `exports/` | die Turtle-Ausgaben festgeschriebener Dokumente (MEM-Export und Kern-Export, je unter `exports/<Dokument>/`); wiedererzeugbar, ein fehlender entsteht beim nächsten Abruf neu |
 | Geheimnis `API_KEY_PEPPER` | ohne es passt kein Token mehr (unten, „Pepper verloren“) |
 | Geheimnis `DATABASE_URL` | Zugang zur Datenbank; in Compose dazu `db_password`, mit dem der Container die Rolle anlegt |
 | Geheimnisse `S3_ACCESS_KEY`, `S3_SECRET_KEY` | Zugang zum Bucket (fehlen sie, gilt die Standardkette von boto3) |

@@ -124,11 +124,15 @@ eine JSON-Zeile mit Zählwerten, Exit-Code 3 heißt, dass schon ein Lauf die Spe
 `python -m app.db.name_frozen` gibt einmal je Instanz nach Migration 0034 den Spezifikationen und Varianten
 der Dokumente, die schon vorher festgeschrieben waren, ihre IRIs (`<dokument>/spec/<schlüssel>`,
 `…/variant/<schlüssel>`), nach Migration 0038 ebenso ihren Regeln (`<dokument>/rule-<n>`), wie das
-Festschreiben sie heute gibt; ein zweiter Lauf ändert nichts. Er
+Festschreiben sie heute gibt: eine Regel, die eine spätere Revision kopierte, heißt wie die, der sie
+entspricht, auch in einer inzwischen offenen Entwurfskopie, deren Festschreiben den Namen behält. Prüfungen
+und Verwendungen brauchen ihn nicht: Ihre Tabellen kamen erst mit Migration 0039 und 0040, ihre IRIs vergibt
+das Festschreiben. Ein zweiter Lauf ändert nichts. Er
 läuft, wenn keine Replica des vorigen Images mehr läuft; hat eine solche inzwischen festgeschrieben, ist ein
 weiterer Lauf nötig und gefahrlos. Im
 Compose-Beispiel: `docker compose -f deploy/docker-compose.yml exec -T api python -m app.db.name_frozen`.
-Die Ausgabe ist eine JSON-Zeile mit Zählwerten, ein Fehler endet mit einer Logzeile und Exit-Code 1.
+Die Ausgabe ist eine JSON-Zeile mit Zählwerten (`documents`, `specifications`, `variants`, `rules`), ein
+Fehler endet mit einer Logzeile und Exit-Code 1, ohne dass etwas benannt ist.
 Migration 0035 legt Niveau, Zeit und Umfang als eigene Tabellen an (`level_assignment`, `time_span`,
 `workload`); eine Entwurfskopie, die eine Replica des vorigen Images während des Updates anlegt, übernimmt
 sie nicht: Die Kopie eines mit Werten festgeschriebenen Dokuments kommt dann ohne sie. Darum alle Replicas
@@ -247,23 +251,29 @@ ungültig.
 - Kern-Export: `GET /api/v1/documents/{id}/kern.ttl` gibt jedes festgeschriebene Dokument – extrahiert oder
   aus MEM-Schule importiert – als RDF nach dem Curriculum-Kern 1.0 aus (Turtle, als Download), unter den IRIs,
   die es beim Festschreiben bekam: Werk (`cur:versionOf`), Revision (`owl:versionInfo`), ersetzte Fassung,
-  Spezifikationen, Varianten, Knoten und Aussagen mit ihren Niveaus, Zeiträumen und Umfängen
-  (`cur:levelAssignment`, `cur:timeSpan`, `cur:workload`/`cur:totalWorkload`); Fundstellen, Werte und die
-  Quelldatei als leere Knoten. Er nennt
+  Spezifikationen mit ihren Geltungskontexten (`cur:applicability`), Varianten, Knoten und Aussagen mit ihren
+  Niveaus, Zeiträumen und Umfängen (`cur:levelAssignment`, `cur:timeSpan`, `cur:workload`/`cur:totalWorkload`),
+  Regeln (`<dokument>/rule-<n>`), Prüfungen mit ihren Niveaus (`<dokument>/assessment-<n>`) und Verwendungen
+  mit ihren Zeiträumen und Umfängen (`<dokument>/placement-<n>`); Fundstellen, Werte, Geltungskontexte und
+  die Quelldatei als leere Knoten. Verworfene Aussagen, Werte, Regeln, Prüfungen und Verwendungen fehlen
+  darin wie im Graphen, den X5 prüft; ein verworfener Knoten bleibt. Er nennt
   die Quelldatei mit Prüfsumme, als Quelle (`dct:source`) die Adresse des Eintrags, wo er eine hat (ein
   hochgeladener ohne Adresse nennt nur die Prüfsumme), und den Rechtestatus der Wortlaute (`dct:rights`),
   keine Lizenz eigener Angaben. Ein Import nennt dazu wie sein MEM-Export den MEM-Plan als Quelle und Herkunft
   (`prov:wasDerivedFrom`), die Namensnennung und, wo eingetragen, die Lizenz der MEM-Daten am Plan. Die Zahl der
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
-  Kommentarzeile am Anfang der Datei. Hat X5 das Dokument unter einer anderen Version des Kern-Graphen
-  geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
+  Kommentarzeile am Anfang der Datei. Die Version des Kern-Graphen (heute 8) steigt mit jeder Änderung
+  dessen, was der Graph aus denselben Zeilen macht; jeder Lauf von X5 merkt sich die, unter der er prüfte.
+  Hat X5 das Dokument unter einer anderen Version des Kern-Graphen geprüft, als die API jetzt baut – oder vor Migration 0036, dann `unknown` –, nennt der Kopf
   `Curricarta-Graph-Version` beide (`checked=unknown; built=8`), ebenso eine Kommentarzeile; festgeschrieben
   wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
     (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis
     bleibt im Speicher unter `exports/<Dokument>/`, bis sich Revision, Version des Exports oder des
     Kern-Graphen, rdflib, Rechtestatus, Zahl der angenommenen Verstöße, Adresse des Eintrags, Lizenz oder
-    Namensnennung des Imports oder die Länder ändern; zwei Bauten ergeben dieselben Bytes.
+    Namensnennung des Imports oder die Länder ändern; zwei Bauten ergeben dieselben Bytes. Wie lange ein Bau
+    dauert, misst `python -m app.exports.measure_kern [Knoten] [Aussagen] [Werte]` an einem synthetischen
+    Dokument, X5 auf demselben daneben (`docs/uebergabe/konfiguration.md`).
   - **Weigerungen:** 409 `export_not_frozen`; 409 `export_unnamed` für ein Dokument, das vor der Vergabe der
     Spezifikations- oder Regel-IRIs festgeschrieben wurde, bis `python -m app.db.name_frozen` lief; 503
     `export_unavailable` mit `Retry-After`; 429 `too_many_exports` (`EXPORTS_PER_MINUTE` zählt beide Exporte
@@ -554,6 +564,8 @@ ungültig.
   Zeiträumen, eine verworfene Aussage mit all ihren Werten –; die Werte eines verworfenen Knotens folgen
   ihrem eigenen Prüfstand. Wie beim
   Bearbeiten nicht neben einem offenen Job, nicht vor X4 und nicht festgeschrieben; Audit `review.set`.
+  Spezifikationen und Regeln haben hier keinen Prüfstand: Eine Regel eines Laufs verwirft
+  `DELETE /api/v1/rules/{id}`.
 - Erneut prüfen: `POST /api/v1/documents/{id}/check` startet den Job `extract.check` (X5 erneut, ohne
   Modell) – durch Eigentümer und Redaktion/Admin, sobald X5 das Dokument einmal geprüft hat (sonst 409
   `not_checked`: die Extraktion fortsetzen) – ein Import nach `IM`, auch wenn sein X5 scheiterte – eine Entwurfskopie sofort, sie bringt keine Läufe ihrer
