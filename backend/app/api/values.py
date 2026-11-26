@@ -39,7 +39,9 @@ _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "node": DOCUMENT_OF_NODE, "statement": DOCUMENT_OF_STATEMENT, "specification": DOCUMENT_OF_SPECIFICATION,
     "assessment": DOCUMENT_OF_ASSESSMENT,
 }  # fmt: skip
-ASSESSMENT_TYPE: Final = "https://w3id.org/wlo/curriculum/core#Assessment"  # an assessment's, by its class
+# an assessment's type by its class, passed as a specification's is: no level rule reads it yet (none names it
+# in ``unless``); it is there for one that will
+ASSESSMENT_TYPE: Final = "https://w3id.org/wlo/curriculum/core#Assessment"
 MOST_VALUES: Final = 20  # of a kind at a holder, and periods of a workload
 # a concept's IRI; one no list offers is refused by the form, unechoed
 Iri = Annotated[str, StringConstraints(min_length=1, max_length=500)]

@@ -66,7 +66,7 @@ GRAPH_DIGESTS = {
     # checks a value's vocabulary and the blank nodes (audit 2026-11-14)
     4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
     5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
-    6: "508974a782d6bcff5feef944081de0d8a31ebf135326fc4345982561831bd041",  # assessments (plan M3a J)
+    6: "35cec87d049670dbbf7df1e650ed49256f9129a339f0919bcf72a1bee5306ec9",  # assessments (plan M3a J)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {

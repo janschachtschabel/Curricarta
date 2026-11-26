@@ -14,7 +14,7 @@ from psycopg.rows import dict_row
 
 from app.db.value_rows import values_of
 from app.domain.assessments import AssessmentRow, ParentKind, Target
-from app.domain.l2 import Holder, Stated
+from app.domain.l2 import Holder, Stated, Values
 
 LABEL_SIGNS: Final = 160  # of a statement's wording, what a list shows of what an assessment assesses
 _ASSESSMENTS = """
@@ -32,14 +32,18 @@ WHERE t.document_id = %(document)s ORDER BY t.assessment_id, t.position
 """
 
 
-async def assessments_of(connection: psycopg.AsyncConnection, document_id: UUID) -> list[AssessmentRow]:
+async def assessments_of(
+    connection: psycopg.AsyncConnection, document_id: UUID, *, values: Values | None = None
+) -> list[AssessmentRow]:
     """The document's assessments, each part after the assessment it is a part of and the parts of one
-    parent in their order, in one snapshot - of a read-only transaction of its own, or of the caller's."""
+    parent in their order, in one snapshot - of a read-only transaction of its own, or of the caller's; the
+    levels at them from ``values``, the document's values where the caller read them already in that snapshot
+    (app/exports/kern_rows.py), so they are read once."""
     if connection.info.transaction_status != psycopg.pq.TransactionStatus.IDLE:
-        return await _read(connection, document_id)
+        return await _read(connection, document_id, values)
     async with connection.transaction():
         await connection.execute("SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY")
-        return await _read(connection, document_id)
+        return await _read(connection, document_id, values)
 
 
 async def name_assessments(connection: psycopg.AsyncConnection, document_id: UUID, iri: str) -> int:
@@ -72,7 +76,9 @@ async def name_assessments(connection: psycopg.AsyncConnection, document_id: UUI
     return len(unnamed)
 
 
-async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> list[AssessmentRow]:
+async def _read(
+    connection: psycopg.AsyncConnection, document_id: UUID, values: Values | None
+) -> list[AssessmentRow]:
     params = {"document": document_id, "signs": LABEL_SIGNS}
     async with connection.cursor(row_factory=dict_row) as rows:
         await rows.execute(_ASSESSMENTS, params)
@@ -81,7 +87,8 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> list[
         targets: defaultdict[UUID, list[Target]] = defaultdict(list)
         for row in await rows.fetchall():
             targets[row["assessment_id"]].append(Target(row["kind"], row["id"], row["label"]))
-    values = await values_of(connection, document_id)
+    if values is None:
+        values = await values_of(connection, document_id)
     parts: defaultdict[UUID | None, list[dict[str, Any]]] = defaultdict(list)
     for row in found:
         parts[row["parent_assessment_id"]].append(row)

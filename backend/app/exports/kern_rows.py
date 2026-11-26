@@ -164,7 +164,7 @@ async def _read(connection: psycopg.AsyncConnection, document_id: UUID) -> KernR
         file = await rows.fetchone()
     values = await values_of(connection, document_id)  # within this snapshot
     rules = await rules_of(connection, document_id, stated=True)
-    assessments = await assessments_of(connection, document_id)  # within it too
+    assessments = await assessments_of(connection, document_id, values=values)  # the values read once
     if file is None:  # a document is of a conversion, a conversion of a file: both columns NOT NULL
         raise DocumentError(f"no file of document {document_id}")
     specifications, variants, nodes, statements, anchors = read
