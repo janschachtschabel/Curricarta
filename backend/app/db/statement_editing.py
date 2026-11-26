@@ -127,7 +127,7 @@ async def edit_statement(
             return None
         form = await form_for(connection, target.sector)
         values = checked(STATEMENT_FIELDS, form, given)
-        drafts = None if anchors is None else await _anchor_drafts(connection, target.document_id, anchors)
+        drafts = None if anchors is None else await anchor_drafts(connection, target.document_id, anchors)
         await guard(connection, target.document_id)
         row = await row_of(connection, _STATEMENT, statement_id)
         if row is None:  # taken away meanwhile
@@ -193,7 +193,7 @@ async def add_statement(
         form = await form_for(connection, target.sector)
         values = checked(STATEMENT_FIELDS, form, every_field(STATEMENT_FIELDS, given))
         check_under(form, values, given=values)
-        drafts = await _anchor_drafts(connection, target.document_id, anchors)
+        drafts = await anchor_drafts(connection, target.document_id, anchors)
         await guard(connection, target.document_id)
         cursor = await connection.execute(
             "SELECT coalesce(max(s.position), 0) + 1 FROM node n LEFT JOIN statement s ON s.node_id = n.id"
@@ -262,7 +262,7 @@ async def drop_or_reject_statement(
         return taken
 
 
-async def _anchor_drafts(
+async def anchor_drafts(
     connection: psycopg.AsyncConnection, document_id: UUID, anchors: Sequence[HandAnchor]
 ) -> list[AnchorDraft]:
     """The anchors an editor gives, as the store writes them; FieldError ``anchors`` for none, a block of
