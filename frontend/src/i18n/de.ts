@@ -795,7 +795,8 @@ export const messages = {
       "(beide mit mindestens einem lateinischen Buchstaben oder einer Ziffer).",
     no_iri_base: "Der Dienst hat keine IRI-Basis (IRI_BASE). Ohne sie lässt sich nichts festschreiben.",
     check_owed:
-      "Die Prüfung steht aus: Das Dokument wurde noch nicht oder nicht seit den letzten Änderungen geprüft. " +
+      "Die Prüfung steht aus: Das Dokument wurde noch nicht geprüft, nicht seit den letzten Änderungen " +
+      "oder nicht seit die Prüfung erweitert wurde. " +
       "Prüfe es – oder setze die Extraktion fort, wenn sie nie bis zur Prüfung kam –, dann lässt es sich " +
       "festschreiben.",
     has_violations: "Die Befunde nennen Verstöße. Festschreiben geht nur, wenn du sie ausdrücklich annimmst.",

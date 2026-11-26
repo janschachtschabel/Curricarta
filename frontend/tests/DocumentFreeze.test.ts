@@ -279,6 +279,8 @@ describe("freezing a document", () => {
     await confirmFreeze(wrapper);
 
     expect(wrapper.get("[role=alert]").text()).toContain(refusalText("check_owed"));
+    // a check owed without a change of the editors': the check was extended (a new graph version)
+    expect(wrapper.get("[role=alert]").text()).toContain("seit die Prüfung erweitert wurde");
     expect(wrapper.get("[data-test=freeze-tree]").attributes("href")).toBe("/dokumente/d1/baum");
     expect(await violations(wrapper.html())).toEqual([]);
   });
