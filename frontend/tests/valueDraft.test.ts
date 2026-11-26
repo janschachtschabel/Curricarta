@@ -89,7 +89,7 @@ describe("a holder's values as a draft", () => {
     expect(at("1.234.567").set?.amount).toBe(1234567);
     expect(at("12.000").faults).toEqual([]);
     expect(at("45", "1.000").set?.minutes_per_unit).toBe(1000);
-    for (const written of ["7.50", "1.8", "12.00", "1.8000", ".5", "1,", "1.000.0"]) {
+    for (const written of ["7.50", "1.8", "12.00", "1.8000", ".5", "1,", "1.000.0", "0.500", "00.123"]) {
       expect(at(written).faults, written).toEqual([["workloads[0].amount", t("documents.tree.values.problems.not_number")]]);
       expect(at(written).set?.amount, written).toBeNull();
     }

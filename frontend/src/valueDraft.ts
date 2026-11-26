@@ -49,8 +49,9 @@ const MOST_DIGITS = 15; // the store's (backend app/api/values.py, Number)
 const MOST_WHOLE = 2 ** 31 - 1; // a whole number's, the store's integer
 // a whole number, as the document says it: minutes per unit
 const WHOLE: ReadonlySet<string> = new Set(["minutes_per_unit"]);
-// digits, or thousands grouped by dots, then the decimals after a comma
-const NUMBER = /^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d+)?$/;
+// digits, or thousands grouped by dots - the first group no zero, as "0.500" is no grouped number -, then the
+// decimals after a comma
+const NUMBER = /^(?:\d+|[1-9]\d{0,2}(?:\.\d{3})+)(?:,\d+)?$/;
 
 let made = 0;
 function nextKey(): string {
