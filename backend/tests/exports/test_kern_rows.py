@@ -1,11 +1,16 @@
 """A document of the first layer read for its Kern RDF (plan M1 8.3; app/exports/kern_rows.py): in one
 snapshot or not at all, a region by its active concept, and none of a rejected statement's rows."""
 
+from uuid import UUID
+
 import psycopg
 import pytest
 
+from app.db import assessment_rows, placement_rows, value_rows
 from app.db.nodes import write_subtree
 from app.domain.l1 import AnchorDraft, NodeDraft, StatementDraft
+from app.domain.l2 import Values
+from app.exports import kern_rows
 from app.exports.kern_rdf import CUR, kern_graph
 from app.exports.kern_rows import read_document
 from tests.db.document_of import document_of
@@ -98,3 +103,23 @@ async def test_a_document_is_read_with_where_it_came_from(connection: psycopg.As
         "https://example.org/plaene/1.pdf", "https://example.org/mem/plan-1", "MEM-Schule",
         "https://creativecommons.org/licenses/by/4.0/",
     )  # fmt: skip
+
+
+async def test_a_document_s_values_are_read_once_for_its_graph(
+    connection: psycopg.AsyncConnection, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    # the assessments and placements take the values the graph's reading read already (kern_rows passes
+    # them), rather than each reading all of the document's values again
+    document = await document_of(connection, [block(1, TEXTS[0])])
+    calls: list[UUID] = []
+
+    async def counted(reading: psycopg.AsyncConnection, document_id: UUID) -> Values:
+        calls.append(document_id)
+        return await value_rows.values_of(reading, document_id)
+
+    for module in (kern_rows, assessment_rows, placement_rows):
+        monkeypatch.setattr(module, "values_of", counted)
+
+    await read_document(connection, document.id)
+
+    assert calls == [document.id]
