@@ -173,7 +173,8 @@ def _results(report: Graph, shapes: Graph, data: Graph) -> list[ShaclResult]:
     found = []
     for result in report.subjects(RDF.type, SH.ValidationResult):
         focus = report.value(result, SH.focusNode)
-        if focus not in subjects:
+        # a nested shape's result (sh:detail of another) is part of that one's finding: its focus is the value
+        if focus not in subjects or (None, SH.detail, result) in report:
             continue
         shape = report.value(result, SH.sourceShape)
         if isinstance(shape, BNode):

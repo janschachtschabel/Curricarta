@@ -44,6 +44,23 @@ def test_a_node_s_obligation_outside_the_obligations_is_a_violation_of_the_node(
     ]  # fmt: skip
 
 
+def test_a_row_as_a_vocabulary_value_breaks_its_holder_alone_not_the_row() -> None:
+    # the nested shape's own result (sh:detail of the node's) is at the statement, a row of the document:
+    # it is part of the node's finding, no finding of the statement's
+    rows = a_document([CV + "addr_learner"])
+    statement = str(uri(rows.statements[0]["id"]))
+    rows.nodes[0]["obligation_iri"] = statement
+
+    results = validate_graph(ONTOLOGY, kern_graph(rows))
+
+    found = [(result.focus, result.shape, result.path) for result in results]
+
+    assert [result for result in found if result[0] == statement] == []
+    assert [result for result in found if result[2] in ("cur:obligation", "skos:inScheme")] == [
+        (str(uri(rows.nodes[0]["id"])), "CurriculumNodeShape", "cur:obligation")
+    ]
+
+
 def test_a_context_with_sector_and_formality_swapped_breaks_both_at_the_context() -> None:
     rows = a_document([CV + "addr_learner"])
     context = a_context(sector=FORMAL, formality=SCHOOL)
