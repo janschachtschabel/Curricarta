@@ -106,7 +106,7 @@ async def set_review(
     async with connection.transaction():
         await guard(connection, document_id)
         # the values' holders, which a set locks before its values (app/db/values.py): so here too
-        holders = await _holders(connection, document_id, named)
+        holders, placed = await _holders(connection, document_id, named)
         found: dict[tuple[str, UUID], tuple[int, str]] = {}
         for kind in _KINDS:
             ids = [item.id for item in named if item.kind == kind]
@@ -136,8 +136,12 @@ async def set_review(
             changed.update(changing)
             was = {found[(kind, row)][1] for row in changing}
             edited = edited or REJECTED in {status, *was}
-        # each holder of a value changed one up, once - one whose own review changed it counted already
+        # each holder of a value changed one up, once - one whose own review changed it counted already -, a
+        # placement's node too (plan M3a K: the node's set of its placements names the node's revision)
         held = {holder for value, holder in holders.items() if value in changed and holder[1] not in changed}
+        held |= {
+            ("node", placed[row]) for of, row in held if of == "placement" and placed[row] not in changed
+        }
         for table in _HOLDER_TABLES:
             if raised := sorted(row for of, row in held if of == table):
                 cursor = await connection.execute(_RAISE.format(table=table), (raised,))
@@ -149,9 +153,10 @@ async def set_review(
 
 async def _holders(
     connection: psycopg.AsyncConnection, document_id: UUID, named: Sequence[ReviewItem]
-) -> dict[UUID, tuple[str, UUID]]:
+) -> tuple[dict[UUID, tuple[str, UUID]], dict[UUID, UUID]]:
     """The holder of each value ``named`` of the document - by its table and id -, locked: before the values
-    are, as a set of values locks them (app/db/values.py). A value of none (a rule's level) is not there."""
+    are, as a set of values locks them (app/db/values.py). A value of none (a rule's level) is not there.
+    Beside them each placement holder's node, by the placement, locked with the nodes."""
     holders: dict[UUID, tuple[str, UUID]] = {}
     for kind, query in _HOLDER_OF.items():
         ids = [item.id for item in named if item.kind == kind]
@@ -163,8 +168,18 @@ async def _holders(
                 )
                 if holder is not None:
                     holders[value] = holder
+    placements = sorted({row for of, row in holders.values() if of == "placement"})
+    placed: dict[UUID, UUID] = {}
+    if placements:
+        cursor = await connection.execute(
+            "SELECT id, node_id FROM placement WHERE id = ANY(%s)", (placements,)
+        )
+        placed = dict(await cursor.fetchall())
     for table in _HOLDER_TABLES:
-        rows = sorted({row for of, row in holders.values() if of == table})
+        rows = sorted(
+            {row for of, row in holders.values() if of == table}
+            | set(placed.values() if table == "node" else ())
+        )
         if rows:
             await connection.execute(_LOCK.format(table=table), (document_id, rows))
-    return holders
+    return holders, placed

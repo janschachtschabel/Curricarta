@@ -9,7 +9,8 @@ not read every package; StaleRevision where the holder stands at another revisio
 context's value one of that context's - and anything else named by id refuses the whole set
 (UnknownValue). A row the set leaves out goes, with the findings on it - a context with its values -; a new
 one is an editor's proposal (origin human, proposed), and a kept one whose content changes becomes one, on
-its next revision. A set that changes something counts the holder's revision one up and notes the document
+its next revision. A set that changes something counts the holder's revision one up - a placement's, its
+node's too (plan M3a K: the node's set of its placements names the node's revision) - and notes the document
 edited, which owes X5 a check; one that changes nothing leaves all as it was. What the store refuses of a
 value - a concept of another vocabulary, no level, numbers out of order - refuses the set (ValueRefused,
 ``check`` the constraint's name; none for a number beyond its column's type); a statement holds levels
@@ -63,6 +64,9 @@ _POSITIONS: Final = (
     "SET CONSTRAINTS level_assignment_position, time_span_position, workload_position,"
     " applicability_context_position"
 )
+_PLACED_NODE: Final = (
+    "UPDATE node SET revision = revision + 1 WHERE id = (SELECT node_id FROM placement WHERE id = %s)"
+)
 _PROPOSAL: Final = sql.SQL(
     "origin_iri = %s, rule_id = NULL, review_status_iri = %s, revision = revision + 1, updated_at = now()"
 )
@@ -115,6 +119,10 @@ async def replace_values(
         )
         raised = await cursor.fetchone()
         assert raised is not None  # noqa: S101 - the row locked above
+        if (
+            holder.kind == "placement"
+        ):  # its node holds it: a set of the node's placements read before is stale
+            await connection.execute(_PLACED_NODE, (holder.id,))
         await mark_edited(connection, target.document_id)
         return int(raised[0])
 

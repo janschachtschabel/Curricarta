@@ -1,7 +1,7 @@
 """A node's placements as others read them (plan M3a K): in the tree, at their node with their time spans and
 workloads and the findings on all of it counted there; in the findings, named by the node they place; and
 their values reviewed as a node's are, which counts the placement's revision one up - the token a set of its
-values is made on."""
+values is made on - and its node's, the token of a set of the node's placements."""
 
 from decimal import Decimal
 from typing import Any
@@ -92,6 +92,7 @@ async def test_a_value_at_a_placement_reviewed_counts_the_placement_s_revision_o
     period = placement.values.workloads[0].periods[0].value.id
     assert span is not None and period is not None
 
+    node_before = (await one(connection, "SELECT revision FROM node WHERE id = %s", placement.node_id))[0]
     revisions = await set_review(
         connection, document.id, CV + "rev_confirmed",
         [ReviewItem("time_span", span, 1), ReviewItem("time_span", period, 1)],
@@ -99,5 +100,9 @@ async def test_a_value_at_a_placement_reviewed_counts_the_placement_s_revision_o
 
     assert revisions == {span: 2, period: 2}
     assert await one(connection, "SELECT revision FROM placement WHERE id = %s", placement.id) == (3,)
+    # the node holds the placement: its revision counts once more, the token of a set of its placements
+    assert await one(connection, "SELECT revision FROM node WHERE id = %s", placement.node_id) == (
+        node_before + 1,
+    )
     held = (await values_of(connection, document.id))[Holder("placement", placement.id)]
     assert held.time_spans[0].stated.review_status == CV + "rev_confirmed"

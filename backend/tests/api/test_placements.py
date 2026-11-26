@@ -69,7 +69,9 @@ def test_a_node_s_placements_are_set_read_with_the_tree_and_their_values_set(
     with_values = client.put(f"/api/v1/placements/{first['id']}/values", headers=editor,
                              json=values(1, time_spans=[SEMESTER], workloads=[CREDITS]))  # fmt: skip
     kept_entry = {"id": second["id"], "variant_id": held["variant"], "obligation": ELECTIVE}
-    kept = client.put(path, headers=editor, json=placements(2, kept_entry))
+    on_old_view = client.put(path, headers=editor, json=placements(2, kept_entry))
+    # the values' set counted the node's revision too, and says it: the node's set goes on from there
+    kept = client.put(path, headers=editor, json=placements(with_values.json()["node_revision"], kept_entry))
 
     assert set_.json()["revision"] == 2
     assert (first["specification_id"], first["in_node_id"], first["obligation"], first["grade_weight"]) == (
@@ -86,7 +88,8 @@ def test_a_node_s_placements_are_set_read_with_the_tree_and_their_values_set(
     assert (stale.status_code, stale.json()["code"]) == (409, "stale_revision")
     assert stale.json()["details"]["current"]["revision"] == 2
     assert with_values.status_code == 200, with_values.text
-    assert with_values.json()["revision"] == 2
+    assert (with_values.json()["revision"], with_values.json()["node_revision"]) == (2, 3)
+    assert (on_old_view.status_code, on_old_view.json()["code"]) == (409, "stale_revision")
     assert [span["time_kind"] for span in with_values.json()["values"]["time_spans"]] == [
         CV + "time_semester"
     ]
@@ -109,7 +112,7 @@ def test_a_node_s_placements_are_set_read_with_the_tree_and_their_values_set(
         ("node.placements", {"document": document, "revision": 2, "placements": 2}),
         ("placement.values", {"document": document, "revision": 2, "level_assignments": 0, "time_spans": 1,
                               "workloads": 1, "periods": 0}),
-        ("node.placements", {"document": document, "revision": 3, "placements": 1}),
+        ("node.placements", {"document": document, "revision": 4, "placements": 1}),
     ]  # fmt: skip
 
 

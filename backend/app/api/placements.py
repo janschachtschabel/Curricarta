@@ -20,7 +20,7 @@ from app.api.document_access import readable_document, reader
 from app.api.document_tree import NodeRowOut, node_as_read
 from app.api.edit_answers import HIDDEN, REFUSED, answers, audit, refusal_of, stale
 from app.api.errors import AUTH_RESPONSES, Refusal
-from app.api.placement_answers import PlacementOut, placement_out
+from app.api.placement_answers import PlacedOut, placement_out
 from app.api.values import VALUE_RESPONSES, Iri, ValuesIn, set_values
 from app.core.auth import Principal
 from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, target_of
@@ -99,19 +99,26 @@ async def set_node_placements(
 )
 async def set_placement_values(
     placement_id: UUID, body: ValuesIn, request: Request, who: Account
-) -> PlacementOut:
+) -> PlacedOut:
     gone = Refusal(404, "no_placement", "No such placement.")
     found = await set_values(request, who, Holder("placement", placement_id), body, placement_as_read, gone)
-    assert isinstance(found, PlacementOut)  # noqa: S101 - the placement's reader
+    assert isinstance(found, PlacedOut)  # noqa: S101 - the placement's reader
     return found
 
 
 async def placement_as_read(
     connection: psycopg.AsyncConnection, who: Principal, placement_id: UUID
-) -> PlacementOut | None:
+) -> PlacedOut | None:
     """The placement as the tree has it, where the caller sees it."""
     target = await target_of(connection, DOCUMENT_OF_PLACEMENT, reader(who), placement_id)
     if target is None:
         return None
-    found = await placements_of(connection, target.document_id)
-    return next((placement_out(row) for row in found if row.id == placement_id), None)
+    found = next(
+        (row for row in await placements_of(connection, target.document_id) if row.id == placement_id), None
+    )
+    if found is None:
+        return None
+    cursor = await connection.execute("SELECT revision FROM node WHERE id = %s", (found.node_id,))
+    node = await cursor.fetchone()
+    assert node is not None  # noqa: S101 - a placement's node stands while it does
+    return PlacedOut(**placement_out(found).model_dump(), node_revision=int(node[0]))

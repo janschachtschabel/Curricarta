@@ -129,3 +129,24 @@ async def test_two_editors_of_a_node_s_placements_at_once_one_wins(
 
     assert await one(connection, "SELECT count(*) FROM placement") == (0,)
     assert await one(connection, "SELECT count(*) FROM time_span") == (0,)
+
+
+async def test_a_set_of_a_placement_s_values_counts_its_node_s_revision_so_a_removal_read_before_is_stale(
+    url: str, connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    # the node holds its placements: one taken away on the node's revision may not take values set meanwhile
+    made = await placed(connection, document)
+    draft = PlacementDraft(BINDING, specification_id=made["specification"])
+    assert await replace_placements(connection, owner(document), made["module"], 1, [draft]) == 2
+    [placement] = await rows(connection, document)
+    async with await psycopg.AsyncConnection.connect(url, autocommit=True) as other:
+        values = ValueDrafts(time_spans=(SEMESTER,))
+        assert await replace_values(other, owner(document), Holder("placement", placement.id), 1, values) == 2
+
+    with pytest.raises(StaleRevision) as stale:
+        await replace_placements(connection, owner(document), made["module"], 2, [])
+
+    assert stale.value.current == 3
+    assert await one(connection, "SELECT count(*) FROM time_span WHERE placement_id = %s", placement.id) == (
+        1,
+    )

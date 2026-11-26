@@ -27,6 +27,13 @@ class PlacementOut(BaseModel):
     values: ValuesOut  # its time spans and workloads
 
 
+class PlacedOut(PlacementOut):
+    """A placement as a set of its values answers it: with its node's revision, which that set counted too -
+    the token of the next set of the node's placements (PUT /nodes/{id}/placements)."""
+
+    node_revision: int
+
+
 def placement_out(row: PlacementRow) -> PlacementOut:
     return PlacementOut(
         id=row.id, node_id=row.node_id, position=row.position, specification_id=row.specification_id,
