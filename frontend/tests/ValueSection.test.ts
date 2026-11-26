@@ -133,7 +133,7 @@ describe("a row's values as they read", () => {
   });
 
   it("offers each value's review status to the editors, and tells the panel how it went", async () => {
-    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 2 }] });
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 2 }], nodes: [] });
     const wrapper = section(nodeRow(held()), { reviewable: true });
 
     const groups = wrapper.findAll("[role=group]");
@@ -145,7 +145,7 @@ describe("a row's values as they read", () => {
     await flushPromises();
 
     expect(reviewed).toHaveBeenCalledWith(
-      { outcome: "set", status: "confirmed", revision: 2 },
+      { outcome: "set", status: "confirmed", revision: 2, nodes: [] },
       "node:a",
       "Prüfstand von „80 Unterrichtsstunden, Richtwert“: Bestätigt.",
     );

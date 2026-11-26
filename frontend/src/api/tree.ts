@@ -172,14 +172,22 @@ export type ReviewStatus = "proposed" | "confirmed" | "rejected";
 
 /** A row or a value a review names, at the revision it was read at (backend ReviewItemIn). */
 export interface ReviewItem {
-  kind: "node" | "statement" | ValueTable;
+  kind: "node" | "statement" | "assessment" | "placement" | ValueTable;
+  id: string;
+  revision: number;
+}
+
+/** A row at its revision after a review. */
+export interface ReviewedRevision {
   id: string;
   revision: number;
 }
 
 /** Each row a review named, once, in the order asked, at its revision after (backend ReviewOut). */
 export interface Reviewed {
-  revisions: { id: string; revision: number }[];
+  revisions: ReviewedRevision[];
+  /** Each node whose revision it moved as a holder - a value's at it, a placement of it -, at its revision after. */
+  nodes: ReviewedRevision[];
 }
 
 /** A page of the document's own conversion, with the count of its pages (backend DocumentPageOut). */

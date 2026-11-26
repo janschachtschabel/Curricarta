@@ -2,7 +2,7 @@ import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
-import { ApiError } from "@/api";
+import { ApiError, type Reviewed } from "@/api";
 import ReviewToggles from "@/components/ReviewToggles.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
@@ -57,7 +57,7 @@ describe("a row's review status to choose", () => {
   });
 
   it("sets another for the row and tells how it went; the status it stands at asks nothing", async () => {
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }], nodes: [] });
     const wrapper = toggles();
 
     await button(wrapper, "Bestätigt").trigger("click");
@@ -66,14 +66,14 @@ describe("a row's review status to choose", () => {
     await flushPromises();
 
     expect(sent).toHaveBeenCalledWith("d1", "rejected", [{ kind: "statement", id: "s1", revision: 5 }]);
-    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "rejected", revision: 6 }, "statement:s1");
+    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "rejected", revision: 6, nodes: [] }, "statement:s1");
   });
 
   it("sets another before the row is read again at the revision the last left, not the one read", async () => {
     const sent = vi
       .spyOn(api, "setReview")
-      .mockResolvedValueOnce({ revisions: [{ id: "s1", revision: 6 }] })
-      .mockResolvedValueOnce({ revisions: [{ id: "s1", revision: 7 }] });
+      .mockResolvedValueOnce({ revisions: [{ id: "s1", revision: 6 }], nodes: [] })
+      .mockResolvedValueOnce({ revisions: [{ id: "s1", revision: 7 }], nodes: [] });
     const wrapper = toggles();
 
     await button(wrapper, "Verworfen").trigger("click");
@@ -86,7 +86,7 @@ describe("a row's review status to choose", () => {
   });
 
   it("shows the status just set pressed until the row is read again, and the row's own from then", async () => {
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }], nodes: [] });
     const wrapper = toggles();
 
     await button(wrapper, "Verworfen").trigger("click");
@@ -102,7 +102,7 @@ describe("a row's review status to choose", () => {
   });
 
   it("asks nothing more while it sets one, and tells how it went once it is gone", async () => {
-    let answer: (done: { revisions: { id: string; revision: number }[] }) => void = () => undefined;
+    let answer: (done: Reviewed) => void = () => undefined;
     const sent = vi.spyOn(api, "setReview").mockReturnValue(new Promise((resolve) => (answer = resolve)));
     const wrapper = toggles();
 
@@ -112,9 +112,9 @@ describe("a row's review status to choose", () => {
     expect(sent).toHaveBeenCalledTimes(1);
 
     wrapper.unmount();
-    answer({ revisions: [{ id: "s1", revision: 6 }] });
+    answer({ revisions: [{ id: "s1", revision: 6 }], nodes: [] });
     await flushPromises();
-    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "rejected", revision: 6 }, "statement:s1");
+    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "rejected", revision: 6, nodes: [] }, "statement:s1");
   });
 
   it("tells a row changed meanwhile or a tree closed, and says another failure where it was asked", async () => {
@@ -140,7 +140,7 @@ describe("a value's review status to choose", () => {
   const VALUE = { table: "workload" as const, id: "w1", revision: 2, review_status: CV + "rev_proposed" };
 
   it("sets the value's, named by its table at its own revision, in a group named for the value", async () => {
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 3 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 3 }], nodes: [] });
     reviewed = vi.fn();
     const label = "Prüfstand von „80 Unterrichtsstunden“";
     shown = mount(ReviewToggles, { props: { row: ROW, value: VALUE, label, documentId: "d1", onReviewed: reviewed }, attachTo: document.body });
@@ -156,7 +156,7 @@ describe("a value's review status to choose", () => {
     // another at the revision the first left, until the row is read again
     expect(sent.mock.calls[1]?.[2]).toEqual([{ kind: "workload", id: "w1", revision: 3 }]);
     // told with the row's key: the holder's revision moved, the tree is read again
-    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "confirmed", revision: 3 }, "statement:s1");
+    expect(reviewed).toHaveBeenCalledWith({ outcome: "set", status: "confirmed", revision: 3, nodes: [] }, "statement:s1");
     expect(await violations(shown.html())).toEqual([]);
   });
 });

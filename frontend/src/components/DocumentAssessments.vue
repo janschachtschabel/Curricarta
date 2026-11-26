@@ -4,7 +4,8 @@
  * under it (AssessmentItem), what it states in words by the labels its list and the values' form give. The
  * document's owner and the editors add one, edit one, add a part of one and take one away with its parts while the
  * document is open - one form at a time (AssessmentForm), a taking away asked first -, and set the levels at one as a
- * whole (ValueSection); saved, added, taken away, the list is read again, and the keyboard, where nothing holds it,
+ * whole (ValueSection); the editors set the review status of one and of its levels (plan M3a L), said in words
+ * that name it; saved, added, taken away, reviewed, the list is read again, and the keyboard, where nothing holds it,
  * goes to the section's heading; a form opened takes it, cancelled gives it back to the button that opened it. A draft of levels the document closed under stays, in words, to copy; a draft open in
  * a form the section tells the page (`dirty`, its leave guard). Closed, or another's, the section says why it is to
  * read only. Read as sectionReading.ts reads: loading, a failure with a retry, content no longer the reader's said
@@ -26,8 +27,10 @@ import { t } from "@/i18n/de";
 import { sayAnew } from "@/liveRegion";
 import { failureNotice, type Notice } from "@/notice";
 import { refusalText } from "@/refusals";
+import { reviewWords } from "@/rowReview";
 import { labelsOf } from "@/scopeWords";
 import { useSectionReading } from "@/sectionReading";
+import { isEditor } from "@/session";
 
 // `refresh`: bumped by the page as the extraction moves on, which may write the outline the assessments hang at
 const props = defineProps<{ documentId: string; sector: string; refresh?: number }>();
@@ -54,6 +57,8 @@ const names = computed(() => (listed.value ? namesOf(listed.value) : new Map<str
 const kinds = computed(() => (listed.value ? kindLabels(listed.value) : new Map<string, string>()));
 const levels = computed(() => labelsOf(form.value));
 const editable = computed(() => !!listed.value?.editable);
+// the editors alone review, where the document is open (backend app/api/review.py)
+const reviewable = computed(() => editable.value && isEditor());
 // to who may edit them: the values' form did not come, so their levels cannot be edited now - said, with a retry
 const formMissing = computed(() => {
   const some = editable.value && tops.value.length > 0;
@@ -122,6 +127,10 @@ const actions: ItemActions = {
     say(t("documents.page.assessments.gone"));
     void load();
   },
+  reviewed: (done, _key, words) => {
+    say(words ?? reviewWords(done));
+    if (done.outcome !== "refused") void load();
+  },
 };
 
 async function confirmDrop(): Promise<void> {
@@ -167,7 +176,7 @@ watch(() => props.refresh, () => void load());
       <ul v-else class="assessments__list">
         <AssessmentItem v-for="assessment in tops" :key="assessment.id" :assessment="assessment" :read="listed" :parts="parts"
           :names="names" :kinds="kinds" :levels="levels" :form="form" :document-id="documentId" :editable="editable"
-          :opened="opened" :drafting="drafting" :closed-by="listed.closed" :actions="actions" />
+          :reviewable="reviewable" :opened="opened" :drafting="drafting" :closed-by="listed.closed" :actions="actions" />
       </ul>
       <template v-if="editable">
         <AssessmentForm v-if="opened?.mode === 'add'" :document-id="documentId" :read="listed"

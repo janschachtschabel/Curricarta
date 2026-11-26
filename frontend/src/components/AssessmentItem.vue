@@ -3,19 +3,21 @@
  * One assessment of a document's section of them (plan M3a J; DocumentAssessments.vue), its parts listed under it,
  * each an item of its own: its name, its review status, what it states in words (assessmentWords.ts). Where the
  * section lets it be edited, the ways on from it - edit it, add a part of it, take it away -, the form the section
- * has open at it (AssessmentForm), and the levels at it in the values' form (ValueSection, its review status read
- * only: an assessment's levels are reviewed with it, once assessments are). What it does the section does
- * (`actions`): one form is open in the section at a time.
+ * has open at it (AssessmentForm), and the levels at it in the values' form (ValueSection). To the editors, the
+ * toggles of its review status, in a group named for it, and of each level's (plan M3a L). What it does the section
+ * does (`actions`): one form is open in the section at a time.
  */
 import { computed } from "vue";
 
 import type { Assessment, Assessments, Form } from "@/api";
 import type { ItemActions } from "@/assessmentWords";
 import AssessmentForm from "@/components/AssessmentForm.vue";
+import ReviewToggles from "@/components/ReviewToggles.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import { assessmentTitle, factsOf } from "@/assessmentWords";
 import { t } from "@/i18n/de";
 import { REVIEW_TONES, statusOf, statusWord } from "@/reviewStatus";
+import { namedReviewWords } from "@/rowReview";
 import type { Labels } from "@/scopeWords";
 import { assessmentRow } from "@/valueHolder";
 
@@ -29,6 +31,8 @@ const props = defineProps<{
   form: Form | null;
   documentId: string;
   editable: boolean;
+  /** The caller may set the review status of it and its levels now. */
+  reviewable: boolean;
   /** The form the section has open: of which kind, at which assessment; none open. */
   opened: { mode: "add" | "edit" | "part"; id: string | null } | null;
   /** The values' forms holding a draft, by `values:<id>`: one stays where the document closes under it. */
@@ -45,6 +49,7 @@ const tone = computed(() => {
   return status ? REVIEW_TONES[status] : "neutral";
 });
 const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.opened.id === props.assessment.id;
+const row = computed(() => assessmentRow(props.assessment));
 </script>
 
 <template>
@@ -59,6 +64,13 @@ const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.ope
           <dd><bdi>{{ fact.words }}</bdi></dd>
         </template>
       </dl>
+      <ReviewToggles
+        v-if="reviewable"
+        :row="row"
+        :label="t('documents.page.assessments.reviewLabel', { title })"
+        :document-id="documentId"
+        :on-reviewed="(done, key) => actions.reviewed(done, key, namedReviewWords(done, title, t('documents.page.assessments.reviewStale', { title })))"
+      />
       <div v-if="editable && opened === null" class="assessment__actions">
         <button type="button" class="btn btn-sm secondary" :aria-label="t('documents.page.assessments.editNamed', { title })"
           :data-opener="`edit:${assessment.id}`" @click="actions.open('edit', assessment.id)">
@@ -81,13 +93,14 @@ const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.ope
         @dirty="(open) => actions.dirty('form', open)" />
       <ValueSection
         v-if="form && (editable || drafting.has(`values:${assessment.id}`))"
-        :row="assessmentRow(assessment)"
+        :row="row"
         :form="form"
         :document-id="documentId"
         :editable="editable"
-        :reviewable="false"
+        :reviewable="reviewable"
         :closed-by="editable ? null : closedBy"
         :on-saved="actions.valuesSaved"
+        :on-reviewed="actions.reviewed"
         @closed="actions.changed()"
         @gone="actions.gone()"
         @dirty="(open) => actions.dirty(`values:${assessment.id}`, open)"
@@ -106,6 +119,7 @@ const mine = (mode: "edit" | "part") => props.opened?.mode === mode && props.ope
         :form="form"
         :document-id="documentId"
         :editable="editable"
+        :reviewable="reviewable"
         :opened="opened"
         :drafting="drafting"
         :closed-by="closedBy"

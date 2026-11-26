@@ -4,6 +4,7 @@
 // (scopeWords.ts) - each fact with the word for it; and the parts of each assessment, in their order.
 import type { Assessment, Assessments } from "@/api";
 import { t } from "@/i18n/de";
+import type { ReviewOutcome } from "@/rowReview";
 import { conceptLabel, joined, levelWords, stated, type Labels } from "@/scopeWords";
 import type { Holder } from "@/valueHolder";
 
@@ -19,6 +20,8 @@ export interface ItemActions {
   dirty: (form: string, open: boolean) => void;
   valuesSaved: (holder: Holder) => void;
   gone: () => void;
+  /** How a review of it or of a level at it went, with words that name what was reviewed. */
+  reviewed: (done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: string, words?: string) => void;
 }
 
 /** What an assessment states, one fact a line. */

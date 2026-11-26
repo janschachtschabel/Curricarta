@@ -7,7 +7,7 @@
  * is read again, which then says how it stands. How it went is told by a function (`onReviewed`) with the row's
  * key - heard even where another row was chosen meanwhile -, a failure said here, where it was asked. Given a value
  * of the row (plan M3a G), they set the value's, in a group named for it (`label`) - a specification's too, whose
- * own status these never set (plan M3a H).
+ * own status these never set (plan M3a H). An assessment's or a placement's own they set as a node's (plan M3a L).
  */
 import { computed, ref, useId, watch } from "vue";
 
@@ -35,13 +35,8 @@ const busy = ref(false);
 const problem = ref<Notice | null>(null);
 // the status just set and the revision it left: the row the panel holds has them only once the tree is read again
 const pending = ref<{ status: ReviewStatus; revision: number } | null>(null);
-// the row whose own status these set: none of a specification's, nor of an assessment's (plan M3a J) or a
-// placement's (plan M3a K)
-const own = computed(() =>
-  props.value || props.row.kind === "specification" || props.row.kind === "assessment" || props.row.kind === "placement"
-    ? null
-    : props.row,
-);
+// the row whose own status these set: none of a specification's
+const own = computed(() => (props.value || props.row.kind === "specification" ? null : props.row));
 const current = computed(
   () => pending.value?.status ?? (props.value ? statusOf(props.value.review_status) : own.value && rowStatus(own.value)),
 );

@@ -11,6 +11,7 @@ import {
   CHECK_KIND,
   type DocumentPage,
   type Job,
+  type Reviewed,
   type Tree,
   type TreeAnchor,
   type TreeStatement,
@@ -302,7 +303,7 @@ describe("a document's tree page", () => {
   it("takes the keyboard to the row the address names on the page's first reading only", async () => {
     // each reading a tree of its own, as the server sends it: the page sees each one come
     const read = vi.spyOn(api, "getTree").mockImplementation(() => Promise.resolve({ ...OPEN }));
-    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 2 }] });
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 2 }], nodes: [] });
     const wrapper = await open({ zeile: "statement:s1" });
     (document.activeElement as HTMLElement).blur();
 
@@ -649,7 +650,7 @@ describe("a document's tree page", () => {
       .spyOn(api, "getTree")
       .mockResolvedValueOnce(OPEN)
       .mockResolvedValue(tree_([{ ...node, statements: [confirmed, node.statements[1]] }]));
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 2 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 2 }], nodes: [] });
     const wrapper = await open({ zeile: "statement:s1" });
     expect(toggle(wrapper, "proposed").attributes("aria-pressed")).toBe("true");
     (toggle(wrapper, "confirmed").element as HTMLElement).focus();
@@ -685,14 +686,14 @@ describe("a document's tree page", () => {
 
   it("reads the tree again for a review status set after another row was chosen, saying nothing of it there", async () => {
     const read = vi.spyOn(api, "getTree").mockResolvedValue(OPEN);
-    let reviewed: (done: { revisions: { id: string; revision: number }[] }) => void = () => undefined;
+    let reviewed: (done: Reviewed) => void = () => undefined;
     vi.spyOn(api, "setReview").mockReturnValue(new Promise((resolve) => (reviewed = resolve)));
     const wrapper = await open({ zeile: "node:a" });
     await toggle(wrapper, "confirmed").trigger("click");
 
     await wrapper.get("[data-key='statement:s1']").trigger("click");
     await flushPromises();
-    reviewed({ revisions: [{ id: "a", revision: 2 }] });
+    reviewed({ revisions: [{ id: "a", revision: 2 }], nodes: [] });
     await flushPromises();
 
     expect(read).toHaveBeenCalledTimes(2);
@@ -1160,7 +1161,7 @@ describe("a document's tree page", () => {
       .mockReturnValueOnce(new Promise((resolve) => (answerAgain = resolve))) // asked again
       .mockReturnValue(new Promise(() => undefined)); // the later reading, under way
     vi.spyOn(api, "editStatement").mockResolvedValue({ ...SAID_SAVED, revision: 2 });
-    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 3 }] });
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 3 }], nodes: [] });
     const wrapper = await open({ zeile: "statement:s1" });
     await wrapper.get(".row-form textarea").setValue("Sie messen genau.");
     await wrapper.get(".row-form").trigger("submit");

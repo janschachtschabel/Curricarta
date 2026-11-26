@@ -1,11 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
-import { ApiError } from "@/api";
+import { ApiError, type Placement } from "@/api";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
-import { reviewRow, reviewWords, rowStatus, type ReviewOutcome } from "@/rowReview";
+import { namedReviewWords, reviewRow, reviewWords, rowStatus, type ReviewOutcome } from "@/rowReview";
+import { assessmentRow, placementRow } from "@/valueHolder";
 
+import { assessmentOf } from "./assessmentFixtures";
 import { CV, node_, statement_ } from "./treeFixtures";
 
 const ROWS = rowsOf([
@@ -30,19 +32,19 @@ describe("a row's review status", () => {
   });
 
   it("is set for the row alone, at the revision it was read at, and said", async () => {
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 6 }], nodes: [] });
 
     const done = await reviewRow("d1", row("statement:s1"), "rejected");
     await reviewRow("d1", row("node:a"), "confirmed");
 
     expect(sent).toHaveBeenNthCalledWith(1, "d1", "rejected", [{ kind: "statement", id: "s1", revision: 5 }]);
     expect(sent).toHaveBeenNthCalledWith(2, "d1", "confirmed", [{ kind: "node", id: "a", revision: 2 }]);
-    expect(done).toEqual({ outcome: "set", status: "rejected", revision: 6 });
+    expect(done).toEqual({ outcome: "set", status: "rejected", revision: 6, nodes: [] });
     expect(said(done)).toBe("Prüfstand: Verworfen.");
   });
 
   it("sends a revision given in place of the one the row was read at: the one a status just set left", async () => {
-    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 7 }] });
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "s1", revision: 7 }], nodes: [] });
 
     await reviewRow("d1", row("statement:s1"), "proposed", 6);
 
@@ -95,5 +97,33 @@ describe("a row's review status", () => {
 
     expect([gone, changed, another]).toEqual([{ outcome: "gone" }, { outcome: "stale" }, { outcome: "stale" }]);
     expect(said(gone)).toBe(t("documents.tree.gone"));
+  });
+
+  it("is set for an assessment or a placement by its kind, and gives the nodes whose revision it moved", async () => {
+    const sent = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "p1", revision: 3 }], nodes: [{ id: "m1", revision: 5 }] });
+    const exam = assessmentRow(assessmentOf({ revision: 4, review_status: CV + "rev_rejected" }));
+    const placement: Placement = {
+      id: "p1", node_id: "m1", position: 1, specification_id: "s1", variant_id: null, in_node_id: null,
+      obligation: CV + "obl_binding", grade_weight: null, iri: null, origin: CV + "orig_human",
+      review_status: CV + "rev_proposed", revision: 2, values: { level_assignments: [], time_spans: [], workloads: [] },
+    };
+    const placed = placementRow(placement, "Verwendung 1");
+
+    await reviewRow("d1", exam, "confirmed");
+    const done = await reviewRow("d1", placed, "confirmed");
+
+    expect(rowStatus(exam)).toBe("rejected");
+    expect(sent).toHaveBeenNthCalledWith(1, "d1", "confirmed", [{ kind: "assessment", id: "a1", revision: 4 }]);
+    expect(sent).toHaveBeenNthCalledWith(2, "d1", "confirmed", [{ kind: "placement", id: "p1", revision: 2 }]);
+    expect(done).toEqual({ outcome: "set", status: "confirmed", revision: 3, nodes: [{ id: "m1", revision: 5 }] });
+  });
+
+  it("names the row in the words of how it went", () => {
+    const set: ReviewOutcome = { outcome: "set", status: "confirmed", revision: 2, nodes: [] };
+
+    expect(namedReviewWords(set, "Prüfung", "geändert")).toBe("Prüfstand von „Prüfung“: Bestätigt.");
+    expect(namedReviewWords({ outcome: "stale" }, "Prüfung", "geändert")).toBe("geändert");
+    expect(namedReviewWords({ outcome: "gone" }, "Prüfung", "geändert")).toBe("geändert");
+    expect(namedReviewWords({ outcome: "closed", code: "frozen" }, "Prüfung", "geändert")).toBeUndefined();
   });
 });

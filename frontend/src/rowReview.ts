@@ -3,16 +3,23 @@
 // statement's. Set, the revision it left is given. A row changed meanwhile is not set but said, the tree to be read
 // again, as a row the document no longer holds; a tree closed meanwhile (a job, frozen, X4 not done) is said too,
 // as a caller who is no editor; another failure is said where it was asked. A row's value - a level, a time span, a
-// workload (plan M3a G) - is set alike, by its table at its own revision; set, its holder's revision moved too.
-import { ApiError, setReview, type ReviewItem, type ValueTable } from "@/api";
+// workload (plan M3a G) - is set alike, by its table at its own revision; set, its holder's revision moved too, and a
+// node's so moved is given (an open draft of its placements goes on from it). An assessment and a placement (plan M3a
+// L) are rows so too.
+import { ApiError, setReview, type ReviewItem, type ReviewedRevision, type ValueTable } from "@/api";
 import type { Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 import { failureNotice, type Notice } from "@/notice";
 import { refusalText } from "@/refusals";
 import { statusIri, statusOf, statusWord, type ReviewStatus } from "@/reviewStatus";
+import type { AssessmentHolderRow, PlacementHolderRow } from "@/valueHolder";
+
+/** A row whose own review status is set: a node, a statement, an assessment, a placement. */
+export type ReviewedRow = Row | AssessmentHolderRow | PlacementHolderRow;
 
 export type ReviewOutcome =
-  | { outcome: "set"; status: ReviewStatus; revision: number }
+  /** `nodes`: each node whose revision the review moved as a holder, at its revision after. */
+  | { outcome: "set"; status: ReviewStatus; revision: number; nodes: ReviewedRevision[] }
   | { outcome: "stale" }
   /** The document holds the row no more. */
   | { outcome: "gone" }
@@ -31,15 +38,21 @@ export interface ReviewedValue {
   review_status: string;
 }
 
-/** The status the row stands at; none for one the vocabulary does not hold. */
-export function rowStatus(row: Row): ReviewStatus | null {
-  return statusOf(row.kind === "node" ? row.node.review_status : row.statement.review_status);
+// the row as stored, by its kind
+function storedOf(row: ReviewedRow): { id: string; revision: number; review_status: string } {
+  if (row.kind === "node") return row.node;
+  if (row.kind === "assessment") return row.assessment;
+  return row.kind === "placement" ? row.placement : row.statement;
 }
 
-function itemOf(row: Row, revision?: number): ReviewItem {
-  return row.kind === "node"
-    ? { kind: "node", id: row.node.id, revision: revision ?? row.node.revision }
-    : { kind: "statement", id: row.statement.id, revision: revision ?? row.statement.revision };
+/** The status the row stands at; none for one the vocabulary does not hold. */
+export function rowStatus(row: ReviewedRow): ReviewStatus | null {
+  return statusOf(storedOf(row).review_status);
+}
+
+function itemOf(row: ReviewedRow, revision?: number): ReviewItem {
+  const stored = storedOf(row);
+  return { kind: row.kind, id: stored.id, revision: revision ?? stored.revision };
 }
 
 // the row as stored none (backend app/api/review.py: `details.stale`, its `current` null)
@@ -56,7 +69,7 @@ function goneIn(details: Record<string, unknown>, id: string): boolean {
 
 export async function reviewRow(
   documentId: string,
-  row: Row,
+  row: ReviewedRow,
   status: ReviewStatus,
   revision?: number,
 ): Promise<ReviewOutcome> {
@@ -75,8 +88,8 @@ export function reviewValue(
 
 async function reviewItem(documentId: string, item: ReviewItem, status: ReviewStatus): Promise<ReviewOutcome> {
   try {
-    const { revisions } = await setReview(documentId, status, [item]);
-    return { outcome: "set", status, revision: revisions.find((one) => one.id === item.id)?.revision ?? item.revision };
+    const { revisions, nodes } = await setReview(documentId, status, [item]);
+    return { outcome: "set", status, revision: revisions.find((one) => one.id === item.id)?.revision ?? item.revision, nodes };
   } catch (error) {
     if (error instanceof ApiError && error.code === "stale_revision") {
       return goneIn(error.details, item.id) ? { outcome: "gone" } : { outcome: "stale" };
@@ -86,6 +99,15 @@ async function reviewItem(documentId: string, item: ReviewItem, status: ReviewSt
     if (code === "not_editor") return { outcome: "refused", code };
     return { outcome: "failed", problem: failureNotice(error, t("documents.tree.review.failed")) };
   }
+}
+
+/**
+ * How the review of a row named `name` went, in words naming it - `stale` where it changed or went meanwhile -; none
+ * where the panel's words say it (closed, refused).
+ */
+export function namedReviewWords(done: Exclude<ReviewOutcome, { outcome: "failed" }>, name: string, stale: string): string | undefined {
+  if (done.outcome === "set") return t("documents.tree.values.reviewSet", { value: name, status: statusWord(statusIri(done.status)) });
+  return done.outcome === "stale" || done.outcome === "gone" ? stale : undefined;
 }
 
 /** What the panel says of it; a failure is said where it was asked. */

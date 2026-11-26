@@ -373,7 +373,7 @@ describe("a specification's values to read only", () => {
 describe("the review of a specification's contexts and values", () => {
   it("sets a context's status by its table at its revision, says so in words naming it, and reads the list again", async () => {
     setSession({ id: "a1", name: "Redaktion", roles: ["redaktion"] });
-    const reviewed = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "c1", revision: 2 }] });
+    const reviewed = vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "c1", revision: 2 }], nodes: [] });
     const wrapper = await open();
     const section = values(wrapper);
 

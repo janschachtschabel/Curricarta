@@ -82,7 +82,7 @@ describe("the values of the row chosen", () => {
 
   it("have the tree read again once saved or reviewed: the holder's revision moved", async () => {
     vi.spyOn(api, "setNodeValues").mockResolvedValue({ ...VALUED[0], revision: 2 });
-    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 2 }] });
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "w1", revision: 2 }], nodes: [] });
     const wrapper = panel();
     await wrapper.get(".value-section fieldset input").setValue("90");
     await wrapper.get(".value-section form").trigger("submit");

@@ -1674,6 +1674,9 @@ export const messages = {
         dropped: "„{title}“ ist entfernt.",
         dropFailed: "Die Prüfung wurde nicht entfernt.",
         gone: "Diese Prüfung gibt es nicht mehr; die Prüfungen werden neu geladen.",
+        // an assessment's own review status, set by the editors (AssessmentItem.vue)
+        reviewLabel: "Prüfstand von „{title}“",
+        reviewStale: "Die Prüfung „{title}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
         // the form of one assessment, new or kept (AssessmentForm.vue)
         addHeading: "Neue Prüfung",
         addPartHeading: "Neuer Teil von „{title}“",
@@ -2248,6 +2251,9 @@ export const messages = {
         saveFailed: "Die Verwendungen wurden nicht gespeichert.",
         changedMeanwhile:
           "Jemand hat diesen Abschnitt inzwischen geändert. Deine Einträge sind noch da; prüfe sie und speichere erneut.",
+        // a placement's own review status, set by the editors (PlacementReview.vue)
+        reviewLabel: "Prüfstand von „{title}“",
+        reviewStale: "Die Verwendung „{title}“ wurde inzwischen geändert und wird neu geladen. Setze den Prüfstand erneut.",
         // the most a node takes (placementDraft.MOST_PLACEMENTS)
         most: "Mehr als {most} {most|Verwendung|Verwendungen} nimmt ein Abschnitt nicht an.",
         problems: { nowhere: "Wähle eine Spezifikation oder eine Variante." },

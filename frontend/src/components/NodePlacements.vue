@@ -7,7 +7,8 @@
  * kept and said to be, saved again on the node's new revision; a failure is said above the form. Where the tree closed -
  * on this save, or under an open draft as it was read anew (`closedBy`) - it says why and keeps the draft, in words, to
  * copy. Elsewhere each placement reads in words with who stated it. Each stored placement's time spans and workloads
- * stand under it (ValueSection), set on its own revision. It tells the panel whether a draft is open (the leave guard).
+ * stand under it (ValueSection), set on its own revision; the editors review each and its values (PlacementReview, plan
+ * M3a L), and the entries go on from the node's revision that moved. It tells the panel whether a draft is open.
  */
 import { computed, nextTick, onBeforeUnmount, reactive, ref, toRef, useId, watch } from "vue";
 
@@ -17,6 +18,7 @@ import LoadingState from "@/components/LoadingState.vue";
 import NoticeText from "@/components/NoticeText.vue";
 import PlacementItemForm from "@/components/PlacementItemForm.vue";
 import PlacementList from "@/components/PlacementList.vue";
+import PlacementReview from "@/components/PlacementReview.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import type { Row } from "@/documentTree";
 import { useFieldFaults } from "@/fieldFaults";
@@ -30,7 +32,6 @@ import {
   obligationChoices,
   placeChoices,
   placementName,
-  placementStated,
   placementWords,
   specificationChoices,
   variantChoices,
@@ -106,10 +107,9 @@ function wordsOf(placement: PlacementPlace): string {
   return placementWords(placement, props.tree.specifications, props.tree.nodes, props.form);
 }
 
-/** Who stated the stored placement an entry keeps, and how far it is reviewed; none for a new one. */
-function statedOfEntry(id: string | null): string | null {
-  const placement = stored.value.find((each) => each.id === id);
-  return placement ? placementStated(placement) : null;
+/** The stored placement an entry keeps; none for a new one. */
+function storedOf(id: string | null): Placement | undefined {
+  return stored.value.find((each) => each.id === id);
 }
 
 function holderOf(placement: Placement) {
@@ -120,6 +120,15 @@ function holderOf(placement: Placement) {
 function valuesSaved(answer: Holder): void {
   if ("node_revision" in answer && typeof answer.node_revision === "number") moved(answer.node_revision);
   props.onValuesSaved?.(answer);
+}
+
+// a review of a placement or of a value at one counted the node's revision, which it names: the entries go on from
+// it; said here, as the panel says its own row's alone
+function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string): void {
+  const now = done.outcome === "set" ? done.nodes.find((one) => one.id === node.value?.id) : undefined;
+  if (now) moved(now.revision);
+  if (words) status.value = sayAnew(status.value, words);
+  props.onReviewed?.(done, key, words);
 }
 
 function valueDirty(id: string, open: boolean): void {
@@ -197,7 +206,13 @@ async function submit(): Promise<void> {
           @remove="remove(place)"
         >
           <template #default="{ entry: one }">
-            <p v-if="statedOfEntry(one.id)" class="node-placements__stated">{{ statedOfEntry(one.id) }}</p>
+            <PlacementReview
+              v-if="storedOf(one.id)"
+              :row="holderOf(storedOf(one.id) as Placement)"
+              :reviewable="reviewable"
+              :document-id="documentId"
+              :on-reviewed="reviewed"
+            />
           </template>
         </PlacementItemForm>
         <!-- aria-disabled, not disabled: a disabled button drops the focus it holds -->
@@ -237,7 +252,7 @@ async function submit(): Promise<void> {
       :reviewable="reviewable"
       :closed-by="closedBy"
       :on-saved="valuesSaved"
-      :on-reviewed="onReviewed"
+      :on-reviewed="reviewed"
       @closed="(code) => emit('closed', code)"
       @gone="emit('gone')"
       @dirty="(open) => valueDirty(placement.id, open)"
@@ -259,8 +274,7 @@ async function submit(): Promise<void> {
 }
 
 .node-placements__intro,
-.node-placements__none,
-.node-placements__stated {
+.node-placements__none {
   color: var(--text-muted);
 }
 

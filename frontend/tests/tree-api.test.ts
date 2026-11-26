@@ -141,7 +141,7 @@ describe("the tree's requests", () => {
 
   it("set the review status of rows at once, and start the document's check", async () => {
     vi.mocked(fetch)
-      .mockResolvedValueOnce(answer(200, { revisions: [{ id: "s1", revision: 4 }] }))
+      .mockResolvedValueOnce(answer(200, { revisions: [{ id: "s1", revision: 4 }], nodes: [] }))
       .mockResolvedValueOnce(answer(202, { id: "j1", kind: "extract.check", status: "queued" }));
 
     const set = await setReview("d/1", "confirmed", [{ kind: "statement", id: "s1", revision: 3 }]);

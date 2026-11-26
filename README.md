@@ -509,7 +509,8 @@ ungültig.
   Teile, deren Gewichte zusammen über 100 % liegen. Den Prüfstand einer Prüfung und ihrer Niveaus setzt die
   Redaktion (`review`); eine verworfene geht mit ihren Teilen und deren Niveaus nicht in den Graphen. In der Oberfläche stehen sie auf der Dokumentseite unter „Prüfungen“,
   jeder Teil unter seiner Prüfung; Eigentümer und Redaktion legen dort an, bearbeiten, legen Teile an,
-  entfernen (nach Rückfrage) und setzen die Niveaus einer Prüfung, solange das Dokument offen ist.
+  entfernen (nach Rückfrage) und setzen die Niveaus einer Prüfung, solange das Dokument offen ist; die
+  Redaktion setzt dort den Prüfstand jeder Prüfung und ihrer Niveaus.
 - Verwendungen: Der Baum (`GET /api/v1/documents/{id}/tree`) nennt an jedem Knoten seine Verwendungen
   (`placements`, in ihrer Reihenfolge) – Spezifikation (`specification_id`) und/oder Variante (`variant_id`)
   des Dokuments, Stelle (`in_node_id`, ein Knoten des Dokuments), Verbindlichkeit (`obligation`,
@@ -535,7 +536,7 @@ ungültig.
   Verwendungen eines Fachsemesters zusammen über 40 ECTS-Leistungspunkte tragen (`HsSemesterLoadShape`).
   `cur:appliesTo` am Knoten bleibt daneben bestehen. Eine Verwendung über Dokumente hinweg gibt es noch
   nicht. In der Oberfläche stehen sie im Baum am gewählten Knoten unter „Verwendungen“, die Zeit und der
-  Umfang jeder Verwendung darunter.
+  Umfang jeder Verwendung darunter; die Redaktion setzt dort den Prüfstand jeder Verwendung und ihrer Werte.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement`, `assessment`, `placement` oder ein Wert:
   `level_assignment`, `time_span`, `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis
