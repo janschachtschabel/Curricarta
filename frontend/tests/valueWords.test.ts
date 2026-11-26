@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 
 import type { HeldLevel, HeldTimeSpan, HeldWorkload } from "@/api";
 import { messages, t } from "@/i18n/de";
-import { levelInWay, levelWords, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
+import { contextWords, levelInWay, levelWords, shownContexts, timeSpanWords, valueWords, workloadWords } from "@/valueWords";
 
 import { CV, LVL, form_, noValues, value_ } from "./treeFixtures";
 
@@ -114,6 +114,40 @@ describe("a value of any kind in words", () => {
     expect(valueWords("level_assignments", level(), FORM)).toBe("GER B1");
     expect(valueWords("time_spans", span({ span_from: 7 }), FORM)).toBe("Jahrgangsstufe ab 7");
     expect(valueWords("workloads", workload(), FORM)).toBe("80 Unterrichtsstunden");
+  });
+});
+
+describe("an applicability context in words", () => {
+  const context = {
+    sector: CV + "sec_school",
+    formality: null,
+    institution_text: "Gymnasium",
+    target_group_text: "Lernende mit Förderbedarf",
+    level_assignments: [level()],
+    time_spans: [span({ span_from: 5, span_to: 6 })],
+  };
+
+  it("names all it states, its values as they read", () => {
+    expect(contextWords(context, FORM)).toBe("Schulbildung · Einrichtung: Gymnasium · Zielgruppe: Lernende mit Förderbedarf · GER B1 · Jahrgangsstufe 5–6");
+    expect(valueWords("contexts", context, FORM)).toBe(contextWords(context, FORM));
+  });
+
+  it("says a context that states nothing as such", () => {
+    const nothing = { sector: null, formality: null, institution_text: null, target_group_text: null, level_assignments: [], time_spans: [] };
+
+    expect(contextWords(nothing, FORM)).toBe(t("documents.page.scope.emptyContext"));
+  });
+
+  it("shows each stored context and each of its values, with who stated it and a review by its table", () => {
+    const stored = { ...STATED, id: "c1", ...context, level_assignments: [level({ id: "cl1" })], time_spans: [] };
+
+    const shown = shownContexts(FORM, [stored]);
+
+    expect(shown.map((one) => [one.id, one.words, one.review.table])).toEqual([
+      ["c1", "Schulbildung · Einrichtung: Gymnasium · Zielgruppe: Lernende mit Förderbedarf · GER B1", "applicability_context"],
+      ["cl1", "GER B1", "level_assignment"],
+    ]);
+    expect(shown[0]?.stated).toBe("redaktionell · Vorgeschlagen");
   });
 });
 

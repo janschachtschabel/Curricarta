@@ -8,12 +8,12 @@
  */
 import { computed, nextTick, ref, useId, watch } from "vue";
 
-import type { ValueKind } from "@/api";
 import { t } from "@/i18n/de";
+import type { DraftKind } from "@/valueDraft";
 import type { ValueClash } from "@/valueSave";
 
-const props = defineProps<{ clashes: ValueClash[]; taken: { kind: ValueKind; stored: string[] }[] }>();
-const emit = defineEmits<{ keep: [kind: ValueKind]; take: [kind: ValueKind] }>();
+const props = defineProps<{ clashes: ValueClash[]; taken: { kind: DraftKind; stored: string[] }[] }>();
+const emit = defineEmits<{ keep: [kind: DraftKind]; take: [kind: DraftKind] }>();
 
 const id = useId();
 const section = ref<HTMLElement | null>(null);
@@ -25,7 +25,7 @@ const intro = computed(() => {
   return props.taken.length ? t("documents.tree.values.conflict.introNothing") : t("documents.tree.values.conflict.introAgain");
 });
 
-function kindWord(kind: ValueKind): string {
+function kindWord(kind: DraftKind): string {
   return t(`documents.tree.values.kinds.${kind}`);
 }
 
@@ -33,7 +33,7 @@ function shown(words: string[]): string {
   return words.length ? words.join("; ") : t("documents.tree.values.conflict.empty");
 }
 
-function decide(index: number, kind: ValueKind, how: "keep" | "take"): void {
+function decide(index: number, kind: DraftKind, how: "keep" | "take"): void {
   decided = index;
   if (how === "keep") emit("keep", kind);
   else emit("take", kind);

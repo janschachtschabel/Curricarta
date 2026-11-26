@@ -3,11 +3,14 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import type { HeldValues } from "@/api";
+import type { ApplicabilityContext, HeldValues } from "@/api";
 import {
   checkDraft,
+  contextsOf,
   draftOfValues,
   entryField,
+  holdsEntry,
+  isFull,
   kindsOf,
   MOST_VALUES,
   rebaseValues,
@@ -229,3 +232,109 @@ describe("the most values of a kind", () => {
   });
 });
 
+
+describe("a specification's applicability contexts in its draft", () => {
+  function context(changes: Partial<ApplicabilityContext> = {}): ApplicabilityContext {
+    return {
+      id: "c1",
+      ...STATED,
+      sector: CV + "sec_school",
+      formality: null,
+      institution_text: "Gymnasium",
+      target_group_text: null,
+      level_assignments: [{ id: "cl1", ...STATED, level: LVL + "B1", level_to: null, relation: null, dimension: null, competence_dimension: null }],
+      time_spans: [],
+      ...changes,
+    };
+  }
+  const specification = (contexts = [context()]) => ({ ...noValues(), contexts });
+
+  it("holds each context with its fields and, as entries of their own, its levels and time spans", () => {
+    const draft = draftOfValues(FORM, specification());
+
+    expect(draft.contexts[0]).toMatchObject({
+      id: "c1",
+      fields: { sector: CV + "sec_school", formality: "", institution_text: "Gymnasium", target_group_text: "" },
+    });
+    expect(draft.contexts[0]?.inner?.level_assignments[0]).toMatchObject({ id: "cl1", fields: { level: LVL + "B1" } });
+    expect(draft.contexts[0]?.inner?.time_spans).toEqual([]);
+    // a holder of no context holds none
+    expect(draftOfValues(FORM, held()).contexts).toEqual([]);
+  });
+
+  it("keeps a context's and its values' keys as the specification is read again", () => {
+    const before = draftOfValues(FORM, specification());
+    const again = draftOfValues(FORM, specification(), before);
+
+    expect(again.contexts[0]?.key).toBe(before.contexts[0]?.key);
+    expect(again.contexts[0]?.inner?.level_assignments[0]?.key).toBe(before.contexts[0]?.inner?.level_assignments[0]?.key);
+    expect(holdsEntry(again, before.contexts[0]?.inner?.level_assignments[0]?.key ?? "")).toBe(true);
+    expect(holdsEntry(again, "value-0")).toBe(false);
+  });
+
+  it("adds an empty context, which holds no value, and takes no more than the server does", () => {
+    let draft = draftOfValues(FORM, noValues());
+    const added = withEntry(FORM, draft, "contexts");
+
+    expect(added.entry).toMatchObject({ id: null, fields: { sector: "", formality: "", institution_text: "", target_group_text: "" } });
+    expect(added.entry.inner).toEqual({ level_assignments: [], time_spans: [], workloads: [], contexts: [] });
+    for (let more = 0; more < MOST_VALUES; more += 1) draft = withEntry(FORM, draft, "contexts").draft;
+    expect(isFull(draft, "contexts")).toBe(true);
+  });
+
+  it("sees a changed value of a context as a change of the contexts", () => {
+    const before = draftOfValues(FORM, specification());
+    const [first] = before.contexts;
+    if (!first?.inner) throw new Error("a context");
+    const inner = edited(first.inner, "level_assignments", 0, "level", LVL + "B2");
+    const changed = { ...before, contexts: [{ ...first, inner }] };
+
+    expect(sameValues(before, draftOfValues(FORM, specification()))).toBe(true);
+    expect(rebaseValues(before, before, draftOfValues(FORM, specification([context({ institution_text: "Realschule" })]))).taken).toEqual([
+      "contexts",
+    ]);
+    expect(rebaseValues(before, changed, draftOfValues(FORM, specification([]))).clashes).toEqual(["contexts"]);
+  });
+
+  it("finds a problem of a context's value by its path under the context", () => {
+    let draft = withEntry(FORM, draftOfValues(FORM, noValues()), "contexts").draft;
+    const [first] = draft.contexts;
+    if (!first?.inner) throw new Error("a context");
+    draft = { ...draft, contexts: [{ ...first, inner: withEntry(FORM, first.inner, "time_spans").draft }] };
+
+    expect(checkDraft(FORM, draft)).toEqual([["contexts[0].time_spans[0].time_kind", "Dieses Feld braucht einen Wert."]]);
+  });
+
+  it("sends each context with its fields and values, the kept by their ids, an empty text as none", () => {
+    let draft = withEntry(FORM, draftOfValues(FORM, specification()), "contexts").draft;
+    draft = edited(draft, "contexts", 1, "institution_text", "  ");
+
+    expect(contextsOf(FORM, draft)).toEqual([
+      {
+        id: "c1", sector: CV + "sec_school", formality: null, institution_text: "Gymnasium", target_group_text: null,
+        level_assignments: [{ id: "cl1", level: LVL + "B1", level_to: null, relation: null, dimension: null, competence_dimension: null }],
+        time_spans: [],
+      },
+      { id: null, sector: null, formality: null, institution_text: null, target_group_text: null, level_assignments: [], time_spans: [] },
+    ]);
+    // a node's set names no context: the node's route takes none
+    expect(requestOf(FORM, draft)).not.toHaveProperty("contexts");
+  });
+
+  it("names a problem's field in a context: the form's paths, and the store's at the context or one of its kinds", () => {
+    const set = draftOfValues(FORM, specification());
+    const at = set.contexts[0];
+    const level = at?.inner?.level_assignments[0];
+
+    expect(entryField(FORM, set, "contexts[0].sector")).toBe(`${at?.key}:sector`);
+    expect(entryField(FORM, set, "contexts[0].level_assignments[0].level")).toBe(`${level?.key}:level`);
+    expect(entryField(FORM, set, "contexts[0].level_assignments")).toBe(`${at?.key}:level_assignments`);
+    expect(entryField(FORM, set, "contexts[0].time_spans")).toBe(`${at?.key}:time_spans`);
+    expect(entryField(FORM, set, "contexts[0]")).toBe(`${at?.key}:context`);
+    // none the set or the form does not hold
+    expect(entryField(FORM, set, "contexts[1].sector")).toBeNull();
+    expect(entryField(FORM, set, "contexts[0].id")).toBeNull();
+    expect(entryField(FORM, set, "contexts[0].level_assignments[0].id")).toBeNull();
+    expect(entryField(FORM, set, "contexts")).toBeNull();
+  });
+});

@@ -12,7 +12,7 @@
 // lose the keyboard as the row is read again.
 import { computed, ref, shallowRef, watch, type Ref } from "vue";
 
-import { ApiError, setNodeValues, setStatementValues, type Form, type HeldValues, type ValueKind } from "@/api";
+import { ApiError, setNodeValues, setStatementValues, type Form, type HeldValues } from "@/api";
 import type { Row } from "@/documentTree";
 import { t } from "@/i18n/de";
 import type { Notice } from "@/notice";
@@ -27,6 +27,7 @@ import {
   sameValues,
   valueOf,
   VALUE_KINDS,
+  type DraftKind,
   type ValueFault,
   type ValuesDraft,
 } from "@/valueDraft";
@@ -36,7 +37,7 @@ export type ValueSaveOutcome = "saved" | "unchanged" | "undecided" | "conflict" 
 
 /** A kind both changed: the user's values and the stored, in words. */
 export interface ValueClash {
-  kind: ValueKind;
+  kind: DraftKind;
   yours: string[];
   stored: string[];
 }
@@ -44,7 +45,7 @@ export interface ValueClash {
 export interface ValueConflict {
   clashes: ValueClash[];
   /** The kinds only the other changed, with their values as stored now, in words. */
-  taken: { kind: ValueKind; stored: string[] }[];
+  taken: { kind: DraftKind; stored: string[] }[];
   stored: ValuesDraft;
 }
 
@@ -84,7 +85,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
   });
 
   /** The entries of `kind` in words. */
-  function wordsOf(set: ValuesDraft, kind: ValueKind): string[] {
+  function wordsOf(set: ValuesDraft, kind: DraftKind): string[] {
     return set[kind].map((entry) => valueWords(kind, valueOf(form.value, kind, entry) as unknown as LevelValue, form.value));
   }
 
@@ -169,7 +170,7 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     }
   }
 
-  function settle(kind: ValueKind, take: boolean): void {
+  function settle(kind: DraftKind, take: boolean): void {
     const now = conflict.value;
     if (!now) return;
     if (take) draft.value = { ...draft.value, [kind]: now.stored[kind] };
@@ -188,8 +189,8 @@ export function useValueSave(row: Ref<Row>, form: Ref<Form>) {
     /** The kinds the draft changes, each in words, to copy where the tree closed on it. */
     changes: computed(() => changedKinds(before.value, draft.value).map((kind) => ({ kind, words: wordsOf(draft.value, kind) }))),
     /** Keep the user's values of a kind both changed. */
-    keep: (kind: ValueKind) => settle(kind, false),
+    keep: (kind: DraftKind) => settle(kind, false),
     /** Take the stored values of a kind both changed. */
-    take: (kind: ValueKind) => settle(kind, true),
+    take: (kind: DraftKind) => settle(kind, true),
   };
 }
