@@ -1479,6 +1479,13 @@ export const messages = {
         // the button's name for a screen reader, its visible words first (WCAG 2.5.3)
         valuesSaveNamed: "Werte speichern: {title}",
         gone: "Diese Spezifikation gibt es nicht mehr; die Geltung wird neu geladen.",
+        // leaving the page with a draft of a specification's title, field, values or contexts (DocumentView.vue)
+        leave: {
+          title: "Änderungen verwerfen?",
+          message: "Deine Änderungen an der Geltung sind nicht gespeichert. Gehst du weiter, gehen sie verloren.",
+          confirm: "Verwerfen",
+          cancel: "Weiter bearbeiten",
+        },
         // the values' form did not come: what the section shows stays, editing waits for it
         formFailed: "Niveau, Zeit, Umfang und Geltung lassen sich gerade nicht bearbeiten: Das Formular dazu wurde nicht geladen.",
       },

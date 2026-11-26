@@ -5,9 +5,9 @@
  * hands the specification as stored to the section (`saved`). A field's problem stands at the field, the entry kept;
  * changed meanwhile, the specification as it stands is shown and said, the entry kept for a second try; a document
  * closed meanwhile has the section read again (`changed`). The kind and key it does not touch: X1's, and the key is
- * what the specification's IRI is made of.
+ * what the specification's IRI is made of. It tells the section whether a change is open (`dirty`, the leave guard).
  */
-import { computed, ref, useId, watch } from "vue";
+import { computed, onBeforeUnmount, ref, useId, watch } from "vue";
 
 import { ApiError, editSpecification, type Specification, type SpecificationFields } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
@@ -20,7 +20,7 @@ import { refusalText } from "@/refusals";
 import { problemText } from "@/rowRefusals";
 
 const props = defineProps<{ specification: Specification }>();
-const emit = defineEmits<{ saved: [specification: Specification]; changed: [] }>();
+const emit = defineEmits<{ saved: [specification: Specification]; changed: []; dirty: [open: boolean] }>();
 
 type Field = "title" | "field_text";
 const FIELDS: readonly Field[] = ["title", "field_text"];
@@ -92,6 +92,13 @@ function changes(): SpecificationFields {
   if (field !== (base.value.field_text?.trim() || null)) found.field_text = field;
   return found;
 }
+
+watch(
+  () => Object.keys(changes()).length > 0,
+  (open) => emit("dirty", open),
+  { immediate: true },
+);
+onBeforeUnmount(() => emit("dirty", false));
 
 function refuse(text: string): void {
   failure.value = { text: sayAnew(failure.value?.text ?? "", text), failed: true };

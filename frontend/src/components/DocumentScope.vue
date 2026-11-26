@@ -7,11 +7,12 @@
  * and the editors set title and field while it is open (SpecificationForm), and its values and contexts as a whole
  * in the values' form (ValueSection, plan M3a join of G and H) - the editors their review status there too, the
  * holder's revision moving with it; saved or reviewed, the list is read again. A draft of its values the document
- * closed under stays, in words, to copy. Closed, or another's, the section says why it is to read only. Read as
+ * closed under stays, in words, to copy; a draft open in either form the section tells the page (`dirty`, its leave
+ * guard). Closed, or another's, the section says why it is to read only. Read as
  * sectionReading.ts reads: loading, a failure with a retry, content no longer the reader's said apart; read again
  * as the page's extraction moves on (`refresh`).
  */
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 
 import { getForm, getSpecifications, type Form, type Specification, type Specifications } from "@/api";
 import EmptyState from "@/components/EmptyState.vue";
@@ -31,6 +32,7 @@ import { specificationRow, type Holder } from "@/valueHolder";
 
 // `refresh`: bumped by the page as the extraction moves on, which may write the specifications (X1)
 const props = defineProps<{ documentId: string; sector: string; refresh?: number }>();
+const emit = defineEmits<{ dirty: [open: boolean] }>();
 
 const heading = ref<HTMLElement | null>(null);
 // the values' form names the concepts; without it the section still shows what the specifications say
@@ -40,7 +42,7 @@ const { shown, failure, hidden, load, retry } = useSectionReading(read, t("docum
 // a specification as a save gave it back, shown until a reading of the section catches up with it
 const saved = ref<Record<string, Specification>>({});
 
-// the specifications whose values' form holds a draft: it stays where the document closes under it
+// the forms holding a draft, `values:<id>` and `title:<id>`: a values' form stays where the document closes under it
 const drafting = ref<ReadonlySet<string>>(new Set());
 const status = ref("");
 
@@ -93,10 +95,10 @@ function valuesSaved(answer: Holder): void {
   void reload();
 }
 
-function draft(id: string, open: boolean): void {
+function draft(form: string, open: boolean): void {
   const now = new Set(drafting.value);
-  if (open) now.add(id);
-  else now.delete(id);
+  if (open) now.add(form);
+  else now.delete(form);
   drafting.value = now;
 }
 
@@ -111,6 +113,11 @@ function gone(): void {
   void reload();
 }
 
+watch(
+  () => drafting.value.size > 0,
+  (open) => emit("dirty", open),
+);
+onBeforeUnmount(() => emit("dirty", false));
 onMounted(load);
 watch(() => props.refresh, reload);
 </script>
@@ -176,9 +183,10 @@ watch(() => props.refresh, reload);
           :specification="specification"
           @saved="keep"
           @changed="reload()"
+          @dirty="(open) => draft(`title:${specification.id}`, open)"
         />
         <ValueSection
-          v-if="form && (scope.editable || drafting.has(specification.id))"
+          v-if="form && (scope.editable || drafting.has(`values:${specification.id}`))"
           :key="`values-${specification.id}`"
           :row="specificationRow(specification)"
           :form="form"
@@ -190,7 +198,7 @@ watch(() => props.refresh, reload);
           :on-reviewed="reviewed"
           @closed="reload()"
           @gone="gone"
-          @dirty="(open) => draft(specification.id, open)"
+          @dirty="(open) => draft(`values:${specification.id}`, open)"
         />
       </article>
     </template>

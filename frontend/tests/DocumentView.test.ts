@@ -1,4 +1,5 @@
 import { flushPromises, mount, type VueWrapper } from "@vue/test-utils";
+import { RouterView } from "vue-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import * as api from "@/api";
@@ -15,7 +16,7 @@ import DocumentView from "@/views/DocumentView.vue";
 import { violations } from "./axe";
 import { documentOf } from "./documentFixtures";
 import { detail } from "./registerEntries";
-import { SCOPE_FORM, specificationsOf } from "./scopeFixtures";
+import { SCOPE_FORM, specificationsOf, valuedSpecification } from "./scopeFixtures";
 
 let shown: VueWrapper | null = null;
 
@@ -1319,4 +1320,44 @@ describe("the page of a document imported from a MEM plan", () => {
     expect(await violations(wrapper.html())).toEqual([]);
   });
 });
+});
+
+describe("a document's page with a draft of its applicability", () => {
+  /** The page as the app shows it, at its address: its guard asks before the address leaves it. */
+  async function routed(): Promise<VueWrapper> {
+    api.setToken("curricarta_token");
+    vi.spyOn(api, "getDocument").mockResolvedValue(document_());
+    vi.spyOn(api, "getRuns").mockResolvedValue([]);
+    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [valuedSpecification()] }));
+    await router.push("/dokumente/d1");
+    shown = mount(RouterView, { global: { plugins: [router] }, attachTo: document.body });
+    await flushPromises();
+    return shown;
+  }
+
+  const choose = async (wrapper: VueWrapper, label: string) => {
+    await wrapper.get("[role=dialog]").findAll("button").find((one) => one.text() === label)?.trigger("click");
+    await flushPromises();
+  };
+
+  afterEach(() => api.clearToken());
+
+  it.each([
+    ["values", ".value-section input[type=text]"],
+    ["title and field", ".specification-form input"],
+  ])("asks before a draft of its %s goes with the page, and stays on the reader's word", async (_what, input) => {
+    const wrapper = await routed();
+    await wrapper.get(input).setValue("Noch nicht gespeichert");
+
+    void router.push("/quellen");
+    await flushPromises();
+    expect(wrapper.get("[role=dialog]").text()).toContain(t("documents.page.scope.leave.message"));
+    await choose(wrapper, t("documents.page.scope.leave.cancel"));
+    expect(router.currentRoute.value.name).toBe("document");
+
+    void router.push("/quellen");
+    await flushPromises();
+    await choose(wrapper, t("documents.page.scope.leave.confirm"));
+    expect(router.currentRoute.value.name).toBe("sources");
+  });
 });
