@@ -13,7 +13,7 @@ import pytest
 from app.db import value_rows
 from app.db.value_rows import held_values_of
 from app.db.values import replace_values, values_of
-from app.domain.l2 import HeldValues, LevelDraft, ValueDrafts, WorkloadDraft
+from app.domain.l2 import HeldValues, HolderKind, LevelDraft, ValueDrafts, WorkloadDraft
 from tests.db.test_editing import document
 from tests.db.test_nodes import CV, connection, owner, url
 from tests.db.test_specifications import CONTEXT
@@ -67,7 +67,7 @@ async def test_one_holder_s_values_are_read_as_the_document_s_read_gives_them_an
     connection: psycopg.AsyncConnection, document: Any, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     held = await holders(connection, document)
-    sets = {
+    sets: dict[HolderKind, ValueDrafts] = {
         "node": ValueDrafts(
             levels=(EQF4,), time_spans=(GRADE,), workloads=(replace(LESSONS, periods=(GRADE,)),)
         ),
