@@ -243,6 +243,25 @@ describe("a refusal of a specification's set", () => {
     expect(group(section, "Geltungskontext 1").attributes("aria-describedby")).toBe(problem.attributes("id"));
   });
 
+  it.each([
+    ["contexts[0].time_spans", "Geltungskontext 1, Zeitraum"],
+    ["contexts[0].time_spans[0].time_kind", "Geltungskontext 1, Art des Zeitraums"],
+    ["contexts[0]", "Geltungskontext 1"],
+  ])("says a problem at %s, where the keyboard stays elsewhere, naming the context", async (field, named) => {
+    vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 422, "invalid_field", "No.", { field, problem: "refused" }));
+    const wrapper = await open();
+    const section = values(wrapper);
+    const institution = control(group(section, "Geltungskontext 1"), "Einrichtung");
+    await institution.setValue("Realschule");
+    institution.element.focus();
+
+    await section.get("form").trigger("submit");
+    await flushPromises();
+
+    expect(document.activeElement).toBe(institution.element);
+    expect(section.get(".value-section__status").text()).toMatch(new RegExp(`^${named}: `));
+  });
+
   it("lays the set beside the specification as another stored it meanwhile", async () => {
     const theirs: Specification = { ...valuedSpecification(), revision: 2, contexts: [] };
     vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 409, "stale_revision", "Stale.", { current: theirs }));

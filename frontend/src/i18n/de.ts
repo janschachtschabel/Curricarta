@@ -1921,6 +1921,8 @@ export const messages = {
         },
         // a problem the store found with a context as a whole, named by the context (ContextItemForm.vue)
         contextProblem: "{entry}: {problem}",
+        // a field or a kind of values within a context, as a problem there is said (ValueSection.vue)
+        inContext: "{context}, {field}",
         // what the store refused at a context as a whole (backend `refused` at `contexts[0]`)
         contextRefused: "Die Datenbank hat diesen Geltungskontext abgewiesen; prüfe seine Angaben.",
         remove: "{entry} entfernen",

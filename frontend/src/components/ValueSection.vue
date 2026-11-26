@@ -30,7 +30,7 @@ import { sayAnew } from "@/liveRegion";
 import { refusalText } from "@/refusals";
 import type { ReviewOutcome } from "@/rowReview";
 import { word } from "@/registerWords";
-import { kindsOf, type DraftKind, type Entry } from "@/valueDraft";
+import { holdsEntry, kindsOf, type DraftKind, type Entry } from "@/valueDraft";
 import { holderOf, holderTypeOf, type HolderKey, type HolderRow } from "@/valueHolder";
 import { useValueSave } from "@/valueSave";
 import { shownContexts, shownValues, valueReviewWords, type ShownValue } from "@/valueWords";
@@ -53,12 +53,8 @@ const props = defineProps<{
 const emit = defineEmits<{ closed: [code: string]; gone: []; dirty: [open: boolean] }>();
 
 const TEXTS = ["levelText", "timeText"] as const;
-// a problem's field in words: a value's field, a context's, a kind of a context's values, the context itself
-const FAULT_WORDS: Readonly<Record<string, string>> = {
-  ...messages.documents.tree.values.fields,
-  ...messages.documents.tree.values.kinds,
-  context: messages.documents.tree.values.kinds.contexts,
-};
+// a problem's field in words: a value's field, a context's, a kind of a context's values
+const FAULT_WORDS: Readonly<Record<string, string>> = { ...messages.documents.tree.values.fields, ...messages.documents.tree.values.kinds };
 
 const sid = useId();
 const editing = useValueSave(toRef(props, "row"), toRef(props, "form"));
@@ -109,10 +105,18 @@ const { faults, faultsAt, clear } = useFieldFaults<string>({
   control: (at) => `${sid}-${at.replace(":", "-")}`,
   submit: submitButton,
   say: (at, words) => {
-    const field = word(FAULT_WORDS, at.split(":")[1] ?? at);
-    status.value = sayAnew(status.value, t("forms.fieldProblem", { field, problem: words }));
+    status.value = sayAnew(status.value, t("forms.fieldProblem", { field: faultField(at), problem: words }));
   },
 });
+
+/** The field of the problem at `at` (`value-7:unit`) in words, the context it is in or of named first. */
+function faultField(at: string): string {
+  const [key = "", field = at] = at.split(":");
+  const place = draft.value.contexts.findIndex((one) => one.key === key || (!!one.inner && holdsEntry(one.inner, key)));
+  if (place < 0) return word(FAULT_WORDS, field);
+  const context = t("documents.tree.values.entry.contexts", { place: place + 1 });
+  return field === "context" ? context : t("documents.tree.values.inContext", { context, field: word(FAULT_WORDS, field) });
+}
 
 // A value reviewed that is gone or changed meanwhile is no row gone: the tree is read again, the row kept. Told in
 // words that name the value, apart from the row's own status set beside it
