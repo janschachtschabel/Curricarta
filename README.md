@@ -284,8 +284,10 @@ ungültig.
     an; ein Import hat beide Knöpfe.
 - Register: `GET /api/v1/sources` nennt die Einträge, die das Konto sieht, die neuesten zuerst;
   `POST /api/v1/sources` lädt eine Datei hoch (`multipart/form-data`, bis `MAX_UPLOAD_MB`),
-  `POST /api/v1/sources/import` holt sie von ihrer Adresse; `GET /api/v1/sources/{id}/file` gibt die Datei
-  eines Eintrags als Download aus (wer sie bekommt: `docs/uebergabe/anforderungen.md`, „Datei-Download?“).
+  `POST /api/v1/sources/import` holt sie von ihrer Adresse; `PATCH /api/v1/sources/{id}` ändert einen
+  Eintrag (sein Eigentümer die Beschreibung, Redaktion und Admin auch die Nutzungsbedingungen);
+  `GET /api/v1/sources/{id}/file` gibt die Datei eines Eintrags als Download aus (wer sie bekommt:
+  `docs/uebergabe/anforderungen.md`, „Datei-Download?“).
   `GET /api/v1/info` nennt ohne Token Name und Version des Dienstes, was Besucher dürfen, und die
   Uploadgrenze.
 - Konvertierung (X0): `POST /api/v1/sources/{id}/conversions` startet für die Datei eines
@@ -302,8 +304,9 @@ ungültig.
   Kontingent startet keine (403 `no_pages`). Der Job hält die Datei beim Start an die Restseiten: keine
   übrig oder eine längere Datei endet mit `no_pages`, bevor Docling liest (eine auch über
   `MAX_PDF_PAGES`: `too_many_pages`). Genau ist das, wo ein Konverter läuft; laufen mehrere nebeneinander,
-  kann ein Konto je weiterem um eine Datei überziehen. `GET …/conversion` nennt Stand, Seiten, gedruckte Seiten und
-  Befunde, `GET …/conversion/blocks?page=N` die Blöcke einer Seite (`p<Seite>-b<Block>`,
+  kann ein Konto je weiterem um eine Datei überziehen. `GET /api/v1/sources/{id}/conversion` nennt Stand,
+  Seiten, gedruckte Seiten und Befunde, `GET /api/v1/sources/{id}/conversion/blocks?page=N` die Blöcke
+  einer Seite (`p<Seite>-b<Block>`,
   Tabellenzellen `T<n>:r<i>c<j>`). Wer die Datei eines Eintrags lesen darf (Eigentümer,
   Redaktion, Admin; Einträge ohne Konto nach `THIRD_PARTY_MARKDOWN`), darf sie umwandeln lassen
   und die Blöcke lesen. Die Konvertierung gehört zur Datei (gleiche SHA-256), nicht zum Eintrag:
@@ -355,9 +358,9 @@ ungültig.
   er den Inhalt des Eintrags lesen darf (403 `file_hidden`), nicht für ein festgeschriebenes Dokument (409
   `frozen`), keine Entwurfskopie und kein Import aus MEM-Schule (409 `not_extractable`; wie die Reparatur); `GET
   /api/v1/documents?source_id=…` (die neuesten 100; mit `work_id=…` alle des Werks, die der Aufrufer
-  lesen darf – ein unbekanntes oder ihm verborgenes Werk gibt eine leere Liste), `/documents/{id}`,
-  `/documents/{id}/runs`, `/documents/{id}/units`,
-  `/documents/{id}/findings` lesen sie (`units` und `findings` nur, wer auch den Inhalt des Eintrags lesen
+  lesen darf – ein unbekanntes oder ihm verborgenes Werk gibt eine leere Liste), `GET /documents/{id}`,
+  `GET /documents/{id}/runs`, `GET /documents/{id}/units`,
+  `GET /documents/{id}/findings` lesen sie (`units` und `findings` nur, wer auch den Inhalt des Eintrags lesen
   darf, sonst 403 `file_hidden` – ihre Pfade und Befunde nennen Titel und Wortlaut; jedes Dokument mit `issuer`, `edition`, `work` – Id, Titel, Land,
   Kurztitel, IRI –, `iri`, `revision`, `frozen_at` und `copy_of`, der Revision, die eine Entwurfskopie
   kopiert, und `mem` (Plan-IRI, Namensnennung und Lizenz eines Imports aus MEM-Schule, sonst leer); die Job-ID nur für Eigentümer und Admins, den Fehlercode des letzten Jobs,
@@ -429,10 +432,10 @@ ungültig.
   Blöcke der Konvertierung, die Seiten folgen aus ihnen, oder nur `page`, eine Seite der
   Konvertierung, wo kein Block sie hält),
   `POST /api/v1/documents/{id}/nodes` (`parent_id`, ans Ende der Geschwister) und
-  `/nodes/{id}/statements` (ans Ende des Knotens, mindestens eine Fundstelle, sonst 422
+  `POST /api/v1/nodes/{id}/statements` (ans Ende des Knotens, mindestens eine Fundstelle, sonst 422
   `anchor_missing`), `DELETE /api/v1/nodes/{id}` (samt Unterbaum und den Befunden darauf und auf seinen Werten,
   dazu den Verwendungen anderer Knoten an ihm; deren Knoten zählen ihre Revision hoch) und
-  `/statements/{id}` (je `?expected_revision=`; die Aussage eines Laufs wird verworfen und bleibt,
+  `DELETE /api/v1/statements/{id}` (je `?expected_revision=`; die Aussage eines Laufs wird verworfen und bleibt,
   damit keine Reparatur sie neu vorschlägt, eine von Hand geschriebene gelöscht; die Antwort nennt
   `outcome` – `rejected` oder `deleted` – und die Revision danach, `null` nach dem Löschen) – durch
   Eigentümer und Redaktion/Admin. Eine Änderung macht die Zeile zum Vorschlag der Redaktion
@@ -790,7 +793,9 @@ ungültig.
 - Erster Admin: `python -m app.bootstrap NAME` gibt das Token einmal auf stdout aus. Interaktiv
   ausführen (`docker compose run`, `kubectl exec -it`), nicht als Job, dessen Ausgabe ein
   Log-System sammelt. Exit-Code 0: angelegt; 2: es gibt schon einen Admin, der sich anmelden
-  kann; 1: Fehler. Weitere Konten und Tokens legt ein Admin über `/api/v1/accounts` an.
+  kann; 1: Fehler. Weitere Konten legt ein Admin mit `POST /api/v1/accounts` an,
+  Tokens mit `POST /api/v1/accounts/{id}/keys`; `PATCH /api/v1/accounts/{id}` sperrt ein Konto oder
+  gibt es frei.
   Lesen darf sie nur ein Admin: `GET /api/v1/accounts?limit=50&offset=0` (nach Namen, mit
   `total`), `GET /api/v1/accounts/{id}` mit Rollen und Sperre, `GET /api/v1/accounts/{id}/keys`
   mit Bezeichnung, Anlage, letzter Nutzung und Widerruf – nie Token oder Hash; ein unbekanntes
