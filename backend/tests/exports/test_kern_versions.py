@@ -19,15 +19,20 @@ from app.db import value_rows
 from app.exports import kern_child, kern_naming, kern_rdf, kern_rows, kern_scope, kern_values
 from app.exports.kern_child import KERN_EXPORT
 from app.exports.kern_rdf import KERN_GRAPH_VERSION
+from app.pipeline import shacl_child
 
 # what the graph X5 checks is made of: the rows read, and the triples written of them - of the values too
 # (the rows read for the file's head count too: a column read for it alone is a new version as well)
 # value_rows: how the values are read; kern_scope: a specification's applicability (plan M3a H1)
-GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope)
+# shacl_child: how X5 validates the graph - the version X5 records says what was checked, and a check by
+# another validator is another check (a draft checked while every value's vocabulary went unchecked, audit
+# 2026-11-14, is owed one)
+GRAPH_MODULES = (kern_rows, value_rows, kern_rdf, kern_values, kern_scope, shacl_child)
 GRAPH_DIGESTS = {
     1: "c7e87a404943270f9d32ad0fb8788b4132fe809bed8833d9a2cbc5b94163f515",
     2: "8f9b27919fa004d4e2fc31c6796476430409a883523bead68d836dbd9f0850ad",  # the values (plan M3a F1)
-    3: "a6d616c76fe83efc1b11e899dff686ef4f3f85dec580ff830e010e538941945e",  # applicability (plan M3a H1)
+    # applicability (plan M3a H1) and the validator beside it: 3 was never shipped, so pinned anew
+    3: "956df18409facc8e3e9bf6cdcfc929fe45cdbefc8ca574007302949f0453aef2",
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
