@@ -65,6 +65,17 @@ def test_the_editor_s_routes_name_the_refusals_they_give(spec: dict[str, Any]) -
     for answers in (reviewed, *taken):
         assert "no_form" not in answers["409"]["description"]
         assert "invalid_field" not in answers.get("422", {}).get("description", "")
+    # a rule's (plan M3a I): no form of the sector's, a rule added on its anchors as a statement is
+    ruled = paths["/api/v1/rules/{rule_id}"]
+    added = paths["/api/v1/documents/{document_id}/rules"]["post"]["responses"]
+    assert "details.current" in ruled["patch"]["responses"]["409"]["description"]
+    assert "invalid_field" in ruled["patch"]["responses"]["422"]["description"]
+    assert "anchor_missing" in added["422"]["description"]
+    assert "details.current" in ruled["delete"]["responses"]["409"]["description"]
+    for answers in (ruled["patch"]["responses"], added, ruled["delete"]["responses"]):
+        assert "no_form" not in answers["409"]["description"]
+        assert "file_hidden" in answers["403"]["description"]
+    assert "invalid_field" not in ruled["delete"]["responses"].get("422", {}).get("description", "")
 
 
 def test_the_routes_of_values_name_the_refusals_they_give(spec: dict[str, Any]) -> None:

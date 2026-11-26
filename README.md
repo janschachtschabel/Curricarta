@@ -452,6 +452,28 @@ ungültig.
   Ebenso weist `PATCH /statements/{id}` eine neue Art (`statement_kind`) ab, die ein Niveau der Aussage
   nicht zulässt (eine Note außer am Standard): 422 `invalid_field` am Pfad des Niveaus
   (`level_assignments[1].level`, `not_offered`).
+- Regeln: `GET /api/v1/documents/{id}/rules` nennt, wer den Inhalt des Dokuments lesen darf (sonst 404
+  `no_document`, 403 `file_hidden`), die Regeln in der Reihenfolge des Dokuments – je Rahmenteil der Art
+  `rules`, wie X3 ihn las oder die Redaktion ihn anlegte: Art (`kind`: `selection`, `prerequisite`,
+  `completion`, `recognition`, `progression`), Wortlaut, geparste Werte (`min_count`, `max_count`,
+  `min_amount`, `max_amount`, `amount_unit`, `requirement_kind`, `max_share`), Optionen im Wortlaut
+  (`option_texts`), Verweise (`applies_to`, `options`, `requires`, je mit `kind` und `label`), Herkunft,
+  Prüfstand, Revision, `by_hand` und Fundstellen –, dazu, worauf eine Regel verweisen kann (`targets`:
+  Spezifikationen, Varianten, Knoten von oben), die Einheiten und Arten der Voraussetzung zur Wahl,
+  `editable` und `closed` wie der Baum. `PATCH /api/v1/rules/{id}` (`expected_revision`, die Felder;
+  ein Verweisfeld nennt alle seine Ziele, je höchstens 50) macht die Regel zum Vorschlag der Redaktion;
+  Optionen trägt nur eine Auswahl-, verlangte Ziele nur eine Voraussetzungsregel (422 `not_held`), ein Ziel ist
+  ein Knoten, eine nicht verworfene Aussage, eine Spezifikation oder Variante des Dokuments
+  (`unknown_value`), Einheit und Art der Voraussetzung ein aktiver Begriff ihrer Liste (`not_offered`).
+  `POST /api/v1/documents/{id}/rules` (`kind`, `verbatim`, `anchors` wie bei einer Aussage, sonst 422
+  `anchor_missing`) legt eine Regel hinter den Rahmenteilen an, `DELETE /api/v1/rules/{id}?expected_revision=`
+  verwirft die eines Laufs und löscht eine von Hand angelegte. Abgewiesen wie beim Bearbeiten (404
+  `no_rule`, 403 `file_hidden`, 409 `stale_revision` mit der Regel, `job_open`, `frozen`, `not_extracted`);
+  Audit `rule.edit` mit den Feldnamen, `rule.add`, `rule.reject`, `rule.delete`, ohne Wortlaut. Der
+  Kern-Graph nennt jede nicht verworfene Regel als `cur:Rule` ihrer Art mit Wortlaut, Fundstelle, Werten
+  und Verweisen, Optionen ohne Verweis als `cur:parsedExpression`; eine Auswahlregel, deren Optionen nur im
+  Wortlaut vorliegen, bleibt `cur:Rule` ohne Art, bis die Redaktion eine Option verknüpft. Festgeschrieben
+  heißt eine Regel `<dokument>/rule-<n>`.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
   `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis

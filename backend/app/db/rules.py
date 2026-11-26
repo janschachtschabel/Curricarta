@@ -46,7 +46,10 @@ from app.domain.text import UNSTORABLE
 from app.vocab.form_values import FieldError
 from app.vocab.forms import MOST_TEXT, MOST_VERBATIM
 
-__all__ = ["DOCUMENT_OF_RULE", "Link", "Rule", "add_rule", "drop_or_reject_rule", "edit_rule", "rules_of"]
+__all__ = [
+    "DOCUMENT_OF_RULE", "Link", "Rule", "RuleKind", "add_rule", "drop_or_reject_rule", "edit_rule",
+    "rules_of",
+]  # fmt: skip
 
 RuleKind = Literal["selection", "prerequisite", "completion", "recognition", "progression"]  # X3's ruleKind
 DOCUMENT_OF_RULE = f"""
