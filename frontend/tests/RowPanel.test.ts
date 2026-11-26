@@ -145,4 +145,24 @@ describe("the placements of the node chosen", () => {
 
     expect(wrapper.emitted("changed")).toHaveLength(1);
   });
+
+  it("go on from the revision the node's own review left, under a draft opened before it", async () => {
+    const [first] = NODES;
+    if (!first) throw new Error("no node");
+    const { statements, children, ...row } = first;
+    void [statements, children];
+    vi.spyOn(api, "setReview").mockResolvedValue({ revisions: [{ id: "a", revision: 2 }], nodes: [] });
+    const set = vi.spyOn(api, "setNodePlacements").mockResolvedValue({ ...row, revision: 3 });
+    const wrapper = panel(ROW);
+    await wrapper.get(".node-placements__add").trigger("click");
+    await wrapper.findAll(".node-placements select").at(-1)?.setValue(CV + "obl_binding");
+
+    const own = wrapper.findAll("[role=group]").find((one) => one.text().startsWith(t("documents.tree.review.label")));
+    await own?.findAll("button")[1]?.trigger("click");
+    await flushPromises();
+    await wrapper.get(".node-placements form").trigger("submit");
+    await flushPromises();
+
+    expect(set).toHaveBeenCalledWith("a", 2, [expect.objectContaining({ obligation: CV + "obl_binding" })]);
+  });
 });

@@ -8,7 +8,7 @@
  * on this save, or under an open draft as it was read anew (`closedBy`) - it says why and keeps the draft, in words, to
  * copy. Elsewhere each placement reads in words with who stated it. Each stored placement's time spans and workloads
  * stand under it (ValueSection), set on its own revision; the editors review each and its values (PlacementReview, plan
- * M3a L), and the entries go on from the node's revision that moved. It tells the panel whether a draft is open.
+ * M3a L). The entries go on from a node's revision a review moved (`moved`: the node's own too). It tells of a draft.
  */
 import { computed, nextTick, onBeforeUnmount, reactive, ref, toRef, useId, watch } from "vue";
 
@@ -41,7 +41,7 @@ import {
 } from "@/placementDraft";
 import { usePlacementSave } from "@/placementSave";
 import { refusalText } from "@/refusals";
-import type { ReviewOutcome } from "@/rowReview";
+import { reviewWords, type ReviewOutcome } from "@/rowReview";
 import { placementRow, type Holder, type HolderKey } from "@/valueHolder";
 
 const props = defineProps<{
@@ -102,6 +102,7 @@ const { faults, faultsAt, clear } = useFieldFaults<string>({
 
 watch(dirty, (open) => emit("dirty", open), { immediate: true });
 onBeforeUnmount(() => emit("dirty", false));
+defineExpose({ moved });
 
 function wordsOf(placement: PlacementPlace): string {
   return placementWords(placement, props.tree.specifications, props.tree.nodes, props.form);
@@ -122,12 +123,11 @@ function valuesSaved(answer: Holder): void {
   props.onValuesSaved?.(answer);
 }
 
-// a review of a placement or of a value at one counted the node's revision, which it names: the entries go on from
-// it; said here, as the panel says its own row's alone
+// a review here counted the node's revision, which it names: go on from it; said here, as the panel says its row's alone
 function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string): void {
   const now = done.outcome === "set" ? done.nodes.find((one) => one.id === node.value?.id) : undefined;
   if (now) moved(now.revision);
-  if (words) status.value = sayAnew(status.value, words);
+  status.value = sayAnew(status.value, words ?? reviewWords(done));
   props.onReviewed?.(done, key, words);
 }
 

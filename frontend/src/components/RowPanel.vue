@@ -57,6 +57,7 @@ const headingId = useId();
 const headingRef = ref<HTMLElement | null>(null);
 const editor = ref<InstanceType<typeof RowEditor> | null>(null);
 const creator = ref<InstanceType<typeof RowCreator> | null>(null);
+const placements = ref<InstanceType<typeof NodePlacements> | null>(null);
 // the row whose change the closing tree refused: its editor stays, the draft shown to copy
 const refused = ref<RowKey | null>(null);
 const status = ref("");
@@ -154,9 +155,11 @@ function dropped(done: Exclude<DropOutcome, { outcome: "failed" }>, key: RowKey)
 }
 
 // heard even where another row was chosen meanwhile (ReviewToggles' onReviewed): then the tree is only read again
-// - a value's told in its own words (ValueSection)
+// - a value's told in its own words (ValueSection). The node's own review moved its revision: an open draft of its
+// placements goes on from it, where that is the next after the draft's (plan M3a L)
 function reviewed(done: Exclude<ReviewOutcome, { outcome: "failed" }>, key: HolderKey, words?: string): void {
   const here = key === props.row?.key;
+  if (here && done.outcome === "set" && props.row?.kind === "node") placements.value?.moved(done.revision);
   if (here && done.outcome === "gone") return gone();
   if (here) status.value = sayAnew(status.value, words ?? reviewWords(done));
   if (here && done.outcome === "closed") toHeading();
@@ -230,6 +233,7 @@ defineExpose({ addAnchor, focus: toHeading });
       />
       <NodePlacements
         v-if="row.kind === 'node'"
+        ref="placements"
         :key="row.key"
         :row="row"
         :tree="tree"

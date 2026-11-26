@@ -114,6 +114,28 @@ describe("a placement's review in the node's panel", () => {
     expect(sent).toHaveBeenCalledWith("d1", "confirmed", [{ kind: "placement", id: "p1", revision: 1 }]);
     expect(wrapper.get(".node-placements__status").text()).toBe(`Prüfstand von „${TITLE}“: Bestätigt.`);
     expect(reviewed).toHaveBeenCalledWith(expect.objectContaining({ outcome: "set" }), "placement:p1", `Prüfstand von „${TITLE}“: Bestätigt.`);
+    // the status just set stays pressed while the tree is not read again, and the next is set at the revision it left
+    const toggles = group(wrapper, `Prüfstand von „${TITLE}“`);
+    expect(toggle(toggles, "Bestätigt").attributes("aria-pressed")).toBe("true");
+    await toggle(toggles, "Verworfen").trigger("click");
+    await flushPromises();
+    expect(sent).toHaveBeenLastCalledWith("d1", "rejected", [{ kind: "placement", id: "p1", revision: 2 }]);
+  });
+
+  it.each([
+    ["job_open", 409],
+    ["not_editor", 403],
+  ])("says a review the tree closed to or refused (%s), of a placement and of a value at one", async (code, status) => {
+    vi.spyOn(api, "setReview").mockRejectedValue(new ApiError("server", status, code));
+    const wrapper = section([withSemester()]);
+
+    await toggle(group(wrapper, `Prüfstand von „${TITLE}“`), "Bestätigt").trigger("click");
+    await flushPromises();
+    expect(wrapper.get(".node-placements__status").text()).toBe(t(`refusals.${code}`));
+    await toggle(wrapper.get(".value-section [role=group]"), "Verworfen").trigger("click");
+    await flushPromises();
+    expect(wrapper.get(".node-placements__status").text()).toBe(t(`refusals.${code}`));
+    expect(reviewed).toHaveBeenLastCalledWith(expect.objectContaining({ code }), "placement:p1", undefined);
   });
 
   it("says one changed meanwhile by its name", async () => {
