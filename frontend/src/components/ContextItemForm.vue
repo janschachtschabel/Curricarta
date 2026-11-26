@@ -43,7 +43,8 @@ function changeValues(kind: ValueKind, entries: Entry[]): void {
 </script>
 
 <template>
-  <fieldset class="context-item">
+  <!-- its problem as a whole heard whenever the keyboard comes into it -->
+  <fieldset class="context-item" :aria-describedby="errors.context ? `${prefix}-context` : undefined">
     <legend>{{ legend }}</legend>
     <slot :entry="entry" />
     <!-- tabindex -1: where the keyboard goes with a problem of the context as a whole -->

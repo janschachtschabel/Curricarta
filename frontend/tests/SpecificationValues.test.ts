@@ -239,6 +239,8 @@ describe("a refusal of a specification's set", () => {
     // the context refused, not a value
     expect(problem.text()).toBe(`Geltungskontext 1: ${t("documents.tree.values.contextRefused")}`);
     expect(document.activeElement).toBe(problem.element);
+    // heard again whenever the keyboard comes back into the context
+    expect(group(section, "Geltungskontext 1").attributes("aria-describedby")).toBe(problem.attributes("id"));
   });
 
   it("lays the set beside the specification as another stored it meanwhile", async () => {
