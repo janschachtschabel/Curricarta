@@ -114,10 +114,10 @@ def test_another_pyshacl_or_another_shape_file_is_another_check(
         other_checker = check_digest()
     for folder in MODEL_DIRS:
         shutil.copytree(ONTOLOGY / folder, tmp_path / folder)
+    monkeypatch.setattr(here, "ONTOLOGY", tmp_path)
     assert check_digest() == pinned  # the copy is no change
     shapes = tmp_path / SHAPE_FILES[0]
     shapes.write_bytes(shapes.read_bytes() + b"\n# changed\n")
-    monkeypatch.setattr(here, "ONTOLOGY", tmp_path)
 
     assert pinned not in {other_checker, check_digest()}
 
