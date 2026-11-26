@@ -11,6 +11,7 @@ import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import DocumentAssessments from "@/components/DocumentAssessments.vue";
 import DocumentScope from "@/components/DocumentScope.vue";
+import NodePlacements from "@/components/NodePlacements.vue";
 import ValueSection from "@/components/ValueSection.vue";
 import { rowsOf, type Row } from "@/documentTree";
 import { t } from "@/i18n/de";
@@ -233,3 +234,48 @@ describe("a row's values", () => {
   });
 });
 
+
+describe("a node's placements", () => {
+  const SPECIFICATIONS = [{ id: "ba", title: "Bachelor", variants: [] }];
+  const NODES = [node_("a", { fields: { original_title: "Analysis", code: "M 1" } })];
+  const props = { row: rowsOf(NODES).get("node:a") as Row, form: form_(), documentId: "d1", reviewable: false, closedBy: null };
+
+  it("say while they are saved that they are, quietly, the button keeping the keyboard", async () => {
+    let answer: (row: api.NodeRow) => void = () => undefined;
+    vi.spyOn(api, "setNodePlacements").mockImplementation(() => new Promise((done) => (answer = done)));
+    const form = form_();
+    form.node.push({ key: "obligation", kind: "concept", required: false, many: false, most: null,
+      values: [{ iri: CV + "obl_binding", notation: null, label: "verbindlich", alt_labels: [], definition: null, note: null,
+                 delimitation: null, examples: [], broader: [], group: null, dimension: null }] });
+    const tree = { editable: true, reviewable: false, closed: null, counts: { nodes: {}, statements: {} }, nodes: NODES, specifications: SPECIFICATIONS };
+    const wrapper = mount(NodePlacements, { props: { ...props, form, tree, editable: true }, attachTo: document.body });
+    await wrapper.get(".node-placements__add").trigger("click");
+    await wrapper.findAll(".node-placements select").at(-1)?.setValue(CV + "obl_binding");
+    const save = wrapper.get(".node-placements__save");
+    (save.element as HTMLElement).focus();
+
+    await wrapper.get(".node-placements form").trigger("submit");
+
+    expect(wrapper.get(".loading").text()).toBe(t("documents.tree.placements.saving"));
+    expect(wrapper.get(".loading").attributes("role")).toBeUndefined();
+    expect(save.attributes("aria-disabled")).toBe("true");
+    expect(document.activeElement).toBe(save.element);
+    const { statements, children, ...row } = node_("a", { revision: 2 });
+    void [statements, children];
+    answer(row);
+    await flushPromises();
+    expect(wrapper.find(".loading").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("say where the node is placed nowhere, to a reader who may not change them, and where the document has no place", () => {
+    const tree = { editable: false, reviewable: false, closed: null, counts: { nodes: {}, statements: {} }, nodes: NODES };
+    const read = mount(NodePlacements, { props: { ...props, tree: { ...tree, specifications: SPECIFICATIONS }, editable: false } });
+    const nowhere = mount(NodePlacements, { props: { ...props, tree: { ...tree, specifications: [] }, editable: true } });
+
+    expect(read.get(".node-placements__none").text()).toBe(t("documents.tree.placements.none"));
+    expect(read.find("form").exists()).toBe(false);
+    expect(nowhere.get(".node-placements__none").text()).toBe(t("documents.tree.placements.noPlaces"));
+    expect(nowhere.find("button").exists()).toBe(false);
+  });
+});
