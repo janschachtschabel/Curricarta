@@ -45,7 +45,7 @@ def test_the_owner_edits_a_node_and_reads_it_back_as_the_tree_has_it(client: Tes
     }  # fmt: skip
     assert set(row) == {
         "id", "position", "fields", "code_assigned", "origin", "review_status", "revision", "findings",
-        "anchors", "iri", "values",
+        "anchors", "iri", "values", "placements",
     }  # fmt: skip
     assert row["iri"] is None  # given when the document is frozen
     assert rows(

@@ -84,10 +84,10 @@ def test_a_placement_states_where_its_node_is_placed_how_binding_and_with_what_w
     ).fetchall()
     module, specification, variant = made["module"], made["specification"], made["variant"]
     assert found == [
-        (in_specification, module, specification, None, made["area"], 1, CV + "obl_mandatory", Decimal("1.5"),
+        (in_specification, module, specification, None, made["area"], 1, CV + "obl_binding", Decimal("1.5"),
          None, 1),
-        (in_variant, module, None, variant, None, 2, CV + "obl_mandatory", None, None, 1),
-        (both, module, specification, variant, None, 3, CV + "obl_mandatory", None, None, 1),
+        (in_variant, module, None, variant, None, 2, CV + "obl_binding", None, None, 1),
+        (both, module, specification, variant, None, 3, CV + "obl_binding", None, None, 1),
     ]  # fmt: skip
 
 

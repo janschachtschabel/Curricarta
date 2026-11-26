@@ -45,7 +45,10 @@ DEFAULTS: dict[ValueTable, dict[str, Any]] = {
     "level_assignment": {"level_iri": LVL + "EQF-4"},
     "applicability_context": {"sector_scheme": CV + "EducationSectors", "sector_iri": CV + "sec_school"},
     "assessment": {"assessment_kind_scheme": CV + "AssessmentKinds", "assessment_kind_iri": CV + "ak_exam"},
-    "placement": {"obligation_scheme": CV + "Obligations", "obligation_iri": CV + "obl_mandatory"},
+    "placement": {
+        "obligation_scheme": CV + "Obligations",
+        "obligation_iri": CV + "obl_binding",
+    },  # in the real list too,
 }
 
 

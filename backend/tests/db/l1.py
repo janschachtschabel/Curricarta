@@ -32,7 +32,7 @@ CONCEPTS: dict[str, list[tuple[str, list[str], list[str]]]] = {
     CV + "NodeFunctions": [(CV + "fn_area", [], []), (CV + "fn_unit", [], [])],
     CV + "StatementKinds": [(CV + "kind_learningOutcome", [], []), (CV + "kind_content", [], [])],
     CV + "Addressees": [(CV + "addr_learner", [], []), (CV + "addr_teacher", [], [])],
-    CV + "Obligations": [(CV + "obl_mandatory", [], [])],
+    CV + "Obligations": [(CV + "obl_mandatory", [], []), (CV + "obl_binding", [], [])],  # the latter real too
     CV + "Origins": [
         (CV + "orig_source", [], []),
         (CV + "orig_rule", [], []),
