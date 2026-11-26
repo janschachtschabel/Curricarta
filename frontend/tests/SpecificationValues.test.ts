@@ -143,7 +143,59 @@ describe("a specification's values and contexts in their form", () => {
   });
 });
 
+describe("a specification's values beside its title and field", () => {
+  it("go on from the revision a save of its title left", async () => {
+    vi.spyOn(api, "editSpecification").mockResolvedValue({ ...valuedSpecification(), title: "Physik", field_text: "Optik", revision: 2 });
+    const sent = vi.spyOn(api, "setSpecificationValues").mockResolvedValue(valuedSpecification());
+    const wrapper = await open();
+    await control(values(wrapper), "Einrichtung").setValue("Realschule");
+
+    const title = wrapper.get(".specification-form");
+    await control(title, "Fach").setValue("Optik");
+    await title.trigger("submit");
+    await flushPromises();
+    await save(values(wrapper));
+
+    expect(sent.mock.calls[0]?.[1]).toBe(2);
+    // the draft kept through it
+    expect(sent.mock.calls[0]?.[2].contexts[0]?.institution_text).toBe("Realschule");
+  });
+
+  it("offer a context's levels by the rules of a context, the specification's own by its class's", async () => {
+    const form = structuredClone(SCOPE_FORM);
+    form.values.level_assignments.rules = [{ holder: "applicability_context", dimensions: [CV + "dim_qualification"], unless: null }];
+    vi.mocked(api.getForm).mockResolvedValue(form);
+    const wrapper = await open();
+    const section = values(wrapper);
+    await button(section, "Niveau hinzufügen").trigger("click");
+    const context = group(section, "Geltungskontext 1");
+    await button(context, "Niveau hinzufügen").trigger("click");
+
+    const offered = (within: Found) => control(within, "Niveau").findAll("option").map((option) => option.text());
+    expect(offered(group(context, "Niveau 1"))).not.toContain("EQR 4");
+    expect(offered(section.findAll("fieldset").find((one) => one.get("legend").text() === "Niveau 1") as Found)).toContain("EQR 4");
+  });
+});
+
 describe("a refusal of a specification's set", () => {
+  it("keeps the draft to copy where the document was frozen meanwhile, and reads the list again", async () => {
+    vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 409, "frozen", "Frozen."));
+    const wrapper = await open();
+    const section = values(wrapper);
+    await control(group(section, "Geltungskontext 1"), "Einrichtung").setValue("Realschule");
+    vi.mocked(api.getSpecifications).mockResolvedValue(
+      specificationsOf({ specifications: [valuedSpecification()], editable: false, closed: "frozen" }),
+    );
+
+    await save(section);
+
+    const kept = values(wrapper);
+    expect(kept.find("form").exists()).toBe(false);
+    expect(kept.get("[role=alert]").text()).toContain(t("refusals.frozen"));
+    expect(kept.text()).toContain("Einrichtung: Realschule");
+    expect(api.getSpecifications).toHaveBeenCalledTimes(2);
+  });
+
   async function refused(field: string, problem = "not_offered"): Promise<Found> {
     vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 422, "invalid_field", "No.", { field, problem }));
     const wrapper = await open();
