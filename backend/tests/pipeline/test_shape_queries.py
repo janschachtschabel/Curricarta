@@ -185,21 +185,23 @@ def workload(graph: Graph, holder: Node, unit: URIRef, amount: int, kind: URIRef
 
 def test_a_module_whose_hours_per_credit_leave_twenty_five_to_thirty_is_found_and_no_other() -> None:
     data = Graph()
-    for node, hours in ((EX.light, 100), (EX.fitting, 140)):
+    for node, hours in ((EX.light, 100), (EX.fitting, 140), (EX.uncredited, 100)):
         typed(data, node, CUR.CurriculumNode, nodeType=HS.Modul)
         workload(data, node, CV.unit_hour, hours, CV.wl_totalWorkload)
-        workload(data, node, CV.unit_ectsCredit, 5)
+        if node != EX.uncredited:  # hours alone: no ratio
+            workload(data, node, CV.unit_ectsCredit, 5)
 
     assert found(data, "Arbeitsaufwand je Leistungspunkt") == {str(EX.light)}
 
 
 def test_a_module_whose_contact_and_self_study_miss_its_total_is_found_and_no_other() -> None:
     data = Graph()
-    for node, contact in ((EX.missing, 60), (EX.summing, 70)):
+    for node, contact in ((EX.missing, 60), (EX.summing, 70), (EX.unstudied, 60)):
         typed(data, node, CUR.CurriculumNode, nodeType=HS.Modul)
         workload(data, node, CV.unit_hour, 150, CV.wl_totalWorkload)
         workload(data, node, CV.unit_hour, contact, CV.wl_contactTime)
-        workload(data, node, CV.unit_hour, 80, CV.wl_selfStudy)
+        if node != EX.unstudied:  # no self-study: nothing to add up
+            workload(data, node, CV.unit_hour, 80, CV.wl_selfStudy)
 
     assert found(data, "Kontaktzeit und Selbststudium") == {str(EX.missing)}
 

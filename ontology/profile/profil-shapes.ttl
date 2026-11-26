@@ -68,10 +68,10 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:message "Arbeitsaufwand je Leistungspunkt außerhalb 25–30 Stunden."@de ;
         sh:select """
             SELECT $this ?ratio WHERE {
-                { $this cur:workload ?h , ?c }
+                { $this cur:workload ?h }
                 ?h cur:unit cv:unit_hour ; cur:workloadKind cv:wl_totalWorkload ; cur:amount ?hours .
-                ?c cur:unit cv:unit_ectsCredit ; cur:amount ?credits .
-                FILTER(?credits > 0)
+                OPTIONAL { { $this cur:workload ?c } ?c cur:unit cv:unit_ectsCredit ; cur:amount ?credits }
+                FILTER(BOUND(?credits) && ?credits > 0)
                 BIND(?hours / ?credits AS ?ratio)
                 FILTER(?ratio < 25 || ?ratio > 30)
             }""" ] ;
@@ -80,11 +80,11 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:message "Kontaktzeit und Selbststudium ergeben nicht den Gesamtaufwand."@de ;
         sh:select """
             SELECT $this WHERE {
-                { $this cur:workload ?t , ?k , ?s }
+                { $this cur:workload ?t }
                 ?t cur:workloadKind cv:wl_totalWorkload ; cur:unit cv:unit_hour ; cur:amount ?total .
-                ?k cur:workloadKind cv:wl_contactTime ; cur:unit cv:unit_hour ; cur:amount ?contact .
-                ?s cur:workloadKind cv:wl_selfStudy ; cur:unit cv:unit_hour ; cur:amount ?self .
-                FILTER(?contact + ?self != ?total)
+                OPTIONAL { { $this cur:workload ?k } ?k cur:workloadKind cv:wl_contactTime ; cur:unit cv:unit_hour ; cur:amount ?contact }
+                OPTIONAL { { $this cur:workload ?s } ?s cur:workloadKind cv:wl_selfStudy ; cur:unit cv:unit_hour ; cur:amount ?self }
+                FILTER(BOUND(?contact) && BOUND(?self) && ?contact + ?self != ?total)
             }""" ] .
 
 shs:HsSemesterLoadShape a sh:NodeShape ;

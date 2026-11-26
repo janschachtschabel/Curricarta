@@ -71,7 +71,7 @@ GRAPH_DIGESTS = {
     7: "2749dd35ea5938f25354d829fe3dda5fd189e3e53cb4764d1470cca2423f5a1c",  # placements (plan M3a K)
     8: "d896b308f62427eca3656f722ca498dc66710846add3f76bfda7aeb005ca000e",  # rejected ones out (plan M3a L)
     # the shapes' queries bind $this first, a set reads its holder's values alone (plan M3a L)
-    9: "c505e36c4600aff060a91cd734b0be374290aaad282ecf9d1270ed117d50fedc",
+    9: "1e34c5cce823cf682e640a2ad3d280e3b6c0e8536313ac03c72e9de635aaf819",
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
