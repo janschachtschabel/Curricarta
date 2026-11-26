@@ -178,9 +178,11 @@ ein Test schlägt an, wenn sie veraltet.
   Speichermangel; seinen Speicherbedarf misst M6. Gemessen (CPU, ohne Last): rund 2 s für ein
   Dokument mit 100 Knoten und Aussagen (mit Fundstellen 200 Zeilen), 9 s mit 400, 43 s mit 1.200
   (300 Knoten, 900 Aussagen); für ein synthetisches Dokument mit 500 Knoten, 5.000 Aussagen und ihren
-  Fundstellen 26 s, mit je 1.000 Niveaus, Zeiträumen und Umfängen und je 50 Regeln, Prüfungen und
-  Verwendungen dazu 83 s, Spitze im Kind unter 0,5 GiB (`python -m app.exports.measure_kern 500 5000
-  1000`). `SHACL_TIMEOUT_S` (Standard 300 s) begrenzt ihn, danach bleibt das
+  Fundstellen 28 s, mit je 1.000 Niveaus, Zeiträumen und Umfängen und je 50 Regeln, Prüfungen und
+  Verwendungen dazu 34–38 s, mit je 5.000 dazu 58 s, Spitze im Kind unter 0,7 GiB (`python -m
+  app.exports.measure_kern 500 5000 1000`). Die Werte kosten je 1.000 rund 5–9 s, bei 1.000 Aussagen wie
+  bei 5.000: Die Zeit wächst mit den Zeilen, nicht mit Zeilen mal Aussagen. `SHACL_TIMEOUT_S` (Standard
+  300 s) begrenzt ihn, danach bleibt das
   Tor mit dem Befund `x5.shacl_timeout` zu. Die Fundstellen prüft X5 in Stapeln innerhalb
   `X5_ANCHOR_BUDGET_S` (Standard 300 s); was die Frist nicht erreicht, bleibt ungeprüft, und X5 endet
   fertig mit dem Verstoß `x5.anchors_unchecked`. Ein neuer Start der Extraktion setzt diese Prüfung
@@ -207,9 +209,10 @@ ein Test schlägt an, wenn sie veraltet.
   (X5 hat denselben Graphen geprüft; jeder Lauf von X5 merkt sich die Graph-Version, unter der er prüfte,
   Migration 0036). Ein festgeschriebenes Dokument, das unter einer anderen Version als der heutigen geprüft
   wurde – oder vor Migration 0036, Version unbekannt –, wird nicht neu geprüft: Kopfzeile der Datei und
-  `Curricarta-Graph-Version` nennen beide Versionen. Gemessen: 4–5 s und 190 MiB Spitze im Kind für ein
+  `Curricarta-Graph-Version` nennen beide Versionen. Gemessen: 4–6 s und 190 MiB Spitze im Kind für ein
   synthetisches Dokument mit 500 Knoten, 5.000 Aussagen und 5.500 Ankern, mit je 1.000 Niveaus, Zeiträumen
-  und Umfängen und je 50 Regeln, Prüfungen und Verwendungen dazu 5,4 s und 210 MiB. Den Bau begrenzt `KERN_EXPORT_TIMEOUT_S`
+  und Umfängen und je 50 Regeln, Prüfungen und Verwendungen dazu 5–6 s und 210 MiB, mit je 5.000 dazu 8 s
+  und 280 MiB. Den Bau begrenzt `KERN_EXPORT_TIMEOUT_S`
   (Standard 30 s, höchstens 45 s); das Warten davor teilt sich mit ihm dieselben 55 s wie beim MEM-Export.
   Die Datei bleibt unter `exports/<Dokument>/` wie dort.
 - Sitzungen der Datenbank: API und Worker öffnen ihre Verbindungen mit `options` (`-c …`); ein `options=`
