@@ -4,6 +4,7 @@ workload for the time span it is given in. The database holds what is asked, the
 which vocabulary each column takes and that the holder is of the same document; what the core's shapes
 say of the values beside (cur-shapes.ttl) X5 checks. With its holder a value goes."""
 
+import re
 import uuid
 from collections.abc import Iterator
 from typing import Any
@@ -13,6 +14,7 @@ import pytest
 from psycopg import errors
 
 from app.db.migrate import migrate
+from app.db.value_rows import HOLDERS_OF
 from tests.db.l1 import (
     CV,
     add_conversion,
@@ -329,3 +331,24 @@ def test_a_value_is_an_entity_of_its_own_kind(
             (wrong, held["document_id"], held["node_id"], LVL + "EQF-4", CV + "Origins", CV + "orig_human",
              CV + "ReviewStatuses", CV + "rev_proposed"),
         )  # fmt: skip
+
+
+@pytest.mark.parametrize("table", ["level_assignment", "time_span", "workload"])
+def test_the_store_and_the_one_holder_check_name_the_same_holders_each_once(
+    connection: psycopg.Connection, table: str
+) -> None:
+    # the holders the values store reads (app/db/value_rows.HOLDERS_OF) - a node, a statement, a
+    # specification, a rule's frame part, a context, an assessment, a workload - are those the CHECK and the
+    # positions name, as every later migration that adds a holder makes them anew
+    made: dict[str, str] = dict(
+        connection.execute(
+            "SELECT conname, pg_get_constraintdef(oid) FROM pg_constraint WHERE conrelid = %s::regclass",
+            (table,),
+        ).fetchall()
+    )
+    one = re.search(r"num_nonnulls\(([^()]*)\)", made[f"{table}_one_holder"])
+    position = re.search(r"\(([^()]*)\)", made[f"{table}_position"])
+    assert one is not None and position is not None
+
+    assert sorted(one[1].split(", ")) == sorted(HOLDERS_OF[table])
+    assert sorted(position[1].replace('"', "").split(", ")) == sorted([*HOLDERS_OF[table], "position"])
