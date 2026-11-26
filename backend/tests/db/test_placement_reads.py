@@ -95,12 +95,14 @@ async def test_a_value_at_a_placement_reviewed_counts_the_placement_s_revision_o
     assert span is not None and period is not None
 
     node_before = (await one(connection, "SELECT revision FROM node WHERE id = %s", placement.node_id))[0]
-    revisions = await set_review(
+    reviewed = await set_review(
         connection, document.id, CV + "rev_confirmed",
         [ReviewItem("time_span", span, 1), ReviewItem("time_span", period, 1)],
     )  # fmt: skip
 
-    assert revisions == {span: 2, period: 2}
+    assert reviewed.revisions == {span: 2, period: 2}
+    # the answer names the node whose revision it moved: a set of its placements goes on from there
+    assert reviewed.nodes == {placement.node_id: node_before + 1}
     assert await one(connection, "SELECT revision FROM placement WHERE id = %s", placement.id) == (3,)
     # the node holds the placement: its revision counts once more, the token of a set of its placements
     assert await one(connection, "SELECT revision FROM node WHERE id = %s", placement.node_id) == (

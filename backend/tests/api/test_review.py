@@ -32,7 +32,10 @@ def test_the_editors_confirm_nodes_and_statements_at_once(client: TestClient, ur
     )
 
     assert answer.status_code == 200, answer.text
-    assert answer.json() == {"revisions": [{"id": node, "revision": 2}, {"id": said, "revision": 2}]}
+    assert answer.json() == {
+        "revisions": [{"id": node, "revision": 2}, {"id": said, "revision": 2}],
+        "nodes": [],  # none moved as a value's holder
+    }
     assert rows(
         url, "SELECT review_status_iri FROM node UNION ALL SELECT review_status_iri FROM statement"
     ) == [(CV + "rev_confirmed",), (CV + "rev_confirmed",)]

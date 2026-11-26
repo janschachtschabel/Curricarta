@@ -97,6 +97,14 @@ class Stale:
     current: int | None  # the row's revision now; none where the document holds no such row
 
 
+@dataclass(frozen=True)
+class Reviewed:
+    revisions: dict[UUID, int]  # each row named, once, at its revision after
+    # the nodes whose revision it moved as a holder's - a value's, a placement's -, at their revision after:
+    # the token of a set of the node's values and of its placements, which goes on from there
+    nodes: dict[UUID, int]
+
+
 class StaleItems(Exception):
     """Rows of a review that stand at another revision than it was made on, or no more: none was set."""
 
@@ -107,11 +115,11 @@ class StaleItems(Exception):
 
 async def set_review(
     connection: psycopg.AsyncConnection, document_id: UUID, status: str, items: Sequence[ReviewItem]
-) -> dict[UUID, int]:
+) -> Reviewed:
     """Set the review status ``status`` (an IRI of cv:ReviewStatuses) of the document's rows ``items``; the
-    revision of each after - one already at the status stays as it is, unless it holds a value set. A row
-    named twice is set once, on the revision named first. StaleItems or a refusal of ``guard``, and then
-    none is set."""
+    revision of each after - one already at the status stays as it is, unless it holds a value set -, and
+    of each node it moved as a holder. A row named twice is set once, on the revision named first.
+    StaleItems or a refusal of ``guard``, and then none is set."""
     first: dict[tuple[str, UUID], ReviewItem] = {}
     for item in items:
         first.setdefault((item.kind, item.id), item)
@@ -155,13 +163,17 @@ async def set_review(
         held |= {
             ("node", placed[row]) for of, row in held if of == "placement" and placed[row] not in changed
         }
+        nodes: dict[UUID, int] = {}
         for table in _HOLDER_TABLES:
             if raised := sorted(row for of, row in held if of == table):
                 cursor = await connection.execute(_RAISE.format(table=table), (raised,))
-                revisions |= {row: revision for row, revision in await cursor.fetchall() if row in revisions}
+                now: dict[UUID, int] = dict(await cursor.fetchall())
+                revisions |= {row: revision for row, revision in now.items() if row in revisions}
+                if table == "node":
+                    nodes = now
         if edited:
             await mark_edited(connection, document_id)
-        return revisions
+        return Reviewed(revisions, nodes)
 
 
 async def _holders(

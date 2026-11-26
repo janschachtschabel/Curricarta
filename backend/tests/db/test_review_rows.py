@@ -38,9 +38,9 @@ async def test_an_assessment_reviewed_counts_its_revision_and_keeps_its_origin(
     exam = await an_exam(connection, document, specification)
     await connection.execute("UPDATE document SET edited_at = NULL")
 
-    revisions = await set_review(connection, document.id, CONFIRMED, [ReviewItem("assessment", exam, 1)])
+    reviewed = await set_review(connection, document.id, CONFIRMED, [ReviewItem("assessment", exam, 1)])
 
-    assert revisions == {exam: 2}
+    assert (reviewed.revisions, reviewed.nodes) == ({exam: 2}, {})
     assert await one(
         connection, "SELECT origin_iri, review_status_iri, revision FROM assessment WHERE id = %s", exam
     ) == (HUMAN, CONFIRMED, 2)
@@ -74,11 +74,11 @@ async def test_a_level_at_an_assessment_reviewed_counts_the_assessment_s_revisio
     [level] = (await values_of(connection, document.id))[Holder("assessment", exam)].levels
     assert level.value.id is not None
 
-    revisions = await set_review(
+    reviewed = await set_review(
         connection, document.id, CONFIRMED, [ReviewItem("level_assignment", level.value.id, 1)]
     )
 
-    assert revisions == {level.value.id: 2}
+    assert (reviewed.revisions, reviewed.nodes) == ({level.value.id: 2}, {})
     assert await one(connection, "SELECT review_status_iri, revision FROM level_assignment") == (CONFIRMED, 2)
     assert await one(connection, "SELECT revision FROM assessment WHERE id = %s", exam) == (3,)
     with pytest.raises(StaleRevision) as stale:
@@ -86,7 +86,10 @@ async def test_a_level_at_an_assessment_reviewed_counts_the_assessment_s_revisio
     assert stale.value.current is not None
     # reviewed with its level, the assessment counts once
     both = [ReviewItem("assessment", exam, 3), ReviewItem("level_assignment", level.value.id, 2)]
-    assert await set_review(connection, document.id, REJECTED, both) == {exam: 4, level.value.id: 3}
+    assert (await set_review(connection, document.id, REJECTED, both)).revisions == {
+        exam: 4,
+        level.value.id: 3,
+    }
 
 
 async def test_a_placement_reviewed_counts_its_revision_and_its_node_s(
@@ -98,11 +101,12 @@ async def test_a_placement_reviewed_counts_its_revision_and_its_node_s(
     span = placement.values.time_spans[0].value.id
     assert span is not None
 
-    revisions = await set_review(
+    reviewed = await set_review(
         connection, document.id, CONFIRMED, [ReviewItem("placement", placement.id, placement.stated.revision)]
     )
 
-    assert revisions == {placement.id: placement.stated.revision + 1}
+    assert reviewed.revisions == {placement.id: placement.stated.revision + 1}
+    assert reviewed.nodes == {placement.node_id: node_before + 1}
     assert await one(
         connection, "SELECT origin_iri, review_status_iri FROM placement WHERE id = %s", placement.id
     ) == (HUMAN, CONFIRMED)
@@ -114,10 +118,9 @@ async def test_a_placement_reviewed_counts_its_revision_and_its_node_s(
         ReviewItem("placement", placement.id, placement.stated.revision + 1),
         ReviewItem("time_span", span, 1),
     ]
-    assert await set_review(connection, document.id, REJECTED, both) == {
-        placement.id: placement.stated.revision + 2,
-        span: 2,
-    }
+    twice = await set_review(connection, document.id, REJECTED, both)
+    assert twice.revisions == {placement.id: placement.stated.revision + 2, span: 2}
+    assert twice.nodes == {placement.node_id: node_before + 2}
     assert await one(connection, "SELECT revision FROM node WHERE id = %s", placement.node_id) == (
         node_before + 2,
     )

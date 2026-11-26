@@ -543,7 +543,7 @@ ungültig.
   `not_editor`): alles oder nichts – steht eine Zeile anders oder nicht mehr da, 409 `stale_revision`
   mit `details.stale` (je Zeile `current`, die Revision jetzt oder `null`). Die Herkunft bleibt, die
   Revision zählt eins hoch, eine Zeile mit diesem Prüfstand bleibt, wie sie ist; die Antwort nennt die
-  Revisionen danach. Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
+  Revisionen danach (`revisions`) und jeden Knoten, dessen Revision sie als Träger hochzählte (`nodes`). Ändert sich der Prüfstand eines Werts, zählt auch die Revision seines Trägers eins hoch
   (je Träger einmal, ein Zeitraum über seinen Umfang, ein Geltungskontext und seine Werte über ihre
   Spezifikation, ein Niveau einer Prüfung über die Prüfung); die einer Verwendung und ihrer Werte auch die ihres
   Knotens: Ein `PUT …/values` auf einer zuvor gelesenen Ansicht

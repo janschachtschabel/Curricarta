@@ -51,6 +51,8 @@ def test_the_editors_review_an_assessment_and_a_placement_at_once(client: TestCl
     assert answer.json()["revisions"] == [
         {"id": exam["id"], "revision": 2}, {"id": placed["placement"], "revision": 2},
     ]  # fmt: skip
+    # the node whose revision the placement's review moved, so that the node's set can go on from it
+    assert answer.json()["nodes"] == [{"id": placed["module"], "revision": 3}]
     assert rows(
         url, "SELECT review_status_iri, origin_iri FROM assessment UNION ALL"
         " SELECT review_status_iri, origin_iri FROM placement",

@@ -243,9 +243,10 @@ async def test_a_review_of_a_context_or_its_value_counts_its_specification_s_rev
         ReviewItem("applicability_context", context.value.id, 1),
         ReviewItem("level_assignment", level.value.id, 1),
     ]
-    revisions = await set_review(connection, document.id, CONFIRMED, items)
+    done = await set_review(connection, document.id, CONFIRMED, items)
 
-    assert revisions == {context.value.id: 2, level.value.id: 2}
+    assert done.revisions == {context.value.id: 2, level.value.id: 2}
+    assert done.nodes == {}  # a specification is no node
     assert await revision_of(connection, made) == 3
     [reviewed] = (await values_of(connection, document.id))[made].contexts
     assert {reviewed.stated.review_status, reviewed.levels[0].stated.review_status} == {CONFIRMED}

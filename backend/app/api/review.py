@@ -1,8 +1,8 @@
 """The editors' review of a document (plan M1 9.5; app/db/review.py): one review status - proposed,
 confirmed, rejected - for many of its nodes, statements, assessments, placements (plan M3a L) and values
-(levels, time spans, workloads) at once, all or nothing, each on the revision it was read at. By the editors (Redaktion, Admin) alone,
-audited; refused as app/api/edit_answers.py says, a stale row with each that stands otherwise and its
-revision now.
+(levels, time spans, workloads) at once, all or nothing, each on the revision it was read at. By the editors
+(Redaktion, Admin) alone, audited; refused as app/api/edit_answers.py says, a stale row with each that stands
+otherwise and its revision now. The answer names each row's revision after, and each node's it moved.
 """
 
 from typing import Annotated, Literal
@@ -45,6 +45,9 @@ class RevisionOut(BaseModel):
 
 class ReviewOut(BaseModel):
     revisions: list[RevisionOut]  # each row named, once, in the order asked
+    # each node whose revision it moved as a holder - a value's at it, a placement of it -, so that a set of
+    # the node's values or placements read before can go on from it
+    nodes: list[RevisionOut]
 
 
 @router.post(
@@ -61,8 +64,8 @@ async def review_rows(document_id: UUID, body: ReviewIn, request: Request, who: 
                 await visible_document(connection, who, document_id)
                 if not who.roles & EDITORS:
                     raise Refusal(403, "not_editor", "Only the editors set a review status.")
-                revisions = await set_review(connection, document_id, CV + "rev_" + body.status, items)
-                details = {"status": body.status, "items": len(revisions)}
+                reviewed = await set_review(connection, document_id, CV + "rev_" + body.status, items)
+                details = {"status": body.status, "items": len(reviewed.revisions)}
                 await audit(connection, who, "review.set", f"document:{document_id}", details)
         except StaleItems as error:
             stale = [{"kind": row.kind, "id": str(row.id), "current": row.current} for row in error.stale]
@@ -75,5 +78,6 @@ async def review_rows(document_id: UUID, body: ReviewIn, request: Request, who: 
         except REFUSED as error:
             raise await refusal_of(connection, who, document_id, error) from error
     return ReviewOut(
-        revisions=[RevisionOut(id=row, revision=revision) for row, revision in revisions.items()]
+        revisions=[RevisionOut(id=row, revision=revision) for row, revision in reviewed.revisions.items()],
+        nodes=[RevisionOut(id=row, revision=revision) for row, revision in sorted(reviewed.nodes.items())],
     )

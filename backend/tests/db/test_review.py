@@ -49,7 +49,7 @@ async def test_the_editors_confirm_rows_at_once_and_their_origin_stays(
 ) -> None:
     top, (measured, checked) = await a_tree(connection, document)
 
-    revisions = await set_review(
+    reviewed = await set_review(
         connection,
         document.id,
         CONFIRMED,
@@ -60,7 +60,8 @@ async def test_the_editors_confirm_rows_at_once_and_their_origin_stays(
         ],
     )
 
-    assert revisions == {top: 2, measured: 2, checked: 2}
+    assert reviewed.revisions == {top: 2, measured: 2, checked: 2}
+    assert reviewed.nodes == {}  # no node's revision moved as a holder's
     assert await states(connection) == [
         ("node", MODEL, CONFIRMED, 2),
         ("statement", MODEL, CONFIRMED, 2),
@@ -74,13 +75,17 @@ async def test_a_row_at_its_status_already_stays_as_it_is(
 ) -> None:
     top, (measured, _) = await a_tree(connection, document)
 
-    assert await set_review(connection, document.id, PROPOSED, [ReviewItem("node", top, 1)]) == {top: 1}
-    assert await set_review(
-        connection,
-        document.id,
-        CONFIRMED,
-        [ReviewItem("statement", measured, 1), ReviewItem("statement", measured, 1)],
-    ) == {measured: 2}  # named twice, set once
+    assert (await set_review(connection, document.id, PROPOSED, [ReviewItem("node", top, 1)])).revisions == {
+        top: 1
+    }
+    assert (
+        await set_review(
+            connection,
+            document.id,
+            CONFIRMED,
+            [ReviewItem("statement", measured, 1), ReviewItem("statement", measured, 1)],
+        )
+    ).revisions == {measured: 2}  # named twice, set once
     assert (await states(connection))[0] == ("node", MODEL, PROPOSED, 1)
 
 
