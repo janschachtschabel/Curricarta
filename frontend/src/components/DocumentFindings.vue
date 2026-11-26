@@ -21,7 +21,7 @@ import FindingsRepair from "@/components/FindingsRepair.vue";
 import LoadingState from "@/components/LoadingState.vue";
 import PartialState from "@/components/PartialState.vue";
 import { ROW_PARAM } from "@/documentTree";
-import { findingRow, findingText, focusText, SEVERITIES, SEVERITY_TONES } from "@/findingWords";
+import { findingPath, findingRow, findingText, focusText, SEVERITIES, SEVERITY_TONES } from "@/findingWords";
 import { focusIsFree } from "@/focusRescue";
 import { t } from "@/i18n/de";
 import { useOverflowing } from "@/overflowing";
@@ -54,6 +54,8 @@ const rows = computed(() =>
   (page.value?.findings ?? []).map((finding) => ({
     finding,
     said: findingText(finding),
+    // where in its row a shape's finding stands, in words read with the finding's own
+    at: findingPath(finding),
     about: focusText(finding),
     // the tree's row it is about, where it has one: the tree page chooses it (Paket 9d2 P3)
     row: findingRow(finding),
@@ -145,6 +147,8 @@ watch(() => props.refresh, load);
               <td role="cell" class="findings__text" :data-label="t('documents.findings.columns.finding')">
                 <q v-if="row.said.lang" lang="en">{{ row.said.text }}</q>
                 <template v-else>{{ row.said.text }}</template>
+                <!-- its own line, a space before it, so it is not read run into the finding's words -->
+                <template v-if="row.at">{{ " " }}<span class="findings__path">{{ row.at }}</span></template>
               </td>
               <td role="cell" class="findings__text" :data-label="t('documents.findings.columns.focus')">
                 <RouterLink
@@ -187,6 +191,10 @@ watch(() => props.refresh, load);
   padding: var(--space-0) var(--space-2) var(--space-0) 0;
   text-align: start;
   vertical-align: top;
+}
+
+.findings__path {
+  display: block;
 }
 
 .findings__text {

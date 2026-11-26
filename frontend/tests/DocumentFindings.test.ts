@@ -183,6 +183,28 @@ describe("a document's findings", () => {
     expect(wrapper.get("tbody q").text()).toBe(ENGLISH.message);
   });
 
+  it("says where in its row a shape's finding stands, in words, with the finding's own", async () => {
+    const shaped: DocumentFinding = {
+      ...ENGLISH,
+      rule: "shacl.ApplicabilityContextShape",
+      severity: "violation",
+      focus: { kind: "specification", id: "s1", label: "Bachelor", holder_kind: null, holder_id: null, placed_node_id: null },
+      path: "cur:applicability/cur:educationSector",
+      message: "Value is not in the list",
+    };
+    vi.spyOn(api, "getFindings").mockResolvedValue(page({ findings: [shaped], counts: { violation: 1, warning: 0, info: 0 } }));
+
+    const wrapper = open();
+    await flushPromises();
+
+    const cell = wrapper.get("tbody td.findings__text");
+    // in the finding's cell, after its words and outside the English quote: text, not colour
+    expect(cell.get(".findings__path").text()).toBe("Angabe: Geltungskontext › Bildungsbereich");
+    expect(cell.get("q").find(".findings__path").exists()).toBe(false);
+    expect(cell.text()).toBe("Value is not in the list Angabe: Geltungskontext › Bildungsbereich");
+    expect(await violations(wrapper.element)).toEqual([]);
+  });
+
   it("says how many it lists where more were found than it shows", async () => {
     vi.spyOn(api, "getFindings").mockResolvedValue(
       page({ counts: { violation: 200, warning: 300, info: 100 }, findings: [WRONG, LOST], truncated: true }),

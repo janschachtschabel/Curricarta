@@ -1,8 +1,9 @@
 // A document's findings in words (DocumentFindings.vue): what a rule found, in German where the page
 // knows the rule - X5's checks and the reading of the model's answers, named alike at every stage that
 // reads one (tests/findingWords.test.ts) -, a message the server says is German (SHACL's, where the
-// shape gives one) as it is, any other as the server's English, to be quoted; and the row it is about, with the
-// tree's row where it has one (plan M1 9.10, Paket 9d2 P3) - a value's its holder's (plan M3a F2).
+// shape gives one) as it is, any other as the server's English, to be quoted; where in its row a shape's finding
+// stands, its path in words (plan M3a L); and the row it is about, with the tree's row where it has one (plan M1
+// 9.10, Paket 9d2 P3) - a value's its holder's (plan M3a F2).
 import type { DocumentFinding, FindingSeverity } from "@/api";
 import { isolate } from "@/bidi";
 import type { RowKey } from "@/documentTree";
@@ -21,6 +22,7 @@ export const SEVERITIES: readonly FindingSeverity[] = ["violation", "warning", "
 
 const RULES: Readonly<Record<string, string>> = messages.documents.findings.rules;
 const KINDS: Readonly<Record<string, string>> = messages.documents.findings.kinds;
+const PROPERTIES: Readonly<Record<string, string>> = messages.documents.findings.properties;
 /** The second layer's values: a finding keeps one as its focus and names the row that holds it. */
 const VALUE_KINDS: ReadonlySet<string> = new Set(["level_assignment", "time_span", "workload"]);
 
@@ -32,6 +34,26 @@ export function findingText(finding: DocumentFinding): { text: string; lang?: "e
   }
   if (finding.message_lang === "de") return { text: finding.message };
   return { text: finding.message, lang: "en" };
+}
+
+// the steps of a path: a slash before a CURIE or a full IRI - not one within an IRI the child could not shorten
+const STEP = /\/(?=\^?(?:[a-z]+:[A-Za-z]|https?:\/\/))/;
+
+// a property of the path by its word, an inverse one ("^cur:represents") so said, one without a word by its local name
+function propertyWords(step: string): string {
+  const name = step.replace(/^\^/, "");
+  const said = Object.hasOwn(PROPERTIES, name) ? PROPERTIES[name] : name.split(/[#/:]/).pop() || name;
+  return step.startsWith("^") ? t("documents.findings.inverse", { property: said }) : said;
+}
+
+/**
+ * Where in its row a shape's finding stands: its path from the row down (`cur:applicability/cur:educationSector`) in
+ * words; none where it names no property, or is no shape's - another stage's path is a place in a model's answer.
+ */
+export function findingPath(finding: DocumentFinding): string | null {
+  if (!finding.rule.startsWith("shacl.") || !finding.path) return null;
+  const steps = finding.path.split(STEP).map(propertyWords);
+  return t("documents.findings.at", { path: steps.join(t("documents.findings.pathStep")) });
 }
 
 // A statement always has its wording: without one it is gone - a repair of its package dropped it before X6
