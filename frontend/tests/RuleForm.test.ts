@@ -72,7 +72,7 @@ describe("a rule's form", () => {
     await flushPromises();
 
     expect(api.editRule).toHaveBeenCalledWith("r1", 1, { max_count: 3, min_amount: 7.5, options: ["n1"] });
-    expect(wrapper.get("form [role=status]").text()).toBe(t("documents.page.rules.saved"));
+    expect(wrapper.get(".rule-form__status").text()).toBe(t("documents.page.rules.saved"));
     expect(wrapper.get("[data-test=rule]").text()).toContain("LF 1 Optik");
     expect(dirty.at(-1)).toBe(false);
   });
@@ -82,7 +82,7 @@ describe("a rule's form", () => {
     const wrapper = await opened();
 
     await wrapper.get("form").trigger("submit");
-    expect(wrapper.get("form [role=status]").text()).toBe(t("documents.page.rules.unchanged"));
+    expect(wrapper.get(".rule-form__status").text()).toBe(t("documents.page.rules.unchanged"));
     await input(wrapper, words("min_count")).setValue("2,5");
     const submit = wrapper.get("form button[type=submit]");
     (submit.element as HTMLElement).focus();
@@ -170,7 +170,7 @@ describe("a rule's form", () => {
     expect(wrapper.findAll("form button").map((button) => button.text())).toContain(t("documents.page.rules.delete"));
   });
 
-  it("opens on its button with the keyboard at its heading, and closes back to the button, nothing sent", async () => {
+  it("opens on its button with the keyboard at its heading, and closes back to the button at once where clean", async () => {
     vi.spyOn(api, "editRule");
     shown = mount(DocumentRules, { props: { documentId: "d1" }, attachTo: document.body });
     await flushPromises();
@@ -183,12 +183,33 @@ describe("a rule's form", () => {
     await button.trigger("click");
     await flushPromises();
     expect(document.activeElement?.textContent).toBe(t("documents.page.rules.formHeading", { kind: "Auswahlregel" }));
-    await input(shown, words("max_count")).setValue("5");
     await shown.findAll("form button").find((one) => one.text() === t("documents.page.rules.close"))?.trigger("click");
     await flushPromises();
 
+    expect(document.body.textContent).not.toContain(t("documents.page.rules.discardTitle"));
     expect(shown.find("form").exists()).toBe(false);
     expect(document.activeElement).toBe(shown.get(".rules__edit").element);
+    expect(api.editRule).not.toHaveBeenCalled();
+  });
+
+  it("asks before it closes over a draft: kept on cancel, dropped on confirm, nothing sent", async () => {
+    vi.spyOn(api, "editRule");
+    const wrapper = await opened();
+    await input(wrapper, words("max_count")).setValue("5");
+    const close = () => wrapper.findAll("form button").find((one) => one.text() === t("documents.page.rules.close"))?.trigger("click");
+
+    await close();
+    expect(document.body.textContent).toContain(t("documents.page.rules.discardTitle"));
+    (document.querySelector("[data-test=cancel]") as HTMLElement).click();
+    await flushPromises();
+    expect(wrapper.find("form").exists()).toBe(true);
+    expect(input(wrapper, words("max_count")).element.value).toBe("5");
+
+    await close();
+    (document.querySelector("[data-test=confirm]") as HTMLElement).click();
+    await flushPromises();
+    expect(wrapper.find("form").exists()).toBe(false);
+    expect(document.activeElement).toBe(wrapper.get(".rules__edit").element);
     expect(api.editRule).not.toHaveBeenCalled();
   });
 
@@ -233,6 +254,37 @@ describe("the rows a rule names", () => {
     expect(applies.querySelectorAll("[data-test=targets-offered] label")).toHaveLength(11);
     expect(applies.textContent).not.toContain("weitere passen");
     expect(await violations(wrapper.element)).toEqual([]);
+  });
+
+  it("hold an Enter in their search, so it saves nothing", async () => {
+    vi.spyOn(api, "editRule");
+    const wrapper = await opened();
+    const search = (control(wrapper, words("applies_to")) as HTMLElement).querySelector<HTMLInputElement>("input[type=search]")!;
+    search.value = "LF";
+    search.dispatchEvent(new Event("input"));
+    const enter = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+
+    search.dispatchEvent(enter);
+    await flushPromises();
+
+    // the browser submits a form on an Enter it is let have: here it is held
+    expect(enter.defaultPrevented).toBe(true);
+    expect(api.editRule).not.toHaveBeenCalled();
+  });
+
+  it("say what was chosen and what let go", async () => {
+    const wrapper = await opened();
+    const applies = control(wrapper, words("applies_to")) as HTMLElement;
+    const said = () => applies.querySelector("[role=status]")?.textContent?.trim();
+
+    const offered = [...applies.querySelectorAll("[data-test=targets-offered] label")].find((one) => one.textContent === "Physik");
+    (document.getElementById(offered!.getAttribute("for")!) as HTMLInputElement).click();
+    await flushPromises();
+    expect(said()).toBe(t("documents.page.rules.chosenSaid", { label: "Physik" }));
+
+    applies.querySelector<HTMLInputElement>("[data-test=targets-chosen] input")!.click();
+    await flushPromises();
+    expect(said()).toBe(t("documents.page.rules.releasedSaid", { label: "Physik" }));
   });
 
   it("keep a row chosen that no list offers, under its own words, and let it go", async () => {

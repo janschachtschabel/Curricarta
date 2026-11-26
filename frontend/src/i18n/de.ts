@@ -1551,6 +1551,13 @@ export const messages = {
         search: "Suchen",
         moreMatch: "{count} {count|weiterer passt|weitere passen}; grenze die Suche ein.",
         noMatch: "Nichts passt zur Suche.",
+        chosenSaid: "Du hast „{label}“ gewählt.",
+        releasedSaid: "Du hast „{label}“ entfernt.",
+        // closing a rule's form over a draft (RuleForm.vue)
+        discardTitle: "Änderungen an der Regel verwerfen?",
+        discardMessage: "Deine Änderungen an dieser Regel sind nicht gespeichert. Schließt du das Formular, gehen sie verloren.",
+        discardConfirm: "Verwerfen",
+        discardCancel: "Weiter bearbeiten",
         // a rule's form (RuleForm.vue)
         formHeading: "{kind} bearbeiten",
         fields: {

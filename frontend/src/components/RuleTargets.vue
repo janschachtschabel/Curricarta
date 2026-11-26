@@ -3,14 +3,17 @@
  * The rows a rule names in one role (plan M3a I; RuleForm.vue): the ones chosen, each a box to let it go, then a
  * search that narrows what the rule may name - specifications, variants, nodes - to at most MOST_SHOWN boxes, and how
  * many more match. A document of hundreds of nodes so puts a few boxes on the page, not all of them. A row chosen
- * that no list offers - a statement - stays chosen under its own words. A problem the server names stands below,
- * tied to the search, where the keyboard goes for it (`controlId`).
+ * that no list offers - a statement - stays chosen under its own words. A box pressed moves to the other list, the
+ * keyboard to the search, and a status line says what was chosen or let go. An Enter in the search is held: it would
+ * submit the rule's form. A problem the server names stands below, tied to the search, where the keyboard goes for
+ * it (`controlId`).
  */
 import { computed, nextTick, ref, useId } from "vue";
 
 import type { RuleLink, RuleTarget } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import { t } from "@/i18n/de";
+import { sayAnew } from "@/liveRegion";
 
 const props = defineProps<{
   label: string;
@@ -26,6 +29,7 @@ const MOST_SHOWN = 20;
 const ownId = useId();
 const id = props.controlId ?? ownId;
 const query = ref("");
+const said = ref("");
 
 const labelOf = (target: string): string =>
   props.targets.find((one) => one.id === target)?.label ?? props.held.find((one) => one.id === target)?.label ?? target;
@@ -40,7 +44,9 @@ const described = computed(() => [`${id}-more`, props.error ? `${id}-error` : ""
 
 // the box pressed moves from one list to the other: the keyboard stays in the field, at its search
 async function choose(target: string, on: boolean): Promise<void> {
+  const label = labelOf(target);
   model.value = on ? [...model.value, target] : model.value.filter((one) => one !== target);
+  said.value = sayAnew(said.value, t(on ? "documents.page.rules.chosenSaid" : "documents.page.rules.releasedSaid", { label }));
   await nextTick();
   document.getElementById(id)?.focus();
 }
@@ -65,6 +71,7 @@ async function choose(target: string, on: boolean): Promise<void> {
         autocomplete="off"
         :aria-invalid="error ? true : undefined"
         :aria-describedby="described"
+        @keydown.enter.prevent
       />
     </div>
     <ul class="rule-targets__list" data-test="targets-offered">
@@ -77,6 +84,8 @@ async function choose(target: string, on: boolean): Promise<void> {
       {{ more > 0 ? t("documents.page.rules.moreMatch", { count: more }) : !shown.length ? t("documents.page.rules.noMatch") : "" }}
     </p>
     <p v-if="error" :id="`${id}-error`" class="field__error"><AppIcon name="warning" /> {{ error }}</p>
+    <!-- always in the page, so a screen reader hears each choice -->
+    <p class="rule-targets__status" role="status">{{ said }}</p>
   </fieldset>
 </template>
 
@@ -107,5 +116,14 @@ async function choose(target: string, on: boolean): Promise<void> {
 
 .rule-targets .field__hint:empty {
   display: none;
+}
+
+.rule-targets__status {
+  margin: 0;
+}
+
+/* Empty, it takes no room, but stays in the page. */
+.rule-targets__status:empty {
+  position: absolute;
 }
 </style>

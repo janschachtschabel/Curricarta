@@ -8,7 +8,7 @@
  * fields it holds alone. The rule is taken away after a question - a run's rejected and kept, an editor's own deleted
  * (`taken`); a run's rejected already is not offered so again. The rows a rule names are chosen through a search
  * (RuleTargets.vue), not from every node at once. Opened, it takes the keyboard to its heading; closed, nothing is
- * sent (`close`). It tells the section whether an entry the user made is open (`dirty`, the leave guard): a rule the
+ * sent (`close`) - over a draft only once the user confirms it goes. It tells the section whether an entry the user made is open (`dirty`, the leave guard): a rule the
  * run read with what its kind does not show is none.
  */
 import { computed, onBeforeUnmount, onMounted, ref, useId, watch } from "vue";
@@ -43,6 +43,7 @@ const busy = ref(false);
 const status = ref("");
 const failure = ref<Notice | null>(null);
 const asking = ref(false);
+const discarding = ref(false); // closing over a draft: asked first
 const submit = ref<HTMLElement | null>(null);
 const heading = ref<HTMLElement | null>(null);
 type LinkField = "applies_to" | "options" | "requires";
@@ -163,6 +164,11 @@ async function take(): Promise<void> {
   }
 }
 
+function close(): void {
+  if (isDirty(base.value, draft.value)) discarding.value = true;
+  else emit("close");
+}
+
 const takeWord = computed(() => (base.value.by_hand ? "delete" : "reject"));
 // a run's rule rejected already stays so: no second rejection is offered
 const takeable = computed(() => base.value.by_hand || statusOf(base.value.review_status) !== "rejected");
@@ -217,7 +223,7 @@ const takeable = computed(() => base.value.by_hand || statusOf(base.value.review
       >
         {{ t(`documents.page.rules.${takeWord}`) }}
       </button>
-      <button type="button" class="btn secondary" @click="emit('close')">{{ t("documents.page.rules.close") }}</button>
+      <button type="button" class="btn secondary" @click="close">{{ t("documents.page.rules.close") }}</button>
     </div>
     <!-- always in the page, so a screen reader hears each change of its text -->
     <p class="rule-form__status" role="status">{{ status }}</p>
@@ -228,6 +234,15 @@ const takeable = computed(() => base.value.by_hand || statusOf(base.value.review
       :confirm-label="t(`documents.page.rules.${takeWord}`)"
       @confirm="take"
       @cancel="asking = false"
+    />
+    <ConfirmDialog
+      v-if="discarding"
+      :title="t('documents.page.rules.discardTitle')"
+      :message="t('documents.page.rules.discardMessage')"
+      :confirm-label="t('documents.page.rules.discardConfirm')"
+      :cancel-label="t('documents.page.rules.discardCancel')"
+      @confirm="(discarding = false), emit('close')"
+      @cancel="discarding = false"
     />
   </form>
 </template>
