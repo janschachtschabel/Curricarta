@@ -262,11 +262,12 @@ ungültig.
   keine Lizenz eigener Angaben. Ein Import nennt dazu wie sein MEM-Export den MEM-Plan als Quelle und Herkunft
   (`prov:wasDerivedFrom`), die Namensnennung und, wo eingetragen, die Lizenz der MEM-Daten am Plan. Die Zahl der
   beim Festschreiben angenommenen Verstöße steht im Kopf `Curricarta-Accepted-Violations` und als
-  Kommentarzeile am Anfang der Datei. Die Version des Kern-Graphen (heute 8) steigt mit jeder Änderung
-  dessen, was der Graph aus denselben Zeilen macht; jeder Lauf von X5 merkt sich die, unter der er prüfte.
+  Kommentarzeile am Anfang der Datei. Die Version des Kern-Graphen (heute 9) steigt mit jeder Änderung
+  dessen, was der Graph aus denselben Zeilen macht, oder wie X5 ihn prüft (Formen, Modell, pyshacl); jeder
+  Lauf von X5 merkt sich die, unter der er prüfte.
   Hat X5 das Dokument unter einer anderen Version des Kern-Graphen geprüft, als die API jetzt baut – oder
   vor Migration 0036, dann `unknown` –, nennt der Kopf
-  `Curricarta-Graph-Version` beide (`checked=unknown; built=8`), ebenso eine Kommentarzeile; festgeschrieben
+  `Curricarta-Graph-Version` beide (`checked=unknown; built=9`), ebenso eine Kommentarzeile; festgeschrieben
   wird es nicht neu geprüft, die Zahl der angenommenen Verstöße bleibt die beim Festschreiben.
   - **Bau:** ein Kindprozess je Export, höchstens zwei je Prozess, innerhalb von `KERN_EXPORT_TIMEOUT_S`
     (30 s), ohne erneute SHACL-Prüfung (X5 hat denselben Graphen unter Entwurfsnamen geprüft). Das Ergebnis

@@ -43,8 +43,8 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:select """
             SELECT $this WHERE {
                 $this cur:nodeType hs:Modul .
-                FILTER NOT EXISTS { $this cur:workload ?w . ?w cur:unit cv:unit_ectsCredit }
-                FILTER NOT EXISTS { ?p cur:placedUnit $this ; cur:workload ?w2 . ?w2 cur:unit cv:unit_ectsCredit }
+                FILTER NOT EXISTS { $this cur:workload/cur:unit cv:unit_ectsCredit }
+                FILTER NOT EXISTS { $this ^cur:placedUnit/cur:workload/cur:unit cv:unit_ectsCredit }
             }""" ] ;
     sh:sparql [
         a sh:SPARQLConstraint ;
@@ -52,7 +52,7 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:select """
             SELECT $this WHERE {
                 $this cur:nodeType hs:Modul .
-                FILTER NOT EXISTS { ?s cur:partOf $this ; cur:statementKind cv:kind_learningOutcome }
+                FILTER NOT EXISTS { $this ^cur:partOf/cur:statementKind cv:kind_learningOutcome }
                 FILTER NOT EXISTS { $this cur:checkedAbsent cv:dock_competency }
             }""" ] ;
     sh:sparql [
@@ -68,7 +68,7 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:message "Arbeitsaufwand je Leistungspunkt außerhalb 25–30 Stunden."@de ;
         sh:select """
             SELECT $this ?ratio WHERE {
-                $this cur:workload ?h , ?c .
+                { $this cur:workload ?h , ?c }
                 ?h cur:unit cv:unit_hour ; cur:workloadKind cv:wl_totalWorkload ; cur:amount ?hours .
                 ?c cur:unit cv:unit_ectsCredit ; cur:amount ?credits .
                 FILTER(?credits > 0)
@@ -80,7 +80,7 @@ shs:HsModuleShape a sh:NodeShape ;
         sh:message "Kontaktzeit und Selbststudium ergeben nicht den Gesamtaufwand."@de ;
         sh:select """
             SELECT $this WHERE {
-                $this cur:workload ?t , ?k , ?s .
+                { $this cur:workload ?t , ?k , ?s }
                 ?t cur:workloadKind cv:wl_totalWorkload ; cur:unit cv:unit_hour ; cur:amount ?total .
                 ?k cur:workloadKind cv:wl_contactTime ; cur:unit cv:unit_hour ; cur:amount ?contact .
                 ?s cur:workloadKind cv:wl_selfStudy ; cur:unit cv:unit_hour ; cur:amount ?self .
@@ -95,10 +95,12 @@ shs:HsSemesterLoadShape a sh:NodeShape ;
         sh:message "Pflichtmodule eines Fachsemesters summieren über 40 LP (Regel ≈ 30 LP je Semester)."@de ;
         sh:select """
             SELECT $this ?sem (SUM(?lp) AS ?sum) WHERE {
-                ?p cur:inSpecification $this ; cur:obligation cv:obl_binding ; cur:timeSpan ?ts ; cur:placedUnit ?u .
-                ?ts cur:timeKind cv:time_semester ; cur:from ?sem .
-                OPTIONAL { ?p cur:workload ?pw . ?pw cur:unit cv:unit_ectsCredit ; cur:amount ?plp }
-                OPTIONAL { ?u cur:workload ?uw . ?uw cur:unit cv:unit_ectsCredit ; cur:amount ?ulp }
+                { ?p cur:inSpecification $this }
+                ?p cur:timeSpan ?ts ; cur:placedUnit ?u . ?ts cur:from ?sem .
+                FILTER EXISTS { ?p cur:obligation cv:obl_binding }
+                FILTER EXISTS { ?ts cur:timeKind cv:time_semester }
+                OPTIONAL { { ?p cur:workload ?pw } ?pw cur:unit cv:unit_ectsCredit ; cur:amount ?plp }
+                OPTIONAL { { ?u cur:workload ?uw } ?uw cur:unit cv:unit_ectsCredit ; cur:amount ?ulp }
                 BIND(COALESCE(?plp, ?ulp) AS ?lp)
             } GROUP BY $this ?sem HAVING (SUM(?lp) > 40)""" ] .
 
@@ -123,7 +125,7 @@ shs:BerufLernfeldShape a sh:NodeShape ;
         sh:select """
             SELECT $this WHERE {
                 $this cur:nodeType beruf:Lernfeld .
-                FILTER NOT EXISTS { $this cur:timeSpan ?t . ?t cur:timeKind cv:time_trainingYear }
+                FILTER NOT EXISTS { $this cur:timeSpan/cur:timeKind cv:time_trainingYear }
                 FILTER NOT EXISTS { $this cur:checkedAbsent cv:dock_time }
             }""" ] .
 
@@ -135,7 +137,7 @@ shs:BerufZeitrichtwertShape a sh:NodeShape ;
         sh:message "Zeitrichtwert eines Lernfelds nicht durch 20 teilbar – Lesefehler prüfen."@de ;
         sh:select """
             SELECT $this ?a WHERE {
-                $this cur:nodeType beruf:Lernfeld ; cur:workload ?w .
+                { $this cur:nodeType beruf:Lernfeld ; cur:workload ?w }
                 ?w cur:unit cv:unit_lesson ; cur:amount ?a .
                 FILTER(?a - 20 * FLOOR(?a / 20) != 0)
             }""" ] .

@@ -360,8 +360,8 @@ shs:LevelAssignmentTaskDemandShape a sh:NodeShape ;
         sh:message "Anforderungsbereich an einer Aussage ohne Herkunft source: AFB bezieht sich auf Aufgaben; aus dem Operator nur als kognitive Heuristik."@de ;
         sh:select """
             SELECT $this WHERE {
-                ?holder cur:levelAssignment $this . ?holder rdf:type/rdfs:subClassOf* cur:Statement .
-                $this cur:level ?l . ?l skos:inScheme ?s .
+                { ?holder cur:levelAssignment $this . $this cur:level ?l }
+                ?holder rdf:type/rdfs:subClassOf* cur:Statement . ?l skos:inScheme ?s .
                 OPTIONAL { $this cur:levelDimension ?d1 }
                 OPTIONAL { ?s cur:levelDimension ?d2 }
                 FILTER(COALESCE(?d1, ?d2) = cv:dim_taskDemand)
@@ -390,7 +390,8 @@ shs:AssessmentShape a sh:NodeShape ;
         sh:message "Gewichte der direkten Teile über 100 %."@de ;
         sh:select """
             SELECT $this (SUM(?w) AS ?sum) WHERE {
-                ?part cur:partOf $this ; cur:weightPercent ?w . ?part a cur:Assessment .
+                { ?part cur:partOf $this }
+                ?part cur:weightPercent ?w ; a cur:Assessment .
             } GROUP BY $this HAVING (SUM(?w) > 100)""" ] .
 
 # -----------------------------------------------------------------------------
@@ -448,7 +449,7 @@ shs:StatementPlausibilityShape a sh:NodeShape ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "Fundstelle unscharf gefunden – kein Wortlautbeleg."@de ;
-        sh:select """SELECT $this WHERE { $this cur:anchor ?a . ?a cur:matchKind cv:match_fuzzy . }""" ] ;
+        sh:select """SELECT $this WHERE { { $this cur:anchor ?a } ?a cur:matchKind cv:match_fuzzy . }""" ] ;
     sh:sparql [
         a sh:SPARQLConstraint ;
         sh:message "Aussageart unklar – zur Prüfung."@de ;
@@ -490,7 +491,8 @@ shs:DecompositionShape a sh:NodeShape ;
         sh:message "Zerlegt wird nur ein Lernergebnis, Bildungsziel oder Standard."@de ;
         sh:select """
             SELECT $this WHERE {
-                $this cur:decomposes ?s . ?s cur:statementKind ?k .
+                { $this cur:decomposes ?s }
+                ?s cur:statementKind ?k .
                 FILTER(?k NOT IN (cv:kind_learningOutcome, cv:kind_developmentGoal, cv:kind_standard))
             }""" ] .
 
@@ -680,7 +682,8 @@ shs:ShortcutBackingShape a sh:NodeShape ;
                 FILTER(STRSTARTS(STR(?p), "https://w3id.org/wlo/curriculum/core#"))
                 FILTER(?p NOT IN (cur:contributesTo, cur:variantOf))
                 FILTER NOT EXISTS {
-                    ?al a cur:Alignment ; cur:source $this ; cur:target ?o ; cur:relation ?rel .
-                    { ?al cur:reviewStatus cv:rev_confirmed } UNION { ?al cur:origin cv:orig_official }
+                    ?al cur:source $this ; cur:target ?o ; cur:relation ?rel .
+                    FILTER EXISTS { ?al a cur:Alignment }
+                    FILTER(EXISTS { ?al cur:reviewStatus cv:rev_confirmed } || EXISTS { ?al cur:origin cv:orig_official })
                 }
             }""" ] .
