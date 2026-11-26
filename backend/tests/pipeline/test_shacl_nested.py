@@ -12,7 +12,7 @@ from rdflib import RDF, BNode, Graph, URIRef
 from app.domain.l2 import HeldValues
 from app.exports.kern_rdf import CUR, kern_graph
 from app.pipeline.shacl import as_findings
-from app.pipeline.shacl_child import ShaclResult, validate_graph
+from app.pipeline.shacl_child import ShaclResult, _holder, validate_graph
 from tests.exports.test_kern_scope import a_context, with_applicability
 from tests.exports.test_kern_values import CV, held, level, span, uri, with_values
 from tests.pipeline.test_shacl import ONTOLOGY, a_document
@@ -198,3 +198,22 @@ def test_a_sound_document_with_what_x1_read_contexts_and_values_stays_sound() ->
 
     assert violations(kern_graph(rows)) == set()  # what X1 read, a blank node: no editors' context
     assert violations(kern_graph(valued)) == set()
+
+
+def test_of_holders_as_near_the_first_by_name_holds_by_its_first_property_by_name() -> None:
+    focus, data = BNode(), Graph()
+    holders = [URIRef(f"urn:uuid:00000000-0000-0000-0000-00000000000{at}") for at in range(1, 7)]
+    for holder in reversed(holders):
+        data.add((holder, CUR.timeSpan, focus))
+    data.add((holders[0], CUR.applicability, focus))
+    data.add((BNode(), CUR.levelAssignment, focus))  # as near, but no row
+
+    assert _holder(data, focus) == (str(holders[0]), "cur:applicability")
+
+
+def test_a_cycle_of_blank_nodes_ends_at_the_focus_itself() -> None:
+    focus, other, data = BNode(), BNode(), Graph()
+    data.add((focus, CUR.timeSpan, other))
+    data.add((other, CUR.timeSpan, focus))
+
+    assert _holder(data, focus) == (f"_:{focus}", None)
