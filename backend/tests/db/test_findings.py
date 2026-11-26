@@ -7,6 +7,7 @@ from typing import Any
 
 import psycopg
 import pytest
+from psycopg.types.json import Jsonb
 
 from app.db.findings import (
     MOST_MESSAGE_SIGNS,
@@ -20,6 +21,7 @@ from app.db.findings import (
 from app.db.migrate import migrate
 from app.db.runs import RunStart, start_run
 from tests.db.l1 import add_conversion, add_document, add_node, add_run, add_statement, seed_vocabulary
+from tests.db.test_l1_anchors import add_frame_part
 
 pytestmark = [pytest.mark.pg, pytest.mark.anyio]
 
@@ -167,6 +169,20 @@ async def test_a_finding_s_label_is_cut_to_what_a_list_shows(
 
     assert row.focus_label == ("Licht " * 60)[:159] + "…"  # cut, and said to be
     assert len(row.focus_label) == 160
+
+
+async def test_a_finding_on_a_rule_is_labelled_with_its_wording(
+    connection: psycopg.AsyncConnection, made: dict[str, Any], database_url: str
+) -> None:
+    *_, x5 = a_tree(database_url, made)
+    with psycopg.connect(database_url, autocommit=True) as setup:
+        rule = add_frame_part(setup, made, part_kind="rules", content=Jsonb({"verbatim": "Zwei aus vier."}))
+    found = Finding("shacl.SelectionRuleShape", "violation", rule, "Auswahlregel braucht zwei Optionen.")
+    await add_findings(connection, made["document"], x5, [found])
+
+    [row] = (await findings_of(connection, made["document"])).rows
+
+    assert (row.focus_kind, row.focus_label) == ("frame_part", "Zwei aus vier.")
 
 
 async def test_a_finding_s_message_says_its_language_where_the_stage_knew_it(

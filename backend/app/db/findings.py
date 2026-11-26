@@ -59,7 +59,9 @@ LEFT JOIN statement s ON s.id = coalesce(h.id, f.focus_id)
 LEFT JOIN node n ON n.id = coalesce(h.id, f.focus_id)
 LEFT JOIN specification sp ON sp.id = coalesce(h.id, f.focus_id)
 LEFT JOIN document d ON d.id = f.focus_id
-CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, d.title) AS label) AS l
+LEFT JOIN frame_part fp ON fp.id = coalesce(h.id, f.focus_id) AND fp.part_kind = 'rules'  -- a rule's wording
+CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, d.title,
+    fp.content ->> 'verbatim') AS label) AS l
 WHERE f.document_id = %(document)s
 ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule, f.created_at, f.id
 LIMIT %(most)s
