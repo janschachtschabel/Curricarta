@@ -17,7 +17,8 @@ import pytest
 from psycopg import sql
 
 from app.db.anchors import new_entity
-from app.db.draft_copy import _DOCUMENT, _ROWS, CopyRefused, copy_document
+from app.db.draft_copy import _DOCUMENT, CopyRefused, copy_document
+from app.db.draft_copy_rows import ROWS
 from app.db.editing import add_node, drop_node, edit_node, extracted
 from app.db.freezing import freeze
 from app.db.runs import x5_owed
@@ -521,7 +522,7 @@ async def test_the_copy_takes_every_column_and_table_but_those_it_leaves_by_desi
 ) -> None:
     # a column or a table a later migration adds is copied, or named here with the reason it is not
     copied = {}
-    for query in (_DOCUMENT, *_ROWS):
+    for query in (_DOCUMENT, *ROWS):
         found = INSERT.search(query)
         assert found is not None
         copied[found.group(1)] = {column.strip() for column in found.group(2).split(",")}
