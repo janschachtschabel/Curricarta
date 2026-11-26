@@ -8,8 +8,8 @@ its own: specifications and their variants, frame parts, nodes (``applies_to`` a
 followed), statements, addressees, anchors (their owner followed) and their blocks, the profile, the values
 - workloads, time spans, levels, applicability contexts - at their holders (followed as an anchor's owner),
 the links of rules (their rule and target followed),
-the assessments with what they assess (plan M3a J). IRIs,
-origins, review statuses, revisions, positions and found anchors are taken along as they are; no run is
+the assessments with what they assess (plan M3a J), the placements of nodes with what they name (plan M3a K).
+IRIs, origins, review statuses, revisions, positions and found anchors are taken along as they are; no run is
 (``run_id`` none: the runs and their findings are the frozen revision's), so X5 owes the copy a check.
 Of the latest revision of an IRI alone (``not_latest``), not of a draft (``not_frozen``), and one draft at
 most is open under an IRI (``draft_open``, also the database's index). The copy's rows are written now, so

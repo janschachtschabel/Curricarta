@@ -66,6 +66,7 @@ GRAPH_DIGESTS = {
     4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
     5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
     6: "35cec87d049670dbbf7df1e650ed49256f9129a339f0919bcf72a1bee5306ec9",  # assessments (plan M3a J)
+    7: "d75fa1977cce5bbf618a1dd7bcde84e6c21f27fdbd084b48120123acf128a472",  # placements (plan M3a K)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {
@@ -75,6 +76,7 @@ EXPORT_DIGESTS = {
     "kern-ttl/4": "89c8fb757df5f3c45dcd26bc6e095ba51904fe10152a00ec26e9c7e1a94332d1",  # contexts
     "kern-ttl/5": "6e4da7a2e72c3b406d16824ededcdf2079d9ab7c954a2558b35b17d419efee04",  # rules named by IRI
     "kern-ttl/6": "b4f86ca5b266acd78b682f4ff63ff58cd5a34c90d6b72695878a6f38c6b7ab18",  # assessments by IRI
+    "kern-ttl/7": "a81ac0f3f1d452ac61738f42886cef14f4d111771969c0273c330314fc2a2dce",  # placements by IRI
 }
 _VERSIONS = frozenset({"KERN_GRAPH_VERSION", "KERN_EXPORT"})
 

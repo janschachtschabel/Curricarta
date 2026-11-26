@@ -27,8 +27,9 @@ _ADD = """
 """
 # The row a finding is about by its entity's kind, named by its wording or title - cut, and said to be
 # -; a value's holder (plan M3a F2), a period's its workload's, an applicability context's and its values'
-# the context's specification (plan M3a H1), by which the value is named; the stage of its run; the counts
-# of all the document's findings beside each, so that one statement reads both in one snapshot
+# the context's specification (plan M3a H1), by which the value is named - a placement's (plan M3a K) by the
+# node it places; the stage of its run; the counts of all the document's findings beside each, so that one
+# statement reads both in one snapshot
 _ROWS = """
 SELECT f.rule, f.severity, replace(r.stage_iri, %(stages)s, ''), e.kind, f.focus_id,
     CASE WHEN length(l.label) > %(label)s THEN left(l.label, %(label)s - 1) || '…' ELSE l.label END,
@@ -52,30 +53,38 @@ CROSS JOIN LATERAL (SELECT
         WHEN coalesce(la.specification_id, ts.specification_id, w.specification_id, ac.specification_id)
             IS NOT NULL THEN 'specification'
         WHEN la.frame_part_id IS NOT NULL THEN 'frame_part'
-        WHEN la.assessment_id IS NOT NULL THEN 'assessment' END AS kind,
+        WHEN la.assessment_id IS NOT NULL THEN 'assessment'
+        WHEN coalesce(ts.placement_id, w.placement_id) IS NOT NULL THEN 'placement' END AS kind,
     coalesce(la.node_id, ts.node_id, w.node_id, la.statement_id, la.specification_id, ts.specification_id,
-        w.specification_id, ac.specification_id, la.frame_part_id, la.assessment_id) AS id
+        w.specification_id, ac.specification_id, la.frame_part_id, la.assessment_id, ts.placement_id,
+        w.placement_id) AS id
 ) AS h
 LEFT JOIN statement s ON s.id = coalesce(h.id, f.focus_id)
 LEFT JOIN node n ON n.id = coalesce(h.id, f.focus_id)
 LEFT JOIN specification sp ON sp.id = coalesce(h.id, f.focus_id)
 LEFT JOIN assessment asm ON asm.id = coalesce(h.id, f.focus_id)  -- an assessment by its name (plan M3a J)
+-- a placement by the node it places (plan M3a K)
+LEFT JOIN placement pl ON pl.id = coalesce(h.id, f.focus_id) LEFT JOIN node pn ON pn.id = pl.node_id
 LEFT JOIN document d ON d.id = f.focus_id
 LEFT JOIN frame_part fp ON fp.id = coalesce(h.id, f.focus_id) AND fp.part_kind = 'rules'  -- a rule's wording
-CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, asm.label, d.title,
-    fp.content ->> 'verbatim') AS label) AS l
+CROSS JOIN LATERAL (SELECT coalesce(s.verbatim, n.original_title, n.code, sp.title, asm.label,
+    pn.original_title, pn.code, d.title, fp.content ->> 'verbatim') AS label) AS l
 WHERE f.document_id = %(document)s
 ORDER BY array_position(%(severities)s::text[], f.severity), r.stage_iri, f.rule, f.created_at, f.id
 LIMIT %(most)s
 """
 _DROP_RULE = "DELETE FROM validation_finding WHERE document_id = %s AND rule = %s"
 # the findings on the values of nodes and statements about to go: a workload's periods' too, and the
-# assessments of the nodes with their parts, the levels and anchors at them (plan M3a J)
+# assessments of the nodes with their parts, the levels and anchors at them (plan M3a J), the placements of
+# the nodes and those placed at them with their time spans and workloads (plan M3a K)
 _DROP_VALUES = """
 WITH RECURSIVE held (id) AS (
     SELECT id FROM assessment WHERE document_id = %(document)s AND node_id = ANY(%(nodes)s)
     UNION ALL SELECT a.id FROM assessment a JOIN held h
         ON a.document_id = %(document)s AND a.parent_assessment_id = h.id
+), placed (id) AS (
+    SELECT id FROM placement WHERE document_id = %(document)s
+        AND (node_id = ANY(%(nodes)s) OR in_node_id = ANY(%(nodes)s))
 )
 DELETE FROM validation_finding WHERE document_id = %(document)s AND focus_id IN (
     SELECT id FROM level_assignment WHERE document_id = %(document)s
@@ -87,6 +96,11 @@ DELETE FROM validation_finding WHERE document_id = %(document)s AND focus_id IN 
     UNION ALL SELECT l.id FROM level_assignment l JOIN held h
         ON l.document_id = %(document)s AND l.assessment_id = h.id
     UNION ALL SELECT a.id FROM anchor a JOIN held h ON a.document_id = %(document)s AND a.assessment_id = h.id
+    UNION ALL SELECT id FROM placed
+    UNION ALL SELECT w.id FROM workload w JOIN placed p
+        ON w.document_id = %(document)s AND w.placement_id = p.id
+    UNION ALL SELECT t.id FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id
+        JOIN placed p ON p.id = coalesce(t.placement_id, w.placement_id) WHERE t.document_id = %(document)s
 )
 """
 # a finding of ``rule`` that names the package: among its details.units (X4's), or as details.unit
@@ -128,7 +142,7 @@ class FindingRow:
     title, where it has one; ``message_lang`` the message's language where the stage knew it (SHACL's
     German, "de"), else none - English; ``unit`` the work package it names; ``holder_kind`` and ``holder_id``
     the row a value it is about is held by - a node, a statement, a specification, a rule's frame part, an
-    assessment -,
+    assessment, a placement -,
     none for a finding about another row and for a value no longer there."""
 
     rule: str

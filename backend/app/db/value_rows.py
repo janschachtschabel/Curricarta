@@ -33,6 +33,7 @@ COLUMN_OF: Final[dict[HolderKind, LiteralString]] = {
     "statement": "statement_id",
     "specification": "specification_id",
     "assessment": "assessment_id",  # its levels (plan M3a J)
+    "placement": "placement_id",  # its time spans and workloads (plan M3a K)
 }
 TABLES: Final[tuple[LiteralString, ...]] = (
     "level_assignment",
@@ -66,8 +67,8 @@ HOLDERS_OF: Final[dict[str, tuple[LiteralString, ...]]] = {
         "node_id", "statement_id", "specification_id", "frame_part_id", "applicability_context_id",
         "assessment_id",
     ),
-    "time_span": ("node_id", "specification_id", "workload_id", "applicability_context_id"),
-    "workload": ("node_id", "specification_id"),
+    "time_span": ("node_id", "specification_id", "workload_id", "applicability_context_id", "placement_id"),
+    "workload": ("node_id", "specification_id", "placement_id"),
     "applicability_context": ("specification_id",),
 }  # fmt: skip
 # the rows that hold values of their own beside their holder's, by the column those name them by

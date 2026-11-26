@@ -129,6 +129,7 @@ VALUE_SHAPES: dict[ValueKind, tuple[str, str, str]] = {
 HOLDER_SHAPES: dict[HolderKind, str] = {
     "node": "CurriculumNodeShape", "statement": "StatementShape", "specification": "SpecificationShape",
     "assessment": "AssessmentShape",  # plan M3a J: its levels
+    "placement": "PlacementShape",  # plan M3a K: its time spans and workloads
 }  # fmt: skip
 
 
@@ -168,8 +169,8 @@ def test_a_holder_is_offered_only_what_the_shapes_let_it_hold() -> None:
             assert COLUMN_OF[holder] in HOLDERS_OF[TABLE_OF[kind]], (kind, holder)
     assert VALUE_HOLDERS == {
         "level_assignments": ("node", "statement", "specification", "assessment"),
-        "time_spans": ("node", "specification"),
-        "workloads": ("node", "specification"),
+        "time_spans": ("node", "specification", "placement"),
+        "workloads": ("node", "specification", "placement"),
     }
     keys = [field.key for fields in (*VALUE_FIELDS.values(), CONTEXT_FIELDS) for field in fields]
     assert len(keys) == len(set(keys))  # a field's key names it among every kind's, a context's too

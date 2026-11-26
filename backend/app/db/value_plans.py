@@ -57,6 +57,8 @@ def planned(
     planned: list[Planned] = []
     if holder[0] not in HOLDERS_OF["workload"] and (drafts.time_spans or drafts.workloads):
         raise ValueRefused("not_held")
+    if holder[0] not in HOLDERS_OF["level_assignment"] and drafts.levels:  # a placement's
+        raise ValueRefused("not_held")
     if holder[0] not in HOLDERS_OF["applicability_context"] and drafts.contexts:
         raise ValueRefused("not_held")
 

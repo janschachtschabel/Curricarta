@@ -12,6 +12,7 @@ from uuid import UUID
 import psycopg
 from psycopg.rows import dict_row
 
+from app.db.counted_names import name_by_counter
 from app.db.value_rows import values_of
 from app.domain.assessments import AssessmentRow, ParentKind, Target
 from app.domain.l2 import Holder, Stated, Values
@@ -51,29 +52,7 @@ async def name_assessments(connection: psycopg.AsyncConnection, document_id: UUI
     ``<iri>/assessment-<n>``, in the order they were made -, counting on from the document's counter
     (document.serials), which a draft copy takes along: no number is given twice. How many were named.
     Within the freeze, under the tree's lock, before the document is frozen (app/db/freezing.py)."""
-    cursor = await connection.execute(
-        "SELECT id FROM assessment WHERE document_id = %s AND iri IS NULL ORDER BY created_at, id",
-        (document_id,),
-    )
-    unnamed = [row for (row,) in await cursor.fetchall()]
-    if not unnamed:
-        return 0
-    cursor = await connection.execute(
-        "SELECT coalesce((serials ->> 'assessment')::integer, 0) FROM document WHERE id = %s", (document_id,)
-    )
-    found = await cursor.fetchone()
-    given = 0 if found is None else int(found[0])
-    async with connection.cursor() as writing:
-        await writing.executemany(
-            "UPDATE assessment SET iri = %s WHERE id = %s",
-            [(f"{iri}/assessment-{given + place}", row) for place, row in enumerate(unnamed, start=1)],
-        )
-    await connection.execute(
-        "UPDATE document SET serials = serials || jsonb_build_object('assessment', %s::integer)"
-        " WHERE id = %s",
-        (given + len(unnamed), document_id),
-    )
-    return len(unnamed)
+    return await name_by_counter(connection, "assessment", document_id, iri)
 
 
 async def _read(

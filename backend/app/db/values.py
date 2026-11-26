@@ -14,7 +14,7 @@ edited, which owes X5 a check; one that changes nothing leaves all as it was. Wh
 value - a concept of another vocabulary, no level, numbers out of order - refuses the set (ValueRefused,
 ``check`` the constraint's name; none for a number beyond its column's type); a statement holds levels
 alone, and a time span or workload set at one is refused as ``not_held``, as is a context set at any holder
-but a specification.
+but a specification; a placement holds time spans and workloads alone (plan M3a K), a level set at one so too.
 """
 
 from collections.abc import Sequence
@@ -38,6 +38,7 @@ from app.db.editing import (
     mark_edited,
     target_of,
 )
+from app.db.placements import DOCUMENT_OF_PLACEMENT
 from app.db.source_queries import Reader
 from app.db.statement_editing import DOCUMENT_OF_STATEMENT
 from app.db.value_plans import Planned, Standing, UnknownValue, planned
@@ -56,6 +57,7 @@ _DOCUMENT_OF: Final[dict[HolderKind, str]] = {
     "statement": DOCUMENT_OF_STATEMENT,
     "specification": DOCUMENT_OF_SPECIFICATION,
     "assessment": DOCUMENT_OF_ASSESSMENT,
+    "placement": DOCUMENT_OF_PLACEMENT,
 }
 _POSITIONS: Final = (
     "SET CONSTRAINTS level_assignment_position, time_span_position, workload_position,"

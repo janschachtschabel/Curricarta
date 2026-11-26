@@ -29,7 +29,7 @@ from app.exports.kern_rows import KernRows, Row
 
 # the version of what the build writes beside the graph (KERN_GRAPH_VERSION): another makes the kept exports
 # unused; tests/exports/test_kern_versions.py pins it to the source
-KERN_EXPORT = "kern-ttl/6"
+KERN_EXPORT = "kern-ttl/7"
 ANSWER = "kern.ttl"
 _LIBRARIES = ("rdflib",)
 

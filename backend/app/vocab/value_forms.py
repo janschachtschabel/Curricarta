@@ -69,8 +69,8 @@ VALUE_FIELDS: Mapping[ValueKind, tuple[FormField, ...]] = {
 }
 VALUE_HOLDERS: Mapping[ValueKind, tuple[HolderKind, ...]] = {
     "level_assignments": ("node", "statement", "specification", "assessment"),
-    "time_spans": ("node", "specification"),
-    "workloads": ("node", "specification"),
+    "time_spans": ("node", "specification", "placement"),  # a placement's in its place (plan M3a K)
+    "workloads": ("node", "specification", "placement"),
 }
 # An applicability context's own fields (cur:ApplicabilityContext), the kinds of value it holds, and the
 # holders it is set at: a specification alone, with its values (PUT /specifications/{id}/values)
@@ -83,7 +83,7 @@ CONTEXT_FIELDS: tuple[FormField, ...] = (
 CONTEXT_VALUES: tuple[ValueKind, ...] = ("level_assignments", "time_spans")
 CONTEXT_HOLDERS: tuple[HolderKind, ...] = ("specification",)
 # a level rule's holder: a holder of a set, or an applicability context within a specification's
-RuleHolder = Literal["node", "statement", "specification", "applicability_context", "assessment"]
+RuleHolder = Literal["node", "statement", "specification", "applicability_context", "assessment", "placement"]
 # a specification's type as the core names its class, by X1's kind: what a level rule's ``unless`` names
 SPECIFICATION_TYPES: Mapping[str, str] = {
     kind: CUR + kind[:1].upper() + kind[1:] for kind in get_args(SpecificationKind)

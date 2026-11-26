@@ -1,8 +1,9 @@
 """A document's structure read back as a tree (plan M1 4.6, 9.2), by those who see its document
 (app/db/documents.py): its nodes from its top, each with its statements and children in their
 order, all in one snapshot - as the editor shows it, each node and statement with the fields of its
-form and its anchors and values (app/db/value_rows.py), each node with the findings on it, its
-statements and the values of both counted. Written by app/db/nodes.py."""
+form and its anchors and values (app/db/value_rows.py), each node with its placements and their values
+(app/db/placement_rows.py, plan M3a K) and the findings on it, its statements, its placements and the values
+of all counted. Written by app/db/nodes.py."""
 
 from collections import defaultdict
 from collections.abc import Iterator, Mapping, Sequence
@@ -15,10 +16,12 @@ from psycopg.rows import dict_row
 
 from app.db.documents import DOCUMENT_VISIBLE
 from app.db.findings import SEVERITIES
+from app.db.placement_rows import placements_of
 from app.db.source_queries import Reader
 from app.db.value_rows import values_of
 from app.domain.l1 import REVIEW_STATUSES, WORDING_FIELDS, Severity
 from app.domain.l2 import HeldValues, Holder
+from app.domain.placements import PlacementRow
 
 # each query of a tree asks who sees its document, all within one snapshot (read_tree)
 _VISIBLE = f"SELECT 1 FROM document d WHERE d.id = %(id)s AND {DOCUMENT_VISIBLE}"  # noqa: S608 - fixed parts
@@ -51,7 +54,7 @@ WHERE a.document_id = %(id)s AND (a.node_id IS NOT NULL OR a.statement_id IS NOT
 ORDER BY a.id
 """  # noqa: S608 - fixed parts
 # the findings on a node, its statements, the anchors and the values of both - a workload's periods too
-# (plan M3a F2) -, by node and severity
+# (plan M3a F2) -, its placements and their values (plan M3a K), by node and severity
 _FINDINGS = f"""
 WITH owner (focus_id, node_id) AS (
     SELECT id, id FROM node WHERE document_id = %(id)s
@@ -66,6 +69,11 @@ WITH owner (focus_id, node_id) AS (
     UNION ALL SELECT t.id, coalesce(t.node_id, w.node_id) FROM time_span t
         LEFT JOIN workload w ON w.id = t.workload_id
         WHERE t.document_id = %(id)s AND coalesce(t.node_id, w.node_id) IS NOT NULL
+    UNION ALL SELECT id, node_id FROM placement WHERE document_id = %(id)s
+    UNION ALL SELECT w.id, p.node_id FROM workload w JOIN placement p ON p.id = w.placement_id
+        WHERE w.document_id = %(id)s
+    UNION ALL SELECT t.id, p.node_id FROM time_span t LEFT JOIN workload w ON w.id = t.workload_id
+        JOIN placement p ON p.id = coalesce(t.placement_id, w.placement_id) WHERE t.document_id = %(id)s
 )
 SELECT o.node_id, f.severity, count(*)
 FROM validation_finding f JOIN owner o ON o.focus_id = f.focus_id JOIN document d ON d.id = f.document_id
@@ -126,7 +134,8 @@ class TreeNode:
     iri: str | None  # once its document was frozen
     anchors: tuple[TreeAnchor, ...]
     values: HeldValues  # its levels, time spans and workloads
-    # on the node, its anchors, its statements and their anchors - not its children's
+    placements: tuple[PlacementRow, ...]  # in their order (plan M3a K)
+    # on the node, its anchors, its statements and their anchors, its placements - not its children's
     findings: dict[Severity, int]
     statements: tuple[TreeStatement, ...]
     children: tuple["TreeNode", ...]
@@ -182,6 +191,9 @@ async def _read_tree(
     for node_id, severity, count in await cursor.fetchall():
         found[node_id][severity] = count
     held = await values_of(connection, document_id)
+    placed: defaultdict[UUID, list[PlacementRow]] = defaultdict(list)
+    for placement in await placements_of(connection, document_id, values=held):
+        placed[placement.node_id].append(placement)
     anchored: defaultdict[UUID, list[TreeAnchor]] = defaultdict(list)  # by the node or statement
     for row in anchors:
         node_id, statement_id = row.pop("node_id"), row.pop("statement_id")
@@ -208,6 +220,7 @@ async def _read_tree(
             **fields,
             anchors=tuple(anchored[row["id"]]),
             values=held.get(Holder("node", row["id"]), HeldValues()),
+            placements=tuple(placed[row["id"]]),
             findings=found[row["id"]],
             statements=tuple(said[row["id"]]),
             children=tuple(built(child) for child in under[row["id"]]),

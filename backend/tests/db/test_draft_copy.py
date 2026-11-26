@@ -43,6 +43,7 @@ LEFT_OUT = {
     "workload": {"kind"}, "time_span": {"kind"}, "level_assignment": {"kind"},
     "applicability_context": {"kind"}, "rule_link": set(),
     "assessment": {"kind"}, "assessment_target": set(),
+    "placement": {"kind"},
 }  # fmt: skip
 # The tables naming a document or a row the copy takes whose own rows it does not take: the runs, their
 # units and findings; the gold standard's samples, drawn of the revision they name

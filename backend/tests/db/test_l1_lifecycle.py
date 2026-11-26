@@ -43,6 +43,7 @@ TABLES = (
     "applicability_context",
     "assessment",
     "assessment_target",
+    "placement",
 )
 
 
@@ -110,6 +111,8 @@ def fill(connection: psycopg.Connection, made: dict[str, Any]) -> dict[str, uuid
         " VALUES (%s, %s, %s, 1)",
         (document, exam, statement),
     )
+    placed = add_value(connection, "placement", document, "node_id", node, specification_id=specification)
+    add_value(connection, "workload", document, "placement_id", placed)
     return {"run": run, "node": node, "statement": statement}
 
 

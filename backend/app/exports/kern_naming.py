@@ -4,7 +4,7 @@ namings.
 A draft names every row ``urn:uuid:<id>`` - the draft IRI a document has until it is frozen (plan M1,
 IRIs) - so a SHACL focus of X5 is the id of the row it is about. A frozen document is named by the IRIs
 freezing stored: its work, the document, its specifications and their variants, its nodes, statements and
-rules, its assessments (plan M3a J);
+rules, its assessments (plan M3a J) and placements (plan M3a K);
 a row of these without its IRI refuses the naming (ValueError), as no urn:uuid leaves the service in an
 export, and so do the rows of a document not frozen - a draft copy's carry the IRIs of the revision it
 copies, but no time it was frozen. Anchors, the file and the second layer's values (levels, time spans,
@@ -21,10 +21,10 @@ from app.exports.kern_rows import Row
 
 RowKind = Literal[
     "work", "document", "specification", "variant", "node", "statement", "anchor", "file", "level_assignment",
-    "time_span", "workload", "applicability_context", "rule", "assessment",
+    "time_span", "workload", "applicability_context", "rule", "assessment", "placement",
 ]  # fmt: skip
 _NAMED_BY_IRI: frozenset[RowKind] = frozenset(
-    {"work", "document", "specification", "variant", "node", "statement", "rule", "assessment"}
+    {"work", "document", "specification", "variant", "node", "statement", "rule", "assessment", "placement"}
 )
 
 
