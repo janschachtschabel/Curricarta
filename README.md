@@ -440,7 +440,9 @@ ungültig.
   gemacht – bleiben. `PUT /api/v1/specifications/{id}/values` setzt Niveau, Zeitraum, Umfang und die
   Geltungskontexte (`contexts`, je höchstens 20, ein Kontext mit `id` bleibt, ein ausgelassener geht mit
   seinen Werten) als Ganzes auf der Revision der Spezifikation; ein Fehler nennt den Pfad im Satz
-  (`contexts[0].sector`, `contexts[0].level_assignments[1].level`). Abgewiesen wie die Werte, 404
+  (`contexts[0].sector`, `contexts[0].level_assignments[1].level`). Weist die Datenbank einen Wert in einem
+  Kontext ab (`refused`), nennt der Fehler den Kontext: `contexts[0].level_assignments`,
+  `contexts[0].time_spans` oder `contexts[0]` – die Art ohne die Stelle des Werts. Abgewiesen wie die Werte, 404
   `no_specification`; Audit `specification.edit` mit den Feldnamen, `specification.values` mit den Anzahlen
   (`contexts`), ohne Inhalte. Der Kern-Graph nennt jeden Kontext an seiner Spezifikation
   (`cur:applicability`); eine Spezifikation ohne Kontexte nennt, was X1 las (Bereich, Formalität, Zeit und
