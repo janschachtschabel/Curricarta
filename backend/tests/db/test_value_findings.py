@@ -11,8 +11,8 @@ from uuid import UUID
 import psycopg
 import pytest
 
-from app.db.editing import drop_node
 from app.db.findings import findings_of
+from app.db.node_drop import drop_node
 from app.db.nodes import drop_statements, write_subtree
 from app.db.statement_editing import HandAnchor, add_statement, drop_or_reject_statement
 from app.db.tree import read_tree

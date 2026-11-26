@@ -12,7 +12,8 @@ import psycopg
 import pytest
 
 from app.db.anchors import new_entity
-from app.db.editing import StaleRevision, drop_node
+from app.db.editing import StaleRevision
+from app.db.node_drop import drop_node
 from app.db.placement_rows import placements_of
 from app.db.placements import replace_placements
 from app.db.source_queries import Reader

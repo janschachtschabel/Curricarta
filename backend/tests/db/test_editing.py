@@ -15,16 +15,15 @@ import pytest
 from app.db.documents import create_document
 from app.db.editing import (
     DocumentFrozen,
-    Dropped,
     JobOpen,
     NotExtracted,
     StaleRevision,
     add_node,
-    drop_node,
     edit_node,
     guard,
 )
 from app.db.editing import extracted as is_extracted
+from app.db.node_drop import Dropped, drop_node
 from app.db.nodes import lock_tree, write_subtree
 from app.db.runs import RunStart, finish_run, start_run
 from app.db.source_queries import Reader

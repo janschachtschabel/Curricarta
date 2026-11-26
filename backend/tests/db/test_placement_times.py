@@ -10,8 +10,9 @@ import psycopg
 import pytest
 
 from app.db.draft_copy import copy_document
-from app.db.editing import DocumentFrozen, StaleRevision, drop_node
+from app.db.editing import DocumentFrozen, StaleRevision
 from app.db.freezing import freeze
+from app.db.node_drop import drop_node
 from app.db.placement_rows import placements_of
 from app.db.placements import replace_placements
 from app.db.values import replace_values

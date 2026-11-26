@@ -1,4 +1,4 @@
-"""A node dropped (app/db/editing.py, ``drop_node``) gathers its subtree within its own document, by an index
+"""A node dropped (app/db/node_drop.py) gathers its subtree within its own document, by an index
 (audit 2026-11-14): the recursion over the children and the anchors of nodes and statements each name the
 document, so no row of another document is read - and on a server of many documents none is scanned."""
 
@@ -9,7 +9,7 @@ import psycopg
 import pytest
 
 from app.db.documents import create_document
-from app.db.editing import _SUBTREE, Dropped, drop_node
+from app.db.node_drop import _SUBTREE, Dropped, drop_node
 from app.db.nodes import write_subtree
 from app.db.source_queries import Reader
 from tests.db.l1 import add_conversion

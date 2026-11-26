@@ -18,7 +18,8 @@ from app.api.document_tree import NodeRowOut, node_as_read
 from app.api.edit_answers import HIDDEN, REFUSED, TAKE_RESPONSES, Fields, answers, audit, refusal_of, stale
 from app.api.errors import AUTH_RESPONSES, Refusal
 from app.core.auth import Principal
-from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, add_node, drop_node, edit_node, target_of
+from app.db.editing import DOCUMENT_OF_NODE, StaleRevision, add_node, edit_node, target_of
+from app.db.node_drop import drop_node
 
 router = APIRouter(prefix="/api/v1", tags=["documents"], responses=AUTH_RESPONSES)
 Account = Annotated[Principal, Depends(require_account)]

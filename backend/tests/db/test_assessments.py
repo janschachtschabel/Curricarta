@@ -17,9 +17,10 @@ from app.db.assessment_choices import choices_of
 from app.db.assessment_rows import assessments_of
 from app.db.assessments import add_assessment, drop_assessment, edit_assessment
 from app.db.draft_copy import copy_document
-from app.db.editing import DocumentFrozen, StaleRevision, drop_node
+from app.db.editing import DocumentFrozen, StaleRevision
 from app.db.findings import findings_of
 from app.db.freezing import freeze
+from app.db.node_drop import drop_node
 from app.db.runs import x5_owed
 from app.db.source_queries import Reader
 from app.db.values import replace_values, values_of

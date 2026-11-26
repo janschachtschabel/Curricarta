@@ -19,8 +19,9 @@ from psycopg import sql
 from app.db.anchors import new_entity
 from app.db.draft_copy import _DOCUMENT, CopyRefused, copy_document
 from app.db.draft_copy_rows import ROWS
-from app.db.editing import add_node, drop_node, edit_node, extracted
+from app.db.editing import add_node, edit_node, extracted
 from app.db.freezing import freeze
+from app.db.node_drop import drop_node
 from app.db.runs import x5_owed
 from app.db.statement_editing import HandAnchor, add_statement
 from tests.db.test_editing import document, one

@@ -1,7 +1,7 @@
 """An editor's changes to a document's first layer (plan M1 9.3, 9.4; Paket 9 G2-G7): a node's fields set,
-a node added after its siblings, a node dropped with its subtree - here; a statement's in
-app/db/statement_editing.py. Fields go by the keys of the editor's form and are checked against it
-(app/vocab/form_values.py).
+a node added after its siblings - here; a node dropped with its subtree in app/db/node_drop.py; a
+statement's in app/db/statement_editing.py. Fields go by the keys of the editor's form and are checked
+against it (app/vocab/form_values.py).
 
 Every change holds the tree's lock first (``lock_tree``), then refuses a document frozen, one a job
 waits or runs on (its extraction, repair or check) and one whose extraction has not read every package
@@ -27,9 +27,7 @@ from psycopg import sql
 from psycopg.rows import dict_row
 
 from app.db.documents import DOCUMENT_VISIBLE, DocumentError
-from app.db.findings import drop_value_findings
 from app.db.nodes import lock_tree, write_subtree
-from app.db.placement_cascade import count_placed_at
 from app.db.runs import done_stages
 from app.db.source_queries import Reader
 from app.domain.l1 import NodeDraft
@@ -46,7 +44,7 @@ SELECT d.id, sector.notation FROM node n JOIN document d ON d.id = n.document_id
 WHERE n.id = %(id)s AND {DOCUMENT_VISIBLE}
 """  # noqa: S608 - fixed parts
 DOCUMENT = f"SELECT d.id, sector.notation FROM document d {SECTOR} WHERE d.id = %(id)s AND {DOCUMENT_VISIBLE}"  # noqa: S608
-_NODE = """
+NODE = """
 SELECT revision, original_title, function_iri AS function, node_type_iri AS node_type, code,
     obligation_iri AS obligation
 FROM node WHERE id = %s FOR UPDATE
@@ -74,20 +72,6 @@ _UNCHECKED = """
 UPDATE anchor a SET match_kind_scheme = NULL, match_kind_iri = NULL, match_score = NULL, quote = NULL,
     char_start = NULL, char_end = NULL
 WHERE {column} = %s AND EXISTS (SELECT FROM anchor_block ab WHERE ab.anchor_id = a.id)
-"""
-# Each access names the document, so each goes by an index: the children by (document_id, parent_id), the
-# anchors by node and by statement apart - one OR of the two read the whole table (audit 2026-11-14)
-_SUBTREE = """
-WITH RECURSIVE under (id) AS (
-    SELECT id FROM node WHERE id = %(id)s
-    UNION ALL SELECT n.id FROM node n JOIN under u ON n.document_id = %(document)s AND n.parent_id = u.id
-), said AS (
-    SELECT s.id FROM statement s JOIN under u ON s.document_id = %(document)s AND s.node_id = u.id
-)
-SELECT array(SELECT id FROM under), array(SELECT id FROM said),
-    array(SELECT a.id FROM anchor a JOIN under u ON a.document_id = %(document)s AND a.node_id = u.id
-          UNION
-          SELECT a.id FROM anchor a JOIN said s ON a.document_id = %(document)s AND a.statement_id = s.id)
 """
 
 
@@ -123,12 +107,6 @@ class Target:
     sector: str
 
 
-@dataclass(frozen=True)
-class Dropped:
-    nodes: int  # the node and its subtree's
-    statements: int
-
-
 async def edit_node(
     connection: psycopg.AsyncConnection,
     reader: Reader,
@@ -146,7 +124,7 @@ async def edit_node(
         form = await form_for(connection, target.sector)
         values = checked(NODE_FIELDS, form, given)
         await guard(connection, target.document_id)
-        row = await row_of(connection, _NODE, node_id)
+        row = await row_of(connection, NODE, node_id)
         if row is None:  # dropped meanwhile
             return None
         current = check_revision(row, revision)
@@ -200,35 +178,6 @@ async def add_node(
         made = await write_subtree(connection, document_id, draft, parent_id=parent_id)
         await mark_edited(connection, document_id)
         return made
-
-
-async def drop_node(
-    connection: psycopg.AsyncConnection, reader: Reader, node_id: UUID, revision: int
-) -> Dropped | None:
-    """Take the node away with its subtree - its children, statements and the anchors of all, the placements
-    of other nodes at them, whose nodes count their revisions one up (app/db/placement_cascade.py) - and the
-    findings on them; what went. None where ``reader`` sees no such node. StaleRevision or a refusal of
-    ``guard``, and then nothing goes."""
-    async with connection.transaction():
-        target = await target_of(connection, DOCUMENT_OF_NODE, reader, node_id)
-        if target is None:
-            return None
-        await guard(connection, target.document_id)
-        row = await row_of(connection, _NODE, node_id)
-        if row is None:
-            return None
-        check_revision(row, revision)
-        cursor = await connection.execute(_SUBTREE, {"id": node_id, "document": target.document_id})
-        found = await cursor.fetchone()
-        assert found is not None  # noqa: S101 - arrays of a node that stands
-        nodes, statements, anchors = found
-        await drop_findings(connection, target.document_id, [*nodes, *statements, *anchors])
-        await drop_value_findings(connection, target.document_id, nodes=nodes, statements=statements)
-        # the placements of other nodes at one of these go with them (plan M3a K): those nodes count on
-        await count_placed_at(connection, target.document_id, nodes)
-        await connection.execute("DELETE FROM node WHERE id = %s", (node_id,))
-        await mark_edited(connection, target.document_id)
-        return Dropped(nodes=len(nodes), statements=len(statements))
 
 
 async def target_of(
