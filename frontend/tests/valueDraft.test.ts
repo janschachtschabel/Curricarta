@@ -155,7 +155,7 @@ describe("a holder's values as a draft", () => {
           is_recommendation: true,
           minutes_per_unit: null,
           total: false,
-          // kept as they are: the form does not edit them
+          // its periods with it, kept by their ids
           periods: [{ id: "p1", time_kind: CV + "time_gradeLevel", span_from: 7, span_to: null, time_relation: null }],
         },
       ],
@@ -170,7 +170,7 @@ describe("a problem's field in a set", () => {
 
     expect(entryField(FORM, set, "workloads[0].unit")).toBe(`${key}:unit`);
     expect(entryField(FORM, set, "workloads[1].unit")).toBeNull();
-    expect(entryField(FORM, set, "workloads[0].periods[0].time_kind")).toBeNull();
+    expect(entryField(FORM, set, "workloads[0].periods[0].time_kind")).toBe(`${set.workloads[0]?.inner?.time_spans[0]?.key}:time_kind`);
     expect(entryField(FORM, set, "workloads[0].id")).toBeNull();
   });
 });

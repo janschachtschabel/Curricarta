@@ -42,17 +42,23 @@ function workload(): Entry {
   return entry;
 }
 
-function item(kind: "workloads" | "level_assignments", entry: Entry, more: Record<string, unknown> = {}): VueWrapper {
+function item(
+  kind: "workloads" | "level_assignments",
+  entry: Entry,
+  more: Record<string, unknown> = {},
+  slots: Record<string, string> = {},
+): VueWrapper {
   shown = mount(ValueItemForm, {
     props: { kind, entry, place: 0, form: FORM, holder: "node", holderType: null, prefix: "v", errors: {}, ...more },
+    slots,
     attachTo: document.body,
   });
   return shown;
 }
 
 describe("an entry of a value's form", () => {
-  it("is a group named by its kind and place, each field labelled, its periods said as they stay", async () => {
-    const wrapper = item("workloads", workload());
+  it("is a group named by its kind and place, each field labelled, its periods a group named for it", async () => {
+    const wrapper = item("workloads", workload(), {}, { periods: "<p>Zeitraum 1</p>" });
 
     expect(wrapper.get("fieldset > legend").text()).toBe("Umfang 1");
     expect(wrapper.findAll("label").map((label) => label.text())).toEqual([
@@ -65,9 +71,8 @@ describe("an entry of a value's form", () => {
       "Gesamtumfang",
     ]);
     expect((wrapper.get("#v-amount").element as HTMLInputElement).value).toBe("80");
-    expect(wrapper.get(".value-item__periods").text()).toBe(
-      "Zeiträume dieses Umfangs: Jahrgangsstufe 7–8. Sie bleiben beim Speichern, wie sie sind.",
-    );
+    expect(wrapper.get(".value-item__periods > legend").text()).toBe("Zeiträume von Umfang 1");
+    expect(wrapper.get(".value-item__periods > p").text()).toBe("Zeitraum 1");
     expect(await violations(wrapper.html())).toEqual([]);
   });
 

@@ -125,9 +125,13 @@ const { faults, faultsAt, clear } = useFieldFaults<string>({
   },
 });
 
-/** The field of the problem at `at` (`value-7:unit`) in words, the context it is in or of named first. */
+/** The field of the problem at `at` (`value-7:unit`) in words, the context it is in or of - the workload a period is of - named first. */
 function faultField(at: string): string {
   const [key = "", field = at] = at.split(":");
+  const of = draft.value.workloads.findIndex((one) => !!one.inner && holdsEntry(one.inner, key));
+  if (of >= 0) {
+    return t("documents.tree.values.inContext", { context: t("documents.tree.values.entry.workloads", { place: of + 1 }), field: word(FAULT_WORDS, field) });
+  }
   const place = draft.value.contexts.findIndex((one) => one.key === key || (!!one.inner && holdsEntry(one.inner, key)));
   if (place < 0) return word(FAULT_WORDS, field);
   const context = t("documents.tree.values.entry.contexts", { place: place + 1 });

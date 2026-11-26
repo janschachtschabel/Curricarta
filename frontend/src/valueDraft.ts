@@ -1,25 +1,16 @@
 // A holder's levels, time spans and workloads as their form edits them (plan M3a G; backend app/api/values.py): each
 // value an entry of its kind - kept by its `id`, a new one without -, its fields by the keys of its kind's form, a
 // list's value as an IRI or "", a number as written (valueNumbers.ts), a yes or no as such. A set is sent
-// whole: what it leaves out goes. A workload's periods are kept as they are stored; this form does not edit them.
+// whole: what it leaves out goes. A workload's periods are entries of their own within it (`inner`, of the kind
+// the form names them by: its time spans), edited, checked and sent with it - a problem at one by its path,
+// `workloads[0].periods[1].time_kind`.
 // Compared as the server stores them, a number by its value, so that nothing changed is nothing to save; each kind
 // is one field where a set meets another stored meanwhile (rowConflict.rebase): a kind only the other changed is
 // taken in, a kind both changed put before the user. A specification's applicability contexts (plan M3a H) are
 // one more kind of it: each an entry of its fields, its levels and time spans entries of their own within it, sent
 // with the specification's values and compared, checked and named so - a problem under the context's path,
 // `contexts[0].time_spans[1].time_kind`. What the lists offer: valueOffers.ts.
-import type {
-  ApplicabilityContext,
-  ContextIn,
-  Form,
-  FormField,
-  HeldTimeSpan,
-  HeldValues,
-  HolderKind,
-  TimeSpanIn,
-  ValueKind,
-  ValuesIn,
-} from "@/api";
+import type { ApplicabilityContext, ContextIn, Form, FormField, HeldValues, HolderKind, ValueKind, ValuesIn } from "@/api";
 import { rebase } from "@/rowConflict";
 import { numberOf, problemOf, written } from "@/valueNumbers";
 
@@ -36,9 +27,7 @@ export interface Entry {
   /** The value the holder keeps; none for a new one. */
   id: string | null;
   fields: Record<string, string | boolean>;
-  /** A workload's, as stored. */
-  periods: TimeSpanIn[];
-  /** A context's levels and time spans, as entries of their own. */
+  /** A context's levels and time spans, a workload's periods (`periodsOf`), as entries of their own. */
   inner?: ValuesDraft;
 }
 
@@ -54,6 +43,8 @@ export type HeldSet = HeldValues & { contexts?: readonly ApplicabilityContext[] 
 export type ValueFault = readonly [field: string, problem: string];
 
 const PATH = /^(level_assignments|time_spans|workloads|contexts)\[(\d+)\]\.(\w+)$/;
+// a field of a workload's period
+const PERIOD_PATH = /^workloads\[(\d+)\]\.periods\[(\d+)\]\.(\w+)$/;
 // a context's path: the context alone, one of its fields or kinds, or a path within that kind
 const CONTEXT_PATH = /^contexts\[(\d+)\](?:\.(\w+)(.*))?$/;
 
@@ -65,6 +56,11 @@ function nextKey(): string {
 
 export function fieldsOf(form: Form, kind: DraftKind): FormField[] {
   return kind === "contexts" ? form.context.fields : form.values[kind].fields;
+}
+
+/** The kind a workload's periods are, by the form: its entries stand in the workload's `inner`; none it offers. */
+export function periodsOf(form: Form): ValueKind | null {
+  return form.values.workloads.periods;
 }
 
 function emptyDraft(): ValuesDraft {
@@ -87,15 +83,14 @@ function entryOf(form: Form, kind: DraftKind, stored: Stored, previous: Entry | 
       return [field.key, typeof value === "string" ? value : ""];
     }),
   );
-  const periods = Array.isArray(stored.periods) ? (stored.periods as HeldTimeSpan[]).map(periodOf) : [];
-  const entry: Entry = { key: previous?.key ?? nextKey(), id: stored.id, fields, periods };
+  const entry: Entry = { key: previous?.key ?? nextKey(), id: stored.id, fields };
   if (kind === "contexts") entry.inner = draftOfValues(form, stored as unknown as HeldSet, previous?.inner);
+  const periods = periodsOf(form);
+  if (kind === "workloads" && periods) {
+    const held = { [periods]: Array.isArray(stored.periods) ? stored.periods : [] } as unknown as HeldSet;
+    entry.inner = draftOfValues(form, held, previous?.inner);
+  }
   return entry;
-}
-
-function periodOf(span: HeldTimeSpan): TimeSpanIn {
-  const { id, time_kind, span_from, span_to, time_relation } = span;
-  return { id, time_kind, span_from, span_to, time_relation };
 }
 
 /**
@@ -115,8 +110,8 @@ export function draftOfValues(form: Form, values: HeldSet, previous?: ValuesDraf
 /** An empty entry of the kind `kind`. */
 export function newEntry(form: Form, kind: DraftKind): Entry {
   const fields = Object.fromEntries(fieldsOf(form, kind).map((field) => [field.key, field.kind === "boolean" ? false : ""]));
-  const entry: Entry = { key: nextKey(), id: null, fields, periods: [] };
-  if (kind === "contexts") entry.inner = emptyDraft();
+  const entry: Entry = { key: nextKey(), id: null, fields };
+  if (kind === "contexts" || (kind === "workloads" && periodsOf(form))) entry.inner = emptyDraft();
   return entry;
 }
 
@@ -138,6 +133,12 @@ export function faultsOf(faults: Partial<Record<string, string>>, key: string): 
  * the context's key and `context` or that kind.
  */
 export function entryField(form: Form, set: ValuesDraft, path: string): string | null {
+  const period = PERIOD_PATH.exec(path);
+  const periods = periodsOf(form);
+  if (period && periods) {
+    const inner = set.workloads[Number(period[1])]?.inner;
+    return inner ? entryField(form, inner, `${periods}[${period[2]}].${period[3]}`) : null;
+  }
   const within = CONTEXT_PATH.exec(path);
   if (within) {
     const [, place, key, rest] = within;
@@ -169,7 +170,7 @@ function stored(entry: Entry): unknown {
       return [key, trimmed === "" ? null : (numberOf(trimmed) ?? trimmed)];
     }),
   );
-  return { id: entry.id, fields, periods: entry.periods, inner: entry.inner && asFields(entry.inner) };
+  return { id: entry.id, fields, inner: entry.inner && asFields(entry.inner) };
 }
 
 /** Each kind as one comparable value: the field a conflict lays beside another. */
@@ -197,10 +198,18 @@ export function checkDraft(form: Form, draft: ValuesDraft, within = ""): ValueFa
         const problem = problemOf(field, entry.fields[field.key]);
         if (problem) faults.push([`${within}${kind}[${at}].${field.key}`, problem]);
       }
-      if (entry.inner) faults.push(...checkDraft(form, entry.inner, `${within}${kind}[${at}].`));
+      if (entry.inner && kind === "workloads") faults.push(...periodFaults(form, entry.inner, `${within}${kind}[${at}].`));
+      else if (entry.inner) faults.push(...checkDraft(form, entry.inner, `${within}${kind}[${at}].`));
     });
   }
   return faults;
+}
+
+// a workload's periods' problems, by their path in the set: `workloads[0].periods[1].time_kind`
+function periodFaults(form: Form, inner: ValuesDraft, within: string): ValueFault[] {
+  const kind = periodsOf(form);
+  if (!kind) return [];
+  return checkDraft(form, { ...emptyDraft(), [kind]: inner[kind] }).map(([path, words]) => [within + path.replace(kind, "periods"), words]);
 }
 
 /** An entry of the kind `kind` as a set names it: a number none where it is empty or no number. */
@@ -212,7 +221,8 @@ export function valueOf(form: Form, kind: DraftKind, entry: Entry): Record<strin
     else if (field.kind === "number") value[field.key] = numberOf(held ?? "");
     else value[field.key] = held?.trim() ? held : null;
   }
-  if (kind === "workloads") value.periods = entry.periods;
+  const periods = periodsOf(form);
+  if (kind === "workloads") value.periods = periods && entry.inner ? entry.inner[periods].map((one) => valueOf(form, periods, one)) : [];
   if (kind === "contexts") {
     const set = requestOf(form, entry.inner ?? emptyDraft());
     for (const held of form.context.values) value[held] = set[held];

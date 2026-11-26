@@ -82,9 +82,10 @@ describe("a specification's values and contexts in their form", () => {
     expect(control(context, "Bildungsbereich").element.value).toBe(CV + "sec_school");
     expect(control(context, "Einrichtung").element.value).toBe("Gymnasium");
     expect(control(group(context, "Zeitraum 1"), "Von").element.value).toBe("5");
-    // a specification holds every kind, and contexts
+    // a specification holds every kind, and contexts; its workload its periods
     expect(section.findAll(".value-section__add").map((add) => add.text())).toEqual([
       "Niveau hinzufügen",
+      "Zeitraum hinzufügen",
       "Zeitraum hinzufügen",
       "Umfang hinzufügen",
       "Niveau hinzufügen",

@@ -5,7 +5,9 @@
  * button that adds one more, the keyboard going to the new entry's first field, or from one taken away to the next,
  * else to that button. At as many as a holder takes it adds none and says why. A problem of the kind as a whole - one
  * the store refused in a context - stands above the button, which it describes. What else an entry shows - who
- * stated it and its review status - stands in the default slot. Each change goes back as the kind's entries.
+ * stated it and its review status - stands in the default slot. Each change goes back as the kind's entries. A
+ * workload's periods are entries of their own within it, of the kind the form names (valueDraft.periodsOf), added and
+ * taken away so too; who stated a period is not shown beside it.
  */
 import { computed, nextTick } from "vue";
 
@@ -13,7 +15,7 @@ import type { Form, RuleHolder, ValueKind } from "@/api";
 import AppIcon from "@/components/AppIcon.vue";
 import ValueItemForm from "@/components/ValueItemForm.vue";
 import { t } from "@/i18n/de";
-import { faultsOf, fieldsOf, isFull, MOST_VALUES, newEntry, type DraftKind, type Entry } from "@/valueDraft";
+import { faultsOf, fieldsOf, isFull, MOST_VALUES, newEntry, periodsOf, type DraftKind, type Entry } from "@/valueDraft";
 
 const props = defineProps<{
   kind: DraftKind;
@@ -35,6 +37,8 @@ const props = defineProps<{
 const emit = defineEmits<{ change: [entries: Entry[]] }>();
 
 const full = computed(() => isFull(props.entries));
+// a workload's periods, of this kind: none where the form offers none
+const periods = computed(() => (props.kind === "workloads" ? periodsOf(props.form) : null));
 const described = computed(() => {
   const ids = [props.problem ? `${props.addId}-error` : null, full.value ? `${props.addId}-most` : null].filter(Boolean);
   return ids.length ? ids.join(" ") : undefined;
@@ -66,6 +70,10 @@ async function remove(place: number): Promise<void> {
 function change(entry: Entry): void {
   emit("change", props.entries.map((one) => (one.key === entry.key ? entry : one)));
 }
+
+function changePeriods(entry: Entry, kind: DraftKind, entries: Entry[]): void {
+  if (entry.inner) change({ ...entry, inner: { ...entry.inner, [kind]: entries } });
+}
 </script>
 
 <template>
@@ -85,6 +93,19 @@ function change(entry: Entry): void {
           @remove="remove(place)"
         >
           <slot :entry="entry" />
+          <template v-if="periods && entry.inner" #periods>
+            <ValueEntries
+              :kind="periods"
+              :entries="entry.inner[periods]"
+              :form="form"
+              :holder="holder"
+              :holder-type="holderType"
+              :sid="sid"
+              :add-id="`${sid}-${entry.key}-periods`"
+              :faults="faults"
+              @change="(entries) => periods && changePeriods(entry, periods, entries)"
+            />
+          </template>
         </ValueItemForm>
       </slot>
     </template>

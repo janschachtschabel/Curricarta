@@ -3,8 +3,9 @@
  * One value of a row in the form of its values (plan M3a G; valueDraft.ts): a group named by its kind and place,
  * a field for each of its kind's form (FormFieldInput) - the lists offering what the holder may hold
  * (valueOffers.offeredFor), the levels grouped by system -, a problem at its field, and a button that names the
- * entry to take it away. Each change goes back as the entry's fields. A workload's periods are said as they stay:
- * this form does not edit them. What else an entry shows - who stated it and its review status - stands in the slot.
+ * entry to take it away. Each change goes back as the entry's fields. A workload's periods stand in a group of their
+ * own within it, named for it (the `periods` slot: their entries). What else an entry shows - who stated it and its
+ * review status - stands in the default slot.
  */
 import { computed } from "vue";
 
@@ -13,7 +14,6 @@ import FormFieldInput from "@/components/FormFieldInput.vue";
 import { messages, t } from "@/i18n/de";
 import type { Entry } from "@/valueDraft";
 import { offeredFor } from "@/valueOffers";
-import { timeSpanWords } from "@/valueWords";
 
 const props = defineProps<{
   kind: ValueKind;
@@ -33,7 +33,6 @@ const emit = defineEmits<{ change: [fields: Entry["fields"]]; remove: [] }>();
 
 const fields = computed(() => props.form.values[props.kind].fields);
 const legend = computed(() => t(`documents.tree.values.entry.${props.kind}`, { place: props.place + 1 }));
-const periods = computed(() => props.entry.periods.map((period) => timeSpanWords(period, props.form)).join("; "));
 
 function change(key: string, value: string | string[] | boolean): void {
   if (!Array.isArray(value)) emit("change", { ...props.entry.fields, [key]: value });
@@ -66,7 +65,10 @@ defineExpose({ focus });
         @update:model-value="(value) => change(field.key, value)"
       />
     </div>
-    <p v-if="periods" class="value-item__periods">{{ t("documents.tree.values.periodsKept", { spans: periods }) }}</p>
+    <fieldset v-if="$slots.periods" class="value-item__periods">
+      <legend>{{ t("documents.tree.values.periodsOf", { entry: legend }) }}</legend>
+      <slot name="periods" />
+    </fieldset>
     <button type="button" class="btn btn-sm secondary value-item__remove" @click="emit('remove')">
       {{ t("documents.tree.values.remove", { entry: legend }) }}
     </button>
@@ -97,10 +99,19 @@ defineExpose({ focus });
   column-gap: var(--space-2);
 }
 
+/* Its periods within it, a rule at their start: as a context's values stand within the context. */
 .value-item__periods {
+  display: grid;
+  gap: var(--space-1);
   margin: 0;
-  color: var(--text-muted);
-  overflow-wrap: anywhere;
+  padding: 0 0 0 var(--space-2);
+  border: 0;
+  border-inline-start: 2px solid var(--border);
+  min-inline-size: 0;
+}
+
+.value-item__periods legend {
+  padding: 0 var(--space-0);
 }
 
 .value-item__remove {

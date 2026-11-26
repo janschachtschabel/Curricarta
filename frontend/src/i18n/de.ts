@@ -2167,12 +2167,14 @@ export const messages = {
         },
         // a problem the store found with a context as a whole, named by the context (ContextItemForm.vue)
         contextProblem: "{entry}: {problem}",
-        // a field or a kind of values within a context, as a problem there is said (ValueSection.vue)
+        // a field or a kind of values within a context - a period's field within its workload -, as a problem there
+        // is said (ValueSection.vue)
         inContext: "{context}, {field}",
         // what the store refused at a context as a whole (backend `refused` at `contexts[0]`)
         contextRefused: "Die Datenbank hat diesen Geltungskontext abgewiesen; prüfe seine Angaben.",
         remove: "{entry} entfernen",
-        periodsKept: "Zeiträume dieses Umfangs: {spans}. Sie bleiben beim Speichern, wie sie sind.",
+        // a workload's periods, a group within it (ValueItemForm.vue)
+        periodsOf: "Zeiträume von {entry}",
         // a value in words (valueWords.ts)
         words: {
           levelRange: "{from} bis {to}",
