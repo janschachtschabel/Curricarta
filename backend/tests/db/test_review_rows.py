@@ -126,6 +126,23 @@ async def test_a_placement_reviewed_counts_its_revision_and_its_node_s(
     )
 
 
+async def test_a_placement_rejected_or_taken_back_leaves_or_enters_the_curriculum(
+    connection: psycopg.AsyncConnection, document: Any
+) -> None:
+    _, placement = await a_placement(connection, document)
+    revision = placement.stated.revision
+    await connection.execute("UPDATE document SET edited_at = NULL")
+
+    await set_review(connection, document.id, REJECTED, [ReviewItem("placement", placement.id, revision)])
+    rejected = await edited_at(connection, document)
+    await connection.execute("UPDATE document SET edited_at = NULL")
+    taken_back = ReviewItem("placement", placement.id, revision + 1)
+    await set_review(connection, document.id, CONFIRMED, [taken_back])
+
+    assert rejected is not None
+    assert await edited_at(connection, document) is not None
+
+
 async def test_a_set_of_the_node_s_placements_waiting_for_a_review_of_one_is_stale(
     url: str, connection: psycopg.AsyncConnection, document: Any
 ) -> None:
