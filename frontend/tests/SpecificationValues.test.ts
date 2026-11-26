@@ -262,6 +262,20 @@ describe("a refusal of a specification's set", () => {
     expect(section.get(".value-section__status").text()).toMatch(new RegExp(`^${named}: `));
   });
 
+  it("says a specification gone meanwhile, and reads the list again", async () => {
+    vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 404, "no_specification", "Gone."));
+    const wrapper = await open();
+    const section = values(wrapper);
+    await control(group(section, "Geltungskontext 1"), "Einrichtung").setValue("Realschule");
+    vi.mocked(api.getSpecifications).mockResolvedValue(specificationsOf({ specifications: [] }));
+
+    await save(section);
+
+    expect(wrapper.get(".scope__status").text()).toBe(t("documents.page.scope.gone"));
+    expect(api.getSpecifications).toHaveBeenCalledTimes(2);
+    expect(wrapper.text()).toContain(t("documents.page.scope.noneTitle"));
+  });
+
   it("lays the set beside the specification as another stored it meanwhile", async () => {
     const theirs: Specification = { ...valuedSpecification(), revision: 2, contexts: [] };
     vi.spyOn(api, "setSpecificationValues").mockRejectedValue(new ApiError("server", 409, "stale_revision", "Stale.", { current: theirs }));
