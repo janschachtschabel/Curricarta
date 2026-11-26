@@ -51,7 +51,7 @@ GRAPH_DIGESTS = {
     # the check beside the graph: the validator, its shape and model files, pyshacl (check_digest); it
     # checks a value's vocabulary and the blank nodes (audit 2026-11-14)
     4: "6dbfbedd032e339397787aef67489b09861a13d59efa4f2fbfca48326e4348ac",
-    5: "4860252d4143b14b8c5447340ef55b566b697970e2a68520b9fc76c42a8f5848",  # rules (plan M3a I)
+    5: "da1497e0c0852006704316af78a65a1c146cf11500ac10907b00bf4245b0ad36",  # rules (plan M3a I)
 }
 # what the kept file is made of beside the graph: its head, its blank nodes' labels, the frozen naming
 EXPORT_DIGESTS = {

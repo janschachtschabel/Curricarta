@@ -1,9 +1,9 @@
 """A document's rules in the Kern graph (plan M3a I; app/exports/kern_rules.py): each a rule of its kind's
 class with its wording in its language, its anchor, its parsed values, where it came from and how far it is
 reviewed, what it applies to, its options and what it requires; option texts no link names stay text
-(cur:parsedExpression). Each kind passes its shape; a selection rule of one option, or of fewer options than
-its maxCount, is a violation - but one whose options are all text yet, as X3 reads them, is a rule of no kind
-(cur:Rule) until the editors link one (plan M3a I, decision rule). A rejected rule is not in the graph."""
+(cur:parsedExpression). Each kind passes its shape; a selection rule of fewer options than its maxCount is a
+violation - but one of fewer than two linked options, as X3 reads them all as text, is a rule of no kind
+(cur:Rule) until the editors link two (plan M3a I, decision rule). A rejected rule is not in the graph."""
 
 from dataclasses import replace
 from decimal import Decimal
@@ -126,17 +126,27 @@ def test_a_value_out_of_its_kind_s_domain_is_not_stated() -> None:
     assert list(graph.objects(uri(rule.id), CUR.maxShare)) == []
 
 
-def test_a_selection_of_one_option_or_of_fewer_than_its_most_is_a_violation() -> None:
+def test_a_selection_of_one_linked_option_is_a_rule_of_no_kind_yet() -> None:
+    # the shapes ask two options of a selection: until two are linked, it is cur:Rule (decision rule)
     rows = a_document([CV + "addr_learner"])
     at = targets(rows)
-    applies = (at["specification"],)
-    one = a_rule("selection", options=(at["node"],), applies_to=applies)
-    fewer = a_rule("selection", max_count=3, options=(at["node"], at["statement"]), applies_to=applies)
+    one = a_rule("selection", options=(at["node"],), applies_to=(at["specification"],))
 
-    assert found(with_rules(rows, one, fewer)) == {
-        (str(uri(one.id)), "SelectionRuleShape", "violation"),
-        (str(uri(fewer.id)), "SelectionRuleShape", "violation"),
-    }
+    graph = kern_graph(with_rules(rows, one))
+
+    assert set(graph.objects(uri(one.id), RDF.type)) == {CUR.Rule}
+    assert list(graph.objects(uri(one.id), CUR.option)) == [uri(at["node"].target)]
+    assert found(with_rules(rows, one)) == set()
+
+
+def test_a_selection_of_fewer_options_than_its_most_is_a_violation() -> None:
+    rows = a_document([CV + "addr_learner"])
+    at = targets(rows)
+    fewer = a_rule(
+        "selection", max_count=3, options=(at["node"], at["statement"]), applies_to=(at["specification"],)
+    )
+
+    assert found(with_rules(rows, fewer)) == {(str(uri(fewer.id)), "SelectionRuleShape", "violation")}
 
 
 def test_a_selection_x3_read_with_its_options_as_text_alone_is_a_rule_of_no_kind() -> None:

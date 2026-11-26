@@ -471,9 +471,11 @@ ungültig.
   `no_rule`, 403 `file_hidden`, 409 `stale_revision` mit der Regel, `job_open`, `frozen`, `not_extracted`);
   Audit `rule.edit` mit den Feldnamen, `rule.add`, `rule.reject`, `rule.delete`, ohne Wortlaut. Der
   Kern-Graph nennt jede nicht verworfene Regel als `cur:Rule` ihrer Art mit Wortlaut, Fundstelle, Werten
-  und Verweisen, Optionen ohne Verweis als `cur:parsedExpression`; eine Auswahlregel, deren Optionen nur im
-  Wortlaut vorliegen, bleibt `cur:Rule` ohne Art, bis die Redaktion eine Option verknüpft. Festgeschrieben
-  heißt eine Regel `<dokument>/rule-<n>`.
+  und Verweisen, Optionen ohne Verweis als `cur:parsedExpression`; eine Auswahlregel mit weniger als zwei
+  verknüpften Optionen bleibt `cur:Rule` ohne Art, bis die Redaktion zwei verknüpft hat. Ein zweites
+  Verwerfen ändert nichts und steht nicht im Audit; `null` für ein Verweisfeld oder `option_texts` leert es.
+  Festgeschrieben heißt eine Regel `<dokument>/rule-<n>`; eine kopierte Regel, die erst nachträglich benannt
+  wird, heißt in jeder Revision gleich.
 - Prüfstand: `POST /api/v1/documents/{id}/review` (`status`: `proposed`, `confirmed` oder
   `rejected`; `items`: je `kind` – `node`, `statement` oder ein Wert: `level_assignment`, `time_span`,
   `workload`, `applicability_context` –, `id` und gelesene `revision`, 1 bis

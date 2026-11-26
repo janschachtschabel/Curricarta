@@ -9,7 +9,7 @@ numbers: which concepts the vocabularies hold, whether a level is a level, and t
 store checks (migrations l2_values, applicability). A number is one, not NaN nor the endless: a draft
 refuses those itself (ValueRefused, by the name of the store's check).
 
-A level at a rule's frame part has its column already; it is written with the rules (plan M3a I).
+A level at a rule's frame part has its column already; nothing writes it yet.
 """
 
 from collections.abc import Mapping
